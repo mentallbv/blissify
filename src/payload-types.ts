@@ -69,6 +69,10 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    categories: Category;
+    brands: Brand;
+    trainers: Trainer;
+    courses: Course;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -78,6 +82,10 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    brands: BrandsSelect<false> | BrandsSelect<true>;
+    trainers: TrainersSelect<false> | TrainersSelect<true>;
+    courses: CoursesSelect<false> | CoursesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -123,6 +131,22 @@ export interface UserAuthOperations {
  */
 export interface User {
   id: number;
+  name: string;
+  role: 'admin' | 'trainer' | 'brand';
+  subscriptionTier?: ('basis' | 'medium' | 'premium') | null;
+  subscriptionStatus?: ('active' | 'inactive' | 'canceled' | 'past_due') | null;
+  /**
+   * Stripe Customer ID (auto-ingevuld)
+   */
+  stripeCustomerId?: string | null;
+  /**
+   * Stripe Subscription ID (auto-ingevuld)
+   */
+  stripeSubscriptionId?: string | null;
+  /**
+   * Vervaldatum abonnement
+   */
+  subscriptionExpiresAt?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -163,6 +187,210 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: number;
+  name: string;
+  slug: string;
+  /**
+   * Laat leeg voor hoofdcategorie
+   */
+  parent?: (number | null) | Category;
+  description?: string | null;
+  icon?: (number | null) | Media;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "brands".
+ */
+export interface Brand {
+  id: number;
+  name: string;
+  slug: string;
+  /**
+   * Brand gebruikersaccount
+   */
+  owner: number | User;
+  logo?: (number | null) | Media;
+  coverImage?: (number | null) | Media;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  website?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  tags?: ('belgisch' | 'vegan' | 'natuurlijk' | 'professioneel' | 'biologisch' | 'duurzaam' | 'luxe')[] | null;
+  /**
+   * Geverifieerd door Blissify
+   */
+  verified?: boolean | null;
+  featured?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "trainers".
+ */
+export interface Trainer {
+  id: number;
+  displayName: string;
+  slug: string;
+  /**
+   * Trainer gebruikersaccount
+   */
+  owner: number | User;
+  /**
+   * Gekoppeld aan brand (optioneel)
+   */
+  brand?: (number | null) | Brand;
+  photo?: (number | null) | Media;
+  bio?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  specializations?:
+    | (
+        | 'massage'
+        | 'nagelstyliste'
+        | 'schoonheid'
+        | 'yoga'
+        | 'voeding'
+        | 'aromatherapie'
+        | 'reiki'
+        | 'mindfulness'
+        | 'holistische-therapie'
+        | 'persoonlijke-ontwikkeling'
+      )[]
+    | null;
+  location?: {
+    city?: string | null;
+    province?: string | null;
+    online?: boolean | null;
+  };
+  website?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  social?: {
+    instagram?: string | null;
+    facebook?: string | null;
+    linkedin?: string | null;
+  };
+  verified?: boolean | null;
+  featured?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "courses".
+ */
+export interface Course {
+  id: number;
+  title: string;
+  slug: string;
+  status: 'draft' | 'published' | 'archived';
+  /**
+   * Uitgelicht in de directory
+   */
+  featured?: boolean | null;
+  featuredPosition?: ('top' | 'permanent_top') | null;
+  /**
+   * Trainer die de opleiding geeft
+   */
+  trainer?: (number | null) | Trainer;
+  /**
+   * Brand die de opleiding publiceert
+   */
+  brand?: (number | null) | Brand;
+  category: number | Category;
+  coverImage: number | Media;
+  /**
+   * Korte samenvatting (max 200 tekens)
+   */
+  shortDescription: string;
+  description: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  format?: ('online' | 'fysiek' | 'hybride')[] | null;
+  location?: {
+    address?: string | null;
+    city?: string | null;
+    province?: string | null;
+    postcode?: string | null;
+  };
+  duration?: {
+    value?: number | null;
+    unit?: ('hours' | 'days' | 'weeks' | 'months') | null;
+  };
+  price?: {
+    amount?: number | null;
+    currency?: 'EUR' | null;
+    isFree?: boolean | null;
+    priceOnRequest?: boolean | null;
+  };
+  language?: ('nl' | 'fr' | 'en')[] | null;
+  level?: ('beginner' | 'gevorderd' | 'expert' | 'all') | null;
+  certificate?: boolean | null;
+  accreditation?: string | null;
+  /**
+   * URL naar de inschrijvingspagina op de externe website
+   */
+  externalUrl: string;
+  startDates?:
+    | {
+        date: string;
+        spotsAvailable?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Vrije trefwoorden voor zoeken
+   */
+  tags?: string[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -192,6 +420,22 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'categories';
+        value: number | Category;
+      } | null)
+    | ({
+        relationTo: 'brands';
+        value: number | Brand;
+      } | null)
+    | ({
+        relationTo: 'trainers';
+        value: number | Trainer;
+      } | null)
+    | ({
+        relationTo: 'courses';
+        value: number | Course;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -240,6 +484,13 @@ export interface PayloadMigration {
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
+  name?: T;
+  role?: T;
+  subscriptionTier?: T;
+  subscriptionStatus?: T;
+  stripeCustomerId?: T;
+  stripeSubscriptionId?: T;
+  subscriptionExpiresAt?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -274,6 +525,128 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  parent?: T;
+  description?: T;
+  icon?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "brands_select".
+ */
+export interface BrandsSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  owner?: T;
+  logo?: T;
+  coverImage?: T;
+  description?: T;
+  website?: T;
+  email?: T;
+  phone?: T;
+  tags?: T;
+  verified?: T;
+  featured?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "trainers_select".
+ */
+export interface TrainersSelect<T extends boolean = true> {
+  displayName?: T;
+  slug?: T;
+  owner?: T;
+  brand?: T;
+  photo?: T;
+  bio?: T;
+  specializations?: T;
+  location?:
+    | T
+    | {
+        city?: T;
+        province?: T;
+        online?: T;
+      };
+  website?: T;
+  email?: T;
+  phone?: T;
+  social?:
+    | T
+    | {
+        instagram?: T;
+        facebook?: T;
+        linkedin?: T;
+      };
+  verified?: T;
+  featured?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "courses_select".
+ */
+export interface CoursesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  status?: T;
+  featured?: T;
+  featuredPosition?: T;
+  trainer?: T;
+  brand?: T;
+  category?: T;
+  coverImage?: T;
+  shortDescription?: T;
+  description?: T;
+  format?: T;
+  location?:
+    | T
+    | {
+        address?: T;
+        city?: T;
+        province?: T;
+        postcode?: T;
+      };
+  duration?:
+    | T
+    | {
+        value?: T;
+        unit?: T;
+      };
+  price?:
+    | T
+    | {
+        amount?: T;
+        currency?: T;
+        isFree?: T;
+        priceOnRequest?: T;
+      };
+  language?: T;
+  level?: T;
+  certificate?: T;
+  accreditation?: T;
+  externalUrl?: T;
+  startDates?:
+    | T
+    | {
+        date?: T;
+        spotsAvailable?: T;
+        id?: T;
+      };
+  tags?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
