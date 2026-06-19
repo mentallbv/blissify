@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { isAdmin } from '@/access'
+import { seoFields } from '@/fields/seo'
 
 
 export const Trainers: CollectionConfig = {
@@ -124,5 +125,6 @@ export const Trainers: CollectionConfig = {
       defaultValue: false,
       admin: { position: 'sidebar' },
     },
+    ...seoFields,
   ],
 }

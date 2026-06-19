@@ -12,6 +12,11 @@ import { Categories } from './collections/Categories'
 import { Brands } from './collections/Brands'
 import { Trainers } from './collections/Trainers'
 import { Courses } from './collections/Courses'
+import { Navigation } from './globals/Navigation'
+import { Homepage } from './globals/Homepage'
+import { Footer } from './globals/Footer'
+import { Branding } from './globals/Branding'
+import { SeoSettings } from './globals/SeoSettings'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -24,6 +29,7 @@ export default buildConfig({
     },
   },
   collections: [Users, Media, Categories, Brands, Trainers, Courses],
+  globals: [Navigation, Homepage, Footer, Branding, SeoSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {

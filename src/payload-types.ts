@@ -95,8 +95,20 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    navigation: Navigation;
+    homepage: Homepage;
+    footer: Footer;
+    branding: Branding;
+    'seo-settings': SeoSetting;
+  };
+  globalsSelect: {
+    navigation: NavigationSelect<false> | NavigationSelect<true>;
+    homepage: HomepageSelect<false> | HomepageSelect<true>;
+    footer: FooterSelect<false> | FooterSelect<true>;
+    branding: BrandingSelect<false> | BrandingSelect<true>;
+    'seo-settings': SeoSettingsSelect<false> | SeoSettingsSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -184,6 +196,32 @@ export interface Media {
   height?: number | null;
   focalX?: number | null;
   focalY?: number | null;
+  sizes?: {
+    thumbnail?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    card?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+    hero?: {
+      url?: string | null;
+      width?: number | null;
+      height?: number | null;
+      mimeType?: string | null;
+      filesize?: number | null;
+      filename?: string | null;
+    };
+  };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -240,6 +278,31 @@ export interface Brand {
    */
   verified?: boolean | null;
   featured?: boolean | null;
+  /**
+   * Zoekmachine-optimalisatie instellingen
+   */
+  seo?: {
+    /**
+     * Paginatitel voor zoekmachines (max 60 tekens). Laat leeg om de naam/titel te gebruiken.
+     */
+    title?: string | null;
+    /**
+     * Beschrijving voor zoekmachines (max 160 tekens).
+     */
+    description?: string | null;
+    /**
+     * Het hoofdzoekwoord waarop je wilt scoren (bijv. "gelnagels opleiding Antwerpen")
+     */
+    focusKeyphrase?: string | null;
+    /**
+     * Open Graph afbeelding voor Facebook/LinkedIn sharing (1200x630px). Laat leeg voor de standaard.
+     */
+    ogImage?: (number | null) | Media;
+    /**
+     * Vink aan om deze pagina uit zoekresultaten te houden.
+     */
+    noindex?: boolean | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -304,6 +367,31 @@ export interface Trainer {
   };
   verified?: boolean | null;
   featured?: boolean | null;
+  /**
+   * Zoekmachine-optimalisatie instellingen
+   */
+  seo?: {
+    /**
+     * Paginatitel voor zoekmachines (max 60 tekens). Laat leeg om de naam/titel te gebruiken.
+     */
+    title?: string | null;
+    /**
+     * Beschrijving voor zoekmachines (max 160 tekens).
+     */
+    description?: string | null;
+    /**
+     * Het hoofdzoekwoord waarop je wilt scoren (bijv. "gelnagels opleiding Antwerpen")
+     */
+    focusKeyphrase?: string | null;
+    /**
+     * Open Graph afbeelding voor Facebook/LinkedIn sharing (1200x630px). Laat leeg voor de standaard.
+     */
+    ogImage?: (number | null) | Media;
+    /**
+     * Vink aan om deze pagina uit zoekresultaten te houden.
+     */
+    noindex?: boolean | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -330,7 +418,7 @@ export interface Course {
    */
   brand?: (number | null) | Brand;
   category: number | Category;
-  coverImage: number | Media;
+  coverImage?: (number | null) | Media;
   /**
    * Korte samenvatting (max 200 tekens)
    */
@@ -386,6 +474,31 @@ export interface Course {
    * Vrije trefwoorden voor zoeken
    */
   tags?: string[] | null;
+  /**
+   * Zoekmachine-optimalisatie instellingen
+   */
+  seo?: {
+    /**
+     * Paginatitel voor zoekmachines (max 60 tekens). Laat leeg om de naam/titel te gebruiken.
+     */
+    title?: string | null;
+    /**
+     * Beschrijving voor zoekmachines (max 160 tekens).
+     */
+    description?: string | null;
+    /**
+     * Het hoofdzoekwoord waarop je wilt scoren (bijv. "gelnagels opleiding Antwerpen")
+     */
+    focusKeyphrase?: string | null;
+    /**
+     * Open Graph afbeelding voor Facebook/LinkedIn sharing (1200x630px). Laat leeg voor de standaard.
+     */
+    ogImage?: (number | null) | Media;
+    /**
+     * Vink aan om deze pagina uit zoekresultaten te houden.
+     */
+    noindex?: boolean | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -525,6 +638,40 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+  sizes?:
+    | T
+    | {
+        thumbnail?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        card?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+        hero?:
+          | T
+          | {
+              url?: T;
+              width?: T;
+              height?: T;
+              mimeType?: T;
+              filesize?: T;
+              filename?: T;
+            };
+      };
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -556,6 +703,15 @@ export interface BrandsSelect<T extends boolean = true> {
   tags?: T;
   verified?: T;
   featured?: T;
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        focusKeyphrase?: T;
+        ogImage?: T;
+        noindex?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -590,6 +746,15 @@ export interface TrainersSelect<T extends boolean = true> {
       };
   verified?: T;
   featured?: T;
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        focusKeyphrase?: T;
+        ogImage?: T;
+        noindex?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -645,6 +810,15 @@ export interface CoursesSelect<T extends boolean = true> {
         id?: T;
       };
   tags?: T;
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        focusKeyphrase?: T;
+        ogImage?: T;
+        noindex?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -687,6 +861,289 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navigation".
+ */
+export interface Navigation {
+  id: number;
+  logo?: (number | null) | Media;
+  links?:
+    | {
+        label: string;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  ctaLabel?: string | null;
+  ctaUrl?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "homepage".
+ */
+export interface Homepage {
+  id: number;
+  heroTitle?: string | null;
+  heroSubtitle?: string | null;
+  heroImage?: (number | null) | Media;
+  featuredSectionTitle?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer".
+ */
+export interface Footer {
+  id: number;
+  links?:
+    | {
+        label: string;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  socialInstagram?: string | null;
+  socialFacebook?: string | null;
+  newsletterTitle?: string | null;
+  newsletterSubtitle?: string | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "branding".
+ */
+export interface Branding {
+  id: number;
+  siteName: string;
+  tagline?: string | null;
+  /**
+   * Aanbevolen: SVG of PNG met transparante achtergrond
+   */
+  logo?: (number | null) | Media;
+  /**
+   * Lichte versie van het logo (voor donkere achtergronden)
+   */
+  logoLight?: (number | null) | Media;
+  /**
+   * Favicon — 32x32px of 64x64px
+   */
+  favicon?: (number | null) | Media;
+  colors?: {
+    /**
+     * Primaire kleur (hex)
+     */
+    primary?: string | null;
+    /**
+     * Tekst op primaire kleur (hex)
+     */
+    primaryForeground?: string | null;
+    /**
+     * Secundaire kleur (hex)
+     */
+    secondary?: string | null;
+    /**
+     * Accentkleur (hex)
+     */
+    accent?: string | null;
+    /**
+     * Achtergrondkleur (hex)
+     */
+    background?: string | null;
+  };
+  fonts?: {
+    /**
+     * Lettertype voor titels
+     */
+    heading?: ('playfair-display' | 'cormorant-garamond' | 'lora' | 'libre-baskerville') | null;
+    /**
+     * Lettertype voor bodytekst
+     */
+    body?: ('inter' | 'dm-sans' | 'nunito' | 'lato') | null;
+  };
+  social?: {
+    instagram?: string | null;
+    facebook?: string | null;
+    linkedin?: string | null;
+    tiktok?: string | null;
+  };
+  contact?: {
+    email?: string | null;
+    phone?: string | null;
+    address?: string | null;
+    kvk?: string | null;
+    btw?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "seo-settings".
+ */
+export interface SeoSetting {
+  id: number;
+  /**
+   * Fallback paginatitel als er geen specifieke is ingesteld
+   */
+  defaultTitle: string;
+  /**
+   * Template voor paginatitels. Gebruik %s voor de paginanaam.
+   */
+  titleTemplate?: string | null;
+  /**
+   * Fallback meta description (max 160 tekens)
+   */
+  defaultDescription?: string | null;
+  /**
+   * Standaard Open Graph afbeelding (1200x630px) voor social sharing
+   */
+  defaultOgImage?: (number | null) | Media;
+  /**
+   * @handle zonder @
+   */
+  twitterHandle?: string | null;
+  /**
+   * Google Search Console verificatiecode
+   */
+  googleVerification?: string | null;
+  /**
+   * Zet de hele site op noindex (alleen voor staging/dev)
+   */
+  noindex?: boolean | null;
+  structuredData?: {
+    organizationName?: string | null;
+    organizationUrl?: string | null;
+    organizationType?: ('Organization' | 'LocalBusiness' | 'EducationalOrganization') | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "navigation_select".
+ */
+export interface NavigationSelect<T extends boolean = true> {
+  logo?: T;
+  links?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        id?: T;
+      };
+  ctaLabel?: T;
+  ctaUrl?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "homepage_select".
+ */
+export interface HomepageSelect<T extends boolean = true> {
+  heroTitle?: T;
+  heroSubtitle?: T;
+  heroImage?: T;
+  featuredSectionTitle?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer_select".
+ */
+export interface FooterSelect<T extends boolean = true> {
+  links?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        id?: T;
+      };
+  socialInstagram?: T;
+  socialFacebook?: T;
+  newsletterTitle?: T;
+  newsletterSubtitle?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "branding_select".
+ */
+export interface BrandingSelect<T extends boolean = true> {
+  siteName?: T;
+  tagline?: T;
+  logo?: T;
+  logoLight?: T;
+  favicon?: T;
+  colors?:
+    | T
+    | {
+        primary?: T;
+        primaryForeground?: T;
+        secondary?: T;
+        accent?: T;
+        background?: T;
+      };
+  fonts?:
+    | T
+    | {
+        heading?: T;
+        body?: T;
+      };
+  social?:
+    | T
+    | {
+        instagram?: T;
+        facebook?: T;
+        linkedin?: T;
+        tiktok?: T;
+      };
+  contact?:
+    | T
+    | {
+        email?: T;
+        phone?: T;
+        address?: T;
+        kvk?: T;
+        btw?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "seo-settings_select".
+ */
+export interface SeoSettingsSelect<T extends boolean = true> {
+  defaultTitle?: T;
+  titleTemplate?: T;
+  defaultDescription?: T;
+  defaultOgImage?: T;
+  twitterHandle?: T;
+  googleVerification?: T;
+  noindex?: T;
+  structuredData?:
+    | T
+    | {
+        organizationName?: T;
+        organizationUrl?: T;
+        organizationType?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

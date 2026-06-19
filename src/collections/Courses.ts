@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { seoFields } from '@/fields/seo'
 
 const MAX_ACTIVE_COURSES: Record<string, number> = {
   basis: 1,
@@ -146,7 +147,6 @@ export const Courses: CollectionConfig = {
       name: 'coverImage',
       type: 'upload',
       relationTo: 'media',
-      required: true,
     },
     {
       name: 'shortDescription',
@@ -280,6 +280,7 @@ export const Courses: CollectionConfig = {
         description: 'Vrije trefwoorden voor zoeken',
       },
     },
+    ...seoFields,
   ],
   defaultSort: '-createdAt',
 }
