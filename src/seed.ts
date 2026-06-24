@@ -211,7 +211,7 @@ async function seed() {
       description: {
         root: {
           type: 'root',
-          children: [{ type: 'paragraph', version: 1, children: [{ type: 'text', text: 'In deze opleiding leer je alles over het zetten van gelnagels. Van voorbereiding tot afwerking — je vertrekt met een volledige basiskennis.', version: 1 }] }],
+          children: [{ type: 'paragraph', version: 1, children: [{ type: 'text', text: 'In deze opleiding leer je alles over het zetten van gelnagels. Van voorbereiding tot afwerking - je vertrekt met een volledige basiskennis.', version: 1 }] }],
           direction: 'ltr',
           format: '',
           indent: 0,

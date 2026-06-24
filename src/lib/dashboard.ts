@@ -1,0 +1,21 @@
+import type { DashCourse } from '@/components/dashboard/CourseTable'
+
+/** Illustrative provider-dashboard data (no authenticated provider in this context). */
+export const DASH_COURSES: DashCourse[] = [
+  { name: 'Sportmassage - professioneel certificaat', category: 'Massage', price: '€1.450', enquiries: 24, status: 'active' },
+  { name: 'Deep tissue massage', category: 'Massage', price: '€1.180', enquiries: 18, status: 'active' },
+  { name: 'Voetreflexologie - erkend', category: 'Voetreflexologie', price: '€980', enquiries: 12, status: 'active' },
+  { name: 'Kobido gelaatsmassage', category: 'Massage', price: '€760', enquiries: 9, status: 'draft' },
+  { name: 'Prenatale massage', category: 'Massage', price: '€640', enquiries: 6, status: 'active' },
+  { name: 'Cupping therapie', category: 'Massage', price: '€520', enquiries: 4, status: 'archived' },
+]
+
+export const ENQUIRIES = [
+  { name: 'Sara Verhoeven', course: 'Sportmassage - professioneel certificaat', when: '2 uur geleden', status: 'Nieuw' },
+  { name: 'Jonas De Smet', course: 'Deep tissue massage', when: 'Gisteren', status: 'Beantwoord' },
+  { name: 'Lien Maes', course: 'Voetreflexologie - erkend', when: '2 dagen geleden', status: 'Beantwoord' },
+  { name: 'Tom Claes', course: 'Prenatale massage', when: '3 dagen geleden', status: 'Beantwoord' },
+]
+
+export const VIEWS_SERIES = [420, 480, 510, 560, 540, 610, 680, 720, 700, 780, 840, 1020]
+export const VIEWS_LABELS = ['jul', 'aug', 'sep', 'okt', 'nov', 'dec', 'jan', 'feb', 'mrt', 'apr', 'mei', 'jun']

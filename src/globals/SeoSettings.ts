@@ -5,6 +5,7 @@ export const SeoSettings: GlobalConfig = {
   slug: 'seo-settings',
   admin: {
     group: 'Instellingen',
+    hidden: ({ user }) => (user as any)?.role !== 'admin',
   },
   access: {
     read: () => true,

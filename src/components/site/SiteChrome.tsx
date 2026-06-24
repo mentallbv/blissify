@@ -1,0 +1,33 @@
+import React from 'react'
+import { SiteNav } from './SiteNav'
+import { SiteFooter } from './SiteFooter'
+
+/** Wraps marketing/marketplace pages with the sticky nav and forest footer. */
+export function SiteChrome({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      <SiteNav />
+      <main>{children}</main>
+      <SiteFooter />
+    </>
+  )
+}
+
+/** Shared section heading - Freight Display, used across marketplace pages. */
+export function SectionHead({ children, size = 40 }: { children: React.ReactNode; size?: number }) {
+  return (
+    <h2
+      style={{
+        fontFamily: 'var(--font-display)',
+        fontWeight: 'var(--fw-display-light)',
+        fontSize: size,
+        letterSpacing: '-0.01em',
+        color: 'var(--text-brand)',
+        lineHeight: 1.1,
+        margin: 0,
+      }}
+    >
+      {children}
+    </h2>
+  )
+}

@@ -1,0 +1,303 @@
+import React from 'react'
+import type { Metadata } from 'next'
+import { notFound } from 'next/navigation'
+import { SiteChrome } from '@/components/site/SiteChrome'
+import { Eyebrow, Avatar, VerifiedBadge, Button, Tag } from '@/components/ui'
+import { getCourseBySlug, getCourseCards } from '@/lib/data'
+import { FALLBACK_COURSES } from '@/lib/fallback'
+import { formatPrice, formatDuration, formatFormat, courseLocation } from '@/lib/format'
+import { isCitySlug, cityName } from '@/lib/cities'
+import { CATEGORY_CONTENT } from '@/lib/categories'
+import { CityLanding } from '@/components/site/CityLanding'
+import type { Course, Category, Brand } from '@/payload-types'
+
+export const dynamic = 'force-dynamic'
+
+type Params = { params: Promise<{ category: string; slug: string }> }
+
+const CHIP_ICONS = ['ti-clock', 'ti-device-laptop', 'ti-map-pin', 'ti-certificate', 'ti-users']
+
+type DetailView = {
+  title: string
+  category: string
+  provider: string
+  providerSlug: string
+  location: string
+  price: string
+  format: string
+  chips: string[]
+  keywords: string[]
+  about: string[]
+}
+
+function viewFromCourse(c: Course): DetailView {
+  const cat = typeof c.category === 'object' ? (c.category as Category) : null
+  const brand = typeof c.brand === 'object' ? (c.brand as Brand) : null
+  const dur = formatDuration(c.duration)
+  const fmt = formatFormat(c.format)
+  const chips = [
+    dur,
+    fmt,
+    courseLocation(c),
+    c.certificate ? 'Certificaat inbegrepen' : 'Geen certificaat',
+  ].filter(Boolean) as string[]
+  return {
+    title: c.title,
+    category: cat?.name || 'Opleiding',
+    provider: brand?.name || 'Blissify-opleider',
+    providerSlug: brand?.slug || '',
+    location: courseLocation(c),
+    price: formatPrice(c.price),
+    format: [dur, fmt].filter(Boolean).join(' · ') || 'Op aanvraag',
+    chips,
+    keywords: (c.tags || []).slice(0, 4),
+    about: [c.shortDescription].filter(Boolean) as string[],
+  }
+}
+
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  const { category, slug } = await params
+  // City landing page
+  if (isCitySlug(slug)) {
+    const cName = cityName(slug)!
+    const cat = CATEGORY_CONTENT[category]
+    const catName = cat?.name || category
+    return {
+      title: `Opleiding ${catName.toLowerCase()} in ${cName} - Erkende cursussen | Blissify`,
+      description: `Ontdek erkende ${catName.toLowerCase()} opleidingen in ${cName}. Dag, avond of weekend - filter op lesmoment en erkenning. Schrijf in via de aanbieder.`,
+    }
+  }
+  const { course } = await getCourseBySlug(slug)
+  const fb = FALLBACK_COURSES.find((c) => c.slug === slug)
+  const title = course?.title || fb?.title
+  if (!title) return {}
+  return { title: `${title} | Blissify`, description: course?.shortDescription || undefined }
+}
+
+export default async function CourseDetailPage({ params }: Params) {
+  const { category, slug } = await params
+
+  // ── City landing page (e.g. /opleidingen/massage/antwerpen) ──
+  if (isCitySlug(slug)) {
+    const cName = cityName(slug)!
+    const cat = CATEGORY_CONTENT[category]
+    const catName = cat?.name || category
+    const { cards, total } = await getCourseCards({ categorySlug: category, city: slug, limit: 24 })
+    return (
+      <CityLanding
+        categoryName={catName}
+        categorySlug={category}
+        cityName={cName}
+        cards={cards}
+        total={total}
+        intro={`Professionele ${catName.toLowerCase()} opleidingen in ${cName} en omgeving. Filter op jouw lesmoment en erkend certificaat, en vraag rechtstreeks informatie aan bij de opleider.`}
+      />
+    )
+  }
+
+  const { course } = await getCourseBySlug(slug)
+  const fb = FALLBACK_COURSES.find((c) => c.slug === slug)
+  if (!course && !fb) notFound()
+
+  const v: DetailView = course
+    ? viewFromCourse(course)
+    : {
+        title: fb!.title,
+        category: fb!.category,
+        provider: fb!.provider,
+        providerSlug: fb!.providerSlug,
+        location: fb!.location,
+        price: fb!.price,
+        format: fb!.format,
+        chips: [fb!.format, fb!.location, 'Certificaat inbegrepen', 'Max 12 deelnemers'],
+        keywords: [],
+        about: [],
+      }
+
+  const aboutParas = v.about.length
+    ? v.about
+    : [
+        `Deze professionele opleiding ontwikkelt de competentie die nodig is om ${v.category.toLowerCase()} te beoefenen volgens een erkende Belgische en Europese standaard. ${v.provider} combineert begeleide praktijk met de theoretische onderbouwing die werkgevers en klanten verwachten.`,
+        `Elke groep blijft bewust klein, zodat elke deelnemer directe feedback krijgt van praktiserende professionals gedurende de volledige opleiding.`,
+      ]
+
+  const learn = [
+    'Toegepaste anatomie en fysiologie relevant voor de praktijk',
+    'Beoordeling, techniek en kennis van contra-indicaties',
+    'Professionele ethiek, toestemming en klantenzorg',
+    'Een conforme zelfstandige praktijk opbouwen en runnen',
+  ]
+
+  return (
+    <SiteChrome>
+      {/* Hero image band */}
+      <div style={{ height: 400, background: 'var(--surface-dark)' }} />
+
+      <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '0 32px' }}>
+        <div style={{ padding: '20px 0 0', fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-body)' }}>
+          <a href="/opleidingen">Opleidingen</a> → {v.category} → {v.title}
+        </div>
+
+        <div className="bl-detail-split" style={{ padding: '24px 0 96px' }}>
+          {/* Left */}
+          <div>
+            <Eyebrow tone="accent">{v.category}</Eyebrow>
+            <h1
+              style={{
+                fontFamily: 'var(--font-display)',
+                fontWeight: 'var(--fw-display-light)',
+                fontSize: 48,
+                lineHeight: 1.1,
+                letterSpacing: '-0.01em',
+                color: 'var(--text-brand)',
+                margin: '14px 0 10px',
+              }}
+            >
+              {v.title}
+            </h1>
+            <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-body)', margin: '0 0 18px' }}>
+              {v.provider} · {v.location}
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {v.chips.map((c, i) => (
+                <span
+                  key={c}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    border: '0.5px solid var(--border-hairline)',
+                    borderRadius: 6,
+                    padding: '7px 12px',
+                    background: 'var(--surface-card)',
+                    fontFamily: 'var(--font-ui)',
+                    fontWeight: 'var(--fw-ui-regular)',
+                    fontSize: 13,
+                    color: 'var(--text-body)',
+                  }}
+                >
+                  <i className={`ti ${CHIP_ICONS[i] || 'ti-point'}`} style={{ fontSize: 16, color: 'var(--text-meta)' }} />
+                  {c}
+                </span>
+              ))}
+            </div>
+            {v.keywords.length ? (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 18 }}>
+                {v.keywords.map((k) => (
+                  <Tag key={k} as="span">
+                    {k}
+                  </Tag>
+                ))}
+              </div>
+            ) : null}
+
+            <Section title="Over deze opleiding">
+              {aboutParas.map((p, i) => (
+                <Para key={i}>{p}</Para>
+              ))}
+            </Section>
+
+            <Section title="Wat leer je in deze opleiding?">
+              <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+                {learn.map((l) => (
+                  <li
+                    key={l}
+                    style={{
+                      display: 'flex',
+                      gap: 12,
+                      fontFamily: 'var(--font-ui)',
+                      fontSize: 16,
+                      lineHeight: 1.7,
+                      color: 'var(--text-body)',
+                      marginBottom: 8,
+                    }}
+                  >
+                    <i className="ti ti-check" style={{ fontSize: 18, color: 'var(--text-accent)', marginTop: 4 }} />
+                    <span>{l}</span>
+                  </li>
+                ))}
+              </ul>
+            </Section>
+
+            <Section title="Voor wie is deze opleiding bedoeld?">
+              <Para>
+                Beginnende professionals die een erkende route naar de praktijk zoeken, en ervaren beoefenaars die hun
+                opleiding formaliseren met een geaccrediteerd certificaat.
+              </Para>
+            </Section>
+
+            <Section title="Volgende data">
+              <div style={{ display: 'flex', flexDirection: 'column', border: '0.5px solid var(--border-hairline)', borderRadius: 8, overflow: 'hidden', maxWidth: 520 }}>
+                {[
+                  ['14 - 17 januari 2026', '4 plaatsen vrij'],
+                  ['11 - 14 maart 2026', '7 plaatsen vrij'],
+                  ['6 - 9 mei 2026', 'Plaatsen beschikbaar'],
+                ].map(([date, spots]) => (
+                  <div key={date} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 18px', borderBottom: '0.5px solid var(--border-hairline)', background: 'var(--surface-card)' }}>
+                    <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 15, color: 'var(--text-strong)' }}>{date}</span>
+                    <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 13, color: 'var(--text-accent)' }}>{spots}</span>
+                  </div>
+                ))}
+              </div>
+            </Section>
+          </div>
+
+          {/* Right - sticky booking card */}
+          <div style={{ position: 'sticky', top: 92 }}>
+            <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 8, padding: 24 }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 40, lineHeight: 1, letterSpacing: '-0.01em', color: 'var(--text-brand)' }}>
+                {v.price}
+              </div>
+              <div style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-body)', margin: '6px 0 20px' }}>
+                incl. btw · {v.format}
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <Button variant="primary" fullWidth>
+                  Vraag informatie aan
+                </Button>
+                <Button variant="ghost" fullWidth>
+                  Opleiding opslaan
+                </Button>
+              </div>
+              <div style={{ borderTop: '0.5px solid var(--border-hairline)', marginTop: 24, paddingTop: 20, display: 'flex', gap: 12, alignItems: 'center' }}>
+                <Avatar initial={v.provider[0]} size={44} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 18, color: 'var(--text-brand)', lineHeight: 1.2 }}>
+                    {v.provider}
+                  </div>
+                  <div style={{ marginTop: 4 }}>
+                    <VerifiedBadge />
+                  </div>
+                </div>
+              </div>
+              {v.providerSlug ? (
+                <a href={`/opleiders/${v.providerSlug}`} className="bl-textlink" style={{ display: 'inline-block', marginTop: 14 }}>
+                  Bekijk opleider profiel
+                </a>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      </div>
+    </SiteChrome>
+  )
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section style={{ borderTop: '0.5px solid var(--border-hairline)', paddingTop: 28, marginTop: 28 }}>
+      <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 28, color: 'var(--text-brand)', margin: '0 0 16px' }}>
+        {title}
+      </h2>
+      {children}
+    </section>
+  )
+}
+
+function Para({ children }: { children: React.ReactNode }) {
+  return (
+    <p style={{ fontFamily: 'var(--font-ui)', fontSize: 16, lineHeight: 1.7, color: 'var(--text-body)', margin: '0 0 14px', maxWidth: 620 }}>
+      {children}
+    </p>
+  )
+}

@@ -1,10 +1,52 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, Access } from 'payload'
 import { seoFields } from '@/fields/seo'
+import { getBrandIdForUser, getTrainerIdForUser } from '@/access'
 
-const MAX_ACTIVE_COURSES: Record<string, number> = {
+const TIER_LIMITS: Record<string, number> = {
   basis: 1,
   medium: 5,
   premium: Infinity,
+}
+
+const readAccess: Access = ({ req }) => {
+  const user = req.user as any
+  if (!user) return { status: { equals: 'published' } } as any
+  if (user.role === 'admin') return true
+  if (user.role === 'trainer') {
+    return {
+      or: [
+        { 'trainer.owner': { equals: user.id } },
+        { status: { equals: 'published' } },
+      ],
+    } as any
+  }
+  if (user.role === 'brand') {
+    return {
+      or: [
+        { 'brand.owner': { equals: user.id } },
+        { status: { equals: 'published' } },
+      ],
+    } as any
+  }
+  return { status: { equals: 'published' } } as any
+}
+
+const updateAccess: Access = ({ req }) => {
+  const user = req.user as any
+  if (!user) return false
+  if (user.role === 'admin') return true
+  if (user.role === 'trainer') return { 'trainer.owner': { equals: user.id } } as any
+  if (user.role === 'brand') return { 'brand.owner': { equals: user.id } } as any
+  return false
+}
+
+const deleteAccess: Access = ({ req }) => {
+  const user = req.user as any
+  if (!user) return false
+  if (user.role === 'admin') return true
+  if (user.role === 'trainer') return { 'trainer.owner': { equals: user.id } } as any
+  if (user.role === 'brand') return { 'brand.owner': { equals: user.id } } as any
+  return false
 }
 
 export const Courses: CollectionConfig = {
@@ -15,55 +57,77 @@ export const Courses: CollectionConfig = {
     group: 'Inhoud',
   },
   access: {
-    read: ({ req }) => {
-      const user = req.user as any
-      if (user?.role === 'admin') return true
-      return { status: { equals: 'published' } }
-    },
+    read: readAccess,
     create: ({ req }) => {
       const user = req.user as any
       if (!user) return false
       return ['admin', 'trainer', 'brand'].includes(user.role)
     },
-    update: ({ req }) => {
-      const user = req.user as any
-      if (!user) return false
-      if (user.role === 'admin') return true
-      // Trainers and brands can update — row-level enforced via beforeChange hook
-      return Boolean(user)
-    },
-    delete: ({ req }) => {
-      const user = req.user as any
-      if (!user) return false
-      return user.role === 'admin'
-    },
+    update: updateAccess,
+    delete: deleteAccess,
   },
+
   hooks: {
     beforeChange: [
       async ({ data, operation, req, originalDoc }) => {
         const user = req.user as any
         if (!user || user.role === 'admin') return data
 
-        // Enforce subscription limits on publish
-        if (data.status === 'published' && originalDoc?.status !== 'published') {
-          const tier = user.subscriptionTier || 'basis'
-          const max = MAX_ACTIVE_COURSES[tier] ?? 1
+        // ── Ownership guard on update ────────────────────────────────────────
+        if (operation === 'update' && originalDoc) {
+          if (user.role === 'trainer') {
+            const trainerId = await getTrainerIdForUser(req)
+            const courseTrainerId =
+              typeof originalDoc.trainer === 'object'
+                ? originalDoc.trainer?.id
+                : originalDoc.trainer
+            if (trainerId && courseTrainerId && String(courseTrainerId) !== String(trainerId)) {
+              throw new Error('Je hebt geen toegang om deze cursus te bewerken.')
+            }
+          }
+          if (user.role === 'brand') {
+            const brandId = await getBrandIdForUser(req)
+            const courseBrandId =
+              typeof originalDoc.brand === 'object'
+                ? originalDoc.brand?.id
+                : originalDoc.brand
+            if (brandId && courseBrandId && String(courseBrandId) !== String(brandId)) {
+              throw new Error('Je hebt geen toegang om deze cursus te bewerken.')
+            }
+          }
+        }
 
-          if (max !== Infinity) {
+        // ── Subscription tier limit ──────────────────────────────────────────
+        const isPublishing =
+          data.status === 'published' &&
+          (operation === 'create' || originalDoc?.status !== 'published')
+
+        if (isPublishing) {
+          const tier = user.subscriptionTier || 'basis'
+          const limit = TIER_LIMITS[tier] ?? 1
+
+          if (limit !== Infinity) {
+            let ownerWhere: Record<string, any> = {}
+            if (user.role === 'trainer') {
+              const trainerId = await getTrainerIdForUser(req)
+              if (trainerId) ownerWhere = { trainer: { equals: trainerId } }
+            } else if (user.role === 'brand') {
+              const brandId = await getBrandIdForUser(req)
+              if (brandId) ownerWhere = { brand: { equals: brandId } }
+            }
+
             const { totalDocs } = await req.payload.find({
               collection: 'courses' as any,
-              where: {
-                and: [
-                  { status: { equals: 'published' } },
-                ],
-              },
+              where: { and: [{ status: { equals: 'published' } }, ownerWhere] },
               limit: 0,
-              req,
+              depth: 0,
             })
 
-            if (totalDocs >= max) {
+            if (totalDocs >= limit) {
+              const noun = limit === 1 ? 'actieve cursus' : 'actieve cursussen'
               throw new Error(
-                `Je ${tier} abonnement laat maximum ${max} actieve cursus${max === 1 ? '' : 'sen'} toe. Upgrade je abonnement om meer te publiceren.`
+                `Je ${tier}-abonnement laat maximaal ${limit} ${noun} toe. ` +
+                `Archiveer een bestaande cursus of upgrade je abonnement.`
               )
             }
           }
@@ -73,12 +137,9 @@ export const Courses: CollectionConfig = {
       },
     ],
   },
+
   fields: [
-    {
-      name: 'title',
-      type: 'text',
-      required: true,
-    },
+    { name: 'title', type: 'text', required: true },
     {
       name: 'slug',
       type: 'text',
@@ -103,10 +164,7 @@ export const Courses: CollectionConfig = {
       name: 'featured',
       type: 'checkbox',
       defaultValue: false,
-      admin: {
-        position: 'sidebar',
-        description: 'Uitgelicht in de directory',
-      },
+      admin: { position: 'sidebar', description: 'Uitgelicht in de directory' },
     },
     {
       name: 'featuredPosition',
@@ -115,26 +173,19 @@ export const Courses: CollectionConfig = {
         { label: 'Bovenaan directory', value: 'top' },
         { label: 'Permanent bovenaan (Premium)', value: 'permanent_top' },
       ],
-      admin: {
-        position: 'sidebar',
-        condition: (data) => data.featured,
-      },
+      admin: { position: 'sidebar', condition: (data) => data.featured },
     },
     {
       name: 'trainer',
       type: 'relationship',
       relationTo: 'trainers' as any,
-      admin: {
-        description: 'Trainer die de opleiding geeft',
-      },
+      admin: { description: 'Trainer die de opleiding geeft' },
     },
     {
       name: 'brand',
       type: 'relationship',
       relationTo: 'brands' as any,
-      admin: {
-        description: 'Brand die de opleiding publiceert',
-      },
+      admin: { description: 'Brand die de opleiding publiceert' },
     },
     {
       name: 'category',
@@ -143,24 +194,14 @@ export const Courses: CollectionConfig = {
       required: true,
       index: true,
     },
-    {
-      name: 'coverImage',
-      type: 'upload',
-      relationTo: 'media',
-    },
+    { name: 'coverImage', type: 'upload', relationTo: 'media' },
     {
       name: 'shortDescription',
       type: 'textarea',
       required: true,
-      admin: {
-        description: 'Korte samenvatting (max 200 tekens)',
-      },
+      admin: { description: 'Korte samenvatting (max 200 tekens)' },
     },
-    {
-      name: 'description',
-      type: 'richText',
-      required: true,
-    },
+    { name: 'description', type: 'richText', required: true },
     {
       name: 'format',
       type: 'select',
@@ -214,12 +255,7 @@ export const Courses: CollectionConfig = {
           options: [{ label: 'EUR', value: 'EUR' }],
         },
         { name: 'isFree', type: 'checkbox', defaultValue: false },
-        {
-          name: 'priceOnRequest',
-          type: 'checkbox',
-          defaultValue: false,
-          label: 'Prijs op aanvraag',
-        },
+        { name: 'priceOnRequest', type: 'checkbox', defaultValue: false, label: 'Prijs op aanvraag' },
       ],
     },
     {
@@ -243,25 +279,14 @@ export const Courses: CollectionConfig = {
         { label: 'Alle niveaus', value: 'all' },
       ],
     },
-    {
-      name: 'certificate',
-      type: 'checkbox',
-      defaultValue: false,
-      label: 'Certificaat uitgereikt',
-    },
-    {
-      name: 'accreditation',
-      type: 'text',
-      label: 'Accreditatie / erkenning',
-    },
+    { name: 'certificate', type: 'checkbox', defaultValue: false, label: 'Certificaat uitgereikt' },
+    { name: 'accreditation', type: 'text', label: 'Accreditatie / erkenning' },
     {
       name: 'externalUrl',
       type: 'text',
       required: true,
       label: 'Externe inschrijvingslink',
-      admin: {
-        description: 'URL naar de inschrijvingspagina op de externe website',
-      },
+      admin: { description: 'URL naar de inschrijvingspagina op de externe website' },
     },
     {
       name: 'startDates',
@@ -276,9 +301,7 @@ export const Courses: CollectionConfig = {
       name: 'tags',
       type: 'text',
       hasMany: true,
-      admin: {
-        description: 'Vrije trefwoorden voor zoeken',
-      },
+      admin: { description: 'Vrije trefwoorden voor zoeken' },
     },
     ...seoFields,
   ],

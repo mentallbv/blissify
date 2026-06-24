@@ -1,25 +1,27 @@
 import type { CollectionConfig } from 'payload'
 import { isAdmin } from '@/access'
 import { seoFields } from '@/fields/seo'
-
-
 export const Brands: CollectionConfig = {
   slug: 'brands',
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name', 'owner', 'subscriptionTier', 'verified'],
+    defaultColumns: ['name', 'owner', 'verified'],
     group: 'Gebruikers',
   },
   access: {
+    // Public can read all brands
     read: () => true,
+    // Admin only creates brand profiles
     create: isAdmin,
+    // Admin: all; brand: only their own brand document (owner matches user id)
     update: ({ req }) => {
       const user = req.user as any
       if (!user) return false
       if (user.role === 'admin') return true
-      // Brand users can only update their own brand
-      return { owner: { equals: user.id } }
+      if (user.role === 'brand') return { owner: { equals: user.id } }
+      return false
     },
+    // Admin only
     delete: isAdmin,
   },
   fields: [
@@ -102,9 +104,7 @@ export const Brands: CollectionConfig = {
       name: 'featured',
       type: 'checkbox',
       defaultValue: false,
-      admin: {
-        position: 'sidebar',
-      },
+      admin: { position: 'sidebar' },
     },
     ...seoFields,
   ],

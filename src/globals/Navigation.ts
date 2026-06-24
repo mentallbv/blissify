@@ -5,6 +5,7 @@ export const Navigation: GlobalConfig = {
   slug: 'navigation',
   admin: {
     group: 'Instellingen',
+    hidden: ({ user }) => (user as any)?.role !== 'admin',
   },
   access: {
     read: () => true,

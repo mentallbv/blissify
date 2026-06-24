@@ -5,6 +5,7 @@ export const Footer: GlobalConfig = {
   slug: 'footer',
   admin: {
     group: 'Instellingen',
+    hidden: ({ user }) => (user as any)?.role !== 'admin',
   },
   access: {
     read: () => true,

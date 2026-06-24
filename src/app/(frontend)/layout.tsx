@@ -1,19 +1,34 @@
 import React from 'react'
-import './styles.css'
+import type { Metadata } from 'next'
+import '../../styles/blissify.css'
 
-export const metadata = {
-  description: 'A blank template using Payload in a Next.js app.',
-  title: 'Payload Blank Template',
+export const metadata: Metadata = {
+  title: {
+    default: 'Blissify - Wellness opleidingen in België | Vind jouw opleiding',
+    template: '%s | Blissify',
+  },
+  description:
+    'Ontdek honderden erkende wellness opleidingen in België. Massage, nagelstyliste, reflexologie, yoga, voeding en meer. Vind de juiste opleiding via Blissify.',
+  icons: {
+    icon: [
+      { url: '/brand/favicon.svg', type: 'image/svg+xml' },
+      { url: '/brand/favicon-32.png', sizes: '32x32' },
+      { url: '/brand/favicon-64.png', sizes: '64x64' },
+    ],
+    apple: '/brand/apple-touch-icon.png',
+  },
 }
 
-export default async function RootLayout(props: { children: React.ReactNode }) {
-  const { children } = props
-
+export default function FrontendLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body>
-        <main>{children}</main>
-      </body>
+    <html lang="nl">
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css"
+        />
+      </head>
+      <body>{children}</body>
     </html>
   )
 }

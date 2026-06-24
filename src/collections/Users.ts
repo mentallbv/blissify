@@ -1,5 +1,10 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, FieldAccess } from 'payload'
 import { isAdmin, isAdminOrSelf } from '@/access'
+
+const adminOnlyField: FieldAccess = ({ req }) => {
+  const user = req.user as any
+  return user?.role === 'admin'
+}
 
 export const Users: CollectionConfig = {
   slug: 'users',
@@ -12,16 +17,15 @@ export const Users: CollectionConfig = {
     useAsTitle: 'email',
     defaultColumns: ['email', 'name', 'role', 'subscriptionTier'],
     group: 'Beheer',
+    // Hide the Users list from non-admins entirely
+    hidden: ({ user }) => (user as any)?.role !== 'admin',
   },
   access: {
     create: isAdmin,
     read: isAdminOrSelf,
     update: isAdminOrSelf,
     delete: isAdmin,
-    admin: ({ req }) => {
-      const user = req.user as any
-      return Boolean(user)
-    },
+    admin: ({ req }) => Boolean(req.user),
   },
   fields: [
     {
@@ -40,6 +44,15 @@ export const Users: CollectionConfig = {
         { label: 'Trainer', value: 'trainer' },
         { label: 'Brand', value: 'brand' },
       ],
+      access: {
+        // Only admins can change roles
+        update: adminOnlyField,
+      },
+      admin: {
+        // Non-admins see this field as read-only
+        readOnly: false,
+        condition: () => true,
+      },
     },
     {
       name: 'subscriptionTier',
@@ -51,9 +64,10 @@ export const Users: CollectionConfig = {
         { label: 'Medium (€290/jaar)', value: 'medium' },
         { label: 'Premium (€690/jaar)', value: 'premium' },
       ],
-      admin: {
-        position: 'sidebar',
+      access: {
+        update: adminOnlyField,
       },
+      admin: { position: 'sidebar' },
     },
     {
       name: 'subscriptionStatus',
@@ -66,13 +80,18 @@ export const Users: CollectionConfig = {
         { label: 'Geannuleerd', value: 'canceled' },
         { label: 'Verlopen', value: 'past_due' },
       ],
-      admin: {
-        position: 'sidebar',
+      access: {
+        update: adminOnlyField,
       },
+      admin: { position: 'sidebar' },
     },
     {
       name: 'stripeCustomerId',
       type: 'text',
+      access: {
+        read: adminOnlyField,
+        update: adminOnlyField,
+      },
       admin: {
         position: 'sidebar',
         readOnly: true,
@@ -82,6 +101,10 @@ export const Users: CollectionConfig = {
     {
       name: 'stripeSubscriptionId',
       type: 'text',
+      access: {
+        read: adminOnlyField,
+        update: adminOnlyField,
+      },
       admin: {
         position: 'sidebar',
         readOnly: true,
@@ -91,6 +114,9 @@ export const Users: CollectionConfig = {
     {
       name: 'subscriptionExpiresAt',
       type: 'date',
+      access: {
+        update: adminOnlyField,
+      },
       admin: {
         position: 'sidebar',
         readOnly: true,

@@ -1,0 +1,78 @@
+import React from 'react'
+import { Avatar } from './primitives'
+
+/**
+ * Blissify provider card - white card, forest avatar initial, Freight Display
+ * name, location/speciality, terracotta course count, profile link.
+ */
+export function ProviderCard({
+  href = '#',
+  name,
+  initial,
+  location,
+  speciality,
+  courseCount,
+  logo = null,
+}: {
+  href?: string
+  name: string
+  initial?: string
+  location: string
+  speciality: string
+  courseCount: number
+  logo?: string | null
+}) {
+  return (
+    <a href={href} className="bl-providercard" style={{ display: 'block', padding: 20 }}>
+      <div style={{ display: 'flex', gap: 'var(--space-4)', alignItems: 'flex-start' }}>
+        <Avatar initial={initial || name[0]} src={logo} size={44} radius={6} />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h3
+            style={{
+              margin: '0 0 2px',
+              fontFamily: 'var(--font-display)',
+              fontWeight: 'var(--fw-display-regular)',
+              fontSize: 20,
+              color: 'var(--text-brand)',
+              lineHeight: 1.15,
+            }}
+          >
+            {name}
+          </h3>
+          <p
+            style={{
+              margin: 0,
+              fontFamily: 'var(--font-ui)',
+              fontWeight: 'var(--fw-ui-regular)',
+              fontSize: 'var(--type-xs)',
+              color: 'var(--text-body)',
+              lineHeight: 1.4,
+            }}
+          >
+            {location} · {speciality}
+          </p>
+        </div>
+      </div>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          marginTop: 'var(--space-5)',
+        }}
+      >
+        <span
+          style={{
+            fontFamily: 'var(--font-ui)',
+            fontWeight: 'var(--fw-ui-medium)',
+            fontSize: 'var(--type-xs)',
+            color: 'var(--text-accent)',
+          }}
+        >
+          {courseCount} {courseCount === 1 ? 'opleiding' : 'opleidingen'}
+        </span>
+        <span className="bl-textlink">Bekijk profiel</span>
+      </div>
+    </a>
+  )
+}

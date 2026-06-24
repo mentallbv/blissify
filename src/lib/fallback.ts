@@ -1,0 +1,198 @@
+/**
+ * Illustrative, brand-consistent fallback content (Hybrid approach).
+ * Marketing pages always use this copy; listing/detail/provider pages fall
+ * back to this only when the Payload database returns no published records.
+ * All numbers and names are fictional but brand-consistent.
+ */
+
+export type FallbackCourse = {
+  slug: string
+  title: string
+  category: string
+  categorySlug: string
+  provider: string
+  providerSlug: string
+  location: string
+  price: string
+  format: string
+}
+
+export type FallbackProvider = {
+  slug: string
+  name: string
+  initial: string
+  location: string
+  speciality: string
+  courseCount: number
+}
+
+export const CATEGORY_TILES: { name: string; slug: string; count: string }[] = [
+  { name: 'Massage', slug: 'massage', count: '200+' },
+  { name: 'Nagelstyliste', slug: 'nagelstyliste', count: '500+' },
+  { name: 'Schoonheid', slug: 'schoonheid', count: '3.700+' },
+  { name: 'Make-up', slug: 'make-up', count: '150+' },
+  { name: 'Voetreflexologie', slug: 'voetreflexologie', count: '200+' },
+  { name: 'Voeding', slug: 'voeding', count: '150+' },
+  { name: 'Aromatherapie', slug: 'aromatherapie', count: '150+' },
+  { name: 'Reiki', slug: 'reiki', count: '150+' },
+]
+
+export const FALLBACK_COURSES: FallbackCourse[] = [
+  {
+    slug: 'sportmassage-certificaat',
+    title: 'Sportmassage - professioneel certificaat',
+    category: 'Massage',
+    categorySlug: 'massage',
+    provider: 'Academia Van der Berg',
+    providerSlug: 'academia-van-der-berg',
+    location: 'Antwerpen',
+    price: '€1.450',
+    format: '6 weken · In-persoon',
+  },
+  {
+    slug: 'gelnagels-basis',
+    title: 'Gelnagels - basisopleiding nagelstyliste',
+    category: 'Nagelstyliste',
+    categorySlug: 'nagelstyliste',
+    provider: 'Studio Lumière',
+    providerSlug: 'studio-lumiere',
+    location: 'Gent',
+    price: '€890',
+    format: '8 dagen · In-persoon',
+  },
+  {
+    slug: 'gezichtsbehandeling-specialist',
+    title: 'Gezichtsbehandeling - schoonheidsspecialist',
+    category: 'Schoonheid',
+    categorySlug: 'schoonheid',
+    provider: 'Maison Estelle',
+    providerSlug: 'maison-estelle',
+    location: 'Brussel',
+    price: '€1.200',
+    format: '10 weken · Hybride',
+  },
+  {
+    slug: 'voetreflexologie-erkend',
+    title: 'Voetreflexologie - erkende praktijkopleiding',
+    category: 'Voetreflexologie',
+    categorySlug: 'voetreflexologie',
+    provider: 'Academia Van der Berg',
+    providerSlug: 'academia-van-der-berg',
+    location: 'Leuven',
+    price: '€980',
+    format: '5 weken · In-persoon',
+  },
+  {
+    slug: 'aromatherapie-fundamenten',
+    title: 'Aromatherapie - fundamenten en toepassing',
+    category: 'Aromatherapie',
+    categorySlug: 'aromatherapie',
+    provider: 'Het Wilgenhof',
+    providerSlug: 'het-wilgenhof',
+    location: 'Online',
+    price: '€640',
+    format: '4 weken · Online',
+  },
+  {
+    slug: 'yoga-docent-200u',
+    title: 'Yogadocent - 200-uur opleiding',
+    category: 'Yoga',
+    categorySlug: 'yoga',
+    provider: 'Studio Lumière',
+    providerSlug: 'studio-lumiere',
+    location: 'Brugge',
+    price: '€2.150',
+    format: '6 maanden · Hybride',
+  },
+]
+
+export type FallbackBrand = {
+  slug: string
+  name: string
+  initial: string
+  sector: string
+  providerCount: number
+  courseCount: number
+  about: string
+  website?: string
+}
+
+export const FALLBACK_BRANDS: FallbackBrand[] = [
+  {
+    slug: 'nsi-nails',
+    name: 'NSI Nails',
+    initial: 'N',
+    sector: 'Nagelproducten & opleiding',
+    providerCount: 8,
+    courseCount: 14,
+    about:
+      'NSI Nails is een internationaal merk voor professionele nagelproducten. De productlijn - van gelnagelsystemen tot acryl - wordt gebruikt door nagelstylisten wereldwijd. In België werkt NSI samen met een netwerk van gecertificeerde opleiders die de techniek en producten doorgeven aan professionele nagelstylisten in opleiding.',
+    website: 'https://nsinails.com',
+  },
+  {
+    slug: 'dermalogica',
+    name: 'Dermalogica',
+    initial: 'D',
+    sector: 'Huidverzorging & opleiding',
+    providerCount: 6,
+    courseCount: 11,
+    about:
+      'Dermalogica is een professioneel merk voor huidverzorging, gebruikt door schoonheidsspecialisten in salons over de hele wereld. In België leidt een netwerk van gecertificeerde academies professionals op in de producten en behandelprotocollen.',
+    website: 'https://dermalogica.be',
+  },
+  {
+    slug: 'rituals-pro',
+    name: 'Rituals Pro',
+    initial: 'R',
+    sector: 'Massage & lichaamswerk',
+    providerCount: 4,
+    courseCount: 7,
+    about:
+      'Rituals Pro biedt professionele massage- en lichaamsverzorgingsproducten voor de wellnesssector. Gecertificeerde opleiders in België verzorgen trainingen in de bijbehorende behandeltechnieken.',
+  },
+  {
+    slug: 'yogamatters',
+    name: 'Yogamatters',
+    initial: 'Y',
+    sector: 'Yoga & beweging',
+    providerCount: 5,
+    courseCount: 9,
+    about:
+      'Yogamatters levert materiaal en opleidingsondersteuning voor yogascholen. In België werken erkende yogascholen samen met het merk voor teacher trainings en bijscholing.',
+  },
+]
+
+export const FALLBACK_PROVIDERS: FallbackProvider[] = [
+  {
+    slug: 'academia-van-der-berg',
+    name: 'Academia Van der Berg',
+    initial: 'A',
+    location: 'Antwerpen',
+    speciality: 'Massage & lichaamswerk',
+    courseCount: 12,
+  },
+  {
+    slug: 'studio-lumiere',
+    name: 'Studio Lumière',
+    initial: 'S',
+    location: 'Gent',
+    speciality: 'Nagelstyliste & beauty',
+    courseCount: 9,
+  },
+  {
+    slug: 'maison-estelle',
+    name: 'Maison Estelle',
+    initial: 'M',
+    location: 'Brussel',
+    speciality: 'Schoonheidsverzorging',
+    courseCount: 7,
+  },
+  {
+    slug: 'het-wilgenhof',
+    name: 'Het Wilgenhof',
+    initial: 'H',
+    location: 'Online',
+    speciality: 'Holistische therapie',
+    courseCount: 6,
+  },
+]

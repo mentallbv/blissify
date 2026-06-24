@@ -5,6 +5,7 @@ export const Homepage: GlobalConfig = {
   slug: 'homepage',
   admin: {
     group: 'Instellingen',
+    hidden: ({ user }) => (user as any)?.role !== 'admin',
   },
   access: {
     read: () => true,

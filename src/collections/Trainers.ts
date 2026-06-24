@@ -2,7 +2,6 @@ import type { CollectionConfig } from 'payload'
 import { isAdmin } from '@/access'
 import { seoFields } from '@/fields/seo'
 
-
 export const Trainers: CollectionConfig = {
   slug: 'trainers',
   admin: {
@@ -11,14 +10,19 @@ export const Trainers: CollectionConfig = {
     group: 'Gebruikers',
   },
   access: {
+    // Public can read all trainers
     read: () => true,
+    // Admin only creates trainer profiles
     create: isAdmin,
+    // Admin: all; trainer: only their own trainer document (owner matches user id)
     update: ({ req }) => {
       const user = req.user as any
       if (!user) return false
       if (user.role === 'admin') return true
-      return { owner: { equals: user.id } }
+      if (user.role === 'trainer') return { owner: { equals: user.id } }
+      return false
     },
+    // Admin only
     delete: isAdmin,
   },
   fields: [

@@ -5,6 +5,7 @@ export const Branding: GlobalConfig = {
   slug: 'branding',
   admin: {
     group: 'Instellingen',
+    hidden: ({ user }) => (user as any)?.role !== 'admin',
   },
   access: {
     read: () => true,

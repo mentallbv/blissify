@@ -1,0 +1,97 @@
+import React from 'react'
+import type { Metadata } from 'next'
+import { SiteChrome } from '@/components/site/SiteChrome'
+import { ButtonLink } from '@/components/ui'
+
+export const metadata: Metadata = {
+  title: 'Publiceer jouw opleiding op Blissify - Vergroot je bereik',
+  description:
+    'List jouw wellnessopleidingen op Blissify en bereik duizenden professionals in België. Geverifieerd platform, directe leads, jaarlijks abonnement.',
+}
+
+const VOORDELEN = [
+  ['ti ti-target-arrow', 'Gerichte zichtbaarheid', 'Jouw opleidingen verschijnen in zoekresultaten van mensen die actief zoeken naar wat jij aanbiedt.'],
+  ['ti ti-mail-forward', 'Directe leads', 'Studenten vragen informatie rechtstreeks bij jou op. Geen commissie, geen tussenpersoon.'],
+  ['ti ti-rosette-discount-check', 'Vertrouwen', 'Een Blissify-vermelding signaleert kwaliteit. Ons verificatieproces maakt het verschil.'],
+  ['ti ti-chart-line', 'Analytisch inzicht', 'Zie hoeveel mensen jouw profiel en opleidingen bekijken, en waar ze op doorklikken.'],
+  ['ti ti-adjustments', 'Eenvoudig beheer', 'Voeg opleidingen toe, bewerk data en beheer aanvragen via je dashboard.'],
+]
+
+export default function VoorAanbiedersPage() {
+  return (
+    <SiteChrome>
+      {/* HERO */}
+      <section style={{ maxWidth: 1200, margin: '0 auto', padding: '80px 32px 64px' }}>
+        <div className="bl-hero-split" style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: 56, alignItems: 'center' }}>
+          <div>
+            <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-accent)' }}>Voor aanbieders</span>
+            <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 52, lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: '16px 0 0', textWrap: 'balance' }}>
+              Bereik duizenden professionals die actief op zoek zijn naar jouw opleiding.
+            </h1>
+            <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 16, lineHeight: 1.7, color: 'var(--text-body)', maxWidth: 520, margin: '22px 0 0' }}>
+              Blissify is het Belgische platform voor professionele wellnessopleiding. Elke maand zoeken duizenden mensen
+              naar opleidingen in massage, nagelstyliste, schoonheid, yoga en meer. Jouw opleiding verdient zichtbaarheid
+              bij het juiste publiek.
+            </p>
+            <div style={{ display: 'flex', gap: 12, marginTop: 30, flexWrap: 'wrap' }}>
+              <ButtonLink href="/inloggen" variant="accent">
+                Bied mijn opleidingen aan
+              </ButtonLink>
+              <ButtonLink href="/prijzen" variant="ghost">
+                Bekijk de prijzen
+              </ButtonLink>
+            </div>
+          </div>
+          <div style={{ width: '100%', height: 380, borderRadius: 8, background: 'var(--surface-dark)' }} />
+        </div>
+      </section>
+
+      {/* VOORDELEN */}
+      <section style={{ background: 'var(--surface-card)', borderTop: '0.5px solid var(--border-hairline)' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '80px 32px' }}>
+          <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 40, letterSpacing: '-0.01em', color: 'var(--text-brand)', lineHeight: 1.1, margin: '0 0 40px' }}>
+            Wat Blissify voor jou doet
+          </h2>
+          <div className="bl-grid-3">
+            {VOORDELEN.map(([icon, t, b]) => (
+              <div key={t} style={{ border: '0.5px solid var(--border-hairline)', borderRadius: 8, padding: 28, background: 'var(--surface-page)', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <i className={icon} style={{ fontSize: 26, color: 'var(--text-accent)' }} />
+                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 22, color: 'var(--text-brand)', lineHeight: 1.2 }}>{t}</div>
+                <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 15, lineHeight: 1.6, color: 'var(--text-body)', margin: 0 }}>{b}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SOCIAL PROOF */}
+      <section style={{ maxWidth: 920, margin: '0 auto', padding: '88px 32px', textAlign: 'center' }}>
+        <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-meta)' }}>
+          Meer dan 124 geverifieerde opleiders gingen je voor
+        </div>
+        <blockquote style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 32, lineHeight: 1.35, color: 'var(--text-brand)', margin: '24px 0 0', textWrap: 'balance' }}>
+          “Blissify heeft ons bereik verdubbeld in het eerste jaar. De leads zijn concreet en serieus, geen
+          tijdverspilling.”
+        </blockquote>
+        <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 14, color: 'var(--text-body)', marginTop: 20 }}>
+          Academia Van der Berg · Antwerpen
+        </div>
+      </section>
+
+      {/* CTA BAND */}
+      <section style={{ background: 'var(--surface-dark)' }}>
+        <div style={{ maxWidth: 920, margin: '0 auto', padding: '80px 32px', textAlign: 'center' }}>
+          <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 44, letterSpacing: '-0.01em', color: 'var(--blissify-chalk)', lineHeight: 1.1, margin: 0 }}>
+            Jouw praktijk begint hier.
+          </h2>
+          <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 16, lineHeight: 1.7, color: 'rgba(245,240,234,0.7)', margin: '16px auto 28px', maxWidth: 480 }}>
+            Sluit je aan bij 124 geverifieerde opleiders die hun bereik uitbreiden via Blissify.
+          </p>
+          <ButtonLink href="/inloggen" variant="accent">
+            Bied mijn opleidingen aan
+          </ButtonLink>
+        </div>
+      </section>
+    </SiteChrome>
+  )
+}
