@@ -49,5 +49,29 @@ export const Categories: CollectionConfig = {
       type: 'upload',
       relationTo: 'media',
     },
+    {
+      name: 'landing',
+      type: 'group',
+      label: 'SEO landingspagina',
+      admin: { description: 'Teksten voor de publieke categoriepagina (/opleidingen/[slug]).' },
+      fields: [
+        { name: 'metaTitle', type: 'text', label: 'SEO titel' },
+        { name: 'metaDescription', type: 'textarea', label: 'Meta description' },
+        { name: 'h1', type: 'text', label: 'Hero titel (H1)' },
+        { name: 'heroIntro', type: 'textarea', label: 'Hero intro' },
+        { name: 'seoIntro', type: 'textarea', label: 'SEO-alinea' },
+        { name: 'sectionTitle', type: 'text', label: 'Sectietitel' },
+        { name: 'sectionBody', type: 'textarea', label: 'Sectietekst' },
+        {
+          name: 'faqs',
+          type: 'array',
+          label: 'Veelgestelde vragen',
+          fields: [
+            { name: 'question', type: 'text', required: true },
+            { name: 'answer', type: 'textarea', required: true },
+          ],
+        },
+      ],
+    },
   ],
 }

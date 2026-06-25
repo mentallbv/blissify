@@ -73,6 +73,7 @@ export interface Config {
     brands: Brand;
     trainers: Trainer;
     courses: Course;
+    pages: Page;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -86,6 +87,7 @@ export interface Config {
     brands: BrandsSelect<false> | BrandsSelect<true>;
     trainers: TrainersSelect<false> | TrainersSelect<true>;
     courses: CoursesSelect<false> | CoursesSelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -101,6 +103,7 @@ export interface Config {
     footer: Footer;
     branding: Branding;
     'seo-settings': SeoSetting;
+    pricing: Pricing;
   };
   globalsSelect: {
     navigation: NavigationSelect<false> | NavigationSelect<true>;
@@ -108,6 +111,7 @@ export interface Config {
     footer: FooterSelect<false> | FooterSelect<true>;
     branding: BrandingSelect<false> | BrandingSelect<true>;
     'seo-settings': SeoSettingsSelect<false> | SeoSettingsSelect<true>;
+    pricing: PricingSelect<false> | PricingSelect<true>;
   };
   locale: null;
   widgets: {
@@ -241,6 +245,25 @@ export interface Category {
   parent?: (number | null) | Category;
   description?: string | null;
   icon?: (number | null) | Media;
+  /**
+   * Teksten voor de publieke categoriepagina (/opleidingen/[slug]).
+   */
+  landing?: {
+    metaTitle?: string | null;
+    metaDescription?: string | null;
+    h1?: string | null;
+    heroIntro?: string | null;
+    seoIntro?: string | null;
+    sectionTitle?: string | null;
+    sectionBody?: string | null;
+    faqs?:
+      | {
+          question: string;
+          answer: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -508,6 +531,182 @@ export interface Course {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: number;
+  title: string;
+  slug: string;
+  hero?: {
+    eyebrow?: string | null;
+    title?: string | null;
+    subtitle?: string | null;
+    image?: (number | null) | Media;
+    ctaLabel?: string | null;
+    ctaUrl?: string | null;
+  };
+  blocks?:
+    | (
+        | {
+            content?: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
+              [k: string]: unknown;
+            } | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'richText';
+          }
+        | {
+            items?:
+              | {
+                  value: string;
+                  label: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'stats';
+          }
+        | {
+            items?:
+              | {
+                  /**
+                   * Tabler-klasse, bijv. ti ti-target-arrow
+                   */
+                  icon?: string | null;
+                  title: string;
+                  body?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'features';
+          }
+        | {
+            quote: string;
+            author?: string | null;
+            company?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'testimonial';
+          }
+        | {
+            title: string;
+            body?: string | null;
+            buttonLabel?: string | null;
+            buttonUrl?: string | null;
+            background?: ('forest' | 'chalk') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'cta';
+          }
+        | {
+            items?:
+              | {
+                  logo?: (number | null) | Media;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'logos';
+          }
+        | {
+            items?:
+              | {
+                  name: string;
+                  price: string;
+                  period?: string | null;
+                  features?:
+                    | {
+                        feature?: string | null;
+                        id?: string | null;
+                      }[]
+                    | null;
+                  recommended?: boolean | null;
+                  ctaLabel?: string | null;
+                  ctaUrl?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'pricingTiers';
+          }
+        | {
+            col1?: string | null;
+            col2?: string | null;
+            col3?: string | null;
+            rows?:
+              | {
+                  feature: string;
+                  v1?: string | null;
+                  v2?: string | null;
+                  v3?: string | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'comparison';
+          }
+        | {
+            items?:
+              | {
+                  question: string;
+                  answer: string;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'faq';
+          }
+      )[]
+    | null;
+  /**
+   * Zoekmachine-optimalisatie instellingen
+   */
+  seo?: {
+    /**
+     * Paginatitel voor zoekmachines (max 60 tekens). Laat leeg om de naam/titel te gebruiken.
+     */
+    title?: string | null;
+    /**
+     * Beschrijving voor zoekmachines (max 160 tekens).
+     */
+    description?: string | null;
+    /**
+     * Het hoofdzoekwoord waarop je wilt scoren (bijv. "gelnagels opleiding Antwerpen")
+     */
+    focusKeyphrase?: string | null;
+    /**
+     * Open Graph afbeelding voor Facebook/LinkedIn sharing (1200x630px). Laat leeg voor de standaard.
+     */
+    ogImage?: (number | null) | Media;
+    /**
+     * Vink aan om deze pagina uit zoekresultaten te houden.
+     */
+    noindex?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -553,6 +752,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'courses';
         value: number | Course;
+      } | null)
+    | ({
+        relationTo: 'pages';
+        value: number | Page;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -688,6 +891,24 @@ export interface CategoriesSelect<T extends boolean = true> {
   parent?: T;
   description?: T;
   icon?: T;
+  landing?:
+    | T
+    | {
+        metaTitle?: T;
+        metaDescription?: T;
+        h1?: T;
+        heroIntro?: T;
+        seoIntro?: T;
+        sectionTitle?: T;
+        sectionBody?: T;
+        faqs?:
+          | T
+          | {
+              question?: T;
+              answer?: T;
+              id?: T;
+            };
+      };
   updatedAt?: T;
   createdAt?: T;
 }
@@ -829,6 +1050,159 @@ export interface CoursesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  hero?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        subtitle?: T;
+        image?: T;
+        ctaLabel?: T;
+        ctaUrl?: T;
+      };
+  blocks?:
+    | T
+    | {
+        richText?:
+          | T
+          | {
+              content?: T;
+              id?: T;
+              blockName?: T;
+            };
+        stats?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    value?: T;
+                    label?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        features?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    icon?: T;
+                    title?: T;
+                    body?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        testimonial?:
+          | T
+          | {
+              quote?: T;
+              author?: T;
+              company?: T;
+              id?: T;
+              blockName?: T;
+            };
+        cta?:
+          | T
+          | {
+              title?: T;
+              body?: T;
+              buttonLabel?: T;
+              buttonUrl?: T;
+              background?: T;
+              id?: T;
+              blockName?: T;
+            };
+        logos?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    logo?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        pricingTiers?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    name?: T;
+                    price?: T;
+                    period?: T;
+                    features?:
+                      | T
+                      | {
+                          feature?: T;
+                          id?: T;
+                        };
+                    recommended?: T;
+                    ctaLabel?: T;
+                    ctaUrl?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        comparison?:
+          | T
+          | {
+              col1?: T;
+              col2?: T;
+              col3?: T;
+              rows?:
+                | T
+                | {
+                    feature?: T;
+                    v1?: T;
+                    v2?: T;
+                    v3?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        faq?:
+          | T
+          | {
+              items?:
+                | T
+                | {
+                    question?: T;
+                    answer?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+      };
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        focusKeyphrase?: T;
+        ogImage?: T;
+        noindex?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -892,10 +1266,61 @@ export interface Navigation {
  */
 export interface Homepage {
   id: number;
-  heroTitle?: string | null;
-  heroSubtitle?: string | null;
-  heroImage?: (number | null) | Media;
-  featuredSectionTitle?: string | null;
+  hero?: {
+    badge?: string | null;
+    title?: string | null;
+    /**
+     * Het woord met terracotta-gradient.
+     */
+    highlight?: string | null;
+    subtitle?: string | null;
+    primaryCtaLabel?: string | null;
+    primaryCtaUrl?: string | null;
+    secondaryCtaLabel?: string | null;
+    secondaryCtaUrl?: string | null;
+  };
+  trustText?: string | null;
+  why?: {
+    eyebrow?: string | null;
+    title?: string | null;
+    cards?:
+      | {
+          /**
+           * Tabler-klasse, bijv. ti ti-rosette-discount-check
+           */
+          icon?: string | null;
+          title: string;
+          body?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  photoSection?: {
+    title?: string | null;
+    subtitle?: string | null;
+    tiles?:
+      | {
+          title: string;
+          body?: string | null;
+          image?: (number | null) | Media;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  stats?:
+    | {
+        value: string;
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  faq?:
+    | {
+        question: string;
+        answer: string;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -936,7 +1361,7 @@ export interface Branding {
    */
   logoLight?: (number | null) | Media;
   /**
-   * Favicon — 32x32px of 64x64px
+   * Favicon - 32x32px of 64x64px
    */
   favicon?: (number | null) | Media;
   colors?: {
@@ -1031,6 +1456,61 @@ export interface SeoSetting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pricing".
+ */
+export interface Pricing {
+  id: number;
+  intro?: {
+    eyebrow?: string | null;
+    title?: string | null;
+    subtitle?: string | null;
+  };
+  tiers?:
+    | {
+        /**
+         * Stabiele sleutel: basis / medium / premium
+         */
+        key: string;
+        name: string;
+        tagline?: string | null;
+        price: string;
+        period?: string | null;
+        desc?: string | null;
+        recommended?: boolean | null;
+        features?:
+          | {
+              feature?: string | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  comparison?: {
+    col1?: string | null;
+    col2?: string | null;
+    col3?: string | null;
+    rows?:
+      | {
+          feature: string;
+          v1?: string | null;
+          v2?: string | null;
+          v3?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  bottomCta?: {
+    title?: string | null;
+    body?: string | null;
+    buttonLabel?: string | null;
+    buttonUrl?: string | null;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "navigation_select".
  */
 export interface NavigationSelect<T extends boolean = true> {
@@ -1053,10 +1533,61 @@ export interface NavigationSelect<T extends boolean = true> {
  * via the `definition` "homepage_select".
  */
 export interface HomepageSelect<T extends boolean = true> {
-  heroTitle?: T;
-  heroSubtitle?: T;
-  heroImage?: T;
-  featuredSectionTitle?: T;
+  hero?:
+    | T
+    | {
+        badge?: T;
+        title?: T;
+        highlight?: T;
+        subtitle?: T;
+        primaryCtaLabel?: T;
+        primaryCtaUrl?: T;
+        secondaryCtaLabel?: T;
+        secondaryCtaUrl?: T;
+      };
+  trustText?: T;
+  why?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        cards?:
+          | T
+          | {
+              icon?: T;
+              title?: T;
+              body?: T;
+              id?: T;
+            };
+      };
+  photoSection?:
+    | T
+    | {
+        title?: T;
+        subtitle?: T;
+        tiles?:
+          | T
+          | {
+              title?: T;
+              body?: T;
+              image?: T;
+              id?: T;
+            };
+      };
+  stats?:
+    | T
+    | {
+        value?: T;
+        label?: T;
+        id?: T;
+      };
+  faq?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -1145,6 +1676,64 @@ export interface SeoSettingsSelect<T extends boolean = true> {
         organizationName?: T;
         organizationUrl?: T;
         organizationType?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pricing_select".
+ */
+export interface PricingSelect<T extends boolean = true> {
+  intro?:
+    | T
+    | {
+        eyebrow?: T;
+        title?: T;
+        subtitle?: T;
+      };
+  tiers?:
+    | T
+    | {
+        key?: T;
+        name?: T;
+        tagline?: T;
+        price?: T;
+        period?: T;
+        desc?: T;
+        recommended?: T;
+        features?:
+          | T
+          | {
+              feature?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  comparison?:
+    | T
+    | {
+        col1?: T;
+        col2?: T;
+        col3?: T;
+        rows?:
+          | T
+          | {
+              feature?: T;
+              v1?: T;
+              v2?: T;
+              v3?: T;
+              id?: T;
+            };
+      };
+  bottomCta?:
+    | T
+    | {
+        title?: T;
+        body?: T;
+        buttonLabel?: T;
+        buttonUrl?: T;
       };
   updatedAt?: T;
   createdAt?: T;

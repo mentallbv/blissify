@@ -1,5 +1,5 @@
 import React from 'react'
-import { Input, Button } from '@/components/ui'
+import { AuthForm } from './AuthForm'
 
 export function AuthView({ mode }: { mode: 'inloggen' | 'registreren' }) {
   const register = mode === 'registreren'
@@ -7,7 +7,6 @@ export function AuthView({ mode }: { mode: 'inloggen' | 'registreren' }) {
   const subtitle = register
     ? 'Start met het publiceren van jouw opleidingen op Blissify.'
     : 'Welkom terug. Beheer je opleidingen en aanvragen.'
-  const cta = register ? 'Account aanmaken' : 'Inloggen'
   const switchText = register ? 'Heb je al een account?' : 'Nog geen account?'
   const switchLink = register ? 'Inloggen' : 'Account aanmaken'
   const switchHref = register ? '/inloggen' : '/registreren'
@@ -39,14 +38,7 @@ export function AuthView({ mode }: { mode: 'inloggen' | 'registreren' }) {
           </h1>
           <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 14, color: 'var(--text-body)', margin: '8px 0 28px' }}>{subtitle}</p>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            {register ? <Input label="Naam organisatie" placeholder="bijv. Academia Van der Berg" /> : null}
-            <Input label="E-mailadres" type="email" placeholder="jouw@email.be" />
-            <Input label="Wachtwoord" type="password" placeholder="••••••••" />
-            <Button variant="primary" fullWidth>
-              {cta}
-            </Button>
-          </div>
+          <AuthForm mode={mode} />
 
           <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 13, color: 'var(--text-body)', marginTop: 24, textAlign: 'center' }}>
             {switchText}{' '}

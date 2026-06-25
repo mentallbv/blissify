@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { useRouter } from 'next/navigation'
 import { Input, Select, Button, Tag } from '@/components/ui'
 
 const STEPS = [
@@ -11,12 +12,45 @@ const STEPS = [
 
 const CATEGORIES = ['Massage', 'Nagelstyliste', 'Schoonheid', 'Yoga', 'Voeding', 'Reflexologie']
 const LOCATIONS = ['Antwerpen', 'Gent', 'Brussel', 'Limburg', 'West-Vlaanderen', 'Online']
-const SPECS = ['Sportsmassage', 'Deep tissue', 'Klassieke massage', 'Prenataal', 'Cupping']
+const SPECS: { value: string; label: string }[] = [
+  { value: 'massage', label: 'Massage' },
+  { value: 'nagelstyliste', label: 'Nagelstyliste' },
+  { value: 'schoonheid', label: 'Schoonheid' },
+  { value: 'yoga', label: 'Yoga' },
+  { value: 'voeding', label: 'Voeding' },
+  { value: 'reiki', label: 'Reiki' },
+]
 
 export default function OnboardingPage() {
-  const [current, setCurrent] = React.useState(1)
-  const [specs, setSpecs] = React.useState<string[]>(['Sportsmassage', 'Klassieke massage'])
+  const router = useRouter()
+  const [current, setCurrent] = React.useState(2)
+  const [name, setName] = React.useState('')
+  const [city, setCity] = React.useState('')
+  const [about, setAbout] = React.useState('')
+  const [specs, setSpecs] = React.useState<string[]>(['massage'])
+  const [error, setError] = React.useState<string | null>(null)
+  const [loading, setLoading] = React.useState(false)
   const toggleSpec = (s: string) => setSpecs((cur) => (cur.includes(s) ? cur.filter((x) => x !== s) : [...cur, s]))
+
+  async function saveAndContinue() {
+    setError(null)
+    setLoading(true)
+    try {
+      const res = await fetch('/api/profile', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ name, city, about, specializations: specs }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok) throw new Error(data?.error || 'Opslaan mislukt.')
+      router.push('/dashboard')
+      router.refresh()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Er ging iets mis.')
+      setLoading(false)
+    }
+  }
 
   return (
     <>
@@ -29,7 +63,6 @@ export default function OnboardingPage() {
       </header>
 
       <section style={{ maxWidth: 680, margin: '0 auto', padding: '56px 32px 96px' }}>
-        {/* Stepper */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 0, marginBottom: 40 }}>
           {STEPS.map((s) => {
             const done = s.n < current
@@ -69,10 +102,10 @@ export default function OnboardingPage() {
         </p>
 
         <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 8, padding: 32, display: 'flex', flexDirection: 'column', gap: 20 }}>
-          <Input label="Naam organisatie" placeholder="bijv. Academia Van der Berg" />
+          <Input label="Naam organisatie" placeholder="bijv. Academia Van der Berg" value={name} onChange={(e) => setName(e.target.value)} />
           <div className="bl-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <Select label="Hoofdcategorie" placeholder="Kies een categorie" options={CATEGORIES} />
-            <Select label="Locatie" placeholder="Kies een stad" options={LOCATIONS} />
+            <Select label="Locatie" placeholder="Kies een stad" options={LOCATIONS} value={city} onChange={(e) => setCity(e.target.value)} />
           </div>
           <div>
             <span style={{ display: 'block', fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-strong)', marginBottom: 8 }}>
@@ -80,8 +113,8 @@ export default function OnboardingPage() {
             </span>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               {SPECS.map((s) => (
-                <Tag key={s} as="button" active={specs.includes(s)} onClick={() => toggleSpec(s)}>
-                  {s}
+                <Tag key={s.value} as="button" active={specs.includes(s.value)} onClick={() => toggleSpec(s.value)}>
+                  {s.label}
                 </Tag>
               ))}
             </div>
@@ -91,11 +124,19 @@ export default function OnboardingPage() {
               Over de opleider
             </span>
             <textarea
+              value={about}
+              onChange={(e) => setAbout(e.target.value)}
               placeholder="Beschrijf je organisatie, specialisatie en aanpak. Minimaal 80 woorden."
               style={{ width: '100%', minHeight: 120, border: '0.5px solid var(--neutral-200)', borderRadius: 6, background: 'var(--surface-card)', padding: '12px 16px', fontFamily: 'var(--font-ui)', fontWeight: 400, fontSize: 14, color: 'var(--text-strong)', lineHeight: 1.6, resize: 'vertical', outline: 'none' }}
             />
           </div>
         </div>
+
+        {error ? (
+          <div style={{ marginTop: 16, fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--status-error)', background: 'var(--status-error-bg)', borderRadius: 6, padding: '10px 14px' }}>
+            {error}
+          </div>
+        ) : null}
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 24 }}>
           <button
@@ -105,8 +146,8 @@ export default function OnboardingPage() {
           >
             Terug
           </button>
-          <Button variant="primary" onClick={() => setCurrent((c) => Math.min(STEPS.length, c + 1))}>
-            Volgende stap
+          <Button variant="primary" onClick={saveAndContinue} disabled={loading}>
+            {loading ? 'Opslaan…' : 'Profiel opslaan'}
           </Button>
         </div>
       </section>

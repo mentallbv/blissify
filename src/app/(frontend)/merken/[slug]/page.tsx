@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { SiteChrome } from '@/components/site/SiteChrome'
 import { BrandTabs } from '@/components/site/BrandTabs'
 import { getBrandBySlug } from '@/lib/data'
+import { TrackPageView } from '@/components/site/TrackPageView'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,6 +27,7 @@ export default async function MerkPage({ params }: Params) {
 
   return (
     <SiteChrome>
+      {brand.id != null ? <TrackPageView kind="brand" id={brand.id} /> : null}
       {/* Dark forest header */}
       <header style={{ background: 'var(--surface-dark)' }}>
         <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '48px 32px' }}>

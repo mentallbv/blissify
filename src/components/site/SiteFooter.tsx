@@ -24,7 +24,7 @@ const COLS = [
       { label: 'Over ons', href: '/over-ons' },
       { label: 'Voor aanbieders', href: '/voor-aanbieders' },
       { label: 'Prijzen', href: '/prijzen' },
-      { label: 'Contact', href: '/over-ons' },
+      { label: 'Contact', href: '/contact' },
     ],
   },
 ]

@@ -15,7 +15,7 @@ export const SeoSettings: GlobalConfig = {
     {
       name: 'defaultTitle',
       type: 'text',
-      defaultValue: 'Blissify — Opleidingen in beauty & wellness',
+      defaultValue: 'Blissify - Opleidingen in beauty & wellness',
       required: true,
       admin: { description: 'Fallback paginatitel als er geen specifieke is ingesteld' },
     },

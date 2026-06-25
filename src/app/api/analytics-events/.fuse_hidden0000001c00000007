@@ -1,0 +1,27 @@
+import { NextResponse } from 'next/server'
+import { sbInsert, supabaseConfigured } from '@/lib/supabase'
+
+const KIND_FIELD: Record<string, string> = {
+  course: 'payload_course_id',
+  trainer: 'payload_trainer_id',
+  brand: 'payload_brand_id',
+}
+
+/** POST /api/analytics-events — record a lightweight analytics event. Public. */
+export async function POST(req: Request) {
+  try {
+    const body = await req.json()
+    const kind = String(body.kind || '')
+    const id = body.id != null ? String(body.id) : null
+    const field = KIND_FIELD[kind]
+    if (!field || !id) return NextResponse.json({ ok: false }, { status: 400 })
+
+    const eventType = kind === 'course' ? 'course_view' : 'profile_view'
+    if (!supabaseConfigured()) return NextResponse.json({ ok: true, stored: false })
+
+    await sbInsert('analytics_events', { event_type: eventType, [field]: id })
+    return NextResponse.json({ ok: true, stored: true })
+  } catch {
+    return NextResponse.json({ ok: false }, { status: 500 })
+  }
+}

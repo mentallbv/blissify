@@ -7,6 +7,8 @@ export type DashCourse = {
   price: string
   enquiries: number
   status: 'active' | 'draft' | 'archived'
+  editHref?: string
+  viewHref?: string
 }
 
 const STATUS_LABELS: Record<string, string> = { active: 'Actief', draft: 'Concept', archived: 'Gearchiveerd' }
@@ -66,10 +68,22 @@ export function CourseTable({ rows, limit }: { rows: DashCourse[]; limit?: numbe
                 <StatusPill status={STATUS_TONE[r.status]}>{STATUS_LABELS[r.status]}</StatusPill>
               </td>
               <td style={{ ...td, textAlign: 'right', whiteSpace: 'nowrap' }}>
-                <span className="bl-textlink" style={{ marginRight: 16 }}>
-                  Bewerken
-                </span>
-                <span className="bl-textlink">Bekijken</span>
+                {r.editHref ? (
+                  <a href={r.editHref} className="bl-textlink" style={{ marginRight: 16 }}>
+                    Bewerken
+                  </a>
+                ) : (
+                  <span className="bl-textlink" style={{ marginRight: 16 }}>
+                    Bewerken
+                  </span>
+                )}
+                {r.viewHref ? (
+                  <a href={r.viewHref} className="bl-textlink">
+                    Bekijken
+                  </a>
+                ) : (
+                  <span className="bl-textlink">Bekijken</span>
+                )}
               </td>
             </tr>
           ))}

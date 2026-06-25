@@ -1,19 +1,27 @@
 'use client'
 
 import React from 'react'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 
 const NAV = [
   { id: 'overview', label: 'Overzicht', icon: 'ti-layout-dashboard', href: '/dashboard' },
   { id: 'courses', label: 'Opleidingen', icon: 'ti-stack-2', href: '/dashboard/opleidingen' },
+  { id: 'leads', label: 'Aanvragen', icon: 'ti-inbox', href: '/dashboard/leads' },
   { id: 'analytics', label: 'Analytics', icon: 'ti-chart-line', href: '/dashboard/analytics' },
   { id: 'profile', label: 'Profiel', icon: 'ti-building-store', href: '/dashboard/profiel' },
   { id: 'subscription', label: 'Abonnement', icon: 'ti-credit-card', href: '/dashboard/abonnement' },
 ]
 
-export function DashSidebar() {
+export function DashSidebar({ providerName = 'Opleider' }: { providerName?: string }) {
   const pathname = usePathname()
+  const router = useRouter()
   const isActive = (href: string) => (href === '/dashboard' ? pathname === href : pathname.startsWith(href))
+
+  async function logout() {
+    await fetch('/api/users/logout', { method: 'POST', credentials: 'include' }).catch(() => {})
+    router.push('/inloggen')
+    router.refresh()
+  }
 
   return (
     <aside
@@ -85,15 +93,19 @@ export function DashSidebar() {
             color: 'var(--blissify-chalk)',
           }}
         >
-          A
+          {providerName[0] || 'O'}
         </span>
         <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 13, color: 'var(--blissify-chalk)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            Van der Berg
+            {providerName}
           </div>
-          <a href="/" style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'rgba(245,240,234,0.5)' }}>
+          <button
+            type="button"
+            onClick={logout}
+            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: 12, color: 'rgba(245,240,234,0.5)' }}
+          >
             Uitloggen
-          </a>
+          </button>
         </div>
       </div>
     </aside>

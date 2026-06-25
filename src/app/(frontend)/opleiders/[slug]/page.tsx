@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { SiteChrome, SectionHead } from '@/components/site/SiteChrome'
 import { VerifiedBadge, CourseCard, Button, Tag } from '@/components/ui'
+import { TrackPageView } from '@/components/site/TrackPageView'
 import { getProviderBySlug } from '@/lib/data'
 
 export const dynamic = 'force-dynamic'
@@ -26,6 +27,7 @@ export default async function ProviderProfilePage({ params }: Params) {
 
   return (
     <SiteChrome>
+      {p.id != null ? <TrackPageView kind="trainer" id={p.id} /> : null}
       {/* Dark header */}
       <header style={{ background: 'var(--surface-dark)' }}>
         <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '48px 32px', display: 'flex', gap: 24, alignItems: 'center' }}>

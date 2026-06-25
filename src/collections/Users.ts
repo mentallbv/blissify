@@ -25,7 +25,7 @@ export const Users: CollectionConfig = {
     read: isAdminOrSelf,
     update: isAdminOrSelf,
     delete: isAdmin,
-    admin: ({ req }) => Boolean(req.user),
+    admin: ({ req }) => (req.user as { role?: string })?.role === 'admin',
   },
   fields: [
     {

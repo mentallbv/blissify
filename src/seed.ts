@@ -289,6 +289,165 @@ async function seed() {
   })
   console.log('  ✓ Online introductie aromatherapie')
 
+  // ── PAGES (editable static content) ─────────────────────────────────────────
+  console.log('📄 Creating editable pages...')
+  await payload.delete({ collection: 'pages' as any, where: { id: { exists: true } } }).catch(() => {})
+
+  await payload.create({
+    collection: 'pages' as any,
+    data: {
+      title: 'Over ons',
+      slug: 'over-ons',
+      hero: {
+        eyebrow: 'Over Blissify',
+        title: 'De Europese standaard voor wellnessopleiding.',
+        subtitle:
+          'Blissify is gebouwd voor de professional. Het platform dat de wellness- en beautysector serieus neemt, met gecureerde opleidingen, geverifieerde opleiders en de duidelijkheid die studenten verdienen.',
+      },
+      blocks: [
+        {
+          blockType: 'features',
+          items: [
+            { icon: 'ti ti-rosette-discount-check', title: 'Curatorisch, niet algoritmisch', body: 'Elke opleider wordt handmatig geverifieerd voor publicatie.' },
+            { icon: 'ti ti-eye-check', title: 'Professioneel, niet spiritueel', body: 'Blissify is een vakplatform, geen wellnessapp.' },
+            { icon: 'ti ti-list-check', title: 'Transparant', body: 'Prijs, duur, erkenning en locatie staan altijd vermeld.' },
+          ],
+        },
+        { blockType: 'cta', title: 'Jouw praktijk begint hier.', body: 'Sluit je aan bij 124 geverifieerde opleiders.', buttonLabel: 'Bied mijn opleidingen aan', buttonUrl: '/voor-aanbieders', background: 'forest' },
+      ],
+      seo: { title: 'Over Blissify - De Europese standaard voor wellnessopleiding' },
+    },
+  })
+
+  await payload.create({
+    collection: 'pages' as any,
+    data: {
+      title: 'Voor aanbieders',
+      slug: 'voor-aanbieders',
+      hero: {
+        eyebrow: 'Voor aanbieders',
+        title: 'Bereik duizenden professionals die actief op zoek zijn naar jouw opleiding.',
+        subtitle: 'Blissify is het Belgische platform voor professionele wellnessopleiding. Jouw opleiding verdient zichtbaarheid bij het juiste publiek.',
+      },
+      blocks: [
+        {
+          blockType: 'features',
+          items: [
+            { icon: 'ti ti-target-arrow', title: 'Gerichte zichtbaarheid', body: 'Verschijn in zoekresultaten van mensen die actief zoeken naar wat jij aanbiedt.' },
+            { icon: 'ti ti-mail-forward', title: 'Directe leads', body: 'Studenten vragen rechtstreeks informatie op. Geen commissie, geen tussenpersoon.' },
+            { icon: 'ti ti-chart-line', title: 'Analytisch inzicht', body: 'Zie hoeveel mensen jouw profiel en opleidingen bekijken.' },
+          ],
+        },
+        { blockType: 'testimonial', quote: 'Blissify heeft ons bereik verdubbeld in het eerste jaar. De leads zijn concreet en serieus, geen tijdverspilling.', author: 'Academia Van der Berg', company: 'Antwerpen' },
+        { blockType: 'cta', title: 'Jouw praktijk begint hier.', body: 'Sluit je aan bij 124 geverifieerde opleiders die hun bereik uitbreiden via Blissify.', buttonLabel: 'Bied mijn opleidingen aan', buttonUrl: '/inloggen', background: 'forest' },
+      ],
+      seo: { title: 'Publiceer jouw opleiding op Blissify' },
+    },
+  })
+
+  await payload.create({
+    collection: 'pages' as any,
+    data: {
+      title: 'Contact',
+      slug: 'contact-info',
+      hero: { eyebrow: 'Contact', title: 'Neem contact op met Blissify.', subtitle: 'Vragen over het platform, je account of een samenwerking? We helpen je graag verder.' },
+      blocks: [
+        { blockType: 'richText', content: { root: { type: 'root', direction: 'ltr', format: '', indent: 0, version: 1, children: [{ type: 'paragraph', version: 1, direction: 'ltr', format: '', indent: 0, children: [{ type: 'text', version: 1, text: 'Mail ons op hallo@blissify.be of gebruik het contactformulier op /contact.' }] }] } } },
+      ],
+      seo: { title: 'Contact - Blissify' },
+    },
+  })
+  console.log('  ✓ 3 pages (over-ons, voor-aanbieders, contact-info)')
+
+  // ── HOMEPAGE GLOBAL ─────────────────────────────────────────────────────────
+  console.log('🏠 Seeding homepage content...')
+  await payload.updateGlobal({
+    slug: 'homepage' as any,
+    data: {
+      hero: {
+        badge: '847 opleidingen in België',
+        title: 'De Europese standaard voor',
+        highlight: 'wellnessopleiding.',
+        subtitle:
+          'Vind erkende, professionele opleidingen in massage, nagelstyliste, reflexologie, yoga, voeding en beauty, zorgvuldig samengebracht door Blissify.',
+        primaryCtaLabel: 'Vind een opleiding',
+        primaryCtaUrl: '/opleidingen',
+        secondaryCtaLabel: 'Publiceer jouw opleiding',
+        secondaryCtaUrl: '/voor-aanbieders',
+      },
+      trustText: 'Vertrouwd door 124 geverifieerde opleiders in heel België',
+      why: {
+        eyebrow: 'Waarom Blissify',
+        title: 'Gebouwd voor de professional, niet voor de hype.',
+        cards: [
+          { icon: 'ti ti-rosette-discount-check', title: 'Curatorisch, niet algoritmisch', body: 'Elke opleider wordt handmatig geverifieerd. Een Blissify-vermelding betekent iets.' },
+          { icon: 'ti ti-eye-check', title: 'Transparant', body: 'Prijs, duur, erkenning en locatie staan altijd vermeld. Nooit verborgen.' },
+          { icon: 'ti ti-calendar-event', title: 'Avond, weekend of online', body: 'Vind het lesmoment dat bij jouw agenda past, zonder tussenpersoon.' },
+        ],
+      },
+      photoSection: {
+        title: 'Ontdek hoe Blissify werkt',
+        subtitle: 'Van zoeken tot inschrijven: een helder, professioneel traject.',
+        tiles: [
+          { title: 'Zoek & vergelijk', body: 'Filter op categorie, locatie, lesmoment en erkenning.' },
+          { title: 'Geverifieerde opleiders', body: 'Enkel handmatig gecontroleerde academies.' },
+          { title: 'Schrijf je in', body: 'Vraag rechtstreeks informatie aan.' },
+        ],
+      },
+      stats: [
+        { value: '847', label: 'Opleidingen' },
+        { value: '124', label: 'Geverifieerde opleiders' },
+        { value: '3', label: 'Landen' },
+      ],
+      faq: [
+        { question: 'Wat is Blissify?', answer: 'Blissify is een Belgisch platform dat cursisten verbindt met geverifieerde, professionele wellness- en beauty-opleiders.' },
+        { question: 'Hoe weet ik dat een opleider betrouwbaar is?', answer: 'Elke opleider wordt handmatig gecontroleerd op identiteit, kwalificaties, programma-inhoud en erkenning voordat die op Blissify verschijnt.' },
+        { question: 'Kost het iets om een opleiding te zoeken?', answer: 'Nee. Zoeken en vergelijken is volledig gratis voor cursisten. Je vraagt informatie rechtstreeks aan bij de opleider.' },
+        { question: 'Wat betekent een erkend certificaat?', answer: 'Een erkende opleiding voldoet aan de kwaliteits- en urenstandaarden van een beroepsfederatie of onderwijsinstelling.' },
+      ],
+    } as any,
+  })
+  console.log('  ✓ Homepage content')
+
+  // ── PRICING GLOBAL (single source of truth) ─────────────────────────────────
+  console.log('💶 Seeding pricing...')
+  await payload.updateGlobal({
+    slug: 'pricing' as any,
+    data: {
+      intro: {
+        eyebrow: 'Prijzen voor opleiders',
+        title: 'Eenvoudige, eerlijke prijzen.',
+        subtitle: 'Eén jaarlijks abonnement. Directe leads. Geen commissie per aanvraag.',
+      },
+      tiers: [
+        { key: 'basis', name: 'Basis', tagline: 'Voor wie start', price: '€ 99', period: '/jaar', desc: 'Voor wie start: één opleiding en een professioneel profiel.', recommended: false, features: [{ feature: '1 opleiding' }, { feature: 'Opleider profiel' }, { feature: 'Aanvraagbeheer' }, { feature: 'Geen analytics' }] },
+        { key: 'medium', name: 'Medium', tagline: 'Voor groeiende opleiders', price: '€ 290', period: '/jaar', desc: 'Voor groeiende opleiders die meer bereik en inzicht willen.', recommended: true, features: [{ feature: 'Tot 5 opleidingen' }, { feature: 'Opleider profiel' }, { feature: 'Aanvraagbeheer' }, { feature: 'Analytisch dashboard' }, { feature: 'Nieuwsbrief-vermelding' }] },
+        { key: 'premium', name: 'Premium', tagline: 'Voor maximale zichtbaarheid', price: '€ 690', period: '/jaar', desc: 'Voor maximale zichtbaarheid met toppositie en support.', recommended: false, features: [{ feature: 'Onbeperkte opleidingen' }, { feature: 'Toppositie in resultaten' }, { feature: 'Premium badge' }, { feature: 'Featured plaatsing' }, { feature: 'Prioriteitssupport' }] },
+      ],
+      comparison: {
+        col1: 'Basis',
+        col2: 'Medium',
+        col3: 'Premium',
+        rows: [
+          { feature: 'Aantal opleidingen', v1: '1', v2: 'Tot 5', v3: 'Onbeperkt' },
+          { feature: 'Opleider profiel', v1: 'Ja', v2: 'Ja', v3: 'Ja' },
+          { feature: 'Aanvraagbeheer', v1: 'Ja', v2: 'Ja', v3: 'Ja' },
+          { feature: 'Analytisch dashboard', v1: '–', v2: 'Ja', v3: 'Ja' },
+          { feature: 'Nieuwsbrief-vermelding', v1: '–', v2: 'Ja', v3: 'Ja' },
+          { feature: 'Featured plaatsing', v1: '–', v2: '–', v3: 'Ja' },
+          { feature: 'Prioriteitssupport', v1: '–', v2: '–', v3: 'Ja' },
+        ],
+      },
+      bottomCta: {
+        title: 'Jouw praktijk begint hier.',
+        body: 'Sluit je aan bij 124 geverifieerde opleiders die hun bereik uitbreiden via Blissify.',
+        buttonLabel: 'Bied mijn opleidingen aan',
+        buttonUrl: '/inloggen',
+      },
+    } as any,
+  })
+  console.log('  ✓ Pricing')
+
   console.log('\n✅ Seeding complete!')
   process.exit(0)
 }

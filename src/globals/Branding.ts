@@ -39,7 +39,7 @@ export const Branding: GlobalConfig = {
       name: 'favicon',
       type: 'upload',
       relationTo: 'media',
-      admin: { description: 'Favicon — 32x32px of 64x64px' },
+      admin: { description: 'Favicon - 32x32px of 64x64px' },
     },
     {
       name: 'colors',

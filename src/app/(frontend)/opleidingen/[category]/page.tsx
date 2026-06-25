@@ -4,8 +4,8 @@ import { notFound } from 'next/navigation'
 import { SiteChrome } from '@/components/site/SiteChrome'
 import { Faq } from '@/components/site/Faq'
 import { CourseCard, Select, Tag } from '@/components/ui'
-import { getCourseCards } from '@/lib/data'
-import { CATEGORY_CONTENT, CATEGORY_SLUGS } from '@/lib/categories'
+import { getCourseCards, getCategoryLanding } from '@/lib/data'
+import { CATEGORY_SLUGS } from '@/lib/categories'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,14 +15,14 @@ const PILLS = ['Avondschool', 'Weekend', 'Online', 'Erkend certificaat', 'Antwer
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { category } = await params
-  const c = CATEGORY_CONTENT[category]
+  const c = await getCategoryLanding(category)
   if (!c) return {}
   return { title: c.metaTitle, description: c.metaDescription }
 }
 
 export default async function CategoryPage({ params }: Params) {
   const { category } = await params
-  const content = CATEGORY_CONTENT[category]
+  const content = await getCategoryLanding(category)
   if (!content) notFound()
 
   const { cards, total } = await getCourseCards({ categorySlug: category, limit: 12 })

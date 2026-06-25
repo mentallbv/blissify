@@ -3,6 +3,8 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { SiteChrome } from '@/components/site/SiteChrome'
 import { Eyebrow, Avatar, VerifiedBadge, Button, Tag } from '@/components/ui'
+import { RequestInfoButton } from '@/components/site/RequestInfoButton'
+import { TrackPageView } from '@/components/site/TrackPageView'
 import { getCourseBySlug, getCourseCards } from '@/lib/data'
 import { FALLBACK_COURSES } from '@/lib/fallback'
 import { formatPrice, formatDuration, formatFormat, courseLocation } from '@/lib/format'
@@ -128,8 +130,11 @@ export default async function CourseDetailPage({ params }: Params) {
     'Een conforme zelfstandige praktijk opbouwen en runnen',
   ]
 
+  const courseRef = course ? String(course.id) : slug
+
   return (
     <SiteChrome>
+      <TrackPageView kind="course" id={courseRef} />
       {/* Hero image band */}
       <div style={{ height: 400, background: 'var(--surface-dark)' }} />
 
@@ -252,9 +257,7 @@ export default async function CourseDetailPage({ params }: Params) {
                 incl. btw · {v.format}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <Button variant="primary" fullWidth>
-                  Vraag informatie aan
-                </Button>
+                <RequestInfoButton courseId={courseRef} courseTitle={v.title} />
                 <Button variant="ghost" fullWidth>
                   Opleiding opslaan
                 </Button>
