@@ -24,6 +24,33 @@ import { Pricing } from './globals/Pricing'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
+// TEMP DEBUG: confirm the unpooled connection string is present at build/migrate time.
+console.log('PAYLOAD_MIGRATING:', process.env.PAYLOAD_MIGRATING)
+console.log('DATABASE_URL_UNPOOLED exists:', !!process.env.DATABASE_URL_UNPOOLED)
+console.log('DATABASE_URL_UNPOOLED length:', process.env.DATABASE_URL_UNPOOLED?.length)
+
+// During the build's migrate step (PAYLOAD_MIGRATING=true) we use the
+// node-postgres adapter over the direct/unpooled connection. The Vercel/Neon
+// serverless driver only speaks WebSocket to the pooled host and cannot use a
+// direct TCP connection (it falls back to wss://localhost and fails), so
+// migrations need a real TCP/SSL driver. At runtime we use the Vercel adapter
+// with the pooled DATABASE_URL, which is what serverless wants.
+const dbAdapter =
+  process.env.PAYLOAD_MIGRATING === 'true'
+    ? postgresAdapter({
+        pool: {
+          connectionString: process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL || '',
+          ssl: { rejectUnauthorized: false },
+        },
+        push: false,
+      })
+    : vercelPostgresAdapter({
+        pool: {
+          connectionString: process.env.DATABASE_URL || '',
+        },
+        push: process.env.NODE_ENV === 'development',
+      })
+
 export default buildConfig({
   admin: {
     user: Users.slug,
@@ -38,27 +65,7 @@ export default buildConfig({
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
-  // During the build's migrate step (PAYLOAD_MIGRATING=true) we use the
-  // node-postgres adapter over the direct/unpooled connection. The Vercel/Neon
-  // serverless driver only speaks WebSocket to the pooled host and cannot use a
-  // direct TCP connection (it falls back to wss://localhost and fails), so
-  // migrations need a real TCP/SSL driver. At runtime we use the Vercel adapter
-  // with the pooled DATABASE_URL, which is what serverless wants.
-  db:
-    process.env.PAYLOAD_MIGRATING === 'true'
-      ? postgresAdapter({
-          pool: {
-            connectionString: process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL || '',
-            ssl: { rejectUnauthorized: false },
-          },
-          push: false,
-        })
-      : vercelPostgresAdapter({
-          pool: {
-            connectionString: process.env.DATABASE_URL || '',
-          },
-          push: process.env.NODE_ENV === 'development',
-        }),
+  db: dbAdapter,
   sharp,
   plugins: [
     vercelBlobStorage({
