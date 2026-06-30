@@ -50,7 +50,12 @@ const dbAdapter =
         pool: {
           connectionString: RUNTIME_URL,
         },
-        push: process.env.NODE_ENV === 'development',
+        // Push (dynamic dev schema sync) must NEVER run on Vercel - it bypasses
+        // migrations and creates drift that triggers the destructive "run in dev
+        // mode" prompt on deploy. It is only allowed in true local development
+        // (NODE_ENV=development AND not on Vercel), where .env must point at a
+        // dev-only database branch, never production.
+        push: process.env.NODE_ENV === 'development' && !process.env.VERCEL,
       })
 
 export default buildConfig({
