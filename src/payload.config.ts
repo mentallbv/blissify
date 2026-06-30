@@ -1,4 +1,5 @@
 import { vercelPostgresAdapter } from '@payloadcms/db-vercel-postgres'
+import { postgresAdapter } from '@payloadcms/db-postgres'
 import { vercelBlobStorage } from '@payloadcms/storage-vercel-blob'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import path from 'path'
@@ -37,18 +38,27 @@ export default buildConfig({
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },
-  db: vercelPostgresAdapter({
-    pool: {
-      // Runtime uses the pooled connection (DATABASE_URL). During the build's
-      // migrate step we set PAYLOAD_MIGRATING=true to use the direct/unpooled
-      // connection (DATABASE_URL_UNPOOLED), since the pooler can break DDL.
-      connectionString:
-        (process.env.PAYLOAD_MIGRATING === 'true' && process.env.DATABASE_URL_UNPOOLED) ||
-        process.env.DATABASE_URL ||
-        '',
-    },
-    push: process.env.NODE_ENV === 'development',
-  }),
+  // During the build's migrate step (PAYLOAD_MIGRATING=true) we use the
+  // node-postgres adapter over the direct/unpooled connection. The Vercel/Neon
+  // serverless driver only speaks WebSocket to the pooled host and cannot use a
+  // direct TCP connection (it falls back to wss://localhost and fails), so
+  // migrations need a real TCP/SSL driver. At runtime we use the Vercel adapter
+  // with the pooled DATABASE_URL, which is what serverless wants.
+  db:
+    process.env.PAYLOAD_MIGRATING === 'true'
+      ? postgresAdapter({
+          pool: {
+            connectionString: process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL || '',
+            ssl: { rejectUnauthorized: false },
+          },
+          push: false,
+        })
+      : vercelPostgresAdapter({
+          pool: {
+            connectionString: process.env.DATABASE_URL || '',
+          },
+          push: process.env.NODE_ENV === 'development',
+        }),
   sharp,
   plugins: [
     vercelBlobStorage({
