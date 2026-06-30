@@ -39,7 +39,13 @@ export default buildConfig({
   },
   db: vercelPostgresAdapter({
     pool: {
-      connectionString: process.env.POSTGRES_URL || '',
+      // Runtime uses the pooled connection (DATABASE_URL). During the build's
+      // migrate step we set PAYLOAD_MIGRATING=true to use the direct/unpooled
+      // connection (DATABASE_URL_UNPOOLED), since the pooler can break DDL.
+      connectionString:
+        (process.env.PAYLOAD_MIGRATING === 'true' && process.env.DATABASE_URL_UNPOOLED) ||
+        process.env.DATABASE_URL ||
+        '',
     },
     push: process.env.NODE_ENV === 'development',
   }),
