@@ -24,29 +24,31 @@ import { Pricing } from './globals/Pricing'
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
 
-// TEMP DEBUG: confirm the unpooled connection string is present at build/migrate time.
-console.log('PAYLOAD_MIGRATING:', process.env.PAYLOAD_MIGRATING)
-console.log('DATABASE_URL_UNPOOLED exists:', !!process.env.DATABASE_URL_UNPOOLED)
-console.log('DATABASE_URL_UNPOOLED length:', process.env.DATABASE_URL_UNPOOLED?.length)
+// Pooled connection (WebSocket-based) used at runtime by the Vercel adapter.
+const RUNTIME_URL =
+  process.env.DATABASE_URL || process.env.POSTGRES_DATABASE_URL || process.env.POSTGRES_URL || ''
+// Direct/unpooled connection (plain TCP/SSL) used by node-postgres for migrations.
+const MIGRATE_URL =
+  process.env.POSTGRES_DATABASE_URL_UNPOOLED || process.env.DATABASE_URL_UNPOOLED || RUNTIME_URL
 
 // During the build's migrate step (PAYLOAD_MIGRATING=true) we use the
 // node-postgres adapter over the direct/unpooled connection. The Vercel/Neon
 // serverless driver only speaks WebSocket to the pooled host and cannot use a
 // direct TCP connection (it falls back to wss://localhost and fails), so
 // migrations need a real TCP/SSL driver. At runtime we use the Vercel adapter
-// with the pooled DATABASE_URL, which is what serverless wants.
+// with the pooled connection, which is what serverless wants.
 const dbAdapter =
   process.env.PAYLOAD_MIGRATING === 'true'
     ? postgresAdapter({
         pool: {
-          connectionString: process.env.DATABASE_URL_UNPOOLED || process.env.DATABASE_URL || '',
+          connectionString: MIGRATE_URL,
           ssl: { rejectUnauthorized: false },
         },
         push: false,
       })
     : vercelPostgresAdapter({
         pool: {
-          connectionString: process.env.DATABASE_URL || '',
+          connectionString: RUNTIME_URL,
         },
         push: process.env.NODE_ENV === 'development',
       })
