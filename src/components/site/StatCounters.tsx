@@ -34,9 +34,7 @@ export function StatCounters({ stats }: { stats: Stat[] }) {
   }, [stats])
 
   return (
-    <div
-      ref={ref}
-      style={{ maxWidth: 1100, margin: '0 auto', padding: '72px 32px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 32, textAlign: 'center' }}
+    <div ref={ref} className="bl-container" style={{ paddingTop: 72, paddingBottom: 72, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 32, textAlign: 'center' }}
     >
       {stats.map((s, i) => (
         <div key={s.label}>

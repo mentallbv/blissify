@@ -123,5 +123,17 @@ export const Users: CollectionConfig = {
         description: 'Vervaldatum abonnement',
       },
     },
+    {
+      name: 'mollieCustomerId',
+      type: 'text',
+      access: { read: adminOnlyField, update: adminOnlyField },
+      admin: { position: 'sidebar', readOnly: true, description: 'Mollie Customer ID (auto-ingevuld)' },
+    },
+    {
+      name: 'mollieSubscriptionId',
+      type: 'text',
+      access: { read: adminOnlyField, update: adminOnlyField },
+      admin: { position: 'sidebar', readOnly: true, description: 'Mollie Subscription ID (auto-ingevuld)' },
+    },
   ],
 }

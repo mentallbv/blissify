@@ -24,6 +24,7 @@ type DetailView = {
   category: string
   provider: string
   providerSlug: string
+  providerEmail: string
   location: string
   price: string
   format: string
@@ -48,6 +49,7 @@ function viewFromCourse(c: Course): DetailView {
     category: cat?.name || 'Opleiding',
     provider: brand?.name || 'Blissify-opleider',
     providerSlug: brand?.slug || '',
+    providerEmail: brand?.email || '',
     location: courseLocation(c),
     price: formatPrice(c.price),
     format: [dur, fmt].filter(Boolean).join(' · ') || 'Op aanvraag',
@@ -108,6 +110,7 @@ export default async function CourseDetailPage({ params }: Params) {
         category: fb!.category,
         provider: fb!.provider,
         providerSlug: fb!.providerSlug,
+        providerEmail: '',
         location: fb!.location,
         price: fb!.price,
         format: fb!.format,
@@ -257,7 +260,13 @@ export default async function CourseDetailPage({ params }: Params) {
                 incl. btw · {v.format}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <RequestInfoButton courseId={courseRef} courseTitle={v.title} />
+                <RequestInfoButton
+                  courseId={courseRef}
+                  courseTitle={v.title}
+                  courseSlug={`${category}/${slug}`}
+                  providerEmail={v.providerEmail}
+                  providerName={v.provider}
+                />
                 <Button variant="ghost" fullWidth>
                   Opleiding opslaan
                 </Button>

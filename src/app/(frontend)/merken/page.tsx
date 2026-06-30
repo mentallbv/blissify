@@ -1,8 +1,9 @@
 import React from 'react'
 import type { Metadata } from 'next'
 import { SiteChrome } from '@/components/site/SiteChrome'
-import { Eyebrow, Avatar, Input } from '@/components/ui'
-import { getBrandCards } from '@/lib/data'
+import { Eyebrow, Avatar } from '@/components/ui'
+import { FilterPills } from '@/components/site/FilterPills'
+import { getBrandCards, getBrandFilterOptions } from '@/lib/data'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,8 +13,12 @@ export const metadata: Metadata = {
     'Ontdek merken die samenwerken met professionele opleiders in de Belgische wellness- en beautysector. Vind erkende opleidingen per merk via Blissify.',
 }
 
-export default async function MerkenPage() {
-  const { cards } = await getBrandCards()
+const one = (v: string | string[] | undefined): string => (Array.isArray(v) ? v[0] : v || '')
+
+export default async function MerkenPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+  const sp = await searchParams
+  const tag = one(sp.tag) || undefined
+  const [{ cards }, tagOptions] = await Promise.all([getBrandCards({ tag }), getBrandFilterOptions()])
   return (
     <SiteChrome>
       <section style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '72px 32px 32px' }}>
@@ -34,12 +39,19 @@ export default async function MerkenPage() {
         <p style={{ fontFamily: 'var(--font-ui)', fontSize: 16, lineHeight: 1.7, color: 'var(--text-body)', maxWidth: 640, margin: '20px 0 0' }}>
           Ontdek merken die samenwerken met professionele opleiders in de Belgische wellness- en beautysector.
         </p>
-        <div style={{ maxWidth: 420, marginTop: 28 }}>
-          <Input icon={<i className="ti ti-search" />} placeholder="Zoek een merk…" />
+        <div style={{ marginTop: 24 }}>
+          <FilterPills paramKey="tag" options={tagOptions} />
         </div>
       </section>
 
       <section style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '24px 32px 80px' }}>
+        {cards.length === 0 ? (
+          <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 8, padding: 48, textAlign: 'center' }}>
+            <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.7, color: 'var(--text-meta)', margin: 0 }}>
+              Geen merken gevonden voor deze filter.
+            </p>
+          </div>
+        ) : (
         <div className="bl-grid-3">
           {cards.map((b) => (
             <a key={b.slug} href={b.href} className="bl-providercard" style={{ display: 'block', padding: 20 }}>
@@ -60,6 +72,7 @@ export default async function MerkenPage() {
             </a>
           ))}
         </div>
+        )}
       </section>
     </SiteChrome>
   )

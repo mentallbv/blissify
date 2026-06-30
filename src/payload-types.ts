@@ -163,6 +163,14 @@ export interface User {
    * Vervaldatum abonnement
    */
   subscriptionExpiresAt?: string | null;
+  /**
+   * Mollie Customer ID (auto-ingevuld)
+   */
+  mollieCustomerId?: string | null;
+  /**
+   * Mollie Subscription ID (auto-ingevuld)
+   */
+  mollieSubscriptionId?: string | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -811,6 +819,8 @@ export interface UsersSelect<T extends boolean = true> {
   stripeCustomerId?: T;
   stripeSubscriptionId?: T;
   subscriptionExpiresAt?: T;
+  mollieCustomerId?: T;
+  mollieSubscriptionId?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;

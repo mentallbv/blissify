@@ -42,6 +42,12 @@ export function AuthForm({ mode }: { mode: 'inloggen' | 'registreren' }) {
         })
         const data = await res.json().catch(() => ({}))
         if (!res.ok) throw new Error(data?.error || 'Registratie mislukt.')
+        // Welcome + admin notification emails (best-effort, non-blocking).
+        fetch('/api/register-aanbieder', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, role }),
+        }).catch(() => {})
         await login()
         router.push('/onboarding')
         router.refresh()

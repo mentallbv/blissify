@@ -1,0 +1,226 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-30T00:00:00Z",
+  "title": "Design System: Blissify",
+  "extensions": {
+    "colorMeta": {
+      "forest": {
+        "role": "primary",
+        "displayName": "Deep Verified Forest",
+        "canonical": "oklch(23% 0.045 155)",
+        "tonalRamp": ["#0a120d", "#0f1a11", "#1a2e25", "#243f34", "#2e5243", "#4a7a62", "#7aaa91", "#c2dccf"]
+      },
+      "chalk": {
+        "role": "neutral-bg",
+        "displayName": "Editorial Chalk",
+        "canonical": "oklch(95% 0.012 80)",
+        "tonalRamp": ["#8a7e6e", "#a89880", "#c4b89a", "#d8ceb8", "#e8e3dc", "#f0ece6", "#f5f0ea", "#faf8f5"]
+      },
+      "terracotta": {
+        "role": "secondary",
+        "displayName": "Certification Terracotta",
+        "canonical": "oklch(62% 0.1 42)",
+        "tonalRamp": ["#4a1f0e", "#7a3520", "#a84e32", "#c4795a", "#d49070", "#e4b090", "#f0ccb8", "#fae8dc"]
+      },
+      "neutral-100": {
+        "role": "neutral-surface",
+        "displayName": "Fog",
+        "canonical": "oklch(91% 0.012 75)",
+        "tonalRamp": ["#7a7468", "#968e82", "#b2a898", "#c8c0b0", "#d8ceb8", "#e0d8c8", "#e8e3dc", "#f0ece6"]
+      },
+      "neutral-600": {
+        "role": "neutral-text",
+        "displayName": "Slate",
+        "canonical": "oklch(41% 0.018 245)",
+        "tonalRamp": ["#1a2028", "#252d38", "#303848", "#3c4658", "#4a5568", "#6a7890", "#9aaac0", "#ccd4e0"]
+      },
+      "neutral-700": {
+        "role": "neutral-text-strong",
+        "displayName": "Ink",
+        "canonical": "oklch(30% 0.018 245)",
+        "tonalRamp": ["#0e1218", "#161c24", "#1e2630", "#2c3440", "#3c4450", "#5a6470", "#8a9098", "#c0c4c8"]
+      },
+      "status-success": {
+        "role": "status",
+        "displayName": "Approved Green",
+        "canonical": "oklch(36% 0.075 155)",
+        "tonalRamp": ["#0e2418", "#162e20", "#1e4028", "#2d6a4f", "#3d8a6a", "#5aaa88", "#90ccb0", "#c8e8d8"]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display / Freight",
+        "purpose": "Hero headlines, section titles, course titles. Freight Display Pro only. Never below 20px."
+      },
+      "body": {
+        "displayName": "Body / Acumin",
+        "purpose": "All running prose and UI labels. DM Sans as graceful fallback until Typekit resolves."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Uppercase identification: badges, filter chips, form field labels, metadata. Never for section heading scaffolding."
+      }
+    },
+    "shadows": [
+      {
+        "name": "nav-pill",
+        "value": "0 8px 30px rgba(26, 46, 37, 0.08)",
+        "purpose": "Scrolled navigation pill only. Ambient, soft, green-tinted. The only shadow in the system."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-standard",
+        "value": "cubic-bezier(0.0, 0.0, 0.2, 1)",
+        "purpose": "Default easing for state transitions (border-color, background-color)."
+      },
+      {
+        "name": "ease-out-quart",
+        "value": "cubic-bezier(0.25, 1, 0.5, 1)",
+        "purpose": "Navigation pill morph, entrance animations."
+      },
+      {
+        "name": "duration-fast",
+        "value": "180ms",
+        "purpose": "Hover state transitions (border, color, background)."
+      },
+      {
+        "name": "duration-morph",
+        "value": "250ms",
+        "purpose": "Navigation scroll morphing, layout transitions."
+      }
+    ],
+    "breakpoints": [
+      { "name": "mobile", "value": "600px" },
+      { "name": "tablet", "value": "860px" },
+      { "name": "desktop-sm", "value": "900px" },
+      { "name": "desktop", "value": "1024px" },
+      { "name": "wide", "value": "1200px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Single primary action per screen. Forest background, chalk text, no lift on hover.",
+      "html": "<button class=\"ds-btn-primary\">Schrijf je in</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 22px; background: #1a2e25; color: #f5f0ea; font-family: 'acumin-pro', 'DM Sans', system-ui, sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 0.01em; border: 1px solid #1a2e25; border-radius: 6px; cursor: pointer; white-space: nowrap; transition: background-color 0.18s ease; } .ds-btn-primary:hover { background: #14241d; border-color: #14241d; } .ds-btn-primary:focus-visible { outline: 2px solid #1a2e25; outline-offset: 2px; }"
+    },
+    {
+      "name": "Accent Button",
+      "kind": "button",
+      "refersTo": "button-accent",
+      "description": "Verification-adjacent actions only. Terracotta background, white text. Do not use for generic CTAs.",
+      "html": "<button class=\"ds-btn-accent\">Geverifieerde opleider worden</button>",
+      "css": ".ds-btn-accent { display: inline-flex; align-items: center; justify-content: center; height: 44px; padding: 0 22px; background: #c4795a; color: #ffffff; font-family: 'acumin-pro', 'DM Sans', system-ui, sans-serif; font-size: 13px; font-weight: 500; letter-spacing: 0.01em; border: 1px solid #c4795a; border-radius: 6px; cursor: pointer; transition: background-color 0.18s ease, border-color 0.18s ease; } .ds-btn-accent:hover { background: #b56a4c; border-color: #b56a4c; } .ds-btn-accent:focus-visible { outline: 2px solid #c4795a; outline-offset: 2px; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary action alongside a primary. Transparent fill, forest border and text.",
+      "html": "<button class=\"ds-btn-ghost\">Meer info</button>",
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; justify-content: center; height: 44px; padding: 0 22px; background: transparent; color: #1a2e25; font-family: 'acumin-pro', 'DM Sans', system-ui, sans-serif; font-size: 13px; font-weight: 400; letter-spacing: 0.01em; border: 1px solid #1a2e25; border-radius: 6px; cursor: pointer; transition: background-color 0.18s ease; } .ds-btn-ghost:hover { background: rgba(26, 46, 37, 0.04); } .ds-btn-ghost:focus-visible { outline: 2px solid #1a2e25; outline-offset: 2px; }"
+    },
+    {
+      "name": "Course Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "The marketplace's core unit. Forest image area, Freight Display title, transparent metadata, hoverable border.",
+      "html": "<a class=\"ds-coursecard\" href=\"#\"><div class=\"ds-coursecard-image\"><span class=\"ds-coursecard-cat\">Massage</span></div><div class=\"ds-coursecard-body\"><h3 class=\"ds-coursecard-title\">Klassieke Massage Opleider</h3><p class=\"ds-coursecard-meta\">Academie Natura · Gent</p><div class=\"ds-coursecard-footer\"><span class=\"ds-coursecard-price\">€ 1.490</span><span class=\"ds-coursecard-format\">Weekend</span></div></div></a>",
+      "css": ".ds-coursecard { display: block; overflow: hidden; background: #ffffff; border: 0.5px solid #e8e3dc; border-radius: 8px; text-decoration: none; color: inherit; transition: border-color 0.18s ease; } .ds-coursecard:hover { border-color: #c9c4bc; } .ds-coursecard-image { position: relative; height: 200px; background: #1a2e25; background-size: cover; background-position: center; } .ds-coursecard-cat { position: absolute; left: 14px; bottom: 12px; font-family: 'acumin-pro', 'DM Sans', system-ui, sans-serif; font-size: 9px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; color: #f5f0ea; opacity: 0.7; } .ds-coursecard-body { padding: 16px; } .ds-coursecard-title { margin: 0 0 6px; font-family: 'freight-display-pro', Georgia, serif; font-weight: 400; font-size: 18px; color: #1a2e25; line-height: 1.25; } .ds-coursecard-meta { margin: 0 0 12px; font-family: 'acumin-pro', 'DM Sans', system-ui, sans-serif; font-size: 12px; font-weight: 400; color: #4a5568; line-height: 1.4; } .ds-coursecard-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 0.5px solid #e8e3dc; } .ds-coursecard-price { font-family: 'acumin-pro', 'DM Sans', system-ui, sans-serif; font-size: 13px; font-weight: 500; color: #2c3440; } .ds-coursecard-format { font-family: 'acumin-pro', 'DM Sans', system-ui, sans-serif; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: #8a8880; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Standard form field. Stone border at rest, forest border on focus. No glow or ring.",
+      "html": "<div class=\"ds-field\"><label class=\"ds-field-label\">Stad of gemeente</label><input class=\"ds-input\" type=\"text\" placeholder=\"Bijv. Gent, Antwerpen…\" /></div>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 6px; } .ds-field-label { font-family: 'acumin-pro', 'DM Sans', system-ui, sans-serif; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.06em; color: #2c3440; } .ds-input { height: 44px; width: 100%; padding: 0 12px; border: 0.5px solid #c9c4bc; border-radius: 6px; background: #ffffff; font-family: 'acumin-pro', 'DM Sans', system-ui, sans-serif; font-size: 14px; font-weight: 400; color: #2c3440; outline: none; transition: border-color 0.18s ease; } .ds-input::placeholder { color: #8a8880; } .ds-input:focus { border-color: #1a2e25; } .ds-input:focus-visible { border-color: #1a2e25; }"
+    },
+    {
+      "name": "Filter Tag",
+      "kind": "chip",
+      "refersTo": "tag",
+      "description": "Category filter pill. Uppercase label type. Forest fill when active.",
+      "html": "<div style=\"display:flex;gap:8px\"><span class=\"ds-tag\">Massage</span><span class=\"ds-tag ds-tag--active\">Yoga</span><span class=\"ds-tag\">Reflexologie</span></div>",
+      "css": ".ds-tag { display: inline-flex; align-items: center; font-family: 'acumin-pro', 'DM Sans', system-ui, sans-serif; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; line-height: 1; padding: 5px 12px; border-radius: 20px; border: none; cursor: pointer; background: #e8e3dc; color: #4a5568; transition: background-color 0.18s ease, color 0.18s ease; } .ds-tag--active { background: #1a2e25; color: #f5f0ea; } .ds-tag:hover:not(.ds-tag--active) { background: #c9c4bc; }"
+    },
+    {
+      "name": "Verified Badge",
+      "kind": "custom",
+      "description": "Trust signal. Terracotta rosette check + uppercase label. Used only on verified providers.",
+      "html": "<span class=\"ds-verified\"><svg class=\"ds-verified-icon\" viewBox=\"0 0 24 24\" width=\"15\" height=\"15\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\"><path d=\"M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z\" /></svg>Geverifieerde opleider</span>",
+      "css": ".ds-verified { display: inline-flex; align-items: center; gap: 6px; font-family: 'acumin-pro', 'DM Sans', system-ui, sans-serif; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.08em; color: #c4795a; } .ds-verified-icon { color: #c4795a; flex-shrink: 0; }"
+    },
+    {
+      "name": "Sticky Navigation",
+      "kind": "nav",
+      "description": "Morphs from a full-width chalk bar to a contained blurred pill on scroll. The system's one elevation moment.",
+      "html": "<nav class=\"ds-nav\"><div class=\"ds-nav-inner\"><span class=\"ds-nav-wordmark\">Blissify</span><div class=\"ds-nav-links\"><a href=\"#\">Opleidingen</a><a href=\"#\">Opleiders</a><a href=\"#\">Prijzen</a></div><div class=\"ds-nav-right\"><a href=\"#\" class=\"ds-nav-login\">Inloggen</a><a href=\"#\" class=\"ds-nav-cta\">Gratis starten</a></div></div></nav>",
+      "css": ".ds-nav { position: sticky; top: 0; z-index: 50; background: #f5f0ea; border-bottom: 0.5px solid #e8e3dc; transition: padding 0.25s ease; } .ds-nav-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; max-width: 1200px; margin: 0 auto; padding: 18px 32px; transition: max-width 0.25s ease, background 0.25s ease, box-shadow 0.25s ease, border-radius 0.25s ease, padding 0.25s ease; } .ds-nav-wordmark { font-family: 'freight-display-pro', Georgia, serif; font-size: 23px; font-weight: 400; letter-spacing: -0.01em; color: #1a2e25; } .ds-nav-links { display: flex; gap: 28px; } .ds-nav-links a { font-family: 'acumin-pro', 'DM Sans', system-ui, sans-serif; font-size: 13px; font-weight: 400; color: #4a5568; text-decoration: none; } .ds-nav-links a:hover { color: #1a2e25; } .ds-nav-right { display: flex; gap: 6px; align-items: center; } .ds-nav-login { font-family: 'acumin-pro', 'DM Sans', system-ui, sans-serif; font-size: 13px; font-weight: 500; color: #1a2e25; text-decoration: none; padding: 0 14px; } .ds-nav-cta { display: inline-flex; align-items: center; height: 40px; padding: 0 18px; background: #1a2e25; color: #f5f0ea; font-family: 'acumin-pro', 'DM Sans', system-ui, sans-serif; font-size: 13px; font-weight: 500; border-radius: 6px; text-decoration: none; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Verified Editorial",
+    "overview": "Blissify is a platform whose core promise is curation — every provider hand-verified, every course detail transparent. The visual system earns trust the same way a respected magazine does: through restraint, considered typography, and the quiet authority of knowing what to leave out. Freight Display Pro carries headlines with the gravitas of a printed credential. Acumin Pro handles the functional layer with the precision of a well-set caption.\n\nThe design operates at two registers simultaneously: an editorial brand surface and a functional product surface. Both carry the same voice. The dashboard should feel as considered as the homepage; visual quality does not stop at login.\n\nDensity is deliberately low. The platform's positioning is curated over crowded. Breathing room signals selectivity. When in doubt, remove rather than add.",
+    "keyCharacteristics": [
+      "Serif display + sans UI pairing with intentional typographic hierarchy",
+      "Flat surfaces with a single earned elevation moment (the morphing navigation)",
+      "Forest-first palette; terracotta as a trust signal, never decorative",
+      "Hairline borders over shadows; borders do the structural work",
+      "Label/eyebrow type used purposefully, not as scaffolding"
+    ],
+    "rules": [
+      {
+        "name": "The Terracotta Scarcity Rule",
+        "body": "Terracotta appears in exactly three contexts: the verified-provider badge, the accent button variant, and accent text links. If you find yourself reaching for terracotta to make something 'pop,' the element should probably not pop — use weight, size, or whitespace instead.",
+        "section": "colors"
+      },
+      {
+        "name": "The No-White-Body Rule",
+        "body": "The page background is chalk (#f5f0ea), not white. Cards are white; the page is chalk. This layering is the only depth signal outside of the navigation. Never set the page background to white.",
+        "section": "colors"
+      },
+      {
+        "name": "The Serif–Sans Axis Rule",
+        "body": "Freight Display Pro announces; Acumin Pro explains. Never use Freight Display Pro for body copy or UI labels, and never use Acumin Pro for primary display headings. The contrast between the two families is load-bearing.",
+        "section": "typography"
+      },
+      {
+        "name": "The Eyebrow Restraint Rule",
+        "body": "Label type (11px uppercase +0.12em) is a tool, not a template. It earns its place on verified badges, filter chip labels, and form fields. A heading that needs an eyebrow above it to make sense is a heading that needs to be rewritten — not a heading that needs more scaffolding.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Elevation Rule",
+        "body": "Shadows exist in exactly one place: the scrolled navigation pill. Every other surface is flat. If a card needs a shadow to feel clickable, the interactive affordance is broken elsewhere (hover state, border darkening, or cursor cue) — fix that instead.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Use Freight Display Pro (400 weight, -0.01em tracking) for any heading that is announcing — course titles, section headers, page titles.",
+      "Let whitespace carry the curation signal. Generous section spacing (96px) and card padding (24px) communicate selectivity without a word.",
+      "Use border-darkening as the hover signal on cards and links. border-color from #e8e3dc to #c9c4bc is sufficient.",
+      "Reserve terracotta (#c4795a) for verified-provider contexts: the badge, the info-request CTA, and trust-signal links.",
+      "Maintain the chalk (#f5f0ea) page background. White is for card surfaces only.",
+      "Keep label/eyebrow type (11px uppercase) for functional identification: badges, filter chips, form labels, metadata. Not for section headings.",
+      "Use text-wrap: balance on H1–H3 headings to prevent orphaned headline words.",
+      "Include a prefers-reduced-motion alternative for every transition.",
+      "Show price, duration, accreditation, and location on every course card."
+    ],
+    "donts": [
+      "Don't use gradient text (background-clip: text). Single solid color only.",
+      "Don't use lotus flowers, floating bubbles, soft pastels, or lavender gradients.",
+      "Don't use generic SaaS startup templates — no hero-metric grids, no feature-bullet icon cards repeated identically.",
+      "Don't use AI-generated landing page aesthetics: no tiny tracked uppercase eyebrows on every section, no 01/02/03 numbered section scaffolding, no cream-body-background with a purple CTA.",
+      "Don't use pill-on-everything or soft drop-shadow UI. Buttons are 6px radius.",
+      "Don't add box-shadows to cards. The flat system is a deliberate editorial signal.",
+      "Don't use Freight Display Pro for body copy or labels. It deteriorates below 20px.",
+      "Don't use the terracotta accent for generic CTAs. It must stay rare.",
+      "Don't use side-stripe borders (colored border-left wider than 1px on cards or callouts).",
+      "Don't remove pricing, accreditation, or location from any course-facing component. Transparency is a design principle."
+    ]
+  }
+}

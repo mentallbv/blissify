@@ -3,7 +3,19 @@
 import React from 'react'
 import { Input, Button, FieldLabel } from '@/components/ui'
 
-export function RequestInfoButton({ courseId, courseTitle }: { courseId: string; courseTitle: string }) {
+export function RequestInfoButton({
+  courseId,
+  courseTitle,
+  courseSlug = '',
+  providerEmail = '',
+  providerName = '',
+}: {
+  courseId: string
+  courseTitle: string
+  courseSlug?: string
+  providerEmail?: string
+  providerName?: string
+}) {
   const [open, setOpen] = React.useState(false)
   const [name, setName] = React.useState('')
   const [email, setEmail] = React.useState('')
@@ -20,7 +32,7 @@ export function RequestInfoButton({ courseId, courseTitle }: { courseId: string;
       const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, message, payload_course_id: courseId }),
+        body: JSON.stringify({ name, email, message, courseId, courseTitle, courseSlug, providerEmail, providerName }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data?.error || 'Verzenden mislukt.')

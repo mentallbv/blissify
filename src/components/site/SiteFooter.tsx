@@ -1,4 +1,5 @@
 import React from 'react'
+import { NewsletterForm } from './NewsletterForm'
 
 const COLS = [
   {
@@ -19,7 +20,7 @@ const COLS = [
     ],
   },
   {
-    head: 'Blissify',
+    head: 'Platform',
     items: [
       { label: 'Over ons', href: '/over-ons' },
       { label: 'Voor aanbieders', href: '/voor-aanbieders' },
@@ -32,23 +33,25 @@ const COLS = [
 export function SiteFooter() {
   return (
     <footer style={{ background: 'var(--surface-dark)', color: 'var(--blissify-chalk)', borderTop: '0.5px solid rgba(245,240,234,0.15)' }}>
-      <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '64px 32px 32px' }}>
+      <div className="bl-container" style={{ paddingTop: 64, paddingBottom: 32 }}>
         <div className="bl-footer-grid" style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr 1fr 1fr', gap: 32 }}>
           <div>
             <div style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 28, letterSpacing: '-0.01em' }}>Blissify</div>
-            <p
-              style={{
-                fontFamily: 'var(--font-display)',
-                fontWeight: 'var(--fw-display-light)',
-                fontSize: 20,
-                color: 'rgba(245,240,234,0.85)',
-                margin: '12px 0 0',
-                maxWidth: 240,
-                lineHeight: 1.3,
-              }}
-            >
-              Jouw praktijk begint hier.
-            </p>
+            <div style={{ marginTop: 28, maxWidth: 280 }}>
+              <p
+                style={{
+                  fontFamily: 'var(--font-display)',
+                  fontWeight: 'var(--fw-display-light)',
+                  fontSize: 18,
+                  color: 'rgba(245,240,234,0.85)',
+                  margin: '0 0 14px',
+                  lineHeight: 1.35,
+                }}
+              >
+                Nieuwe opleidingen,<br />direct in je inbox.
+              </p>
+              <NewsletterForm />
+            </div>
           </div>
           {COLS.map((c) => (
             <div key={c.head}>
@@ -56,18 +59,17 @@ export function SiteFooter() {
                 style={{
                   fontFamily: 'var(--font-ui)',
                   fontWeight: 'var(--fw-ui-medium)',
-                  fontSize: 11,
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.1em',
-                  color: 'rgba(245,240,234,0.5)',
+                  fontSize: 12,
+                  color: 'rgba(245,240,234,0.6)',
                   marginBottom: 16,
+                  letterSpacing: '0.01em',
                 }}
               >
                 {c.head}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {c.items.map((i) => (
-                  <a key={i.label} href={i.href} style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 13, color: 'rgba(245,240,234,0.8)' }}>
+                  <a key={i.label} href={i.href} className="bl-footer-link" style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 13, color: 'rgba(245,240,234,0.72)' }}>
                     {i.label}
                   </a>
                 ))}
@@ -80,12 +82,18 @@ export function SiteFooter() {
             borderTop: '0.5px solid rgba(245,240,234,0.15)',
             marginTop: 48,
             paddingTop: 24,
+            display: 'flex',
+            gap: 24,
+            alignItems: 'center',
+            flexWrap: 'wrap',
             fontFamily: 'var(--font-ui)',
             fontSize: 12,
-            color: 'rgba(245,240,234,0.4)',
+            color: 'rgba(245,240,234,0.55)',
           }}
         >
-          © 2026 Blissify · Professionele wellnessopleiding · België
+          <span>© 2026 Blissify · Professionele wellnessopleiding · België</span>
+          <a href="/privacybeleid" className="bl-footer-link" style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'rgba(245,240,234,0.55)' }}>Privacybeleid</a>
+          <a href="/cookiebeleid" className="bl-footer-link" style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'rgba(245,240,234,0.55)' }}>Cookiebeleid</a>
         </div>
       </div>
     </footer>

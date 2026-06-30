@@ -3,15 +3,14 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { SiteChrome } from '@/components/site/SiteChrome'
 import { Faq } from '@/components/site/Faq'
-import { CourseCard, Select, Tag } from '@/components/ui'
-import { getCourseCards, getCategoryLanding } from '@/lib/data'
+import { Listing } from '@/components/site/Listing'
+import { getCourseCards, getCourseFilterOptions, getCategoryLanding } from '@/lib/data'
+import { parseCourseFilters } from '@/lib/filters'
 import { CATEGORY_SLUGS } from '@/lib/categories'
 
 export const dynamic = 'force-dynamic'
 
-type Params = { params: Promise<{ category: string }> }
-
-const PILLS = ['Avondschool', 'Weekend', 'Online', 'Erkend certificaat', 'Antwerpen', 'Gent', 'Limburg']
+type Params = { params: Promise<{ category: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> }
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { category } = await params
@@ -20,12 +19,17 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   return { title: c.metaTitle, description: c.metaDescription }
 }
 
-export default async function CategoryPage({ params }: Params) {
+export default async function CategoryPage({ params, searchParams }: Params) {
   const { category } = await params
   const content = await getCategoryLanding(category)
   if (!content) notFound()
 
-  const { cards, total } = await getCourseCards({ categorySlug: category, limit: 12 })
+  // Filters apply within this category: the route slug always wins over ?categorie.
+  const filters = { ...parseCourseFilters(await searchParams), categorySlug: category }
+  const [{ cards, total }, options] = await Promise.all([
+    getCourseCards({ ...filters, limit: 24 }),
+    getCourseFilterOptions(),
+  ])
 
   return (
     <SiteChrome>
@@ -63,36 +67,13 @@ export default async function CategoryPage({ params }: Params) {
         </div>
       </section>
 
-      {/* Filter pills + results */}
-      <section style={{ maxWidth: 1200, margin: '0 auto', padding: '64px 32px 0' }}>
+      {/* Filters + results (category locked) */}
+      <section style={{ maxWidth: 1200, margin: '0 auto', padding: '48px 32px 0' }}>
         <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 28, color: 'var(--text-brand)', margin: '0 0 18px', lineHeight: 1.15 }}>
           Vind de opleiding die bij jou past
         </h2>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 32 }}>
-          {PILLS.map((p, i) => (
-            <Tag key={p} as="span" active={i === 0}>
-              {p}
-            </Tag>
-          ))}
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24, gap: 16 }}>
-          <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 13, color: 'var(--text-body)' }}>{total} opleidingen gevonden</span>
-          <div style={{ width: 220 }}>
-            <Select
-              options={[
-                { value: 'relevant', label: 'Meest relevant' },
-                { value: 'price-asc', label: 'Prijs: laag naar hoog' },
-                { value: 'recent', label: 'Nieuwst eerst' },
-              ]}
-            />
-          </div>
-        </div>
-        <div className="bl-grid-3">
-          {cards.map((c) => (
-            <CourseCard key={c.slug} {...c} />
-          ))}
-        </div>
       </section>
+      <Listing title="" cards={cards} total={total} options={options} activeCategory={category} lockCategory showHeader={false} />
 
       {/* FAQ */}
       {content.faqs ? (

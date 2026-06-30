@@ -1,6 +1,6 @@
 import React from 'react'
 import { PageTitle } from '@/components/dashboard/DashSidebar'
-import { ButtonLink } from '@/components/ui'
+import { CheckoutButton, CancelButton } from '@/components/dashboard/SubscriptionActions'
 import { getCurrentUser, getCurrentProfile } from '@/lib/session'
 import { getMyCourseCounts, TIER_LIMITS } from '@/lib/dashboard-data'
 import { getPricing } from '@/lib/data'
@@ -45,6 +45,11 @@ export default async function DashboardSubscriptionPage() {
             {counts.total} van {limitLabel} opleidingen gebruikt
           </p>
         </div>
+        {status === 'active' ? (
+          <div style={{ marginTop: 16 }}>
+            <CancelButton />
+          </div>
+        ) : null}
       </div>
 
       <div className="bl-grid-3" style={{ maxWidth: 900 }}>
@@ -57,12 +62,10 @@ export default async function DashboardSubscriptionPage() {
                 <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 32, color: 'var(--text-brand)' }}>{t.price}</span>
                 <span style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-meta)' }}>/jaar</span>
               </div>
-              {current ? (
+              {current && status === 'active' ? (
                 <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 12, color: 'var(--status-success)' }}>Huidig plan</div>
               ) : (
-                <ButtonLink href="/prijzen" variant="ghost" size="sm" fullWidth>
-                  {t.key === 'basis' ? 'Downgrade' : 'Upgrade'}
-                </ButtonLink>
+                <CheckoutButton tier={t.key} label={current ? 'Activeren' : t.key === 'basis' ? 'Kies Basis' : 'Upgrade'} variant={t.recommended ? 'accent' : 'primary'} />
               )}
             </div>
           )

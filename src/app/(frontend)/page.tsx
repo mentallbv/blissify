@@ -5,9 +5,21 @@ import { SiteNav } from '@/components/site/SiteNav'
 import { SiteFooter, Marquee } from '@/components/site/SiteFooter'
 import { StatCounters } from '@/components/site/StatCounters'
 import { Faq } from '@/components/site/Faq'
-import { CourseCard, ButtonLink } from '@/components/ui'
-import { getCourseCards, getPricing } from '@/lib/data'
+import { SearchCard } from '@/components/site/SearchCard'
+import { Eyebrow, Tag, ButtonLink } from '@/components/ui'
+import { getPricing, getCourseFilterOptions } from '@/lib/data'
 import { FAQ_HOME } from '@/lib/pricing'
+
+const HERO_PILLS = [
+  { label: 'Massage', slug: 'massage' },
+  { label: 'Nagelstyliste', slug: 'nagelstyliste' },
+  { label: 'Reflexologie', slug: 'voetreflexologie' },
+  { label: 'Schoonheid', slug: 'schoonheid' },
+  { label: 'Yoga', slug: 'yoga' },
+  { label: 'Voeding', slug: 'voeding' },
+  { label: 'Aromatherapie', slug: 'aromatherapie' },
+  { label: 'Reiki', slug: 'reiki' },
+]
 
 export const dynamic = 'force-dynamic'
 
@@ -27,7 +39,6 @@ const DEFAULT_STATS = [
   { target: 3, suffix: '', label: 'Landen' },
 ]
 
-const cardWrap: React.CSSProperties = { position: 'absolute', width: 300 }
 const mediaUrl = (m: unknown): string | null => (m && typeof m === 'object' && (m as { url?: string }).url ? (m as { url: string }).url : null)
 
 async function getHomepage(): Promise<Record<string, any> | null> {
@@ -40,7 +51,6 @@ async function getHomepage(): Promise<Record<string, any> | null> {
 }
 
 export default async function HomePage() {
-  const { cards } = await getCourseCards({ limit: 3 })
   const hp = (await getHomepage()) || {}
   const hero = hp.hero || {}
   const why = hp.why || {}
@@ -59,15 +69,10 @@ export default async function HomePage() {
     : DEFAULT_STATS
   const faqItems = Array.isArray(hp.faq) && hp.faq.length ? hp.faq.map((f: { question: string; answer: string }) => ({ q: f.question, a: f.answer })) : FAQ_HOME
 
+  const searchOptions = await getCourseFilterOptions()
   const pricingData = await getPricing()
   const pricing = pricingData.intro
   const tiers = pricingData.tiers
-
-  const tilt = [
-    { ...cardWrap, left: '7%', top: 90, transform: 'rotate(-9deg)', transformOrigin: 'bottom center' as const },
-    { position: 'absolute' as const, left: '50%', top: 30, width: 320, marginLeft: -160, zIndex: 2 },
-    { ...cardWrap, right: '7%', top: 90, transform: 'rotate(9deg)', transformOrigin: 'bottom center' as const },
-  ]
 
   return (
     <>
@@ -82,82 +87,64 @@ export default async function HomePage() {
             'radial-gradient(120% 90% at 15% 0%, rgba(196,121,90,0.10), rgba(245,240,234,0) 55%), radial-gradient(120% 90% at 85% 5%, rgba(26,46,37,0.08), rgba(245,240,234,0) 55%), #F5F0EA',
         }}
       >
-        <div style={{ maxWidth: 1000, margin: '0 auto', padding: '96px 32px 0', textAlign: 'center' }}>
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              background: 'var(--surface-card)',
-              border: '0.5px solid var(--border-hairline)',
-              borderRadius: 40,
-              padding: '6px 6px 6px 14px',
-              fontFamily: 'var(--font-ui)',
-              fontWeight: 'var(--fw-ui-medium)',
-              fontSize: 12,
-              color: 'var(--text-body)',
-              marginBottom: 28,
-            }}
-          >
-            {hero.badge || '847 opleidingen in België'}
-            <span style={{ background: 'var(--blissify-forest)', color: 'var(--blissify-chalk)', borderRadius: 40, padding: '3px 9px', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              Nieuw
-            </span>
-          </div>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 74, lineHeight: 1.0, letterSpacing: '-0.02em', color: 'var(--text-brand)', margin: 0, textWrap: 'balance' }}>
-            {hero.title || 'De Europese standaard voor'}{' '}
-            <span style={{ background: 'linear-gradient(95deg,var(--blissify-terracotta),var(--blissify-forest))', WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent', color: 'var(--blissify-terracotta)' }}>
-              {hero.highlight || 'wellnessopleiding.'}
-            </span>
-          </h1>
-          <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 18, lineHeight: 1.7, color: 'var(--text-body)', maxWidth: 560, margin: '24px auto 0' }}>
-            {hero.subtitle ||
-              'Vind erkende, professionele opleidingen in massage, nagelstyliste, reflexologie, yoga, voeding en beauty, zorgvuldig samengebracht door Blissify.'}
-          </p>
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 32 }}>
-            <ButtonLink href={hero.primaryCtaUrl || '/opleidingen'} variant="primary" size="lg">
-              {hero.primaryCtaLabel || 'Vind een opleiding'}
-            </ButtonLink>
-            <ButtonLink href={hero.secondaryCtaUrl || '/voor-aanbieders'} variant="ghost" size="lg">
-              {hero.secondaryCtaLabel || 'Publiceer jouw opleiding'}
-            </ButtonLink>
-          </div>
-        </div>
-
-        {/* tilted cards */}
-        <div className="bl-hero-cards" style={{ maxWidth: 1100, margin: '0 auto', padding: '56px 32px 0', height: 340, position: 'relative' }}>
-          {cards.slice(0, 3).map((c, i) => (
-            <div key={c.slug} style={tilt[i]}>
-              <CourseCard {...c} />
+        <div className="bl-container" style={{ paddingTop: 88, paddingBottom: 80 }}>
+          <div className="bl-hero-split">
+            {/* Left column */}
+            <div style={{ maxWidth: 600 }}>
+              <Eyebrow>Professionele wellnessopleiding · België</Eyebrow>
+              <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 64, lineHeight: 1.04, letterSpacing: '-0.02em', color: 'var(--text-brand)', margin: '20px 0 0', textWrap: 'balance' }}>
+                {hero.title || 'De Europese standaard voor'}{' '}
+                <span style={{ color: 'var(--blissify-terracotta)' }}>
+                  {hero.highlight || 'wellnessopleiding.'}
+                </span>
+              </h1>
+              <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 18, lineHeight: 1.7, color: 'var(--text-body)', margin: '22px 0 0' }}>
+                {hero.subtitle ||
+                  'Vind erkende, professionele opleidingen in massage, nagelstyliste, reflexologie, yoga, voeding en beauty, zorgvuldig samengebracht door Blissify.'}
+              </p>
+              <div style={{ display: 'flex', gap: 12, marginTop: 30, flexWrap: 'wrap' }}>
+                <ButtonLink href={hero.primaryCtaUrl || '/opleidingen'} variant="primary">
+                  {hero.primaryCtaLabel || 'Vind een opleiding'}
+                </ButtonLink>
+                <ButtonLink href={hero.secondaryCtaUrl || '/voor-aanbieders'} variant="ghost">
+                  {hero.secondaryCtaLabel || 'Publiceer jouw opleiding'}
+                </ButtonLink>
+              </div>
+              <div className="bl-hero-pills" style={{ display: 'flex', gap: 8, marginTop: 28, flexWrap: 'wrap' }}>
+                {HERO_PILLS.map((p) => (
+                  <Tag key={p.slug} as="a" href={`/opleidingen/${p.slug}`}>
+                    {p.label}
+                  </Tag>
+                ))}
+              </div>
             </div>
-          ))}
+
+            {/* Right column */}
+            <SearchCard categories={searchOptions.categories} cities={searchOptions.cities} />
+          </div>
         </div>
       </section>
 
       {/* TRUST STRIP */}
       <section style={{ background: 'var(--surface-card)', borderTop: '0.5px solid var(--border-hairline)', borderBottom: '0.5px solid var(--border-hairline)' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '28px 32px', textAlign: 'center', fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-meta)' }}>
+        <div className="bl-container" style={{ paddingTop: 28, paddingBottom: 28, textAlign: 'center', fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-meta)' }}>
           {hp.trustText || 'Vertrouwd door 124 geverifieerde opleiders in heel België'}
         </div>
       </section>
 
       {/* DARK "WAAROM" */}
       <section style={{ background: 'var(--surface-dark)' }}>
-        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '104px 32px' }}>
+        <div className="bl-container" style={{ paddingTop: 120, paddingBottom: 128 }}>
           <div style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto 56px' }}>
-            <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-accent)' }}>{why.eyebrow || 'Waarom Blissify'}</span>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 48, lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--blissify-chalk)', margin: '14px 0 0', textWrap: 'balance' }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 48, lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--blissify-chalk)', margin: 0, textWrap: 'balance' }}>
               {why.title || 'Gebouwd voor de professional, niet voor de hype.'}
             </h2>
           </div>
           <div className="bl-cat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
             {darkCards.map((d: { icon?: string; title: string; body?: string }) => (
-              <div key={d.title} style={{ background: 'rgba(245,240,234,0.05)', border: '0.5px solid rgba(245,240,234,0.12)', borderRadius: 14, padding: 32, backdropFilter: 'blur(6px)' }}>
-                <span style={{ display: 'inline-flex', width: 48, height: 48, borderRadius: 12, background: 'rgba(196,121,90,0.18)', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>
-                  <i className={d.icon || 'ti ti-circle-check'} style={{ fontSize: 24, color: 'var(--blissify-terracotta)' }} />
-                </span>
-                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 24, color: 'var(--blissify-chalk)', lineHeight: 1.2, marginBottom: 10 }}>{d.title}</div>
-                <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 15, lineHeight: 1.65, color: 'rgba(245,240,234,0.7)', margin: 0 }}>{d.body}</p>
+              <div key={d.title} style={{ border: '0.5px solid rgba(245,240,234,0.12)', borderRadius: 'var(--radius-md)', padding: 32 }}>
+                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 24, color: 'var(--blissify-chalk)', lineHeight: 1.2, marginBottom: 12 }}>{d.title}</div>
+                <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 15, lineHeight: 1.65, color: 'rgba(245,240,234,0.72)', margin: 0 }}>{d.body}</p>
               </div>
             ))}
           </div>
@@ -165,7 +152,8 @@ export default async function HomePage() {
       </section>
 
       {/* PHOTO FEATURE TILES */}
-      <section style={{ maxWidth: 1200, margin: '0 auto', padding: '104px 32px' }}>
+      <section>
+        <div className="bl-container" style={{ paddingTop: 96, paddingBottom: 112 }}>
         <div style={{ textAlign: 'center', maxWidth: 620, margin: '0 auto 48px' }}>
           <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 44, lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: 0, textWrap: 'balance' }}>
             {photo.title || 'Ontdek hoe Blissify werkt'}
@@ -180,7 +168,7 @@ export default async function HomePage() {
               key={t.title}
               style={{
                 position: 'relative',
-                borderRadius: 14,
+                borderRadius: 'var(--radius-md)',
                 overflow: 'hidden',
                 height: 440,
                 background: 'var(--surface-dark)',
@@ -196,6 +184,7 @@ export default async function HomePage() {
             </div>
           ))}
         </div>
+        </div>
       </section>
 
       {/* STATS */}
@@ -204,10 +193,10 @@ export default async function HomePage() {
       </section>
 
       {/* PRICING */}
-      <section style={{ maxWidth: 1100, margin: '0 auto', padding: '104px 32px 88px' }}>
+      <section>
+        <div className="bl-container" style={{ paddingTop: 104, paddingBottom: 88 }}>
         <div style={{ textAlign: 'center', maxWidth: 560, margin: '0 auto 48px' }}>
-          <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-accent)' }}>{pricing.eyebrow || 'Prijzen'}</span>
-          <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 44, lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: '14px 0 0' }}>{pricing.title || 'Eenvoudige, eerlijke prijzen.'}</h2>
+          <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 44, lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: 0 }}>{pricing.title || 'Eenvoudige, eerlijke prijzen.'}</h2>
           <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 16, color: 'var(--text-body)', margin: '14px 0 0' }}>{pricing.subtitle || 'Eén jaarlijks abonnement. Directe leads. Geen commissie.'}</p>
         </div>
         <div className="bl-cat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, alignItems: 'start' }}>
@@ -229,7 +218,7 @@ export default async function HomePage() {
               <ButtonLink href="/prijzen" variant={t.recommended ? 'accent' : 'primary'} fullWidth>
                 Kies {t.name}
               </ButtonLink>
-              <div style={{ height: 2, borderRadius: 2, background: 'linear-gradient(90deg,rgba(196,121,90,0.35),rgba(26,46,37,0.35))', margin: '24px 0' }} />
+              <div style={{ height: '0.5px', background: 'var(--border-hairline)', margin: '24px 0' }} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {t.features.slice(0, 3).map((f) => (
                   <div key={f} style={{ display: 'flex', gap: 10, alignItems: 'center', fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 14, color: 'var(--text-body)' }}>
@@ -243,11 +232,13 @@ export default async function HomePage() {
             </div>
           ))}
         </div>
+        </div>
       </section>
 
       {/* FAQ */}
       <section style={{ background: 'var(--surface-card)', borderTop: '0.5px solid var(--border-hairline)' }}>
-        <div className="bl-faq-split" style={{ maxWidth: 1100, margin: '0 auto', padding: '96px 32px', display: 'grid', gridTemplateColumns: '0.8fr 1.2fr', gap: 56, alignItems: 'start' }}>
+        <div className="bl-container" style={{ paddingTop: 96, paddingBottom: 96 }}>
+        <div className="bl-faq-split" style={{ display: 'grid', gridTemplateColumns: '0.8fr 1.2fr', gap: 56, alignItems: 'start' }}>
           <div>
             <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 44, lineHeight: 1.05, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: 0, textWrap: 'balance' }}>
               Veelgestelde vragen
@@ -260,6 +251,7 @@ export default async function HomePage() {
             </ButtonLink>
           </div>
           <Faq items={faqItems} variant="card" defaultOpen={0} />
+        </div>
         </div>
       </section>
 

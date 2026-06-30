@@ -112,9 +112,30 @@ function toCard(c: Course): CourseCardData {
 }
 
 /** Published course cards, optionally limited / filtered by category slug and city. */
-export async function getCourseCards(
-  opts: { limit?: number; categorySlug?: string; city?: string } = {},
-): Promise<{
+export type CourseSort = 'relevant' | 'price-asc' | 'recent'
+
+export type CourseFilters = {
+  limit?: number
+  page?: number
+  categorySlug?: string
+  city?: string
+  format?: string // online | fysiek | hybride
+  certificate?: boolean // "Erkend" -> certificate uitgereikt
+  priceMin?: number
+  priceMax?: number
+  keyword?: string
+  sort?: CourseSort
+}
+
+// "Meest relevant" approximates subscription-tier priority via featured flags,
+// since courses carry no denormalised tier field (see note in getCoursePageData).
+const SORT_MAP: Record<CourseSort, string | string[]> = {
+  relevant: ['-featured', '-createdAt'],
+  'price-asc': 'price.amount',
+  recent: '-createdAt',
+}
+
+export async function getCourseCards(opts: CourseFilters = {}): Promise<{
   cards: CourseCardData[]
   total: number
   isFallback: boolean
@@ -122,39 +143,89 @@ export async function getCourseCards(
   try {
     const payload = await client()
     const and: Record<string, unknown>[] = [{ status: { equals: 'published' } }]
+
     if (opts.categorySlug) {
-      const cat = await payload.find({
-        collection: 'categories',
-        where: { slug: { equals: opts.categorySlug } },
-        limit: 1,
-      })
+      const cat = await payload.find({ collection: 'categories', where: { slug: { equals: opts.categorySlug } }, limit: 1 })
       const id = cat.docs[0]?.id
       if (id) and.push({ category: { equals: id } })
+      else and.push({ category: { equals: -1 } }) // unknown category -> no matches
     }
-    if (opts.city) and.push({ 'location.city': { like: opts.city } })
+    if (opts.city) and.push({ 'location.city': { equals: opts.city } })
+    if (opts.format) and.push({ format: { contains: opts.format } })
+    if (opts.certificate) and.push({ certificate: { equals: true } })
+    if (typeof opts.priceMin === 'number') and.push({ 'price.amount': { greater_than_equal: opts.priceMin } })
+    if (typeof opts.priceMax === 'number') and.push({ 'price.amount': { less_than_equal: opts.priceMax } })
+    if (opts.keyword) {
+      and.push({
+        or: [{ title: { like: opts.keyword } }, { shortDescription: { like: opts.keyword } }],
+      })
+    }
+
     const res = await payload.find({
       collection: 'courses',
       where: { and } as never,
       limit: opts.limit || 24,
+      page: opts.page || 1,
       depth: 1,
-      sort: '-createdAt',
+      sort: SORT_MAP[opts.sort || 'relevant'] as never,
     })
-    if (res.docs.length === 0) throw new Error('empty')
     return { cards: res.docs.map(toCard), total: res.totalDocs, isFallback: false }
   } catch {
+    // Fallback (DB unreachable): filter the illustrative dataset best-effort.
     let list = FALLBACK_COURSES
     if (opts.categorySlug) list = list.filter((c) => c.categorySlug === opts.categorySlug)
     if (opts.city) {
       const cityLc = opts.city.toLowerCase()
-      const byCity = list.filter((c) => c.location.toLowerCase() === cityLc)
-      list = byCity.length ? byCity : list
+      list = list.filter((c) => c.location.toLowerCase() === cityLc)
     }
-    if (list.length === 0) list = FALLBACK_COURSES
+    if (opts.keyword) {
+      const k = opts.keyword.toLowerCase()
+      list = list.filter((c) => c.title.toLowerCase().includes(k))
+    }
     const cards = list.map(fallbackCard)
+    return { cards: opts.limit ? cards.slice(0, opts.limit) : cards, total: cards.length, isFallback: true }
+  }
+}
+
+export type CourseFilterOptions = {
+  categories: { slug: string; name: string }[]
+  cities: string[]
+  priceMin: number
+  priceMax: number
+}
+
+/** Live select options for the course filters: categories, distinct cities, price bounds. */
+export async function getCourseFilterOptions(): Promise<CourseFilterOptions> {
+  try {
+    const payload = await client()
+    const [cats, courses] = await Promise.all([
+      payload.find({ collection: 'categories', limit: 200, depth: 0, sort: 'name' }),
+      payload.find({ collection: 'courses', where: { status: { equals: 'published' } } as never, limit: 500, depth: 0 }),
+    ])
+    const cities = new Set<string>()
+    let min = Infinity
+    let max = 0
+    courses.docs.forEach((c) => {
+      const city = (c as Course).location?.city
+      if (city) cities.add(city)
+      const amt = (c as Course).price?.amount
+      if (typeof amt === 'number' && amt > 0) {
+        if (amt < min) min = amt
+        if (amt > max) max = amt
+      }
+    })
     return {
-      cards: opts.limit ? cards.slice(0, opts.limit) : cards,
-      total: cards.length,
-      isFallback: true,
+      categories: cats.docs.map((c) => ({ slug: c.slug, name: c.name })),
+      cities: Array.from(cities).sort((a, b) => a.localeCompare(b, 'nl-BE')),
+      priceMin: Number.isFinite(min) ? Math.floor(min) : 0,
+      priceMax: max > 0 ? Math.ceil(max) : 2000,
+    }
+  } catch {
+    return {
+      categories: CATEGORY_TILES.map((c) => ({ slug: c.slug, name: c.name })),
+      cities: ['Antwerpen', 'Gent', 'Brussel', 'Brugge', 'Leuven', 'Online'],
+      priceMin: 0,
+      priceMax: 2000,
     }
   }
 }
@@ -176,11 +247,24 @@ export async function getCourseBySlug(slug: string): Promise<{ course: Course | 
 }
 
 /** Opleiders = trainers. Maps a trainer doc to the shared provider-card shape. */
-export async function getProviderCards(limit?: number): Promise<{ cards: ProviderCardData[]; isFallback: boolean }> {
+export async function getProviderCards(
+  opts: { limit?: number; specialisatie?: string; city?: string } | number = {},
+): Promise<{ cards: ProviderCardData[]; isFallback: boolean }> {
+  // Back-compat: a number used to mean `limit`.
+  const o = typeof opts === 'number' ? { limit: opts } : opts
+  const limit = o.limit
   try {
     const payload = await client()
-    const res = await payload.find({ collection: 'trainers', limit: limit || 24, depth: 1 })
-    if (res.docs.length === 0) throw new Error('empty')
+    const and: Record<string, unknown>[] = []
+    if (o.specialisatie) and.push({ specializations: { contains: o.specialisatie } })
+    if (o.city) and.push({ 'location.city': { equals: o.city } })
+    const res = await payload.find({
+      collection: 'trainers',
+      where: (and.length ? { and } : undefined) as never,
+      limit: limit || 24,
+      depth: 1,
+    })
+    if (res.docs.length === 0 && and.length === 0) throw new Error('empty')
     const cards = await Promise.all(
       res.docs.map(async (t) => {
         const courses = await payload.count({
@@ -257,11 +341,16 @@ export type BrandCardData = {
   website?: string | null
 }
 
-export async function getBrandCards(): Promise<{ cards: BrandCardData[]; isFallback: boolean }> {
+export async function getBrandCards(opts: { tag?: string } = {}): Promise<{ cards: BrandCardData[]; isFallback: boolean }> {
   try {
     const payload = await client()
-    const res = await payload.find({ collection: 'brands', limit: 48, depth: 1 })
-    if (res.docs.length === 0) throw new Error('empty')
+    const res = await payload.find({
+      collection: 'brands',
+      where: (opts.tag ? { tags: { contains: opts.tag } } : undefined) as never,
+      limit: 48,
+      depth: 1,
+    })
+    if (res.docs.length === 0 && !opts.tag) throw new Error('empty')
     const cards = await Promise.all(
       res.docs.map(async (b) => {
         const courses = await payload.count({
@@ -447,6 +536,51 @@ export async function getPricing(): Promise<PricingData> {
     }
   } catch {
     return PRICING_FALLBACK
+  }
+}
+
+/** Distinct specialisaties + cities across trainers, for the /opleiders filters. */
+export async function getTrainerFilterOptions(): Promise<{ specialisaties: { value: string; label: string }[]; cities: string[] }> {
+  try {
+    const payload = await client()
+    const res = await payload.find({ collection: 'trainers', limit: 200, depth: 0 })
+    const specs = new Set<string>()
+    const cities = new Set<string>()
+    res.docs.forEach((t) => {
+      ;(t.specializations || []).forEach((s) => s && specs.add(s))
+      if (t.location?.city) cities.add(t.location.city)
+    })
+    return {
+      specialisaties: Array.from(specs).map((v) => ({ value: v, label: specLabel(v) })),
+      cities: Array.from(cities).sort((a, b) => a.localeCompare(b, 'nl-BE')),
+    }
+  } catch {
+    return { specialisaties: Object.entries(SPEC_LABELS).map(([value, label]) => ({ value, label })), cities: [] }
+  }
+}
+
+const BRAND_TAG_LABELS: Record<string, string> = {
+  belgisch: 'Belgisch',
+  vegan: 'Vegan',
+  natuurlijk: 'Natuurlijk',
+  professioneel: 'Professioneel',
+  biologisch: 'Biologisch',
+  duurzaam: 'Duurzaam',
+  luxe: 'Luxe',
+}
+
+/** Distinct tags present across brands, for the /merken filters. */
+export async function getBrandFilterOptions(): Promise<{ value: string; label: string }[]> {
+  try {
+    const payload = await client()
+    const res = await payload.find({ collection: 'brands', limit: 200, depth: 0 })
+    const tags = new Set<string>()
+    res.docs.forEach((b) => (b.tags || []).forEach((t) => t && tags.add(t)))
+    const present = Array.from(tags)
+    const source = present.length ? present : Object.keys(BRAND_TAG_LABELS)
+    return source.map((v) => ({ value: v, label: BRAND_TAG_LABELS[v] || v }))
+  } catch {
+    return Object.entries(BRAND_TAG_LABELS).map(([value, label]) => ({ value, label }))
   }
 }
 
