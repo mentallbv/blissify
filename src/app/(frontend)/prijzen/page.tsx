@@ -19,29 +19,32 @@ export default async function PrijzenPage() {
   return (
     <SiteChrome>
       {/* HERO */}
-      <section style={{ maxWidth: 760, margin: '0 auto', padding: '80px 32px 48px', textAlign: 'center' }}>
-        <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-accent)' }}>{intro.eyebrow}</span>
-        <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 56, lineHeight: 1.05, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: '16px 0 0', textWrap: 'balance' }}>
-          {intro.title}
-        </h1>
-        <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 18, lineHeight: 1.7, color: 'var(--text-body)', margin: '18px auto 0', maxWidth: 520 }}>
-          {intro.subtitle}
-        </p>
+      <section className="bl-container" style={{ paddingTop: 80, paddingBottom: 48, textAlign: 'center' }}>
+        <div style={{ maxWidth: 760, margin: '0 auto' }}>
+          <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 'var(--type-label)', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-accent)' }}>{intro.eyebrow}</span>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 56, lineHeight: 1.05, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: '16px 0 0', textWrap: 'balance' }}>
+            {intro.title}
+          </h1>
+          <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 18, lineHeight: 1.7, color: 'var(--text-body)', margin: '18px auto 0', maxWidth: 520 }}>
+            {intro.subtitle}
+          </p>
+        </div>
       </section>
 
       {/* TIERS */}
-      <section style={{ maxWidth: 1100, margin: '0 auto', padding: '0 32px 24px' }}>
+      <section className="bl-container" style={{ paddingTop: 0, paddingBottom: 24 }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
         <div className="bl-cat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, alignItems: 'start' }}>
           {tiers.map((t) => (
-            <div key={t.key} style={{ border: '0.5px solid var(--border-hairline)', borderRadius: 8, background: 'var(--surface-card)', overflow: 'hidden' }}>
+            <div key={t.key} style={{ border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', background: 'var(--surface-card)', overflow: 'hidden' }}>
               {t.recommended ? (
-                <div style={{ background: 'var(--blissify-terracotta)', color: '#fff', textAlign: 'center', fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', padding: 7 }}>
+                <div style={{ background: 'var(--blissify-terracotta)', color: '#fff', textAlign: 'center', fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 'var(--type-label)', textTransform: 'uppercase', letterSpacing: '0.1em', padding: 7 }}>
                   Aanbevolen
                 </div>
               ) : null}
               <div style={{ padding: '32px 28px' }}>
                 <div style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 24, color: 'var(--text-brand)' }}>{t.name}</div>
-                {t.tagline ? <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 13, color: 'var(--text-meta)', marginTop: 2 }}>{t.tagline}</div> : null}
+                {t.tagline ? <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 'var(--type-sm)', color: 'var(--text-meta)', marginTop: 2 }}>{t.tagline}</div> : null}
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, margin: '20px 0 24px' }}>
                   <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 48, lineHeight: 1, letterSpacing: '-0.01em', color: 'var(--text-brand)' }}>{t.price}</span>
                   <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 14, color: 'var(--text-meta)' }}>{t.period}</span>
@@ -61,11 +64,13 @@ export default async function PrijzenPage() {
             </div>
           ))}
         </div>
+        </div>
       </section>
 
       {/* COMPARISON */}
-      <section style={{ maxWidth: 1100, margin: '0 auto', padding: '48px 32px 0' }}>
-        <div style={{ border: '0.5px solid var(--border-hairline)', borderRadius: 8, overflow: 'hidden', background: 'var(--surface-card)' }}>
+      <section className="bl-container" style={{ paddingTop: 48, paddingBottom: 0 }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto' }}>
+        <div style={{ border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', overflow: 'hidden', background: 'var(--surface-card)' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', background: 'var(--surface-page)', borderBottom: '0.5px solid var(--border-hairline)' }}>
             {['Functie', comparison.col1, comparison.col2, comparison.col3].map((h, k) => (
               <div key={k} style={{ padding: '14px 20px', fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: k === 0 ? 11 : 13, textTransform: k === 0 ? 'uppercase' : 'none', letterSpacing: k === 0 ? '0.1em' : '0', color: k === 0 ? 'var(--text-meta)' : 'var(--text-strong)', textAlign: k === 0 ? 'left' : 'center' }}>
@@ -82,11 +87,13 @@ export default async function PrijzenPage() {
             </div>
           ))}
         </div>
+        </div>
       </section>
 
       {/* BOTTOM CTA */}
       <section style={{ background: 'var(--surface-dark)', marginTop: 88 }}>
-        <div style={{ maxWidth: 920, margin: '0 auto', padding: '80px 32px', textAlign: 'center' }}>
+        <div className="bl-container" style={{ paddingTop: 80, paddingBottom: 96 }}>
+        <div style={{ maxWidth: 920, margin: '0 auto', textAlign: 'center' }}>
           <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 44, letterSpacing: '-0.01em', color: 'var(--blissify-chalk)', lineHeight: 1.1, margin: 0 }}>
             {bottomCta.title}
           </h2>
@@ -96,6 +103,7 @@ export default async function PrijzenPage() {
           <ButtonLink href={bottomCta.buttonUrl || '/inloggen'} variant="accent">
             {bottomCta.buttonLabel}
           </ButtonLink>
+        </div>
         </div>
       </section>
     </SiteChrome>

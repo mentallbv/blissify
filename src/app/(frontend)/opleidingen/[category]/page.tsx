@@ -34,13 +34,13 @@ export default async function CategoryPage({ params, searchParams }: Params) {
   return (
     <SiteChrome>
       {/* Editorial hero */}
-      <section style={{ maxWidth: 1200, margin: '0 auto', padding: '32px 32px 0' }}>
-        <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 12, color: 'var(--text-body)' }}>
+      <section className="bl-container" style={{ paddingTop: 32 }}>
+        <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 'var(--type-xs)', color: 'var(--text-body)' }}>
           <a href="/opleidingen">Opleidingen</a> <span style={{ color: 'var(--text-meta)' }}>→</span> {content.name}
         </div>
         <div className="bl-hero-split" style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 56, alignItems: 'center', padding: '36px 0 48px' }}>
           <div>
-            <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-accent)' }}>
+            <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 'var(--type-label)', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-accent)' }}>
               Categorie · {content.name}
             </span>
             <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 52, lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: '14px 0 0', textWrap: 'balance' }}>
@@ -50,13 +50,13 @@ export default async function CategoryPage({ params, searchParams }: Params) {
               {content.heroIntro}
             </p>
           </div>
-          <div style={{ width: '100%', height: 300, borderRadius: 8, background: 'var(--surface-dark)' }} />
+          <div style={{ width: '100%', height: 300, borderRadius: 'var(--radius-md)', background: 'var(--surface-dark)' }} />
         </div>
       </section>
 
       {/* SEO intro (2-col) */}
       <section style={{ background: 'var(--surface-card)', borderTop: '0.5px solid var(--border-hairline)', borderBottom: '0.5px solid var(--border-hairline)' }}>
-        <div className="bl-2col" style={{ maxWidth: 1200, margin: '0 auto', padding: '64px 32px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 56, alignItems: 'start' }}>
+        <div className="bl-2col bl-container" style={{ paddingTop: 64, paddingBottom: 64, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 56, alignItems: 'start' }}>
           <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 16, lineHeight: 1.7, color: 'var(--text-body)', margin: 0 }}>{content.seoIntro}</p>
           {content.section ? (
             <div>
@@ -68,7 +68,7 @@ export default async function CategoryPage({ params, searchParams }: Params) {
       </section>
 
       {/* Filters + results (category locked) */}
-      <section style={{ maxWidth: 1200, margin: '0 auto', padding: '48px 32px 0' }}>
+      <section className="bl-container" style={{ paddingTop: 48 }}>
         <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 28, color: 'var(--text-brand)', margin: '0 0 18px', lineHeight: 1.15 }}>
           Vind de opleiding die bij jou past
         </h2>
@@ -78,7 +78,7 @@ export default async function CategoryPage({ params, searchParams }: Params) {
       {/* FAQ */}
       {content.faqs ? (
         <section style={{ background: 'var(--surface-card)', borderTop: '0.5px solid var(--border-hairline)', marginTop: 88 }}>
-          <div style={{ maxWidth: 820, margin: '0 auto', padding: '80px 32px' }}>
+          <div className="bl-container" style={{ paddingTop: 80, paddingBottom: 80 }}>
             <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 40, letterSpacing: '-0.01em', color: 'var(--text-brand)', lineHeight: 1.1, margin: '0 0 40px', textWrap: 'balance' }}>
               Veelgestelde vragen over de opleiding {content.name.toLowerCase()}
             </h2>

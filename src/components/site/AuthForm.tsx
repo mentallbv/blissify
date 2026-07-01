@@ -79,7 +79,7 @@ export function AuthForm({ mode }: { mode: 'inloggen' | 'registreren' }) {
                   style={{
                     flex: 1,
                     height: 44,
-                    borderRadius: 6,
+                    borderRadius: 'var(--radius-sm)',
                     cursor: 'pointer',
                     fontFamily: 'var(--font-ui)',
                     fontWeight: 'var(--fw-ui-medium)',
@@ -104,7 +104,7 @@ export function AuthForm({ mode }: { mode: 'inloggen' | 'registreren' }) {
       <Input label="Wachtwoord" type="password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required />
 
       {error ? (
-        <div style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--status-error)', background: 'var(--status-error-bg)', borderRadius: 6, padding: '10px 14px' }}>
+        <div style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--status-error)', background: 'var(--status-error-bg)', borderRadius: 'var(--radius-sm)', padding: '10px 14px' }}>
           {error}
         </div>
       ) : null}

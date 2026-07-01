@@ -30,8 +30,8 @@ export default async function ProviderProfilePage({ params }: Params) {
       {p.id != null ? <TrackPageView kind="trainer" id={p.id} /> : null}
       {/* Dark header */}
       <header style={{ background: 'var(--surface-dark)' }}>
-        <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '48px 32px', display: 'flex', gap: 24, alignItems: 'center' }}>
-          <div style={{ width: 80, height: 80, borderRadius: 8, background: 'var(--surface-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: '0 0 80px' }}>
+        <div className="bl-container" style={{ paddingTop: 48, paddingBottom: 48, display: 'flex', gap: 24, alignItems: 'center' }}>
+          <div style={{ width: 80, height: 80, borderRadius: 'var(--radius-md)', background: 'var(--surface-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: '0 0 80px' }}>
             <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 40, color: 'var(--blissify-forest)' }}>
               {p.initial}
             </span>
@@ -50,7 +50,7 @@ export default async function ProviderProfilePage({ params }: Params) {
       </header>
 
       {/* Bio + contact */}
-      <section style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '64px 32px 0' }}>
+      <section className="bl-container" style={{ paddingTop: 64, paddingBottom: 0 }}>
         <div className="bl-detail-split">
           <div>
             <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 28, color: 'var(--text-brand)', margin: '0 0 16px' }}>
@@ -82,14 +82,14 @@ export default async function ProviderProfilePage({ params }: Params) {
                 ['Talen', 'NL / FR / EN'],
               ].map(([label, value]) => (
                 <div key={label}>
-                  <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-meta)', marginBottom: 4 }}>{label}</div>
+                  <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 'var(--type-label)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-meta)', marginBottom: 4 }}>{label}</div>
                   <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 15, color: 'var(--text-strong)' }}>{value}</div>
                 </div>
               ))}
             </div>
           </div>
-          <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 8, padding: 24 }}>
-            <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-meta)', marginBottom: 14 }}>
+          <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: 24 }}>
+            <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 'var(--type-label)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-meta)', marginBottom: 14 }}>
               Contacteer opleider
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
@@ -112,7 +112,7 @@ export default async function ProviderProfilePage({ params }: Params) {
       </section>
 
       {/* Courses by provider */}
-      <section style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '64px 32px 96px' }}>
+      <section className="bl-container" style={{ paddingTop: 64, paddingBottom: 96 }}>
         <div style={{ marginBottom: 32 }}>
           <SectionHead size={28}>Opleidingen van deze opleider</SectionHead>
         </div>

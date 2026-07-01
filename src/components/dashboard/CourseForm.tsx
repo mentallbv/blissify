@@ -88,12 +88,12 @@ export function CourseForm({
     }
   }
 
-  const card: React.CSSProperties = { background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 8, padding: 28, display: 'flex', flexDirection: 'column', gap: 18, marginBottom: 20 }
+  const card: React.CSSProperties = { background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: 28, display: 'flex', flexDirection: 'column', gap: 18, marginBottom: 20 }
 
   return (
     <form onSubmit={onSubmit} style={{ maxWidth: 720 }}>
       {error ? (
-        <div style={{ marginBottom: 20, fontFamily: 'var(--font-ui)', fontSize: 14, lineHeight: 1.6, color: 'var(--status-warning)', background: '#FBF1E6', border: '0.5px solid #E9D8C2', borderRadius: 8, padding: '14px 16px' }}>
+        <div style={{ marginBottom: 20, fontFamily: 'var(--font-ui)', fontSize: 14, lineHeight: 1.6, color: 'var(--status-warning)', background: '#FBF1E6', border: '0.5px solid #E9D8C2', borderRadius: 'var(--radius-md)', padding: '14px 16px' }}>
           {error}
         </div>
       ) : null}
@@ -201,7 +201,7 @@ const ta: React.CSSProperties = {
   width: '100%',
   minHeight: 80,
   border: '0.5px solid var(--neutral-200)',
-  borderRadius: 6,
+  borderRadius: 'var(--radius-sm)',
   background: 'var(--surface-card)',
   padding: '12px 16px',
   fontFamily: 'var(--font-ui)',

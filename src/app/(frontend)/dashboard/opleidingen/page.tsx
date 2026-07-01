@@ -28,8 +28,21 @@ export default async function DashboardCoursesPage() {
       {rows.length ? (
         <CoursesManager rows={rows} />
       ) : (
-        <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 8, padding: 40, textAlign: 'center' }}>
-          <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.7, color: 'var(--text-meta)', margin: '0 0 20px' }}>
+        <div
+          style={{
+            background: 'var(--surface-card)',
+            border: '0.5px solid var(--border-hairline)',
+            borderRadius: 'var(--radius-md)',
+            padding: '72px 48px',
+            minHeight: 340,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center',
+          }}
+        >
+          <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.7, color: 'var(--text-meta)', margin: '0 0 20px', maxWidth: 460 }}>
             Je hebt nog geen opleidingen aangemaakt.
           </p>
           <ButtonLink href="/dashboard/opleidingen/nieuw" variant="primary" size="sm">

@@ -55,14 +55,15 @@ export default function OnboardingPage() {
   return (
     <>
       <header style={{ background: 'var(--blissify-chalk)', borderBottom: '0.5px solid var(--border-hairline)' }}>
-        <div style={{ maxWidth: 760, margin: '0 auto', padding: '0 32px', height: 68, display: 'flex', alignItems: 'center' }}>
+        <div className="bl-container" style={{ height: 68, display: 'flex', alignItems: 'center' }}>
           <a href="/" style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 24, letterSpacing: '-0.01em', color: 'var(--blissify-forest)' }}>
             Blissify
           </a>
         </div>
       </header>
 
-      <section style={{ maxWidth: 680, margin: '0 auto', padding: '56px 32px 96px' }}>
+      <section className="bl-container" style={{ paddingTop: 56, paddingBottom: 96 }}>
+        <div style={{ maxWidth: 680, margin: '0 auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 0, marginBottom: 40 }}>
           {STEPS.map((s) => {
             const done = s.n < current
@@ -101,7 +102,7 @@ export default function OnboardingPage() {
           Deze gegevens verschijnen op je publieke profiel. Je kunt ze later altijd aanpassen.
         </p>
 
-        <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 8, padding: 32, display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: 32, display: 'flex', flexDirection: 'column', gap: 20 }}>
           <Input label="Naam organisatie" placeholder="bijv. Academia Van der Berg" value={name} onChange={(e) => setName(e.target.value)} />
           <div className="bl-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <Select label="Hoofdcategorie" placeholder="Kies een categorie" options={CATEGORIES} />
@@ -127,13 +128,13 @@ export default function OnboardingPage() {
               value={about}
               onChange={(e) => setAbout(e.target.value)}
               placeholder="Beschrijf je organisatie, specialisatie en aanpak. Minimaal 80 woorden."
-              style={{ width: '100%', minHeight: 120, border: '0.5px solid var(--neutral-200)', borderRadius: 6, background: 'var(--surface-card)', padding: '12px 16px', fontFamily: 'var(--font-ui)', fontWeight: 400, fontSize: 14, color: 'var(--text-strong)', lineHeight: 1.6, resize: 'vertical', outline: 'none' }}
+              style={{ width: '100%', minHeight: 120, border: '0.5px solid var(--neutral-200)', borderRadius: 'var(--radius-sm)', background: 'var(--surface-card)', padding: '12px 16px', fontFamily: 'var(--font-ui)', fontWeight: 400, fontSize: 14, color: 'var(--text-strong)', lineHeight: 1.6, resize: 'vertical', outline: 'none' }}
             />
           </div>
         </div>
 
         {error ? (
-          <div style={{ marginTop: 16, fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--status-error)', background: 'var(--status-error-bg)', borderRadius: 6, padding: '10px 14px' }}>
+          <div style={{ marginTop: 16, fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--status-error)', background: 'var(--status-error-bg)', borderRadius: 'var(--radius-sm)', padding: '10px 14px' }}>
             {error}
           </div>
         ) : null}
@@ -149,6 +150,7 @@ export default function OnboardingPage() {
           <Button variant="primary" onClick={saveAndContinue} disabled={loading}>
             {loading ? 'Opslaan…' : 'Profiel opslaan'}
           </Button>
+        </div>
         </div>
       </section>
     </>

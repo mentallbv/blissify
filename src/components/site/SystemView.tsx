@@ -6,7 +6,7 @@ export function SystemView({ state }: { state: 'betaling-succes' | '404' }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
       <header style={{ background: 'var(--blissify-chalk)', borderBottom: '0.5px solid var(--border-hairline)' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 32px', height: 68, display: 'flex', alignItems: 'center' }}>
+        <div className="bl-container" style={{ height: 68, display: 'flex', alignItems: 'center' }}>
           <a href="/" style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 24, letterSpacing: '-0.01em', color: 'var(--blissify-forest)' }}>
             Blissify
           </a>
@@ -60,7 +60,7 @@ export function SystemView({ state }: { state: 'betaling-succes' | '404' }) {
       </main>
 
       <footer style={{ background: 'var(--surface-dark)', color: 'rgba(245,240,234,0.4)' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '24px 32px', fontFamily: 'var(--font-ui)', fontSize: 12 }}>
+        <div className="bl-container" style={{ paddingTop: 24, paddingBottom: 24, fontFamily: 'var(--font-ui)', fontSize: 12 }}>
           © 2026 Blissify · Professionele wellnessopleiding · België
         </div>
       </footer>

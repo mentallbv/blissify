@@ -13,7 +13,7 @@ export function Faq({ items, variant = 'list', defaultOpen = 0 }: { items: FaqIt
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {items.map((f, i) => (
-          <div key={f.q} style={{ background: 'var(--surface-page)', border: '0.5px solid var(--border-hairline)', borderRadius: 14, padding: '22px 24px' }}>
+          <div key={f.q} style={{ background: 'var(--surface-page)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: '22px 24px' }}>
             <button
               type="button"
               onClick={() => toggle(i)}

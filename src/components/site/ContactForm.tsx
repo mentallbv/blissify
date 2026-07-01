@@ -34,7 +34,7 @@ export function ContactForm() {
 
   if (done) {
     return (
-      <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 8, padding: 40, textAlign: 'center' }}>
+      <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: 40, textAlign: 'center' }}>
         <span style={{ width: 56, height: 56, borderRadius: '50%', background: 'var(--status-success-bg)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18 }}>
           <i className="ti ti-check" style={{ fontSize: 28, color: 'var(--status-success)' }} />
         </span>
@@ -47,7 +47,7 @@ export function ContactForm() {
   }
 
   return (
-    <form onSubmit={submit} style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 8, padding: 28, display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <form onSubmit={submit} style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: 28, display: 'flex', flexDirection: 'column', gap: 16 }}>
       <Input label="Naam" value={name} onChange={(e) => setName(e.target.value)} required />
       <Input label="E-mailadres" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
       <Input label="Onderwerp" value={subject} onChange={(e) => setSubject(e.target.value)} />
@@ -57,10 +57,10 @@ export function ContactForm() {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           required
-          style={{ width: '100%', minHeight: 130, border: '0.5px solid var(--neutral-200)', borderRadius: 6, background: 'var(--surface-card)', padding: '12px 16px', fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-strong)', lineHeight: 1.6, resize: 'vertical', outline: 'none' }}
+          style={{ width: '100%', minHeight: 130, border: '0.5px solid var(--neutral-200)', borderRadius: 'var(--radius-sm)', background: 'var(--surface-card)', padding: '12px 16px', fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-strong)', lineHeight: 1.6, resize: 'vertical', outline: 'none' }}
         />
       </div>
-      {error ? <div style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--status-error)', background: 'var(--status-error-bg)', borderRadius: 6, padding: '10px 14px' }}>{error}</div> : null}
+      {error ? <div style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--status-error)', background: 'var(--status-error-bg)', borderRadius: 'var(--radius-sm)', padding: '10px 14px' }}>{error}</div> : null}
       <div>
         <Button variant="primary" type="submit" disabled={loading}>
           {loading ? 'Versturen…' : 'Verstuur bericht'}

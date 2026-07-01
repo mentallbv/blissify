@@ -52,12 +52,7 @@ export function Select({
     <label style={{ display: 'block', width: '100%' }}>
       {label ? <FieldLabel>{label}</FieldLabel> : null}
       <span style={{ position: 'relative', display: 'flex', alignItems: 'center', width: '100%' }}>
-        <select
-          className="bl-select"
-          style={{ padding: '0 40px 0 16px', appearance: 'none', WebkitAppearance: 'none', cursor: 'pointer' }}
-          defaultValue=""
-          {...rest}
-        >
+        <select className="bl-select" defaultValue="" {...rest}>
           {placeholder ? (
             <option value="" disabled>
               {placeholder}
@@ -72,17 +67,6 @@ export function Select({
             )
           })}
         </select>
-        <span
-          aria-hidden="true"
-          className="ti ti-chevron-down"
-          style={{
-            position: 'absolute',
-            right: 14,
-            pointerEvents: 'none',
-            color: 'var(--text-meta)',
-            fontSize: 17,
-          }}
-        />
       </span>
     </label>
   )

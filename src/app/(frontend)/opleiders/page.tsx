@@ -29,7 +29,7 @@ export default async function OpleidersPage({ searchParams }: { searchParams: SP
 
   return (
     <SiteChrome>
-      <section style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '72px 32px 24px' }}>
+      <section className="bl-container" style={{ paddingTop: 72, paddingBottom: 24 }}>
         <Eyebrow tone="meta">Opleiders</Eyebrow>
         <h1
           style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 48, letterSpacing: '-0.01em', color: 'var(--text-brand)', lineHeight: 1.1, margin: '14px 0 0', maxWidth: 760 }}
@@ -42,12 +42,12 @@ export default async function OpleidersPage({ searchParams }: { searchParams: SP
         </p>
       </section>
 
-      <section style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '8px 32px 0', display: 'flex', flexDirection: 'column', gap: 18 }}>
+      <section className="bl-container" style={{ paddingTop: 8, paddingBottom: 0, display: 'flex', flexDirection: 'column', gap: 18 }}>
         <FilterPills paramKey="specialisatie" label="Specialisatie" options={opts.specialisaties} />
         {opts.cities.length ? <FilterPills paramKey="locatie" label="Locatie" options={opts.cities.map((c) => ({ value: c, label: c }))} /> : null}
       </section>
 
-      <section style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '24px 32px 64px' }}>
+      <section className="bl-container" style={{ paddingTop: 24, paddingBottom: 64 }}>
         {cards.length ? (
           <div className="bl-grid-3">
             {cards.map((p) => (
@@ -55,8 +55,8 @@ export default async function OpleidersPage({ searchParams }: { searchParams: SP
             ))}
           </div>
         ) : (
-          <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 8, padding: 48, textAlign: 'center' }}>
-            <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.7, color: 'var(--text-meta)', margin: 0 }}>
+          <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: '72px 48px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 320 }}>
+            <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.7, color: 'var(--text-meta)', margin: 0, maxWidth: 380 }}>
               Geen opleiders gevonden voor deze filters.
             </p>
           </div>
@@ -64,7 +64,7 @@ export default async function OpleidersPage({ searchParams }: { searchParams: SP
       </section>
 
       <section style={{ background: 'var(--surface-card)', borderTop: '0.5px solid var(--border-hairline)', borderBottom: '0.5px solid var(--border-hairline)' }}>
-        <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '64px 32px' }}>
+        <div className="bl-container" style={{ paddingTop: 64, paddingBottom: 80 }}>
           <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 28, color: 'var(--text-brand)', margin: '0 0 16px' }}>
             Hoe Blissify opleiders verifieert
           </h2>

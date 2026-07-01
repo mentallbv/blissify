@@ -25,9 +25,10 @@ export function SortSelect() {
 
   return (
     <select
+      className="bl-select"
       value={current}
       onChange={(e) => onChange(e.target.value)}
-      style={{ width: 200, height: 44, border: '0.5px solid var(--neutral-200)', borderRadius: 6, background: 'var(--surface-card)', padding: '0 14px', fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-strong)', cursor: 'pointer', outline: 'none' }}
+      style={{ width: 200, height: 44, fontSize: 14 }}
     >
       {OPTIONS.map((o) => (
         <option key={o.value} value={o.value}>{o.label}</option>

@@ -44,8 +44,9 @@ export function NewsletterForm() {
 
   return (
     <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-      <div style={{ display: 'flex', gap: 8 }}>
+      <div style={{ display: 'flex', gap: 0, maxWidth: 420 }}>
         <input
+          className="bl-newsletter-input"
           type="email"
           required
           value={email}
@@ -56,17 +57,18 @@ export function NewsletterForm() {
           aria-label="E-mailadres"
           style={{
             flex: 1,
-            minWidth: 0,
-            height: 40,
-            borderRadius: 6,
+            minWidth: 280,
+            height: 48,
+            borderRadius: 'var(--radius-sm) 0 0 var(--radius-sm)',
             border: focused
               ? '0.5px solid rgba(245,240,234,0.6)'
               : '0.5px solid rgba(245,240,234,0.25)',
+            borderRight: 'none',
             background: 'rgba(245,240,234,0.06)',
             color: 'var(--blissify-chalk)',
-            padding: '0 12px',
+            padding: '0 16px',
             fontFamily: 'var(--font-ui)',
-            fontSize: 13,
+            fontSize: 15,
             outline: focused ? '2px solid rgba(245,240,234,0.2)' : 'none',
             outlineOffset: 2,
             transition: 'border-color 0.15s ease',
@@ -76,16 +78,16 @@ export function NewsletterForm() {
           type="submit"
           disabled={status === 'loading'}
           style={{
-            height: 40,
-            padding: '0 16px',
-            borderRadius: 6,
+            height: 48,
+            padding: '0 28px',
+            borderRadius: '0 var(--radius-sm) var(--radius-sm) 0',
             border: 'none',
             cursor: status === 'loading' ? 'wait' : 'pointer',
             background: 'var(--blissify-terracotta)',
             color: '#fff',
             fontFamily: 'var(--font-ui)',
             fontWeight: 'var(--fw-ui-medium)',
-            fontSize: 13,
+            fontSize: 15,
             whiteSpace: 'nowrap',
             opacity: status === 'loading' ? 0.7 : 1,
             transition: 'opacity 0.15s ease',

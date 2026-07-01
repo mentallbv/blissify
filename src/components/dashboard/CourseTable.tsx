@@ -43,7 +43,7 @@ export function CourseTable({ rows, limit }: { rows: DashCourse[]; limit?: numbe
     verticalAlign: 'middle',
   }
   return (
-    <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 8, overflow: 'hidden' }}>
+    <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr>

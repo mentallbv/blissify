@@ -11,10 +11,10 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <SiteChrome>
-      <section style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '88px 32px 64px' }}>
+      <section className="bl-container" style={{ paddingTop: 88, paddingBottom: 96 }}>
         <div className="bl-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 56, alignItems: 'start' }}>
           <div>
-            <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-accent)' }}>Contact</span>
+            <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 'var(--type-label)', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-accent)' }}>Contact</span>
             <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 52, lineHeight: 1.05, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: '16px 0 0', textWrap: 'balance' }}>
               Neem contact op met Blissify.
             </h1>

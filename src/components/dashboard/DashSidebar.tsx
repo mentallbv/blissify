@@ -62,7 +62,7 @@ export function DashSidebar({ providerName = 'Opleider' }: { providerName?: stri
                 alignItems: 'center',
                 gap: 12,
                 padding: '10px 12px',
-                borderRadius: 6,
+                borderRadius: 'var(--radius-sm)',
                 background: on ? 'rgba(245,240,234,0.08)' : 'transparent',
                 fontFamily: 'var(--font-ui)',
                 fontWeight: 'var(--fw-ui-regular)',
@@ -82,7 +82,7 @@ export function DashSidebar({ providerName = 'Opleider' }: { providerName?: stri
           style={{
             width: 36,
             height: 36,
-            borderRadius: 6,
+            borderRadius: 'var(--radius-sm)',
             background: 'rgba(245,240,234,0.12)',
             display: 'inline-flex',
             alignItems: 'center',

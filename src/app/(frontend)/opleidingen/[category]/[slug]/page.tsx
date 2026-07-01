@@ -141,8 +141,8 @@ export default async function CourseDetailPage({ params }: Params) {
       {/* Hero image band */}
       <div style={{ height: 400, background: 'var(--surface-dark)' }} />
 
-      <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '0 32px' }}>
-        <div style={{ padding: '20px 0 0', fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-body)' }}>
+      <div className="bl-container">
+        <div style={{ padding: '20px 0 0', fontFamily: 'var(--font-ui)', fontSize: 'var(--type-xs)', color: 'var(--text-body)' }}>
           <a href="/opleidingen">Opleidingen</a> → {v.category} → {v.title}
         </div>
 
@@ -175,7 +175,7 @@ export default async function CourseDetailPage({ params }: Params) {
                     alignItems: 'center',
                     gap: 6,
                     border: '0.5px solid var(--border-hairline)',
-                    borderRadius: 6,
+                    borderRadius: 'var(--radius-sm)',
                     padding: '7px 12px',
                     background: 'var(--surface-card)',
                     fontFamily: 'var(--font-ui)',
@@ -235,7 +235,7 @@ export default async function CourseDetailPage({ params }: Params) {
             </Section>
 
             <Section title="Volgende data">
-              <div style={{ display: 'flex', flexDirection: 'column', border: '0.5px solid var(--border-hairline)', borderRadius: 8, overflow: 'hidden', maxWidth: 520 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', overflow: 'hidden', maxWidth: 520 }}>
                 {[
                   ['14 - 17 januari 2026', '4 plaatsen vrij'],
                   ['11 - 14 maart 2026', '7 plaatsen vrij'],
@@ -252,11 +252,11 @@ export default async function CourseDetailPage({ params }: Params) {
 
           {/* Right - sticky booking card */}
           <div style={{ position: 'sticky', top: 92 }}>
-            <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 8, padding: 24 }}>
+            <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: 24 }}>
               <div style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 40, lineHeight: 1, letterSpacing: '-0.01em', color: 'var(--text-brand)' }}>
                 {v.price}
               </div>
-              <div style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-body)', margin: '6px 0 20px' }}>
+              <div style={{ fontFamily: 'var(--font-ui)', fontSize: 'var(--type-sm)', color: 'var(--text-body)', margin: '6px 0 20px' }}>
                 incl. btw · {v.format}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>

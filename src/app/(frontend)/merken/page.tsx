@@ -21,7 +21,7 @@ export default async function MerkenPage({ searchParams }: { searchParams: Promi
   const [{ cards }, tagOptions] = await Promise.all([getBrandCards({ tag }), getBrandFilterOptions()])
   return (
     <SiteChrome>
-      <section style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '72px 32px 32px' }}>
+      <section className="bl-container" style={{ paddingTop: 72, paddingBottom: 32 }}>
         <Eyebrow tone="meta">Merken</Eyebrow>
         <h1
           style={{
@@ -44,10 +44,10 @@ export default async function MerkenPage({ searchParams }: { searchParams: Promi
         </div>
       </section>
 
-      <section style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '24px 32px 80px' }}>
+      <section className="bl-container" style={{ paddingTop: 24, paddingBottom: 80 }}>
         {cards.length === 0 ? (
-          <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 8, padding: 48, textAlign: 'center' }}>
-            <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.7, color: 'var(--text-meta)', margin: 0 }}>
+          <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: '72px 48px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 320 }}>
+            <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.7, color: 'var(--text-meta)', margin: 0, maxWidth: 380 }}>
               Geen merken gevonden voor deze filter.
             </p>
           </div>

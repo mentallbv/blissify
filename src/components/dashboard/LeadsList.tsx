@@ -31,7 +31,7 @@ export function LeadsList({ leads }: { leads: LeadRow[] }) {
 
   if (leads.length === 0) {
     return (
-      <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 8, padding: 40, textAlign: 'center' }}>
+      <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: 40, textAlign: 'center' }}>
         <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.7, color: 'var(--text-meta)', margin: 0 }}>
           Nog geen aanvragen. Zodra cursisten informatie aanvragen, verschijnen ze hier.
         </p>
@@ -40,10 +40,10 @@ export function LeadsList({ leads }: { leads: LeadRow[] }) {
   }
 
   return (
-    <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 8, overflow: 'hidden' }}>
+    <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
       {leads.map((l, i) => (
         <div key={l.id} style={{ display: 'flex', gap: 16, padding: '18px 20px', borderBottom: i < leads.length - 1 ? '0.5px solid var(--border-hairline)' : 'none', alignItems: 'flex-start' }}>
-          <span style={{ width: 36, height: 36, borderRadius: 6, background: 'var(--surface-dark)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 16, color: 'var(--blissify-chalk)', flex: 'none' }}>
+          <span style={{ width: 36, height: 36, borderRadius: 'var(--radius-sm)', background: 'var(--surface-dark)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 16, color: 'var(--blissify-chalk)', flex: 'none' }}>
             {l.name[0]}
           </span>
           <div style={{ flex: 1, minWidth: 0 }}>

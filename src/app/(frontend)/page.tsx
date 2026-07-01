@@ -127,7 +127,7 @@ export default async function HomePage() {
 
       {/* TRUST STRIP */}
       <section style={{ background: 'var(--surface-card)', borderTop: '0.5px solid var(--border-hairline)', borderBottom: '0.5px solid var(--border-hairline)' }}>
-        <div className="bl-container" style={{ paddingTop: 28, paddingBottom: 28, textAlign: 'center', fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-meta)' }}>
+        <div className="bl-container" style={{ paddingTop: 28, paddingBottom: 28, textAlign: 'center', fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 'var(--type-sm)', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-meta)' }}>
           {hp.trustText || 'Vertrouwd door 124 geverifieerde opleiders in heel België'}
         </div>
       </section>
@@ -179,7 +179,7 @@ export default async function HomePage() {
             >
               <div style={{ position: 'absolute', left: 0, bottom: 0, width: '100%', padding: 24, background: 'linear-gradient(0deg,rgba(26,46,37,0.78),rgba(26,46,37,0))' }}>
                 <div style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 24, color: 'var(--blissify-chalk)', lineHeight: 1.15 }}>{t.title}</div>
-                <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 13, color: 'rgba(245,240,234,0.8)', margin: '6px 0 0' }}>{t.body}</p>
+                <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 'var(--type-sm)', color: 'rgba(245,240,234,0.8)', margin: '6px 0 0' }}>{t.body}</p>
               </div>
             </div>
           ))}
@@ -201,11 +201,11 @@ export default async function HomePage() {
         </div>
         <div className="bl-cat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, alignItems: 'start' }}>
           {tiers.map((t: { key: string; name: string; price: string; period: string; desc: string; recommended: boolean; features: string[] }) => (
-            <div key={t.key} style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 16, padding: 32 }}>
+            <div key={t.key} style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: 32 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 14, color: 'var(--text-strong)' }}>{t.name}</span>
                 {t.recommended ? (
-                  <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#fff', background: 'var(--blissify-terracotta)', borderRadius: 40, padding: '3px 10px' }}>
+                  <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 'var(--type-micro)', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#fff', background: 'var(--blissify-terracotta)', borderRadius: 'var(--radius-pill)', padding: '3px 10px' }}>
                     Aanbevolen
                   </span>
                 ) : null}

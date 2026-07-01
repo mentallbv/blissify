@@ -52,10 +52,10 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
   const hasActive = Boolean(current.categorie || current.locatie || current.format || current.erkend || current.prijsMax)
 
   const labelStyle: React.CSSProperties = { fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-strong)', marginBottom: 12 }
-  const selectStyle: React.CSSProperties = { width: '100%', height: 40, border: '0.5px solid var(--neutral-200)', borderRadius: 6, background: 'var(--surface-card)', padding: '0 12px', fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-strong)', outline: 'none', cursor: 'pointer' }
+  const selectStyle: React.CSSProperties = { height: 40, fontSize: 13 }
 
   return (
-    <aside style={{ position: 'sticky', top: 68, alignSelf: 'start', background: 'var(--surface-card)', borderRight: '0.5px solid var(--border-hairline)', padding: '28px 24px', minHeight: 'calc(100vh - 68px)' }}>
+    <aside style={{ position: 'sticky', top: 68, alignSelf: 'start', background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: '28px 24px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
         <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 20, color: 'var(--text-brand)' }}>Filters</span>
         {hasActive ? (
@@ -68,7 +68,7 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
       {!lockCategory ? (
         <div style={{ marginBottom: 26 }}>
           <div style={labelStyle}>Categorie</div>
-          <select value={current.categorie} onChange={(e) => update('categorie', e.target.value)} style={selectStyle}>
+          <select className="bl-select" value={current.categorie} onChange={(e) => update('categorie', e.target.value)} style={selectStyle}>
             <option value="">Alle categorieën</option>
             {options.categories.map((c) => (
               <option key={c.slug} value={c.slug}>{c.name}</option>
@@ -79,7 +79,7 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
 
       <div style={{ marginBottom: 26 }}>
         <div style={labelStyle}>Locatie</div>
-        <select value={current.locatie} onChange={(e) => update('locatie', e.target.value)} style={selectStyle}>
+        <select className="bl-select" value={current.locatie} onChange={(e) => update('locatie', e.target.value)} style={selectStyle}>
           <option value="">Overal in België</option>
           {options.cities.map((c) => (
             <option key={c} value={c}>{c}</option>
@@ -89,7 +89,7 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
 
       <div style={{ marginBottom: 26 }}>
         <div style={labelStyle}>Type</div>
-        <select value={current.format} onChange={(e) => update('format', e.target.value)} style={selectStyle}>
+        <select className="bl-select" value={current.format} onChange={(e) => update('format', e.target.value)} style={selectStyle}>
           <option value="">Alle types</option>
           {FORMATS.map((f) => (
             <option key={f.value} value={f.value}>{f.label}</option>
@@ -122,7 +122,7 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
             role="switch"
             aria-checked={current.erkend}
             onClick={() => update('erkend', current.erkend ? null : 'true')}
-            style={{ width: 34, height: 20, borderRadius: 20, border: 'none', cursor: 'pointer', background: current.erkend ? 'var(--blissify-forest)' : 'var(--neutral-200)', position: 'relative', flex: 'none' }}
+            style={{ width: 34, height: 20, borderRadius: 'var(--radius-pill)', border: 'none', cursor: 'pointer', background: current.erkend ? 'var(--blissify-forest)' : 'var(--neutral-200)', position: 'relative', flex: 'none' }}
           >
             <span style={{ position: 'absolute', top: 2, left: current.erkend ? 16 : 2, width: 16, height: 16, borderRadius: '50%', background: 'var(--blissify-chalk)', transition: 'left .15s ease' }} />
           </button>

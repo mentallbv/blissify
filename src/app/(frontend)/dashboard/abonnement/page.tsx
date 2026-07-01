@@ -28,7 +28,7 @@ export default async function DashboardSubscriptionPage() {
       <PageTitle>Abonnement</PageTitle>
 
       <div style={{ maxWidth: 640, marginBottom: 32 }}>
-        <div style={{ background: 'var(--surface-dark)', borderRadius: 8, padding: 28 }}>
+        <div style={{ background: 'var(--surface-dark)', borderRadius: 'var(--radius-md)', padding: 28 }}>
           <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(245,240,234,0.6)', marginBottom: 12 }}>
             Huidig abonnement
           </div>
@@ -56,7 +56,7 @@ export default async function DashboardSubscriptionPage() {
         {tiers.map((t) => {
           const current = t.key === tier
           return (
-            <div key={t.key} style={{ border: '0.5px solid ' + (current ? 'var(--blissify-forest)' : 'var(--border-hairline)'), borderRadius: 8, background: 'var(--surface-card)', padding: 24 }}>
+            <div key={t.key} style={{ border: '0.5px solid ' + (current ? 'var(--blissify-forest)' : 'var(--border-hairline)'), borderRadius: 'var(--radius-md)', background: 'var(--surface-card)', padding: 24 }}>
               <div style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 20, color: 'var(--text-brand)' }}>{t.name}</div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '10px 0 16px' }}>
                 <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 32, color: 'var(--text-brand)' }}>{t.price}</span>

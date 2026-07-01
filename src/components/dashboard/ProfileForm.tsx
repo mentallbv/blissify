@@ -41,7 +41,7 @@ export function ProfileForm({
 
   return (
     <form onSubmit={onSubmit} style={{ maxWidth: 640 }}>
-      <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 8, padding: 28, display: 'flex', flexDirection: 'column', gap: 18 }}>
+      <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: 28, display: 'flex', flexDirection: 'column', gap: 18 }}>
         <Input label="Naam opleider" value={v.name} onChange={(e) => set('name', e.target.value)} />
         <Input label="Locatie" value={v.city} onChange={(e) => set('city', e.target.value)} />
         <Input label="Website" value={v.website} onChange={(e) => set('website', e.target.value)} />
@@ -52,16 +52,16 @@ export function ProfileForm({
           <textarea
             value={v.about}
             onChange={(e) => set('about', e.target.value)}
-            style={{ width: '100%', minHeight: 120, border: '0.5px solid var(--neutral-200)', borderRadius: 6, background: 'var(--surface-card)', padding: '12px 16px', fontFamily: 'var(--font-ui)', fontWeight: 400, fontSize: 14, color: 'var(--text-strong)', lineHeight: 1.6, resize: 'vertical', outline: 'none' }}
+            style={{ width: '100%', minHeight: 120, border: '0.5px solid var(--neutral-200)', borderRadius: 'var(--radius-sm)', background: 'var(--surface-card)', padding: '12px 16px', fontFamily: 'var(--font-ui)', fontWeight: 400, fontSize: 14, color: 'var(--text-strong)', lineHeight: 1.6, resize: 'vertical', outline: 'none' }}
           />
         </div>
       </div>
 
       {error ? (
-        <div style={{ marginTop: 16, fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--status-error)', background: 'var(--status-error-bg)', borderRadius: 6, padding: '10px 14px' }}>{error}</div>
+        <div style={{ marginTop: 16, fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--status-error)', background: 'var(--status-error-bg)', borderRadius: 'var(--radius-sm)', padding: '10px 14px' }}>{error}</div>
       ) : null}
       {saved ? (
-        <div style={{ marginTop: 16, fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--status-success)', background: 'var(--status-success-bg)', borderRadius: 6, padding: '10px 14px' }}>Profiel opgeslagen.</div>
+        <div style={{ marginTop: 16, fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--status-success)', background: 'var(--status-success-bg)', borderRadius: 'var(--radius-sm)', padding: '10px 14px' }}>Profiel opgeslagen.</div>
       ) : null}
 
       <div style={{ marginTop: 20 }}>

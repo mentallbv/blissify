@@ -9,7 +9,8 @@ export function DbPage({ page }: { page: PageDoc }) {
   return (
     <SiteChrome>
       {hero && (hero.title || hero.eyebrow) ? (
-        <section style={{ maxWidth: 920, margin: '0 auto', padding: '96px 32px 48px' }}>
+        <section className="bl-container" style={{ paddingTop: 96, paddingBottom: 48 }}>
+          <div style={{ maxWidth: 920 }}>
           {hero.eyebrow ? (
             <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-accent)' }}>
               {hero.eyebrow}
@@ -25,6 +26,7 @@ export function DbPage({ page }: { page: PageDoc }) {
               {hero.subtitle}
             </p>
           ) : null}
+          </div>
         </section>
       ) : null}
       <PageBlocks blocks={page.blocks || []} />

@@ -70,13 +70,13 @@ export default async function DashboardOverviewPage() {
         Recente aanvragen
       </h2>
       {leads.length ? (
-        <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 8 }}>
+        <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)' }}>
           {leads.slice(0, 5).map((e, i) => (
             <div
               key={e.id}
               style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '16px 20px', borderBottom: i < Math.min(leads.length, 5) - 1 ? '0.5px solid var(--border-hairline)' : 'none' }}
             >
-              <span style={{ width: 36, height: 36, borderRadius: 6, background: 'var(--surface-dark)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 16, color: 'var(--blissify-chalk)' }}>
+              <span style={{ width: 36, height: 36, borderRadius: 'var(--radius-sm)', background: 'var(--surface-dark)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 16, color: 'var(--blissify-chalk)' }}>
                 {e.name[0]}
               </span>
               <div style={{ flex: 1, minWidth: 0 }}>
@@ -101,8 +101,21 @@ export default async function DashboardOverviewPage() {
 
 function EmptyCard({ text, href, cta }: { text: string; href?: string; cta?: string }) {
   return (
-    <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 8, padding: 32, textAlign: 'center' }}>
-      <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.7, color: 'var(--text-meta)', margin: href ? '0 0 20px' : 0, maxWidth: 460, marginLeft: 'auto', marginRight: 'auto' }}>
+    <div
+      style={{
+        background: 'var(--surface-card)',
+        border: '0.5px solid var(--border-hairline)',
+        borderRadius: 'var(--radius-md)',
+        padding: '72px 48px',
+        minHeight: 340,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+      }}
+    >
+      <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.7, color: 'var(--text-meta)', margin: href ? '0 0 20px' : 0, maxWidth: 460 }}>
         {text}
       </p>
       {href && cta ? (

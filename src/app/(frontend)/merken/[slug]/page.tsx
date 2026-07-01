@@ -30,9 +30,9 @@ export default async function MerkPage({ params }: Params) {
       {brand.id != null ? <TrackPageView kind="brand" id={brand.id} /> : null}
       {/* Dark forest header */}
       <header style={{ background: 'var(--surface-dark)' }}>
-        <div style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '48px 32px' }}>
+        <div className="bl-container" style={{ paddingTop: 48, paddingBottom: 48 }}>
           <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
-            <div style={{ width: 80, height: 80, borderRadius: 8, background: 'var(--surface-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: '0 0 80px' }}>
+            <div style={{ width: 80, height: 80, borderRadius: 'var(--radius-md)', background: 'var(--surface-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: '0 0 80px' }}>
               <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 40, color: 'var(--blissify-forest)' }}>
                 {brand.initial}
               </span>
@@ -51,7 +51,7 @@ export default async function MerkPage({ params }: Params) {
                   gap: 6,
                   fontFamily: 'var(--font-ui)',
                   fontWeight: 'var(--fw-ui-medium)',
-                  fontSize: 11,
+                  fontSize: 'var(--type-label)',
                   textTransform: 'uppercase',
                   letterSpacing: '0.08em',
                   color: 'var(--text-accent)',
@@ -75,7 +75,7 @@ export default async function MerkPage({ params }: Params) {
         </div>
       </header>
 
-      <section style={{ maxWidth: 'var(--content-max)', margin: '0 auto', padding: '48px 32px 96px' }}>
+      <section className="bl-container" style={{ paddingTop: 48, paddingBottom: 96 }}>
         <BrandTabs brand={brand} providers={providers} courses={courses} />
       </section>
     </SiteChrome>

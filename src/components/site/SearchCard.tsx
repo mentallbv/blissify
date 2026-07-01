@@ -27,7 +27,7 @@ export function SearchCard({
     <form
       action="/opleidingen"
       method="get"
-      style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 8, padding: 24 }}
+      style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-lg)', padding: 24 }}
     >
       <div style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 22, color: 'var(--text-brand)', marginBottom: 18 }}>
         Vind jouw opleiding
