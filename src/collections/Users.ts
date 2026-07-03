@@ -76,6 +76,7 @@ export const Users: CollectionConfig = {
       saveToJWT: true,
       options: [
         { label: 'Actief', value: 'active' },
+        { label: 'Wacht op betaling', value: 'pending_payment' },
         { label: 'Inactief', value: 'inactive' },
         { label: 'Geannuleerd', value: 'canceled' },
         { label: 'Verlopen', value: 'past_due' },
@@ -84,32 +85,6 @@ export const Users: CollectionConfig = {
         update: adminOnlyField,
       },
       admin: { position: 'sidebar' },
-    },
-    {
-      name: 'stripeCustomerId',
-      type: 'text',
-      access: {
-        read: adminOnlyField,
-        update: adminOnlyField,
-      },
-      admin: {
-        position: 'sidebar',
-        readOnly: true,
-        description: 'Stripe Customer ID (auto-ingevuld)',
-      },
-    },
-    {
-      name: 'stripeSubscriptionId',
-      type: 'text',
-      access: {
-        read: adminOnlyField,
-        update: adminOnlyField,
-      },
-      admin: {
-        position: 'sidebar',
-        readOnly: true,
-        description: 'Stripe Subscription ID (auto-ingevuld)',
-      },
     },
     {
       name: 'subscriptionExpiresAt',

@@ -11,6 +11,12 @@ const STEPS = [
 ]
 
 const CATEGORIES = ['Massage', 'Nagelstyliste', 'Schoonheid', 'Yoga', 'Voeding', 'Reflexologie']
+
+const TIER_OPTIONS: { value: 'basis' | 'medium' | 'premium'; name: string; price: string; blurb: string; recommended?: boolean }[] = [
+  { value: 'basis', name: 'Basis', price: '€99', blurb: '1 actieve opleiding, geverifieerd profiel.' },
+  { value: 'medium', name: 'Medium', price: '€290', blurb: 'Tot 5 actieve opleidingen en meer zichtbaarheid.', recommended: true },
+  { value: 'premium', name: 'Premium', price: '€690', blurb: 'Onbeperkt opleidingen en permanente uitlichting.' },
+]
 const LOCATIONS = ['Antwerpen', 'Gent', 'Brussel', 'Limburg', 'West-Vlaanderen', 'Online']
 const SPECS: { value: string; label: string }[] = [
   { value: 'massage', label: 'Massage' },
@@ -23,6 +29,7 @@ const SPECS: { value: string; label: string }[] = [
 
 export default function OnboardingPage() {
   const router = useRouter()
+  const [phase, setPhase] = React.useState<'profile' | 'tier'>('profile')
   const [current, setCurrent] = React.useState(2)
   const [name, setName] = React.useState('')
   const [city, setCity] = React.useState('')
@@ -44,8 +51,30 @@ export default function OnboardingPage() {
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data?.error || 'Opslaan mislukt.')
-      router.push('/dashboard')
-      router.refresh()
+      // Profile saved. Move to tier selection instead of the dashboard: the
+      // aanbieder must choose a formule and pay before they can publish.
+      setCurrent(3)
+      setPhase('tier')
+      setLoading(false)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Er ging iets mis.')
+      setLoading(false)
+    }
+  }
+
+  async function startCheckout(tier: 'basis' | 'medium' | 'premium') {
+    setError(null)
+    setLoading(true)
+    try {
+      const res = await fetch('/api/subscription/start', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ tier }),
+      })
+      const data = await res.json().catch(() => ({}))
+      if (!res.ok || !data?.checkoutUrl) throw new Error(data?.error || 'Kon de betaling niet starten.')
+      window.location.href = data.checkoutUrl
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Er ging iets mis.')
       setLoading(false)
@@ -95,6 +124,8 @@ export default function OnboardingPage() {
           })}
         </div>
 
+        {phase === 'profile' ? (
+        <>
         <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 34, lineHeight: 1.1, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: '0 0 8px' }}>
           Vul je opleiderprofiel aan
         </h1>
@@ -151,6 +182,42 @@ export default function OnboardingPage() {
             {loading ? 'Opslaan…' : 'Profiel opslaan'}
           </Button>
         </div>
+        </>
+        ) : (
+        <>
+        <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 34, lineHeight: 1.1, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: '0 0 8px' }}>
+          Kies je abonnement
+        </h1>
+        <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 15, lineHeight: 1.7, color: 'var(--text-body)', margin: '0 0 32px' }}>
+          Kies een formule om je profiel te activeren. Je wordt doorgestuurd naar onze betaalpartner Mollie. Publiceren kan zodra je betaling is bevestigd.
+        </p>
+
+        <div className="bl-grid-3" style={{ alignItems: 'start' }}>
+          {TIER_OPTIONS.map((t) => (
+            <div
+              key={t.value}
+              style={{ border: '0.5px solid ' + (t.recommended ? 'var(--blissify-forest)' : 'var(--border-hairline)'), borderRadius: 'var(--radius-md)', background: 'var(--surface-card)', padding: 24, display: 'flex', flexDirection: 'column', gap: 12 }}
+            >
+              <div style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 20, color: 'var(--text-brand)' }}>{t.name}</div>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 32, color: 'var(--text-brand)' }}>{t.price}</span>
+                <span style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-meta)' }}>/jaar</span>
+              </div>
+              <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, lineHeight: 1.6, color: 'var(--text-body)', margin: 0, flex: 1 }}>{t.blurb}</p>
+              <Button variant={t.recommended ? 'accent' : 'primary'} fullWidth onClick={() => startCheckout(t.value)} disabled={loading}>
+                {loading ? 'Bezig…' : `Kies ${t.name}`}
+              </Button>
+            </div>
+          ))}
+        </div>
+
+        {error ? (
+          <div style={{ marginTop: 16, fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--status-error)', background: 'var(--status-error-bg)', borderRadius: 'var(--radius-sm)', padding: '10px 14px' }}>
+            {error}
+          </div>
+        ) : null}
+        </>
+        )}
         </div>
       </section>
     </>

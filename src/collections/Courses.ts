@@ -103,6 +103,15 @@ export const Courses: CollectionConfig = {
           (operation === 'create' || originalDoc?.status !== 'published')
 
         if (isPublishing) {
+          // Publishing requires an active (paid) subscription. Drafts are always
+          // allowed; only the transition to 'published' is gated.
+          if (user.subscriptionStatus !== 'active') {
+            throw new Error(
+              'Je kunt pas opleidingen publiceren zodra je abonnement actief is. ' +
+              'Rond je betaling af via je dashboard om te publiceren.'
+            )
+          }
+
           const tier = user.subscriptionTier || 'basis'
           const limit = TIER_LIMITS[tier] ?? 1
 

@@ -31,8 +31,21 @@ export async function POST(req: Request) {
     if (!customerId) {
       const customer = await createCustomer(u.name || u.email, u.email)
       customerId = customer.id
-      await payload.update({ collection: 'users', id: u.id, data: { mollieCustomerId: customerId } as never, overrideAccess: true })
     }
+
+    // Persist the chosen tier + mark pending_payment before redirecting to Mollie.
+    // This stores the selection so the dashboard banner can re-trigger checkout,
+    // and keeps status non-active until the webhook confirms payment.paid.
+    await payload.update({
+      collection: 'users',
+      id: u.id,
+      data: {
+        mollieCustomerId: customerId,
+        subscriptionTier: tier,
+        subscriptionStatus: 'pending_payment',
+      } as never,
+      overrideAccess: true,
+    })
 
     const payment = await createFirstPayment({
       customerId,

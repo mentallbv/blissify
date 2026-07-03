@@ -54,7 +54,8 @@ export async function POST(req: Request) {
         password,
         role,
         subscriptionTier: 'basis',
-        subscriptionStatus: 'inactive',
+        // New aanbieders must pick a tier and pay before they can publish.
+        subscriptionStatus: 'pending_payment',
       } as never,
       overrideAccess: true,
     })

@@ -2,6 +2,7 @@ import React from 'react'
 import { PageTitle } from '@/components/dashboard/DashSidebar'
 import { CourseTable } from '@/components/dashboard/CourseTable'
 import { MetricCard, ButtonLink } from '@/components/ui'
+import { SubscriptionBanner } from '@/components/dashboard/SubscriptionActions'
 import { getCurrentUser, getCurrentProfile, profileName } from '@/lib/session'
 import { getMyCourses, getMyCourseCounts } from '@/lib/dashboard-data'
 import { getLeadsForCourses, getProfileViewEvents } from '@/lib/supabase'
@@ -12,6 +13,7 @@ export default async function DashboardOverviewPage() {
   const user = await getCurrentUser()
   const profile = await getCurrentProfile(user)
   const name = profileName(profile)
+  const sub = user as { subscriptionStatus?: string; subscriptionTier?: string } | null
 
   const [courses, counts] = await Promise.all([getMyCourses(profile), getMyCourseCounts(profile)])
   const courseIds = courses.map((c) => c.id)
@@ -38,6 +40,8 @@ export default async function DashboardOverviewPage() {
 
   return (
     <>
+      <SubscriptionBanner status={sub?.subscriptionStatus || 'inactive'} tier={sub?.subscriptionTier || 'basis'} />
+
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
         <PageTitle>Goedemorgen, {name}.</PageTitle>
         <ButtonLink href="/dashboard/opleidingen/nieuw" variant="accent" size="sm" icon={<i className="ti ti-plus" />}>

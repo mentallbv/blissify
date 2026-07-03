@@ -150,15 +150,7 @@ export interface User {
   name: string;
   role?: ('admin' | 'trainer' | 'brand') | null;
   subscriptionTier?: ('basis' | 'medium' | 'premium') | null;
-  subscriptionStatus?: ('active' | 'inactive' | 'canceled' | 'past_due') | null;
-  /**
-   * Stripe Customer ID (auto-ingevuld)
-   */
-  stripeCustomerId?: string | null;
-  /**
-   * Stripe Subscription ID (auto-ingevuld)
-   */
-  stripeSubscriptionId?: string | null;
+  subscriptionStatus?: ('active' | 'pending_payment' | 'inactive' | 'canceled' | 'past_due') | null;
   /**
    * Vervaldatum abonnement
    */
@@ -816,8 +808,6 @@ export interface UsersSelect<T extends boolean = true> {
   role?: T;
   subscriptionTier?: T;
   subscriptionStatus?: T;
-  stripeCustomerId?: T;
-  stripeSubscriptionId?: T;
   subscriptionExpiresAt?: T;
   mollieCustomerId?: T;
   mollieSubscriptionId?: T;
