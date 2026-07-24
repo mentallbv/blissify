@@ -35,7 +35,7 @@ export const Homepage: GlobalConfig = {
     {
       name: 'trustText',
       type: 'text',
-      defaultValue: 'Vertrouwd door 124 geverifieerde opleiders in heel België',
+      defaultValue: 'Vertrouwd door 124 opleiders in heel België',
     },
     {
       name: 'why',

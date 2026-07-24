@@ -22,7 +22,7 @@ export const CATEGORY_CONTENT: Record<string, CategoryContent> = {
     heroIntro:
       'Ontdek erkende opleidingen nagelstyliste van professionele academies. Van basistechnieken tot gevorderde nageldesign - vind de opleiding die aansluit op jouw niveau en agenda.',
     seoIntro:
-      'Een opleiding nagelstyliste is de eerste stap naar een zelfstandige carrière in de beautybranche. Op Blissify vind je gecureerde opleidingen van geverifieerde opleiders door heel België - in Antwerpen, Gent, Limburg en West-Vlaanderen, maar ook online. Kies voor een dagopleiding, avondschool of weekendcursus.',
+      'Een opleiding nagelstyliste is de eerste stap naar een zelfstandige carrière in de beautybranche. Op Blissify vind je gecureerde opleidingen van professionele opleiders door heel België - in Antwerpen, Gent, Limburg en West-Vlaanderen, maar ook online. Kies voor een dagopleiding, avondschool of weekendcursus.',
     section: {
       title: 'Wat leer je als nagelstyliste?',
       body:
@@ -55,9 +55,9 @@ export const CATEGORY_CONTENT: Record<string, CategoryContent> = {
     seoIntro:
       'Als schoonheidsspecialiste beheers je een breed scala aan behandelingen: van gelaatsverzorging en huidanalyse tot epilatie, make-up en nagelstyliste. Een professionele opleiding leert je alle technieken én de kennis om zelfstandig of in een salon te werken. Op Blissify vind je opleidingen van erkende academies door heel België.',
     section: {
-      title: 'Erkende opleidingen van geverifieerde academies',
+      title: 'Erkende opleidingen van professionele academies',
       body:
-        'Elke opleider op Blissify wordt handmatig geverifieerd. Zoek specifiek op opleidingen met een erkend certificaat - essentieel als je wil werken in professionele salons of als zelfstandige.',
+        'Blissify brengt professionele opleiders samen. Zoek specifiek op opleidingen met een erkend certificaat - essentieel als je wil werken in professionele salons of als zelfstandige.',
     },
   },
   'make-up': {
@@ -77,12 +77,12 @@ export const CATEGORY_CONTENT: Record<string, CategoryContent> = {
     name: 'Massage',
     metaTitle: 'Massage opleiding in België - Professionele massage cursussen',
     metaDescription:
-      'Vind een professionele massage opleiding in België. Sportmassage, deep tissue, kobido, cupping en meer. Erkende opleidingen van geverifieerde academies.',
+      'Vind een professionele massage opleiding in België. Sportmassage, deep tissue, kobido, cupping en meer. Erkende opleidingen van professionele academies.',
     h1: 'Massage opleiding in België',
     heroIntro:
       'Professionele massageopleidingen van erkende academies. Van klassieke Zweedse massage tot sportmassage, deep tissue, kobido en cupping - vind de techniek die aansluit op jouw praktijk.',
     seoIntro:
-      'Een opleiding massage is het fundament van een professionele carrière als massagetherapeut. Op Blissify vind je gespecialiseerde opleidingen in alle massagetechnieken - gegeven door ervaren therapeuten met jarenlange praktijkervaring. Alle opleiders zijn geverifieerd.',
+      'Een opleiding massage is het fundament van een professionele carrière als massagetherapeut. Op Blissify vind je gespecialiseerde opleidingen in alle massagetechnieken - gegeven door ervaren therapeuten met jarenlange praktijkervaring. Alle opleiders zijn ervaren professionals.',
     faqs: [
       {
         q: 'Heb ik een diploma nodig om als masseur te werken in België?',
@@ -99,7 +99,7 @@ export const CATEGORY_CONTENT: Record<string, CategoryContent> = {
     name: 'Voetreflexologie',
     metaTitle: 'Voetreflexologie opleiding in België - Erkende cursussen',
     metaDescription:
-      'Vind een erkende opleiding voetreflexologie in België. Professionele cursussen van geverifieerde therapeuten. Filter op erkenning, locatie en lesmoment.',
+      'Vind een erkende opleiding voetreflexologie in België. Professionele cursussen van professionele therapeuten. Filter op erkenning, locatie en lesmoment.',
     h1: 'Voetreflexologie opleiding in België',
     heroIntro:
       'Erkende opleidingen voetreflexologie van professionele therapeuten. Ontdek geaccrediteerde cursussen en bouw een stevige basis voor je therapeutische praktijk.',
@@ -116,7 +116,7 @@ export const CATEGORY_CONTENT: Record<string, CategoryContent> = {
     name: 'Aromatherapie',
     metaTitle: 'Opleiding aromatherapie in België - Professionele cursussen',
     metaDescription:
-      'Vind een professionele opleiding aromatherapie in België. Essentiële oliën, blending, therapeutische toepassingen. Erkende cursussen van geverifieerde opleiders.',
+      'Vind een professionele opleiding aromatherapie in België. Essentiële oliën, blending, therapeutische toepassingen. Erkende cursussen van professionele opleiders.',
     h1: 'Opleiding aromatherapie in België',
     heroIntro:
       'Professionele opleidingen aromatherapie van erkende opleiders. Leer werken met essentiële oliën, therapeutische blends en de toepassingen die passen in een holistische praktijk.',
@@ -133,7 +133,7 @@ export const CATEGORY_CONTENT: Record<string, CategoryContent> = {
     name: 'Reiki',
     metaTitle: 'Reiki opleiding in België - Niveau 1, 2 en Master',
     metaDescription:
-      'Vind een reiki opleiding in België. Niveau 1 (Shoden), niveau 2 (Okuden) en Reiki Master. Professionele cursussen van geverifieerde reikimeesters.',
+      'Vind een reiki opleiding in België. Niveau 1 (Shoden), niveau 2 (Okuden) en Reiki Master. Professionele cursussen van professionele reikimeesters.',
     h1: 'Reiki opleiding in België',
     heroIntro:
       'Erkende reikiopleidingen van professionele reikimeesters. Van Niveau 1 voor beginners tot Reiki Master voor gevorderden - vind de opleiding die past bij jouw niveau en intentie.',
@@ -196,7 +196,7 @@ export const CATEGORY_CONTENT: Record<string, CategoryContent> = {
       'Ontdek opleidingen in holistische therapieën in België. Ayurveda, energetische therapie, chakrawerk en meer. Professionele cursussen via Blissify.',
     h1: 'Opleiding holistische therapieën in België',
     heroIntro:
-      'Professionele opleidingen in holistische en energetische therapieën. Ayurveda, kristaltherapie, energetisch werk en meer - van geverifieerde therapeuten op Blissify.',
+      'Professionele opleidingen in holistische en energetische therapieën. Ayurveda, kristaltherapie, energetisch werk en meer - van professionele therapeuten op Blissify.',
     seoIntro:
       'Holistische therapieën benaderen de mens als geheel - lichaam, geest en omgeving. Opleidingen in deze categorie omvatten een breed spectrum: van Ayurvedische geneeskunde en energetische therapie tot kristaltherapie en chakrabalancering. Op Blissify vind je opleiders die serieuze, professioneel onderbouwde programma’s aanbieden.',
   },

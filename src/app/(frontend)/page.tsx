@@ -24,18 +24,18 @@ const HERO_PILLS = [
 export const dynamic = 'force-dynamic'
 
 const DEFAULT_DARK_CARDS = [
-  { icon: 'ti ti-rosette-discount-check', title: 'Curatorisch, niet algoritmisch', body: 'Elke opleider wordt handmatig geverifieerd. Een Blissify-vermelding betekent iets.' },
+  { icon: 'ti ti-rosette-discount-check', title: 'Curatorisch, niet algoritmisch', body: 'Een zorgvuldig samengesteld overzicht van opleiders en opleidingen. Een Blissify-vermelding betekent iets.' },
   { icon: 'ti ti-eye-check', title: 'Transparant', body: 'Prijs, duur, erkenning en locatie staan altijd vermeld. Nooit verborgen.' },
   { icon: 'ti ti-calendar-event', title: 'Avond, weekend of online', body: 'Vind het lesmoment dat bij jouw agenda past, zonder tussenpersoon.' },
 ]
 const DEFAULT_TILES = [
   { title: 'Zoek & vergelijk', body: 'Filter op categorie, locatie, lesmoment en erkenning.', image: null as string | null },
-  { title: 'Geverifieerde opleiders', body: 'Enkel handmatig gecontroleerde academies.', image: null as string | null },
+  { title: 'Ontdek opleiders', body: 'Een gecureerd overzicht van opleiders en merken.', image: null as string | null },
   { title: 'Schrijf je in', body: 'Vraag rechtstreeks informatie aan.', image: null as string | null },
 ]
 const DEFAULT_STATS = [
   { target: 847, suffix: '', label: 'Opleidingen' },
-  { target: 124, suffix: '', label: 'Geverifieerde opleiders' },
+  { target: 124, suffix: '', label: 'Opleiders' },
   { target: 3, suffix: '', label: 'Landen' },
 ]
 
@@ -128,7 +128,7 @@ export default async function HomePage() {
       {/* TRUST STRIP */}
       <section style={{ background: 'var(--surface-card)', borderTop: '0.5px solid var(--border-hairline)', borderBottom: '0.5px solid var(--border-hairline)' }}>
         <div className="bl-container" style={{ paddingTop: 28, paddingBottom: 28, textAlign: 'center', fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 'var(--type-sm)', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-meta)' }}>
-          {hp.trustText || 'Vertrouwd door 124 geverifieerde opleiders in heel België'}
+          {hp.trustText || 'Vertrouwd door 124 opleiders in heel België'}
         </div>
       </section>
 

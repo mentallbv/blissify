@@ -2,7 +2,7 @@ import React from 'react'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { SiteChrome, SectionHead } from '@/components/site/SiteChrome'
-import { VerifiedBadge, CourseCard, Button, Tag } from '@/components/ui'
+import { TypeBadge, CourseCard, Button, Tag } from '@/components/ui'
 import { TrackPageView } from '@/components/site/TrackPageView'
 import { getProviderBySlug } from '@/lib/data'
 
@@ -15,8 +15,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { provider } = await getProviderBySlug(slug)
   if (!provider) return {}
   return {
-    title: `${provider.name} - Geverifieerde opleider | Blissify`,
-    description: `${provider.name} is een geverifieerde Blissify-opleider in ${provider.location}, gespecialiseerd in ${provider.speciality.toLowerCase()}.`,
+    title: `${provider.name} - Opleider | Blissify`,
+    description: `${provider.name} is een opleider op Blissify in ${provider.location}, gespecialiseerd in ${provider.speciality.toLowerCase()}.`,
   }
 }
 
@@ -43,7 +43,7 @@ export default async function ProviderProfilePage({ params }: Params) {
             <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'rgba(245,240,234,0.7)', margin: '8px 0 12px' }}>
               {p.location}, België · {p.speciality} · Opgericht 2014
             </p>
-            <VerifiedBadge />
+            <TypeBadge type="trainer" />
           </div>
           <Button variant="accent">Contacteer opleider</Button>
         </div>
@@ -57,13 +57,9 @@ export default async function ProviderProfilePage({ params }: Params) {
               Over {p.name}
             </h2>
             <p style={{ fontFamily: 'var(--font-ui)', fontSize: 16, lineHeight: 1.7, color: 'var(--text-body)', maxWidth: 620, margin: '0 0 14px' }}>
-              {p.name} is een geverifieerde Blissify-opleider gespecialiseerd in {p.speciality.toLowerCase()}, gevestigd in{' '}
-              {p.location}. De programma’s worden gegeven door praktiserende professionals en zijn erkend in de Belgische
+              {p.name} is een opleider op Blissify gespecialiseerd in {p.speciality.toLowerCase()}, gevestigd in{' '}
+              {p.location}. De programma’s worden gegeven door praktiserende professionals in de Belgische
               wellnesssector.
-            </p>
-            <p style={{ fontFamily: 'var(--font-ui)', fontSize: 16, lineHeight: 1.7, color: 'var(--text-body)', maxWidth: 620, margin: '0 0 28px' }}>
-              Elke opleiding is gecontroleerd door het Blissify-curatieteam op erkenning, onderwijskwaliteit en
-              leerresultaten.
             </p>
 
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 36 }}>
@@ -96,7 +92,7 @@ export default async function ProviderProfilePage({ params }: Params) {
               {[
                 ['ti-map-pin', `${p.location}, België`],
                 ['ti-stack-2', `${p.courseCount} actieve opleidingen`],
-                ['ti-rosette-discount-check', 'Geverifieerd sinds 2023'],
+                ['ti-calendar', 'Op Blissify sinds 2023'],
               ].map(([ic, t]) => (
                 <div key={t} style={{ display: 'flex', gap: 10, alignItems: 'center', fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-body)' }}>
                   <i className={'ti ' + ic} style={{ fontSize: 17, color: 'var(--text-meta)' }} />

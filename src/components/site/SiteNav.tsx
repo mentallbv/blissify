@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation'
 const LINKS = [
   { slug: 'opleidingen', label: 'Opleidingen', href: '/opleidingen' },
   { slug: 'opleiders', label: 'Opleiders', href: '/opleiders' },
-  { slug: 'merken', label: 'Merken', href: '/merken' },
+  { slug: 'merken', label: 'Merken en Leveranciers', href: '/merken' },
   { slug: 'prijzen', label: 'Prijzen', href: '/prijzen' },
 ]
 

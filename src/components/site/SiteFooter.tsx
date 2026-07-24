@@ -15,7 +15,7 @@ const COLS = [
     head: 'Ontdekken',
     items: [
       { label: 'Alle opleiders', href: '/opleiders' },
-      { label: 'Merken', href: '/merken' },
+      { label: 'Merken en Leveranciers', href: '/merken' },
       { label: 'Publiceer opleiding', href: '/voor-aanbieders' },
     ],
   },

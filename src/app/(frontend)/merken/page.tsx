@@ -1,16 +1,16 @@
 import React from 'react'
 import type { Metadata } from 'next'
 import { SiteChrome } from '@/components/site/SiteChrome'
-import { Eyebrow, Avatar } from '@/components/ui'
+import { Eyebrow, Avatar, TypeBadge } from '@/components/ui'
 import { FilterPills } from '@/components/site/FilterPills'
 import { getBrandCards, getBrandFilterOptions } from '@/lib/data'
 
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Merken in de wellnesssector - Aanbieders & Opleidingen',
+  title: 'Merken en Leveranciers in de wellnesssector | Blissify',
   description:
-    'Ontdek merken die samenwerken met professionele opleiders in de Belgische wellness- en beautysector. Vind erkende opleidingen per merk via Blissify.',
+    'Ontdek merken en leveranciers die samenwerken met professionele opleiders in de Belgische wellness- en beautysector. Vind erkende opleidingen per merk via Blissify.',
 }
 
 const one = (v: string | string[] | undefined): string => (Array.isArray(v) ? v[0] : v || '')
@@ -22,7 +22,7 @@ export default async function MerkenPage({ searchParams }: { searchParams: Promi
   return (
     <SiteChrome>
       <section className="bl-container" style={{ paddingTop: 72, paddingBottom: 32 }}>
-        <Eyebrow tone="meta">Merken</Eyebrow>
+        <Eyebrow tone="meta">Merken en Leveranciers</Eyebrow>
         <h1
           style={{
             fontFamily: 'var(--font-display)',
@@ -34,10 +34,10 @@ export default async function MerkenPage({ searchParams }: { searchParams: Promi
             margin: '14px 0 0',
           }}
         >
-          Merken op Blissify
+          Merken en Leveranciers op Blissify
         </h1>
         <p style={{ fontFamily: 'var(--font-ui)', fontSize: 16, lineHeight: 1.7, color: 'var(--text-body)', maxWidth: 640, margin: '20px 0 0' }}>
-          Ontdek merken die samenwerken met professionele opleiders in de Belgische wellness- en beautysector.
+          Ontdek merken en leveranciers die samenwerken met professionele opleiders in de Belgische wellness- en beautysector.
         </p>
         <div style={{ marginTop: 24 }}>
           <FilterPills paramKey="tag" options={tagOptions} />
@@ -62,6 +62,9 @@ export default async function MerkenPage({ searchParams }: { searchParams: Promi
                     {b.name}
                   </h3>
                   <p style={{ margin: 0, fontFamily: 'var(--font-ui)', fontSize: 'var(--type-xs)', color: 'var(--text-body)', lineHeight: 1.4 }}>{b.sector}</p>
+                  <div style={{ marginTop: 8 }}>
+                    <TypeBadge type="brand" />
+                  </div>
                 </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 'var(--space-5)', fontFamily: 'var(--font-ui)', fontSize: 'var(--type-xs)', color: 'var(--text-accent)' }}>

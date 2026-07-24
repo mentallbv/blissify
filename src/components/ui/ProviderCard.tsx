@@ -1,5 +1,5 @@
 import React from 'react'
-import { Avatar } from './primitives'
+import { Avatar, TypeBadge } from './primitives'
 
 /**
  * Blissify provider card - white card, forest avatar initial, Freight Display
@@ -51,6 +51,9 @@ export function ProviderCard({
           >
             {location} · {speciality}
           </p>
+          <div style={{ marginTop: 8 }}>
+            <TypeBadge type="trainer" />
+          </div>
         </div>
       </div>
       <div

@@ -2,7 +2,7 @@ import React from 'react'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { SiteChrome } from '@/components/site/SiteChrome'
-import { Eyebrow, Avatar, VerifiedBadge, Button, Tag } from '@/components/ui'
+import { Eyebrow, Avatar, TypeBadge, Button, Tag } from '@/components/ui'
 import { RequestInfoButton } from '@/components/site/RequestInfoButton'
 import { TrackPageView } from '@/components/site/TrackPageView'
 import { getCourseBySlug, getCourseCards } from '@/lib/data'
@@ -278,7 +278,7 @@ export default async function CourseDetailPage({ params }: Params) {
                     {v.provider}
                   </div>
                   <div style={{ marginTop: 4 }}>
-                    <VerifiedBadge />
+                    <TypeBadge type="trainer" />
                   </div>
                 </div>
               </div>

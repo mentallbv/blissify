@@ -7,7 +7,7 @@ export {
   FilterPill,
   StatusPill,
   Avatar,
-  VerifiedBadge,
+  TypeBadge,
   Card,
 } from './primitives'
 export { CourseCard } from './CourseCard'

@@ -66,7 +66,7 @@ export const Pricing: GlobalConfig = {
       label: 'CTA onderaan',
       fields: [
         { name: 'title', type: 'text', defaultValue: 'Jouw praktijk begint hier.' },
-        { name: 'body', type: 'textarea', defaultValue: 'Sluit je aan bij 124 geverifieerde opleiders die hun bereik uitbreiden via Blissify.' },
+        { name: 'body', type: 'textarea', defaultValue: 'Sluit je aan bij 124 opleiders die hun bereik uitbreiden via Blissify.' },
         { name: 'buttonLabel', type: 'text', defaultValue: 'Bied mijn opleidingen aan' },
         { name: 'buttonUrl', type: 'text', defaultValue: '/inloggen' },
       ],

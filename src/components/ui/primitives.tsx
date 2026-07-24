@@ -219,24 +219,38 @@ export function Avatar({
   )
 }
 
-/* Verified-provider badge - terracotta check + label. */
-export function VerifiedBadge({ children = 'Geverifieerde opleider' }: { children?: React.ReactNode }) {
+/* Account-type badge. Color-coded by account type:
+   - brand (Merken & Leveranciers): goud/zwart
+   - trainer (Opleiders): blauw */
+export function TypeBadge({
+  type,
+  label,
+  children,
+}: {
+  type: 'brand' | 'trainer'
+  label?: string
+  children?: React.ReactNode
+}) {
+  const isBrand = type === 'brand'
+  const text = children ?? label ?? (isBrand ? 'Merk & Leverancier' : 'Opleider')
   return (
     <span
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        gap: 'var(--space-2)',
+        gap: 6,
         fontFamily: 'var(--font-ui)',
         fontWeight: 'var(--fw-ui-medium)',
         fontSize: 'var(--type-label)',
         letterSpacing: 'var(--track-tag)',
         textTransform: 'uppercase',
-        color: 'var(--text-accent)',
+        padding: '4px 10px',
+        borderRadius: 'var(--radius-pill)',
+        background: isBrand ? 'var(--badge-brand-bg)' : 'var(--badge-trainer-bg)',
+        color: isBrand ? 'var(--badge-brand-fg)' : 'var(--badge-trainer-fg)',
       }}
     >
-      <span className="ti ti-rosette-discount-check-filled" style={{ fontSize: 15 }} aria-hidden="true" />
-      {children}
+      {text}
     </span>
   )
 }

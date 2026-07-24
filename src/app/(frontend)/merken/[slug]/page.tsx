@@ -2,6 +2,7 @@ import React from 'react'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { SiteChrome } from '@/components/site/SiteChrome'
+import { TypeBadge } from '@/components/ui'
 import { BrandTabs } from '@/components/site/BrandTabs'
 import { getBrandBySlug } from '@/lib/data'
 import { TrackPageView } from '@/components/site/TrackPageView'
@@ -44,22 +45,7 @@ export default async function MerkPage({ params }: Params) {
               <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'rgba(245,240,234,0.7)', margin: '8px 0 12px' }}>
                 {brand.sector} · Internationaal merk
               </p>
-              <span
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: 6,
-                  fontFamily: 'var(--font-ui)',
-                  fontWeight: 'var(--fw-ui-medium)',
-                  fontSize: 'var(--type-label)',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.08em',
-                  color: 'var(--text-accent)',
-                }}
-              >
-                <i className="ti ti-rosette-discount-check-filled" style={{ fontSize: 15 }} />
-                Geverifieerd merk
-              </span>
+              <TypeBadge type="brand" />
             </div>
             {brand.website ? (
               <a

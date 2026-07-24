@@ -88,14 +88,14 @@ export const PRICING_FALLBACK: PricingData = {
   },
   bottomCta: {
     title: 'Jouw praktijk begint hier.',
-    body: 'Sluit je aan bij 124 geverifieerde opleiders die hun bereik uitbreiden via Blissify.',
+    body: 'Sluit je aan bij 124 opleiders die hun bereik uitbreiden via Blissify.',
     buttonLabel: 'Bied mijn opleidingen aan',
     buttonUrl: '/inloggen',
   },
 }
 
 export const FAQ_HOME = [
-  { q: 'Wat is Blissify?', a: 'Blissify is een Belgisch platform dat cursisten verbindt met geverifieerde, professionele wellness- en beauty-opleiders. Je vindt er een gecureerd overzicht van erkende opleidingen.' },
+  { q: 'Wat is Blissify?', a: 'Blissify is een Belgisch platform dat cursisten verbindt met professionele wellness- en beauty-opleiders. Je vindt er een gecureerd overzicht van erkende opleidingen.' },
   { q: 'Hoe weet ik dat een opleider betrouwbaar is?', a: 'Elke opleider wordt handmatig gecontroleerd op identiteit, kwalificaties, programma-inhoud en erkenning voordat die op Blissify verschijnt.' },
   { q: 'Kost het iets om een opleiding te zoeken?', a: 'Nee. Zoeken en vergelijken is volledig gratis voor cursisten. Je vraagt informatie rechtstreeks aan bij de opleider, zonder tussenpersoon.' },
   { q: 'Wat betekent een erkend certificaat?', a: 'Een erkende opleiding voldoet aan de kwaliteits- en urenstandaarden van een beroepsfederatie of onderwijsinstelling. Filter op Erkend certificaat om enkel die programma’s te zien.' },

@@ -97,7 +97,7 @@ export const Brands: CollectionConfig = {
       defaultValue: false,
       admin: {
         position: 'sidebar',
-        description: 'Geverifieerd door Blissify',
+        description: 'Interne markering (niet publiek zichtbaar)',
       },
     },
     {

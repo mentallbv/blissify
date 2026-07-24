@@ -121,7 +121,7 @@ export const Trainers: CollectionConfig = {
       name: 'verified',
       type: 'checkbox',
       defaultValue: false,
-      admin: { position: 'sidebar' },
+      admin: { position: 'sidebar', description: 'Interne markering (niet publiek zichtbaar)' },
     },
     {
       name: 'featured',

@@ -301,7 +301,7 @@ export interface Brand {
   phone?: string | null;
   tags?: ('belgisch' | 'vegan' | 'natuurlijk' | 'professioneel' | 'biologisch' | 'duurzaam' | 'luxe')[] | null;
   /**
-   * Geverifieerd door Blissify
+   * Interne markering (niet publiek zichtbaar)
    */
   verified?: boolean | null;
   featured?: boolean | null;
@@ -392,6 +392,9 @@ export interface Trainer {
     facebook?: string | null;
     linkedin?: string | null;
   };
+  /**
+   * Interne markering (niet publiek zichtbaar)
+   */
   verified?: boolean | null;
   featured?: boolean | null;
   /**

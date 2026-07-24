@@ -8,9 +8,9 @@ import { getProviderCards, getTrainerFilterOptions } from '@/lib/data'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Wellness opleiders in België - Geverifieerde academies',
+  title: 'Wellness opleiders in België - Beauty en wellness academies',
   description:
-    'Ontdek geverifieerde wellness opleiders in België. Massageacademies, beautyscholen, yogascholen en meer. Elke opleider op Blissify is handmatig geverifieerd.',
+    'Ontdek wellness opleiders in België. Massageacademies, beautyscholen, yogascholen en meer. Een gecureerd overzicht van opleiders op Blissify.',
 }
 
 const one = (v: string | string[] | undefined): string => (Array.isArray(v) ? v[0] : v || '')
@@ -34,11 +34,11 @@ export default async function OpleidersPage({ searchParams }: { searchParams: SP
         <h1
           style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 48, letterSpacing: '-0.01em', color: 'var(--text-brand)', lineHeight: 1.1, margin: '14px 0 0', maxWidth: 760 }}
         >
-          Geverifieerde opleiders in België
+          Opleiders in België
         </h1>
         <p style={{ fontFamily: 'var(--font-ui)', fontSize: 16, lineHeight: 1.7, color: 'var(--text-body)', maxWidth: 640, margin: '20px 0 0' }}>
-          Elke opleider op Blissify is handmatig geverifieerd. Dat betekent: echte academies, echte certificaten, echte
-          expertise.
+          Ontdek een gecureerd overzicht van beauty- en wellnessopleiders in heel België. Vergelijk hun opleidingen en
+          vraag rechtstreeks informatie aan.
         </p>
       </section>
 
@@ -66,12 +66,12 @@ export default async function OpleidersPage({ searchParams }: { searchParams: SP
       <section style={{ background: 'var(--surface-card)', borderTop: '0.5px solid var(--border-hairline)', borderBottom: '0.5px solid var(--border-hairline)' }}>
         <div className="bl-container" style={{ paddingTop: 64, paddingBottom: 80 }}>
           <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 28, color: 'var(--text-brand)', margin: '0 0 16px' }}>
-            Hoe Blissify opleiders verifieert
+            Een gecureerd overzicht
           </h2>
           <p style={{ fontFamily: 'var(--font-ui)', fontSize: 16, lineHeight: 1.7, color: 'var(--text-body)', maxWidth: 720, margin: 0 }}>
-            Voordat een opleider wordt toegelaten op Blissify, controleert ons team de identiteit van de organisatie, de
-            kwalificaties van de docenten, de inhoud van het programma en de gecommuniceerde erkenning. Niet iedereen
-            wordt goedgekeurd. Dat is precies waarom een Blissify-vermelding iets betekent.
+            Blissify brengt beauty- en wellnessopleiders op één plek samen, met heldere informatie over prijs, duur,
+            locatie en de erkenning van elke opleiding. Zo vergelijk je opleidingen en neem je rechtstreeks contact op
+            met de opleider die bij jou past.
           </p>
         </div>
       </section>

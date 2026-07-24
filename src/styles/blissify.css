@@ -58,6 +58,12 @@
   --btn-disabled-bg: var(--neutral-100);
   --btn-disabled-fg: var(--neutral-400);
 
+  /* --- Account-type badges (color-coded by account type) --- */
+  --badge-brand-bg: #c9a227; /* Merken & Leveranciers: goud */
+  --badge-brand-fg: #141414; /* zwart */
+  --badge-trainer-bg: #2b5c9b; /* Opleiders: blauw */
+  --badge-trainer-fg: #ffffff;
+
   /* --- Families --- */
   --font-display: 'freight-display-pro', Georgia, 'Times New Roman', serif;
   --font-ui: 'acumin-pro', 'DM Sans', system-ui, -apple-system, sans-serif;
