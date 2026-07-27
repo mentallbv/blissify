@@ -37,6 +37,7 @@ export type ProviderCardData = {
   speciality: string
   courseCount: number
   logo: string | null
+  accentColor?: string | null
 }
 
 const rel = <T extends { slug?: string; name?: string }>(v: number | T | null | undefined): T | null =>
@@ -315,6 +316,7 @@ export async function getProviderBySlug(
         speciality: specLabel(t.specializations?.[0]),
         courseCount: courses.totalDocs,
         logo: mediaUrl(t.photo),
+        accentColor: (t as { profileAccentColor?: string | null }).profileAccentColor || null,
       },
       courses: courses.docs.map(toCard),
       isFallback: false,

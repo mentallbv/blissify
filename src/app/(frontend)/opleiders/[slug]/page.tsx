@@ -25,11 +25,14 @@ export default async function ProviderProfilePage({ params }: Params) {
   const { provider: p, courses } = await getProviderBySlug(slug)
   if (!p) notFound()
 
+  // Opleider branding perk (Medium+). Bounded: a header accent strip + CTA tint.
+  const accent = p.accentColor || null
+
   return (
     <SiteChrome>
       {p.id != null ? <TrackPageView kind="trainer" id={p.id} /> : null}
       {/* Dark header */}
-      <header style={{ background: 'var(--surface-dark)' }}>
+      <header style={{ background: 'var(--surface-dark)', borderTop: accent ? `3px solid ${accent}` : undefined }}>
         <div className="bl-container" style={{ paddingTop: 48, paddingBottom: 48, display: 'flex', gap: 24, alignItems: 'center' }}>
           <div style={{ width: 80, height: 80, borderRadius: 'var(--radius-md)', background: 'var(--surface-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: '0 0 80px' }}>
             <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 40, color: 'var(--blissify-forest)' }}>
@@ -45,7 +48,7 @@ export default async function ProviderProfilePage({ params }: Params) {
             </p>
             <TypeBadge type="trainer" />
           </div>
-          <Button variant="accent">Contacteer opleider</Button>
+          <Button variant="accent" style={accent ? { background: accent, borderColor: accent } : undefined}>Contacteer opleider</Button>
         </div>
       </header>
 

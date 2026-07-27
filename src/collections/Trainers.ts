@@ -25,6 +25,32 @@ export const Trainers: CollectionConfig = {
     // Admin only
     delete: isAdmin,
   },
+  hooks: {
+    beforeChange: [
+      async ({ data, originalDoc, req }) => {
+        // profileAccentColor is a Medium+ perk. Enforce server-side: clear it
+        // when the owning trainer account is not on medium/premium, regardless
+        // of any value submitted by the client.
+        if (data.profileAccentColor) {
+          const ownerRel = (data as { owner?: unknown }).owner ?? originalDoc?.owner
+          const ownerId = typeof ownerRel === 'object' ? (ownerRel as { id?: number | string })?.id : ownerRel
+          let tier: string | undefined
+          if (ownerId) {
+            try {
+              const owner = await req.payload.findByID({ collection: 'users', id: ownerId as never, depth: 0, overrideAccess: true })
+              tier = (owner as { subscriptionTier?: string })?.subscriptionTier
+            } catch {
+              tier = undefined
+            }
+          }
+          if (tier !== 'medium' && tier !== 'premium') {
+            ;(data as { profileAccentColor?: string | null }).profileAccentColor = null
+          }
+        }
+        return data
+      },
+    ],
+  },
   fields: [
     {
       name: 'displayName',
@@ -116,6 +142,16 @@ export const Trainers: CollectionConfig = {
         { name: 'facebook', type: 'text' },
         { name: 'linkedin', type: 'text' },
       ],
+    },
+    {
+      name: 'profileAccentColor',
+      type: 'text',
+      label: 'Profiel accentkleur',
+      admin: {
+        position: 'sidebar',
+        placeholder: '#1A2E25',
+        description: 'Hex-kleur voor je profielaccent (bijv. #1A2E25). Beschikbaar vanaf Medium; automatisch genegeerd op Basis.',
+      },
     },
     {
       name: 'verified',
