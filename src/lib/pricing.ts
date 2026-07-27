@@ -22,7 +22,7 @@ export const TIERS: Tier[] = [
     key: 'medium',
     name: 'Medium',
     tagline: 'Voor groeiende opleiders',
-    price: '€ 290',
+    price: '€ 249',
     desc: 'Voor groeiende opleiders die meer bereik en inzicht willen.',
     features: ['Tot 5 opleidingen', 'Opleider profiel', 'Aanvraagbeheer', 'Analytisch dashboard', 'Nieuwsbrief-vermelding'],
     recommended: true,
@@ -31,7 +31,7 @@ export const TIERS: Tier[] = [
     key: 'premium',
     name: 'Premium',
     tagline: 'Voor maximale zichtbaarheid',
-    price: '€ 690',
+    price: '€ 549',
     desc: 'Voor maximale zichtbaarheid met toppositie en support.',
     features: ['Onbeperkte opleidingen', 'Toppositie in resultaten', 'Premium badge', 'Featured plaatsing', 'Prioriteitssupport', 'Nieuwsbrief-vermelding'],
   },
@@ -96,7 +96,7 @@ export const PRICING_FALLBACK: PricingData = {
 
 export const FAQ_HOME = [
   { q: 'Wat is Blissify?', a: 'Blissify is een Belgisch platform dat cursisten verbindt met professionele wellness- en beauty-opleiders. Je vindt er een gecureerd overzicht van erkende opleidingen.' },
-  { q: 'Hoe weet ik dat een opleider betrouwbaar is?', a: 'Elke opleider wordt handmatig gecontroleerd op identiteit, kwalificaties, programma-inhoud en erkenning voordat die op Blissify verschijnt.' },
+  { q: 'Hoe kies ik de juiste opleiding?', a: 'Op Blissify vind je een gecureerd overzicht van opleidingen met heldere informatie over prijs, duur, locatie en de erkenning van elke opleiding, zodat je opleidingen kunt vergelijken en rechtstreeks contact opneemt met de opleider.' },
   { q: 'Kost het iets om een opleiding te zoeken?', a: 'Nee. Zoeken en vergelijken is volledig gratis voor cursisten. Je vraagt informatie rechtstreeks aan bij de opleider, zonder tussenpersoon.' },
   { q: 'Wat betekent een erkend certificaat?', a: 'Een erkende opleiding voldoet aan de kwaliteits- en urenstandaarden van een beroepsfederatie of onderwijsinstelling. Filter op Erkend certificaat om enkel die programma’s te zien.' },
 ]

@@ -2,10 +2,25 @@ import type { CollectionConfig, Access } from 'payload'
 import { seoFields } from '@/fields/seo'
 import { getBrandIdForUser, getTrainerIdForUser } from '@/access'
 
+// Opleider (trainer) active-course limits.
 const TIER_LIMITS: Record<string, number> = {
   basis: 1,
   medium: 5,
   premium: Infinity,
+}
+
+// Merk & Leverancier (brand) active-course limits. Partner Listing cannot
+// publish any courses at all (hard gate, not a low limit).
+const BRAND_LIMITS: Record<string, number> = {
+  partner_listing: 0,
+  partner_professional: 10,
+  partner_premium: Infinity,
+}
+
+/** Active-course limit for a user, based on account type + tier. */
+function courseLimitFor(user: { role?: string; subscriptionTier?: string; brandTier?: string }): number {
+  if (user.role === 'brand') return BRAND_LIMITS[user.brandTier || 'partner_listing'] ?? 0
+  return TIER_LIMITS[user.subscriptionTier || 'basis'] ?? 1
 }
 
 const readAccess: Access = ({ req }) => {
@@ -61,7 +76,10 @@ export const Courses: CollectionConfig = {
     create: ({ req }) => {
       const user = req.user as any
       if (!user) return false
-      return ['admin', 'trainer', 'brand'].includes(user.role)
+      if (user.role === 'admin' || user.role === 'trainer') return true
+      // Brand accounts: Partner Listing cannot create any course (hard gate).
+      if (user.role === 'brand') return (user.brandTier || 'partner_listing') !== 'partner_listing'
+      return false
     },
     update: updateAccess,
     delete: deleteAccess,
@@ -112,8 +130,15 @@ export const Courses: CollectionConfig = {
             )
           }
 
-          const tier = user.subscriptionTier || 'basis'
-          const limit = TIER_LIMITS[tier] ?? 1
+          const limit = courseLimitFor(user)
+
+          // Hard block: this account type/tier may not publish courses at all.
+          if (limit === 0) {
+            throw new Error(
+              'Je huidige abonnement laat niet toe om opleidingen te publiceren. ' +
+              'Upgrade je abonnement om opleidingen te kunnen aanbieden.'
+            )
+          }
 
           if (limit !== Infinity) {
             let ownerWhere: Record<string, any> = {}
@@ -133,10 +158,10 @@ export const Courses: CollectionConfig = {
             })
 
             if (totalDocs >= limit) {
-              const noun = limit === 1 ? 'actieve cursus' : 'actieve cursussen'
+              const noun = limit === 1 ? 'actieve opleiding' : 'actieve opleidingen'
               throw new Error(
-                `Je ${tier}-abonnement laat maximaal ${limit} ${noun} toe. ` +
-                `Archiveer een bestaande cursus of upgrade je abonnement.`
+                `Je abonnement laat maximaal ${limit} ${noun} toe. ` +
+                `Archiveer een bestaande opleiding of upgrade je abonnement.`
               )
             }
           }

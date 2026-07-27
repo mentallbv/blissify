@@ -11,13 +11,26 @@ export const MOLLIE_WEBHOOK_URL = process.env.MOLLIE_WEBHOOK_URL || ''
 
 export type Tier = 'basis' | 'medium' | 'premium'
 
-/** Yearly price per tier, as Mollie expects amounts: { currency, value:"99.00" }. */
+/** Yearly price per Opleider tier, as Mollie expects amounts: { currency, value:"99.00" }. */
 export const TIER_AMOUNT: Record<Tier, string> = {
   basis: '99.00',
-  medium: '290.00',
-  premium: '690.00',
+  medium: '249.00',
+  premium: '549.00',
 }
 export const TIER_LABEL: Record<Tier, string> = { basis: 'Basis', medium: 'Medium', premium: 'Premium' }
+
+/** Merk & Leverancier (Brand) tiers - separate ladder, annual only. */
+export type BrandTier = 'partner_listing' | 'partner_professional' | 'partner_premium'
+export const BRAND_TIER_AMOUNT: Record<BrandTier, string> = {
+  partner_listing: '490.00',
+  partner_professional: '890.00',
+  partner_premium: '1490.00',
+}
+export const BRAND_TIER_LABEL: Record<BrandTier, string> = {
+  partner_listing: 'Partner Listing',
+  partner_professional: 'Partner Professional',
+  partner_premium: 'Partner Premium',
+}
 
 export function mollieConfigured(): boolean {
   return Boolean(KEY)

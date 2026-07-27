@@ -55,19 +55,44 @@ export const Users: CollectionConfig = {
       },
     },
     {
+      // Opleider (trainer) tier ladder. Brand accounts use `brandTier` instead.
       name: 'subscriptionTier',
       type: 'select',
       defaultValue: 'basis',
       saveToJWT: true,
       options: [
         { label: 'Basis (€99/jaar)', value: 'basis' },
-        { label: 'Medium (€290/jaar)', value: 'medium' },
-        { label: 'Premium (€690/jaar)', value: 'premium' },
+        { label: 'Medium (€249/jaar)', value: 'medium' },
+        { label: 'Premium (€549/jaar)', value: 'premium' },
       ],
       access: {
         update: adminOnlyField,
       },
-      admin: { position: 'sidebar' },
+      admin: {
+        position: 'sidebar',
+        description: 'Opleider-abonnement (individuele trainer).',
+        condition: (data) => (data as { role?: string })?.role !== 'brand',
+      },
+    },
+    {
+      // Merk & Leverancier (brand) tier ladder - separate product from Opleider.
+      name: 'brandTier',
+      type: 'select',
+      defaultValue: 'partner_listing',
+      saveToJWT: true,
+      options: [
+        { label: 'Partner Listing (€490/jaar)', value: 'partner_listing' },
+        { label: 'Partner Professional (€890/jaar)', value: 'partner_professional' },
+        { label: 'Partner Premium (€1.490/jaar)', value: 'partner_premium' },
+      ],
+      access: {
+        update: adminOnlyField,
+      },
+      admin: {
+        position: 'sidebar',
+        description: 'Merk & Leverancier-abonnement.',
+        condition: (data) => (data as { role?: string })?.role === 'brand',
+      },
     },
     {
       name: 'subscriptionStatus',
