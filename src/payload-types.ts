@@ -306,7 +306,17 @@ export interface Brand {
   website?: string | null;
   email?: string | null;
   phone?: string | null;
-  tags?: ('belgisch' | 'vegan' | 'natuurlijk' | 'professioneel' | 'biologisch' | 'duurzaam' | 'luxe')[] | null;
+  /**
+   * Type Merk & Leverancier
+   */
+  typePartner?: ('productmerken' | 'apparatuurmerken' | 'groothandels_distributeurs' | 'leveranciers') | null;
+  /**
+   * Land van herkomst
+   */
+  herkomst?: ('belgisch' | 'nederlands' | 'europees' | 'internationaal') | null;
+  tags?:
+    | ('belgisch' | 'vegan' | 'natuurlijk' | 'cruelty-free' | 'professioneel' | 'biologisch' | 'duurzaam' | 'luxe')[]
+    | null;
   /**
    * Interne markering (niet publiek zichtbaar)
    */
@@ -954,6 +964,8 @@ export interface BrandsSelect<T extends boolean = true> {
   website?: T;
   email?: T;
   phone?: T;
+  typePartner?: T;
+  herkomst?: T;
   tags?: T;
   verified?: T;
   featured?: T;
