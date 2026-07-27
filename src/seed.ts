@@ -1,7 +1,7 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 
-// ── Helper: short Lexical rich-text body ─────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────────────────
 const rt = (text: string) => ({
   root: {
     type: 'root',
@@ -9,17 +9,10 @@ const rt = (text: string) => ({
     format: '',
     indent: 0,
     version: 1,
-    children: [
-      {
-        type: 'paragraph',
-        version: 1,
-        children: [{ type: 'text', text, version: 1 }],
-      },
-    ],
+    children: [{ type: 'paragraph', version: 1, children: [{ type: 'text', text, version: 1 }] }],
   },
 })
 
-// ── Helper: future date N months from now (ISO) ──────────────────────────────
 const futureDate = (monthsAhead: number) => {
   const d = new Date()
   d.setMonth(d.getMonth() + monthsAhead)
@@ -27,35 +20,132 @@ const futureDate = (monthsAhead: number) => {
   return d.toISOString()
 }
 
+const slugify = (s: string) =>
+  s
+    .toLowerCase()
+    .normalize('NFKD')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+
+const PASSWORD = 'Test1234!'
+const TEST_NOTIFY = 'test-inschrijvingen@blissify.be'
+
+// ── Test dataset definitions ─────────────────────────────────────────────────
+
+type BrandTier = 'partner_listing' | 'partner_professional' | 'partner_premium'
+const BRANDS: {
+  key: string
+  name: string
+  email: string
+  tier: BrandTier
+  typePartner: string
+  herkomst: string
+  tags: string[]
+  featured?: boolean
+}[] = [
+  // Partner Listing (cannot create/publish any course)
+  { key: 'skinlab', name: 'Skinlab Belgium', email: 'info@skinlab.be', tier: 'partner_listing', typePartner: 'productmerken', herkomst: 'belgisch', tags: ['belgisch', 'professioneel'] },
+  { key: 'districos', name: 'Districos Groothandel', email: 'info@districos.be', tier: 'partner_listing', typePartner: 'groothandels_distributeurs', herkomst: 'belgisch', tags: ['belgisch'] },
+  { key: 'pureaesthetics', name: 'Pure Aesthetics NV', email: 'info@pureaesthetics.be', tier: 'partner_listing', typePartner: 'leveranciers', herkomst: 'belgisch', tags: ['professioneel', 'luxe'] },
+  { key: 'bellanails', name: 'Bella Nails Supply', email: 'info@bellanails.be', tier: 'partner_listing', typePartner: 'leveranciers', herkomst: 'nederlands', tags: ['professioneel'] },
+  // Partner Professional (up to 10 courses, isBookable)
+  { key: 'lumiere', name: 'Lumière Cosmetics', email: 'info@lumierecosmetics.be', tier: 'partner_professional', typePartner: 'productmerken', herkomst: 'europees', tags: ['luxe', 'professioneel'], featured: true },
+  { key: 'dermatech', name: 'DermaTech Solutions', email: 'info@dermatech.be', tier: 'partner_professional', typePartner: 'apparatuurmerken', herkomst: 'belgisch', tags: ['professioneel'] },
+  { key: 'naturi', name: 'Naturi Skincare', email: 'info@naturi.be', tier: 'partner_professional', typePartner: 'productmerken', herkomst: 'belgisch', tags: ['natuurlijk', 'vegan', 'duurzaam'] },
+  // Partner Premium (unlimited, isBookable)
+  { key: 'comfort', name: 'Comfort Zone Belgium', email: 'info@comfortzone.be', tier: 'partner_premium', typePartner: 'productmerken', herkomst: 'europees', tags: ['luxe', 'professioneel'], featured: true },
+  { key: 'estheticpro', name: 'EstheticPro Group', email: 'info@estheticpro.be', tier: 'partner_premium', typePartner: 'apparatuurmerken', herkomst: 'internationaal', tags: ['professioneel', 'luxe'], featured: true },
+  { key: 'biobeaute', name: 'Bio Beauté Belgium', email: 'info@biobeaute.be', tier: 'partner_premium', typePartner: 'productmerken', herkomst: 'belgisch', tags: ['natuurlijk', 'biologisch', 'vegan'] },
+]
+
+type OpleiderTier = 'basis' | 'medium' | 'premium'
+const OPLEIDERS: {
+  key: string
+  name: string
+  email: string
+  tier: OpleiderTier
+  specs: string[]
+  city: string
+  province: string
+  accent?: string
+}[] = [
+  // Basis (max 1 course, no accent color)
+  { key: 'sara', name: 'Sara Martens', email: 'sara@example.be', tier: 'basis', specs: ['nagelstyliste'], city: 'Antwerpen', province: 'Antwerpen' },
+  { key: 'tom', name: 'Tom Verhoeven', email: 'tom@example.be', tier: 'basis', specs: ['massage'], city: 'Gent', province: 'Oost-Vlaanderen' },
+  { key: 'jana', name: 'Jana Peeters', email: 'jana@example.be', tier: 'basis', specs: ['massage'], city: 'Brugge', province: 'West-Vlaanderen' },
+  { key: 'kevin', name: 'Kevin Smets', email: 'kevin@example.be', tier: 'basis', specs: ['yoga', 'mindfulness'], city: 'Leuven', province: 'Vlaams-Brabant' },
+  // Medium (accent color applies)
+  { key: 'nele', name: 'Nele Wouters', email: 'nele@example.be', tier: 'medium', specs: ['aromatherapie', 'schoonheid'], city: 'Gent', province: 'Oost-Vlaanderen', accent: '#C4795A' },
+  { key: 'bram', name: 'Bram Claes', email: 'bram@example.be', tier: 'medium', specs: ['massage'], city: 'Brugge', province: 'West-Vlaanderen', accent: '#2E7D6B' },
+  { key: 'eline', name: 'Eline Bosmans', email: 'eline@example.be', tier: 'medium', specs: ['voeding'], city: 'Antwerpen', province: 'Antwerpen', accent: '#8E5BA6' },
+  { key: 'wout', name: 'Wout De Backer', email: 'wout@example.be', tier: 'medium', specs: ['schoonheid'], city: 'Hasselt', province: 'Limburg', accent: '#C6971B' },
+  // Premium (accent color + homepage exposure eligible)
+  { key: 'lieve', name: 'Lieve Maes', email: 'lieve@example.be', tier: 'premium', specs: ['schoonheid'], city: 'Antwerpen', province: 'Antwerpen', accent: '#1A2E25' },
+  { key: 'anke', name: 'Anke Goossens', email: 'anke@example.be', tier: 'premium', specs: ['schoonheid'], city: 'Hasselt', province: 'Limburg', accent: '#B5423A' },
+  { key: 'sofie', name: 'Sofie Dekeyser', email: 'sofie@example.be', tier: 'premium', specs: ['schoonheid'], city: 'Antwerpen', province: 'Antwerpen', accent: '#2B5C9B' },
+  { key: 'ruben', name: 'Ruben Peeters', email: 'ruben@example.be', tier: 'premium', specs: ['massage'], city: 'Gent', province: 'Oost-Vlaanderen', accent: '#6B8E23' },
+]
+
+type CourseSeed = { title: string; ownerKey: string; categorySlug: string; price: number; format: ('online' | 'fysiek' | 'hybride')[]; erkend: boolean; city?: string | null }
+
+// Brand courses (Professional + Premium only). 18 total.
+const BRAND_COURSES: CourseSeed[] = [
+  { title: 'Lumière signature facial training', ownerKey: 'lumiere', categorySlug: 'gezichtsbehandelingen', price: 480, format: ['fysiek'], erkend: true },
+  { title: 'Color theory en make-up masterclass', ownerKey: 'lumiere', categorySlug: 'make-up', price: 390, format: ['fysiek'], erkend: false },
+  { title: 'Anti-aging skincare protocol', ownerKey: 'lumiere', categorySlug: 'schoonheidszorg', price: 520, format: ['hybride'], erkend: true },
+  { title: 'Microneedling device certificering', ownerKey: 'dermatech', categorySlug: 'schoonheidszorg', price: 650, format: ['fysiek'], erkend: true },
+  { title: 'LED-therapie apparatuur training', ownerKey: 'dermatech', categorySlug: 'schoonheidszorg', price: 420, format: ['hybride'], erkend: false },
+  { title: 'Natuurlijke gelaatsverzorging', ownerKey: 'naturi', categorySlug: 'gezichtsbehandelingen', price: 340, format: ['fysiek'], erkend: false },
+  { title: 'Vegan product formulatie workshop', ownerKey: 'naturi', categorySlug: 'schoonheidszorg', price: 260, format: ['fysiek'], erkend: false },
+  { title: 'Holistische huidverzorging', ownerKey: 'naturi', categorySlug: 'schoonheidszorg', price: 380, format: ['hybride'], erkend: false },
+  { title: 'Luxe gelaatsbehandeling academy', ownerKey: 'comfort', categorySlug: 'gezichtsbehandelingen', price: 750, format: ['fysiek'], erkend: true },
+  { title: 'Signature spa ritual training', ownerKey: 'comfort', categorySlug: 'lichaamsverzorging', price: 690, format: ['fysiek'], erkend: true },
+  { title: 'Hydraterende behandelingen', ownerKey: 'comfort', categorySlug: 'schoonheidszorg', price: 480, format: ['fysiek'], erkend: false },
+  { title: 'Premium massage protocol', ownerKey: 'comfort', categorySlug: 'massage', price: 620, format: ['fysiek'], erkend: true },
+  { title: 'Laser ontharing certificering', ownerKey: 'estheticpro', categorySlug: 'epilatie-ontharing', price: 890, format: ['fysiek'], erkend: true },
+  { title: 'IPL apparatuur masterclass', ownerKey: 'estheticpro', categorySlug: 'epilatie-ontharing', price: 780, format: ['fysiek'], erkend: true },
+  { title: 'Huidverbetering met technologie', ownerKey: 'estheticpro', categorySlug: 'schoonheidszorg', price: 640, format: ['hybride'], erkend: true },
+  { title: 'Biologische huidverzorging opleiding', ownerKey: 'biobeaute', categorySlug: 'schoonheidszorg', price: 360, format: ['fysiek'], erkend: false },
+  { title: 'Aromatherapie voor de salon', ownerKey: 'biobeaute', categorySlug: 'aromatherapie', price: 290, format: ['fysiek'], erkend: false },
+  { title: 'Natuurlijke lichaamsrituelen', ownerKey: 'biobeaute', categorySlug: 'lichaamsverzorging', price: 410, format: ['fysiek'], erkend: false },
+]
+
+// Opleider courses, respecting tier limits (basis 1, medium <=5, premium unlimited). 20 total.
+const OPLEIDER_COURSES: CourseSeed[] = [
+  { title: 'Gelnagels voor beginners', ownerKey: 'sara', categorySlug: 'nagelstyliste', price: 295, format: ['fysiek'], erkend: false },
+  { title: 'Klassieke massage basis', ownerKey: 'tom', categorySlug: 'massage', price: 380, format: ['fysiek'], erkend: true },
+  { title: 'Voetreflexologie weekendcursus', ownerKey: 'jana', categorySlug: 'voetreflexologie', price: 390, format: ['fysiek'], erkend: true },
+  { title: 'Yoga docentenopleiding', ownerKey: 'kevin', categorySlug: 'yoga', price: 890, format: ['fysiek'], erkend: false },
+  { title: 'Aromatherapie introductie', ownerKey: 'nele', categorySlug: 'aromatherapie', price: 149, format: ['online'], erkend: false, city: null },
+  { title: 'Natuurlijke huidverzorging cursus', ownerKey: 'nele', categorySlug: 'schoonheidszorg', price: 320, format: ['fysiek'], erkend: false },
+  { title: 'Sportmassage opleiding', ownerKey: 'bram', categorySlug: 'sportmassage', price: 420, format: ['fysiek'], erkend: true },
+  { title: 'Hot stone massage workshop', ownerKey: 'bram', categorySlug: 'hot-stone-massage', price: 260, format: ['fysiek'], erkend: false },
+  { title: 'Voedingscoach opleiding', ownerKey: 'eline', categorySlug: 'voeding', price: 510, format: ['fysiek'], erkend: true },
+  { title: 'Darmgezondheid en voeding', ownerKey: 'eline', categorySlug: 'darmgezondheid', price: 280, format: ['online'], erkend: false, city: null },
+  { title: 'Bruidsmake-up masterclass', ownerKey: 'wout', categorySlug: 'make-up', price: 340, format: ['fysiek'], erkend: false },
+  { title: 'Airbrush make-up techniek', ownerKey: 'wout', categorySlug: 'make-up', price: 380, format: ['fysiek'], erkend: false },
+  { title: 'Huidanalyse en behandeling', ownerKey: 'lieve', categorySlug: 'schoonheidszorg', price: 520, format: ['fysiek'], erkend: true },
+  { title: 'Professionele peeling technieken', ownerKey: 'lieve', categorySlug: 'schoonheidszorg', price: 410, format: ['fysiek'], erkend: true },
+  { title: 'Medisch-esthetische behandelingen', ownerKey: 'anke', categorySlug: 'schoonheidszorg', price: 690, format: ['fysiek'], erkend: true },
+  { title: 'Huidverbetering met devices', ownerKey: 'anke', categorySlug: 'schoonheidszorg', price: 590, format: ['hybride'], erkend: true },
+  { title: 'Premium facial technieken', ownerKey: 'sofie', categorySlug: 'gezichtsbehandelingen', price: 680, format: ['fysiek'], erkend: true },
+  { title: 'Lifting massage gelaat', ownerKey: 'sofie', categorySlug: 'gezichtsbehandelingen', price: 450, format: ['fysiek'], erkend: false },
+  { title: 'Deep tissue massage', ownerKey: 'ruben', categorySlug: 'massage', price: 480, format: ['fysiek'], erkend: true },
+  { title: 'Lymfedrainage opleiding', ownerKey: 'ruben', categorySlug: 'lymfedrainage', price: 520, format: ['fysiek'], erkend: true },
+]
+
 async function seed() {
   const payload = await getPayload({ config })
-
-  console.log('🌱 Seeding Blissify (full test dataset)...\n')
+  console.log('🌱 Seeding Blissify (tier + registration test dataset)...\n')
 
   // ── CLEANUP ────────────────────────────────────────────────────────────────
   console.log('🧹 Clearing existing data...')
   for (const col of ['courses', 'trainers', 'brands', 'categories'] as const) {
-    await payload.delete({ collection: col as any, where: { id: { exists: true } } })
+    await payload.delete({ collection: col as never, where: { id: { exists: true } } as never })
   }
-  const seededEmails = [
-    'lonne@blissify.be',
-    'info@opi.be',
-    'info@dermalogica.be',
-    'info@naturalis.be',
-    'info@comfortzone.be',
-    'sara@example.be',
-    'tom@example.be',
-    'lieve@example.be',
-    'anke@example.be',
-    'nele@example.be',
-    'bram@example.be',
-    'sofie@example.be',
-    'jana@example.be',
-    'kevin@example.be',
-    'eline@example.be',
-  ]
-  for (const email of seededEmails) {
-    await payload.delete({ collection: 'users' as any, where: { email: { equals: email } } })
+  const emails = ['lonne@blissify.be', ...BRANDS.map((b) => b.email), ...OPLEIDERS.map((o) => o.email)]
+  for (const email of emails) {
+    await payload.delete({ collection: 'users' as never, where: { email: { equals: email } } as never })
   }
   console.log('  ✓ Cleared\n')
 
@@ -110,258 +200,125 @@ async function seed() {
       { name: 'Ademwerk', slug: 'ademwerk' },
     ]},
   ]
-
   for (const cat of categoryData) {
-    const parent = await payload.create({
-      collection: 'categories' as any,
-      data: { name: cat.name, slug: cat.slug },
-    })
+    const parent = await payload.create({ collection: 'categories' as never, data: { name: cat.name, slug: cat.slug } as never })
     for (const child of cat.children) {
-      await payload.create({
-        collection: 'categories' as any,
-        data: { name: child.name, slug: child.slug, parent: parent.id },
-      })
+      await payload.create({ collection: 'categories' as never, data: { name: child.name, slug: child.slug, parent: (parent as { id: number }).id } as never })
     }
-    console.log(`  ✓ ${cat.name} (+${cat.children.length} subcategorieën)`)
   }
+  const { docs: allCats } = await payload.find({ collection: 'categories' as never, limit: 200 })
+  const catBySlug: Record<string, number> = Object.fromEntries((allCats as { slug: string; id: number }[]).map((c) => [c.slug, c.id]))
+  console.log(`  ✓ ${categoryData.length} hoofdcategorieën + subcategorieën`)
 
-  const { docs: allCats } = await payload.find({ collection: 'categories' as any, limit: 200 })
-  const catBySlug: Record<string, any> = Object.fromEntries(allCats.map((c: any) => [c.slug, c.id]))
-
-  // ── USERS ──────────────────────────────────────────────────────────────────
-  console.log('\n👤 Creating users...')
-
+  // ── ADMIN ────────────────────────────────────────────────────────────────
   await payload.create({
-    collection: 'users' as any,
-    data: {
-      email: 'lonne@blissify.be',
-      password: 'Admin1234!',
-      name: 'Lonne',
-      role: 'admin',
-      subscriptionTier: 'premium',
-      subscriptionStatus: 'active',
-    },
+    collection: 'users' as never,
+    data: { email: 'lonne@blissify.be', password: 'Admin1234!', name: 'Lonne', role: 'admin', subscriptionStatus: 'active' } as never,
   })
-  console.log('  ✓ Admin: lonne@blissify.be')
+  console.log('\n👤 Admin: lonne@blissify.be')
 
-  // ─── Brand users ─────────────────────────────────────────────────────────
-  const brandUsers: Record<string, any> = {}
-  const brandUserData = [
-    { key: 'opi', email: 'info@opi.be', name: 'OPI Belgium', tier: 'basis' as const },
-    { key: 'derma', email: 'info@dermalogica.be', name: 'Dermalogica BE', tier: 'premium' as const },
-    { key: 'naturalis', email: 'info@naturalis.be', name: 'Naturalis Wellness', tier: 'medium' as const },
-    { key: 'comfort', email: 'info@comfortzone.be', name: 'Comfort Zone Belgium', tier: 'premium' as const },
-  ]
-  for (const b of brandUserData) {
-    brandUsers[b.key] = await payload.create({
-      collection: 'users' as any,
-      data: {
-        email: b.email,
-        password: 'Brand1234!',
-        name: b.name,
-        role: 'brand',
-        subscriptionTier: b.tier,
-        subscriptionStatus: 'active',
-      },
+  // ── BRAND accounts + profiles ──────────────────────────────────────────────
+  console.log('\n🏷️  Creating Merken & Leveranciers...')
+  const brands: Record<string, { id: number }> = {}
+  for (const b of BRANDS) {
+    const user = await payload.create({
+      collection: 'users' as never,
+      data: { email: b.email, password: PASSWORD, name: b.name, role: 'brand', brandTier: b.tier, subscriptionStatus: 'active' } as never,
     })
-    console.log(`  ✓ Brand user: ${b.email} (${b.tier})`)
-  }
-
-  // ─── Trainer users ───────────────────────────────────────────────────────
-  const trainerUsers: Record<string, any> = {}
-  const trainerUserData = [
-    { key: 'sara', email: 'sara@example.be', name: 'Sara Martens', tier: 'basis' as const },
-    { key: 'tom', email: 'tom@example.be', name: 'Tom Verhoeven', tier: 'basis' as const },
-    { key: 'lieve', email: 'lieve@example.be', name: 'Lieve Maes', tier: 'premium' as const },
-    { key: 'anke', email: 'anke@example.be', name: 'Anke Goossens', tier: 'premium' as const },
-    { key: 'nele', email: 'nele@example.be', name: 'Nele Wouters', tier: 'medium' as const },
-    { key: 'bram', email: 'bram@example.be', name: 'Bram Claes', tier: 'medium' as const },
-    { key: 'sofie', email: 'sofie@example.be', name: 'Sofie Dekeyser', tier: 'premium' as const },
-    { key: 'jana', email: 'jana@example.be', name: 'Jana Peeters', tier: 'basis' as const },
-    { key: 'kevin', email: 'kevin@example.be', name: 'Kevin Smets', tier: 'basis' as const },
-    { key: 'eline', email: 'eline@example.be', name: 'Eline Bosmans', tier: 'basis' as const },
-  ]
-  for (const t of trainerUserData) {
-    trainerUsers[t.key] = await payload.create({
-      collection: 'users' as any,
-      data: {
-        email: t.email,
-        password: 'Trainer1234!',
-        name: t.name,
-        role: 'trainer',
-        subscriptionTier: t.tier,
-        subscriptionStatus: 'active',
-      },
-    })
-    console.log(`  ✓ Trainer user: ${t.email} (${t.tier})`)
-  }
-
-  // ── BRANDS ─────────────────────────────────────────────────────────────────
-  console.log('\n🏷️  Creating brands...')
-
-  const brands: Record<string, any> = {}
-  const brandData = [
-    {
-      key: 'opi',
-      name: 'OPI Belgium',
-      slug: 'opi-belgium',
-      ownerKey: 'opi',
-      tags: ['belgisch', 'professioneel'] as any,
-    },
-    {
-      key: 'derma',
-      name: 'Dermalogica BE',
-      slug: 'dermalogica-be',
-      ownerKey: 'derma',
-      tags: ['professioneel', 'luxe'] as any,
-    },
-    {
-      key: 'naturalis',
-      name: 'Naturalis Wellness',
-      slug: 'naturalis-wellness',
-      ownerKey: 'naturalis',
-      tags: ['natuurlijk', 'vegan'] as any,
-    },
-    {
-      key: 'comfort',
-      name: 'Comfort Zone Belgium',
-      slug: 'comfort-zone-belgium',
-      ownerKey: 'comfort',
-      tags: ['luxe', 'professioneel'] as any,
-    },
-  ]
-  for (const b of brandData) {
-    brands[b.key] = await payload.create({
-      collection: 'brands' as any,
+    brands[b.key] = (await payload.create({
+      collection: 'brands' as never,
       data: {
         name: b.name,
-        slug: b.slug,
-        owner: brandUsers[b.ownerKey].id,
+        slug: slugify(b.name),
+        owner: (user as { id: number }).id,
+        typePartner: b.typePartner,
+        herkomst: b.herkomst,
         tags: b.tags,
-        verified: true,
-        featured: b.key === 'derma' || b.key === 'comfort',
-      },
-    })
-    console.log(`  ✓ ${b.name}`)
+        featured: Boolean(b.featured),
+        description: rt(`${b.name} is een ${b.typePartner} actief in de Belgische beauty- en wellnesssector.`),
+      } as never,
+    })) as { id: number }
+    console.log(`  ✓ ${b.name} (${b.tier})`)
   }
 
-  // ── TRAINERS ───────────────────────────────────────────────────────────────
-  console.log('\n🧑‍🏫 Creating trainers...')
-
-  const trainers: Record<string, any> = {}
-  const trainerData = [
-    { key: 'sara', name: 'Sara Martens', slug: 'sara-martens', ownerKey: 'sara', brandKey: 'opi', specs: ['nagelstyliste'], city: 'Antwerpen', province: 'Antwerpen' },
-    { key: 'tom', name: 'Tom Verhoeven', slug: 'tom-verhoeven', ownerKey: 'tom', brandKey: 'opi', specs: ['nagelstyliste'], city: 'Gent', province: 'Oost-Vlaanderen' },
-    { key: 'lieve', name: 'Lieve Maes', slug: 'lieve-maes', ownerKey: 'lieve', brandKey: 'derma', specs: ['schoonheid'], city: 'Antwerpen', province: 'Antwerpen' },
-    { key: 'anke', name: 'Anke Goossens', slug: 'anke-goossens', ownerKey: 'anke', brandKey: 'derma', specs: ['schoonheid'], city: 'Hasselt', province: 'Limburg' },
-    { key: 'nele', name: 'Nele Wouters', slug: 'nele-wouters', ownerKey: 'nele', brandKey: 'naturalis', specs: ['aromatherapie', 'schoonheid'], city: 'Gent', province: 'Oost-Vlaanderen' },
-    { key: 'bram', name: 'Bram Claes', slug: 'bram-claes', ownerKey: 'bram', brandKey: 'naturalis', specs: ['massage', 'schoonheid'], city: 'Brugge', province: 'West-Vlaanderen' },
-    { key: 'sofie', name: 'Sofie Dekeyser', slug: 'sofie-dekeyser', ownerKey: 'sofie', brandKey: 'comfort', specs: ['schoonheid'], city: 'Antwerpen', province: 'Antwerpen' },
-    { key: 'jana', name: 'Jana Peeters', slug: 'jana-peeters', ownerKey: 'jana', brandKey: null, specs: ['massage'], city: 'Gent', province: 'Oost-Vlaanderen' },
-    { key: 'kevin', name: 'Kevin Smets', slug: 'kevin-smets', ownerKey: 'kevin', brandKey: null, specs: ['yoga', 'mindfulness'], city: 'Leuven', province: 'Vlaams-Brabant' },
-    { key: 'eline', name: 'Eline Bosmans', slug: 'eline-bosmans', ownerKey: 'eline', brandKey: null, specs: ['voeding', 'persoonlijke-ontwikkeling'], city: 'Antwerpen', province: 'Antwerpen' },
-  ]
-  for (const t of trainerData) {
-    trainers[t.key] = await payload.create({
-      collection: 'trainers' as any,
+  // ── OPLEIDER accounts + profiles ───────────────────────────────────────────
+  console.log('\n🧑‍🏫 Creating Opleiders...')
+  const trainers: Record<string, { id: number }> = {}
+  for (const o of OPLEIDERS) {
+    const user = await payload.create({
+      collection: 'users' as never,
+      data: { email: o.email, password: PASSWORD, name: o.name, role: 'trainer', subscriptionTier: o.tier, subscriptionStatus: 'active' } as never,
+    })
+    trainers[o.key] = (await payload.create({
+      collection: 'trainers' as never,
       data: {
-        displayName: t.name,
-        slug: t.slug,
-        owner: trainerUsers[t.ownerKey].id,
-        brand: t.brandKey ? brands[t.brandKey].id : null,
-        specializations: t.specs as any,
-        location: { city: t.city, province: t.province, online: false },
-        verified: true,
-        featured: ['lieve', 'sofie'].includes(t.key),
-      },
-    })
-    console.log(`  ✓ ${t.name}${t.brandKey ? ` → ${brands[t.brandKey].name}` : ' (independent)'}`)
+        displayName: o.name,
+        slug: slugify(o.name),
+        owner: (user as { id: number }).id,
+        specializations: o.specs,
+        location: { city: o.city, province: o.province, online: false },
+        // profileAccentColor is enforced by the Trainers hook: cleared unless medium/premium.
+        ...(o.accent ? { profileAccentColor: o.accent } : {}),
+        featured: o.tier === 'premium',
+      } as never,
+    })) as { id: number }
+    console.log(`  ✓ ${o.name} (${o.tier}${o.accent ? `, accent ${o.accent}` : ''})`)
   }
 
-  // ── COURSES (20) ───────────────────────────────────────────────────────────
+  // ── COURSES ────────────────────────────────────────────────────────────────
   console.log('\n📚 Creating courses...')
+  const brandOwnerName: Record<string, string> = Object.fromEntries(BRANDS.map((b) => [b.key, b.name]))
+  const opleiderName: Record<string, string> = Object.fromEntries(OPLEIDERS.map((o) => [o.key, o.name]))
+  const slugsByOwner: Record<string, string[]> = {}
 
-  type CourseSeed = {
-    title: string
-    slug: string
-    trainerKey: string
-    brandKey: string | null
-    categorySlug: string
-    city: string | null
-    province?: string
-    postcode?: string
-    format: ('online' | 'fysiek' | 'hybride')[]
-    price: number
-    erkend: boolean
-    description: string
-  }
-
-  const courseData: CourseSeed[] = [
-    { title: 'Gelnagels voor beginners', slug: 'gelnagels-voor-beginners', trainerKey: 'sara', brandKey: 'opi', categorySlug: 'nagelstyliste', city: 'Antwerpen', province: 'Antwerpen', postcode: '2000', format: ['fysiek'], price: 295, erkend: false, description: 'Een hands-on opleiding waarin je de basis leert van professionele gelnagels. Van voorbereiding tot afwerking - je vertrekt met een volledige beheersing van de techniek.' },
-    { title: 'Acrylnagels masterclass', slug: 'acrylnagels-masterclass', trainerKey: 'tom', brandKey: 'opi', categorySlug: 'nagelstyliste', city: 'Gent', province: 'Oost-Vlaanderen', postcode: '9000', format: ['fysiek'], price: 450, erkend: true, description: 'Diepgaande masterclass voor wie acrylnagels op professioneel niveau wil leren zetten. Inclusief certificaat en demo van geavanceerde technieken.' },
-    { title: 'Nageldesign gevorderd', slug: 'nageldesign-gevorderd', trainerKey: 'tom', brandKey: 'opi', categorySlug: 'nagelstyliste', city: 'Gent', province: 'Oost-Vlaanderen', postcode: '9000', format: ['fysiek'], price: 380, erkend: false, description: 'Gevorderde technieken in nageldesign: 3D-art, marbling, gradient-effecten en seizoensgebonden trends.' },
-    { title: 'Huidanalyse en behandeling', slug: 'huidanalyse-en-behandeling', trainerKey: 'lieve', brandKey: 'derma', categorySlug: 'schoonheidszorg', city: 'Antwerpen', province: 'Antwerpen', postcode: '2000', format: ['fysiek'], price: 520, erkend: true, description: 'Leer professionele huidanalyse uit te voeren en gepaste behandelplannen op te stellen. Erkende opleiding met certificaat.' },
-    { title: 'Professionele peeling technieken', slug: 'professionele-peeling-technieken', trainerKey: 'lieve', brandKey: 'derma', categorySlug: 'schoonheidszorg', city: 'Antwerpen', province: 'Antwerpen', postcode: '2000', format: ['fysiek'], price: 410, erkend: true, description: 'Theoretische en praktische opleiding in chemische en mechanische peelings. Inclusief contra-indicaties en nazorg.' },
-    { title: 'Medisch-esthetische behandelingen', slug: 'medisch-esthetische-behandelingen', trainerKey: 'anke', brandKey: 'derma', categorySlug: 'schoonheidszorg', city: 'Hasselt', province: 'Limburg', postcode: '3500', format: ['fysiek'], price: 690, erkend: true, description: 'Premium opleiding in medisch-esthetische behandelingen. Voor schoonheidsspecialisten die hun aanbod willen uitbreiden naar het medisch-esthetische segment.' },
-    { title: 'Huidverbetering met devices', slug: 'huidverbetering-met-devices', trainerKey: 'anke', brandKey: 'derma', categorySlug: 'schoonheidszorg', city: 'Hasselt', province: 'Limburg', postcode: '3500', format: ['hybride'], price: 590, erkend: true, description: 'Hybride opleiding (online theorie + praktijkdagen) over werken met huidverbeteringsdevices: LED, microneedling, ultrasoon en meer.' },
-    { title: 'Aromatherapie introductie', slug: 'aromatherapie-introductie', trainerKey: 'nele', brandKey: 'naturalis', categorySlug: 'aromatherapie', city: null, format: ['online'], price: 149, erkend: false, description: 'Online introductiecursus over essentiële oliën en hun toepassingen. Ideaal als eerste kennismaking met aromatherapie.' },
-    { title: 'Natuurlijke huidverzorging opleiding', slug: 'natuurlijke-huidverzorging-opleiding', trainerKey: 'nele', brandKey: 'naturalis', categorySlug: 'schoonheidszorg', city: 'Gent', province: 'Oost-Vlaanderen', postcode: '9000', format: ['fysiek'], price: 320, erkend: false, description: 'Leer werken met 100% natuurlijke en plantaardige huidverzorgingsproducten. Voor schoonheidsspecialisten met een groene visie.' },
-    { title: 'Wellness massage basis', slug: 'wellness-massage-basis', trainerKey: 'bram', brandKey: 'naturalis', categorySlug: 'massage', city: 'Brugge', province: 'West-Vlaanderen', postcode: '8000', format: ['fysiek'], price: 380, erkend: true, description: 'Erkende basisopleiding wellness massage met focus op ontspanning, ademhalingstechnieken en holistische benadering.' },
-    { title: 'Vegan beauty producten workshop', slug: 'vegan-beauty-producten-workshop', trainerKey: 'bram', brandKey: 'naturalis', categorySlug: 'schoonheidszorg', city: 'Brugge', province: 'West-Vlaanderen', postcode: '8000', format: ['fysiek'], price: 220, erkend: false, description: 'Praktische workshop waar je leert zelf vegan beauty-producten te formuleren. Gericht op professionals en hobbyisten.' },
-    { title: 'Luxe gelaatsbehandeling academy', slug: 'luxe-gelaatsbehandeling-academy', trainerKey: 'sofie', brandKey: 'comfort', categorySlug: 'schoonheidszorg', city: 'Antwerpen', province: 'Antwerpen', postcode: '2000', format: ['fysiek'], price: 750, erkend: true, description: 'Premium academy-opleiding rond luxe gelaatsbehandelingen volgens de Comfort Zone-methode. Inclusief productenkit.' },
-    { title: 'Premium facial technieken', slug: 'premium-facial-technieken', trainerKey: 'sofie', brandKey: 'comfort', categorySlug: 'schoonheidszorg', city: 'Antwerpen', province: 'Antwerpen', postcode: '2000', format: ['fysiek'], price: 680, erkend: true, description: 'Geavanceerde facial-technieken voor de premium spa-ervaring. Inclusief lifting massage, manueel modelleren en signature rituals.' },
-    { title: 'Klassieke massage opleiding', slug: 'klassieke-massage-opleiding', trainerKey: 'jana', brandKey: null, categorySlug: 'massage', city: 'Gent', province: 'Oost-Vlaanderen', postcode: '9000', format: ['fysiek'], price: 450, erkend: true, description: 'Erkende opleiding klassieke massage. Ideaal voor wie professioneel wil starten als masseur/masseuse.' },
-    { title: 'Voetreflexologie opleiding', slug: 'voetreflexologie-opleiding', trainerKey: 'jana', brandKey: null, categorySlug: 'voetreflexologie', city: 'Gent', province: 'Oost-Vlaanderen', postcode: '9000', format: ['fysiek'], price: 390, erkend: true, description: 'Erkende weekendopleiding voetreflexologie. Diepgaande kennis van reflexzones en holistische benadering.' },
-    { title: 'Yoga docentenopleiding', slug: 'yoga-docentenopleiding', trainerKey: 'kevin', brandKey: null, categorySlug: 'yoga', city: 'Leuven', province: 'Vlaams-Brabant', postcode: '3000', format: ['fysiek'], price: 890, erkend: false, description: 'Intensieve docentenopleiding yoga over meerdere weekenden. Vinyasa, hatha en yin yoga geïntegreerd.' },
-    { title: 'Mindfulness trainer opleiding', slug: 'mindfulness-trainer-opleiding', trainerKey: 'kevin', brandKey: null, categorySlug: 'mindfulness', city: 'Leuven', province: 'Vlaams-Brabant', postcode: '3000', format: ['fysiek'], price: 420, erkend: false, description: 'Avondopleiding tot mindfulness-trainer. Leer groepen begeleiden volgens de MBSR- en MBCT-tradities.' },
-    { title: 'Voedingscoach opleiding', slug: 'voedingscoach-opleiding', trainerKey: 'eline', brandKey: null, categorySlug: 'voeding', city: 'Antwerpen', province: 'Antwerpen', postcode: '2000', format: ['fysiek'], price: 510, erkend: true, description: 'Erkende avondopleiding voedingscoach. Klanten begeleiden naar duurzame voedingspatronen en welzijn.' },
-    { title: 'Persoonlijke ontwikkeling coach', slug: 'persoonlijke-ontwikkeling-coach', trainerKey: 'eline', brandKey: null, categorySlug: 'persoonlijke-ontwikkeling', city: null, format: ['online'], price: 340, erkend: false, description: 'Online opleiding tot coach in persoonlijke ontwikkeling. Modulair opgebouwd met live-sessies en zelfstudie.' },
-    { title: 'Online introductie aromatherapie', slug: 'online-introductie-aromatherapie', trainerKey: 'nele', brandKey: 'naturalis', categorySlug: 'aromatherapie', city: null, format: ['online'], price: 149, erkend: false, description: 'Korte online introductiecursus aromatherapie. Toegankelijk voor iedereen, geen voorkennis nodig.' },
-  ]
-
-  let i = 0
-  for (const c of courseData) {
-    i++
-    const spotsAvailable = 8 + Math.floor(Math.random() * 13) // 8–20
+  async function createCourse(c: CourseSeed, kind: 'brand' | 'opleider') {
+    const slug = slugify(c.title)
     const isOnline = c.format.includes('online')
-    const startDateMonths = [2, 4, 6][Math.floor(Math.random() * 3)]
-
-    await payload.create({
-      collection: 'courses' as any,
-      data: {
-        title: c.title,
-        slug: c.slug,
-        status: 'published',
-        trainer: trainers[c.trainerKey].id,
-        brand: c.brandKey ? brands[c.brandKey].id : null,
-        category: catBySlug[c.categorySlug] || catBySlug['massage'],
-        shortDescription: c.description.slice(0, 180),
-        description: rt(c.description),
-        format: c.format as any,
-        ...(isOnline
-          ? {}
-          : {
-              location: {
-                city: c.city,
-                province: c.province,
-                postcode: c.postcode,
-              },
-            }),
-        price: { amount: c.price, currency: 'EUR', isFree: false, priceOnRequest: false },
-        language: ['nl'],
-        level: c.price > 600 ? 'gevorderd' : 'beginner',
-        certificate: c.erkend,
-        accreditation: c.erkend ? 'Erkend door de sector' : null,
-        externalUrl: `https://example.be/inschrijven/${c.slug}`,
-        startDates: [{ date: futureDate(startDateMonths), spotsAvailable }],
-      },
-    })
-    console.log(`  ✓ ${i}. ${c.title}`)
+    const startMonths = [2, 4, 6][Math.floor(Math.random() * 3)]
+    const base = {
+      title: c.title,
+      slug,
+      status: 'published',
+      category: catBySlug[c.categorySlug] || catBySlug['massage'],
+      shortDescription: `${c.title} - professionele opleiding via Blissify.`,
+      description: rt(`${c.title}. Een praktijkgerichte opleiding voor professionals in de beauty- en wellnesssector.`),
+      format: c.format,
+      ...(isOnline || c.city === null ? {} : { location: { city: c.city ?? 'Antwerpen', province: 'Antwerpen', postcode: '2000' } }),
+      price: { amount: c.price, currency: 'EUR', isFree: false, priceOnRequest: false },
+      language: ['nl'],
+      level: c.price > 600 ? 'gevorderd' : 'beginner',
+      certificate: c.erkend,
+      accreditation: c.erkend ? 'Erkend door de sector' : null,
+      startDates: [{ date: futureDate(startMonths), spotsAvailable: 8 + Math.floor(Math.random() * 13) }],
+    }
+    const owned =
+      kind === 'brand'
+        ? { brand: brands[c.ownerKey].id, notificationRecipients: [{ email: TEST_NOTIFY }] } // in-platform registration (isBookable auto-set)
+        : { trainer: trainers[c.ownerKey].id, externalUrl: `https://example.be/inschrijven/${slug}` } // redirect mode
+    await payload.create({ collection: 'courses' as never, data: { ...base, ...owned } as never })
+    ;(slugsByOwner[c.ownerKey] ||= []).push(slug)
   }
+
+  for (const c of BRAND_COURSES) await createCourse(c, 'brand')
+  for (const c of OPLEIDER_COURSES) await createCourse(c, 'opleider')
+  console.log(`  ✓ ${BRAND_COURSES.length} brand courses + ${OPLEIDER_COURSES.length} opleider courses`)
+
+  // ── SUMMARY ──────────────────────────────────────────────────────────────
+  console.log('\n📋 Test account summary (password: ' + PASSWORD + ')\n')
+  console.log('MERKEN & LEVERANCIERS')
+  for (const b of BRANDS) {
+    const slugs = slugsByOwner[b.key] || []
+    console.log(`  ${b.email.padEnd(30)} ${b.tier.padEnd(22)} courses: ${slugs.length}${slugs.length ? ' [' + slugs.join(', ') + ']' : ' (none - listing tier cannot publish)'}`)
+  }
+  console.log('\nOPLEIDERS')
+  for (const o of OPLEIDERS) {
+    const slugs = slugsByOwner[o.key] || []
+    console.log(`  ${o.email.padEnd(24)} ${o.tier.padEnd(8)} accent:${o.accent || '-'} courses: ${slugs.length} [${slugs.join(', ')}]`)
+  }
+  void brandOwnerName
+  void opleiderName
 
   console.log('\n✅ Seeding complete!')
-  console.log(`   ${categoryData.length} hoofdcategorieën + ${categoryData.reduce((s, c) => s + c.children.length, 0)} subcategorieën`)
-  console.log(`   ${Object.keys(brands).length} brands, ${Object.keys(trainers).length} trainers, ${courseData.length} courses`)
   process.exit(0)
 }
 

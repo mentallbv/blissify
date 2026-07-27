@@ -78,13 +78,37 @@ export const Brands: CollectionConfig = {
       type: 'text',
     },
     {
+      name: 'typePartner',
+      type: 'select',
+      admin: { position: 'sidebar', description: 'Type Merk & Leverancier' },
+      options: [
+        { label: 'Productmerken', value: 'productmerken' },
+        { label: 'Apparatuurmerken', value: 'apparatuurmerken' },
+        { label: 'Groothandels / Distributeurs', value: 'groothandels_distributeurs' },
+        { label: 'Leveranciers', value: 'leveranciers' },
+      ],
+    },
+    {
+      name: 'herkomst',
+      type: 'select',
+      admin: { position: 'sidebar', description: 'Land van herkomst' },
+      options: [
+        { label: 'Belgisch', value: 'belgisch' },
+        { label: 'Nederlands', value: 'nederlands' },
+        { label: 'Europees', value: 'europees' },
+        { label: 'Internationaal', value: 'internationaal' },
+      ],
+    },
+    {
       name: 'tags',
       type: 'select',
       hasMany: true,
+      label: 'Filosofie & waarden',
       options: [
         { label: 'Belgisch', value: 'belgisch' },
         { label: 'Vegan', value: 'vegan' },
         { label: 'Natuurlijk', value: 'natuurlijk' },
+        { label: 'Cruelty-free', value: 'cruelty-free' },
         { label: 'Professioneel', value: 'professioneel' },
         { label: 'Biologisch', value: 'biologisch' },
         { label: 'Duurzaam', value: 'duurzaam' },
