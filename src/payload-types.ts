@@ -149,7 +149,14 @@ export interface User {
   id: number;
   name: string;
   role?: ('admin' | 'trainer' | 'brand') | null;
+  /**
+   * Opleider-abonnement (individuele trainer).
+   */
   subscriptionTier?: ('basis' | 'medium' | 'premium') | null;
+  /**
+   * Merk & Leverancier-abonnement.
+   */
+  brandTier?: ('partner_listing' | 'partner_professional' | 'partner_premium') | null;
   subscriptionStatus?: ('active' | 'pending_payment' | 'inactive' | 'canceled' | 'past_due') | null;
   /**
    * Vervaldatum abonnement
@@ -393,6 +400,10 @@ export interface Trainer {
     linkedin?: string | null;
   };
   /**
+   * Hex-kleur voor je profielaccent (bijv. #1A2E25). Beschikbaar vanaf Medium; automatisch genegeerd op Basis.
+   */
+  profileAccentColor?: string | null;
+  /**
    * Interne markering (niet publiek zichtbaar)
    */
   verified?: boolean | null;
@@ -490,9 +501,22 @@ export interface Course {
   certificate?: boolean | null;
   accreditation?: string | null;
   /**
-   * URL naar de inschrijvingspagina op de externe website
+   * URL naar de externe inschrijvingspagina (voor opleidingen zonder in-platform inschrijving).
    */
-  externalUrl: string;
+  externalUrl?: string | null;
+  /**
+   * In-platform inschrijving (automatisch bepaald door accounttype + abonnement).
+   */
+  isBookable?: boolean | null;
+  /**
+   * E-mailadressen die een melding krijgen bij een nieuwe inschrijving (max. 5).
+   */
+  notificationRecipients?:
+    | {
+        email: string;
+        id?: string | null;
+      }[]
+    | null;
   startDates?:
     | {
         date: string;
@@ -810,6 +834,7 @@ export interface UsersSelect<T extends boolean = true> {
   name?: T;
   role?: T;
   subscriptionTier?: T;
+  brandTier?: T;
   subscriptionStatus?: T;
   subscriptionExpiresAt?: T;
   mollieCustomerId?: T;
@@ -973,6 +998,7 @@ export interface TrainersSelect<T extends boolean = true> {
         facebook?: T;
         linkedin?: T;
       };
+  profileAccentColor?: T;
   verified?: T;
   featured?: T;
   seo?:
@@ -1031,6 +1057,13 @@ export interface CoursesSelect<T extends boolean = true> {
   certificate?: T;
   accreditation?: T;
   externalUrl?: T;
+  isBookable?: T;
+  notificationRecipients?:
+    | T
+    | {
+        email?: T;
+        id?: T;
+      };
   startDates?:
     | T
     | {
