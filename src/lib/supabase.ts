@@ -23,6 +23,16 @@ export type Lead = {
   created_at: string
 }
 
+export type Registration = {
+  id: string
+  payload_course_id: string
+  name: string
+  email: string
+  phone: string | null
+  participant_count: number | null
+  created_at: string
+}
+
 export type AnalyticsEvent = {
   id: string
   event_type: string
@@ -105,6 +115,12 @@ export async function getLeadsForCourses(courseIds: (string | number)[]): Promis
   if (courseIds.length === 0) return []
   const q = `select=*&payload_course_id=${inList(courseIds)}&order=created_at.desc`
   return sbSelect<Lead>('leads', q)
+}
+
+export async function getRegistrationsForCourses(courseIds: (string | number)[]): Promise<Registration[]> {
+  if (courseIds.length === 0) return []
+  const q = `select=*&payload_course_id=${inList(courseIds)}&order=created_at.desc`
+  return sbSelect<Registration>('registrations', q)
 }
 
 export async function getProfileViewEvents(opts: { trainerId?: number; brandId?: number }): Promise<AnalyticsEvent[]> {

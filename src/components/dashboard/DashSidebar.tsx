@@ -12,10 +12,14 @@ const NAV = [
   { id: 'subscription', label: 'Abonnement', icon: 'ti-credit-card', href: '/dashboard/abonnement' },
 ]
 
-export function DashSidebar({ providerName = 'Opleider' }: { providerName?: string }) {
+// Inschrijvingen tab, only for Brand accounts with in-platform registration.
+const REGISTRATIONS_ITEM = { id: 'registrations', label: 'Inschrijvingen', icon: 'ti-clipboard-check', href: '/dashboard/inschrijvingen' }
+
+export function DashSidebar({ providerName = 'Opleider', showRegistrations = false }: { providerName?: string; showRegistrations?: boolean }) {
   const pathname = usePathname()
   const router = useRouter()
   const isActive = (href: string) => (href === '/dashboard' ? pathname === href : pathname.startsWith(href))
+  const nav = showRegistrations ? [...NAV.slice(0, 3), REGISTRATIONS_ITEM, ...NAV.slice(3)] : NAV
 
   async function logout() {
     await fetch('/api/users/logout', { method: 'POST', credentials: 'include' }).catch(() => {})
@@ -51,7 +55,7 @@ export function DashSidebar({ providerName = 'Opleider' }: { providerName?: stri
         Blissify
       </a>
       <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2, padding: '0 12px' }}>
-        {NAV.map((n) => {
+        {nav.map((n) => {
           const on = isActive(n.href)
           return (
             <a

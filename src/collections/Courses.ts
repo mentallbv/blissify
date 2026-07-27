@@ -23,6 +23,26 @@ function courseLimitFor(user: { role?: string; subscriptionTier?: string; brandT
   return TIER_LIMITS[user.subscriptionTier || 'basis'] ?? 1
 }
 
+/**
+ * Registration mode ("in-platform inschrijving") is on only for courses owned by
+ * a Brand account on Partner Professional or Partner Premium. Resolved from the
+ * owning brand's user tier, so it is authoritative regardless of who saves and
+ * cannot be set by the client. Opleider-owned courses are never bookable.
+ */
+async function resolveIsBookable(brandRel: unknown, req: { payload: any }): Promise<boolean> {
+  if (!brandRel) return false
+  const brandId = typeof brandRel === 'object' ? (brandRel as { id?: number | string }).id : brandRel
+  if (!brandId) return false
+  try {
+    const brand = await req.payload.findByID({ collection: 'brands', id: brandId, depth: 1, overrideAccess: true })
+    const owner = (brand as { owner?: unknown })?.owner
+    const tier = typeof owner === 'object' ? (owner as { brandTier?: string })?.brandTier : undefined
+    return tier === 'partner_professional' || tier === 'partner_premium'
+  } catch {
+    return false
+  }
+}
+
 const readAccess: Access = ({ req }) => {
   const user = req.user as any
   if (!user) return { status: { equals: 'published' } } as any
@@ -89,6 +109,12 @@ export const Courses: CollectionConfig = {
     beforeChange: [
       async ({ data, operation, req, originalDoc }) => {
         const user = req.user as any
+
+        // Registration mode is always resolved server-side from the owning brand
+        // tier, for every writer (incl. admin), and never trusted from the client.
+        const brandRel = (data as { brand?: unknown }).brand ?? originalDoc?.brand
+        ;(data as { isBookable?: boolean }).isBookable = await resolveIsBookable(brandRel, req)
+
         if (!user || user.role === 'admin') return data
 
         // ── Ownership guard on update ────────────────────────────────────────
@@ -318,9 +344,30 @@ export const Courses: CollectionConfig = {
     {
       name: 'externalUrl',
       type: 'text',
-      required: true,
       label: 'Externe inschrijvingslink',
-      admin: { description: 'URL naar de inschrijvingspagina op de externe website' },
+      admin: { description: 'URL naar de externe inschrijvingspagina (voor opleidingen zonder in-platform inschrijving).' },
+    },
+    {
+      // Set automatically by the beforeChange hook from the owning brand tier.
+      name: 'isBookable',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'In-platform inschrijving (automatisch bepaald door accounttype + abonnement).',
+      },
+    },
+    {
+      name: 'notificationRecipients',
+      type: 'array',
+      label: 'E-mailmeldingen bij inschrijving',
+      maxRows: 5,
+      admin: {
+        description: 'E-mailadressen die een melding krijgen bij een nieuwe inschrijving (max. 5).',
+        condition: (data) => Boolean((data as { isBookable?: boolean })?.isBookable),
+      },
+      fields: [{ name: 'email', type: 'email', required: true }],
     },
     {
       name: 'startDates',

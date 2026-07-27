@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { SiteChrome } from '@/components/site/SiteChrome'
 import { Eyebrow, Avatar, TypeBadge, Button, Tag } from '@/components/ui'
 import { RequestInfoButton } from '@/components/site/RequestInfoButton'
+import { RegisterCourseButton } from '@/components/site/RegisterCourseButton'
 import { TrackPageView } from '@/components/site/TrackPageView'
 import { getCourseBySlug, getCourseCards } from '@/lib/data'
 import { FALLBACK_COURSES } from '@/lib/fallback'
@@ -134,6 +135,8 @@ export default async function CourseDetailPage({ params }: Params) {
   ]
 
   const courseRef = course ? String(course.id) : slug
+  // Registration mode: Brand courses on Partner Professional/Premium (server-set).
+  const bookable = Boolean(course && (course as { isBookable?: boolean }).isBookable)
 
   return (
     <SiteChrome>
@@ -260,13 +263,17 @@ export default async function CourseDetailPage({ params }: Params) {
                 incl. btw · {v.format}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                <RequestInfoButton
-                  courseId={courseRef}
-                  courseTitle={v.title}
-                  courseSlug={`${category}/${slug}`}
-                  providerEmail={v.providerEmail}
-                  providerName={v.provider}
-                />
+                {bookable ? (
+                  <RegisterCourseButton courseId={courseRef} courseTitle={v.title} />
+                ) : (
+                  <RequestInfoButton
+                    courseId={courseRef}
+                    courseTitle={v.title}
+                    courseSlug={`${category}/${slug}`}
+                    providerEmail={v.providerEmail}
+                    providerName={v.provider}
+                  />
+                )}
                 <Button variant="ghost" fullWidth>
                   Opleiding opslaan
                 </Button>

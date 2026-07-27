@@ -16,9 +16,12 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const profile = await getCurrentProfile(user)
   const name = profileName(profile)
 
+  const u = user as { role?: string; brandTier?: string }
+  const showRegistrations = u.role === 'brand' && (u.brandTier === 'partner_professional' || u.brandTier === 'partner_premium')
+
   return (
     <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--surface-page)' }}>
-      <DashSidebar providerName={name} />
+      <DashSidebar providerName={name} showRegistrations={showRegistrations} />
       <main style={{ flex: 1, minWidth: 0, padding: '40px 48px' }}>{children}</main>
     </div>
   )
