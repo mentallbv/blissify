@@ -338,14 +338,32 @@ const relId = (v: unknown): string => (v && typeof v === 'object' ? String((v as
 
 export type HomepageCategorySection = { slug: string; name: string; courses: CourseCardData[] }
 
+const DEFAULT_OPLEIDER_TIERS = ['premium']
+const DEFAULT_BRAND_TIERS = ['partner_professional', 'partner_premium']
+
 export async function getHomepageSections(): Promise<{
+  featured: CourseCardData[]
   brandCourses: CourseCardData[]
   opleiderCourses: CourseCardData[]
-  categorySections: HomepageCategorySection[]
 }> {
-  const empty = { brandCourses: [], opleiderCourses: [], categorySections: [] as HomepageCategorySection[] }
+  const empty = { featured: [], brandCourses: [], opleiderCourses: [] }
   try {
     const payload = await client()
+
+    // Eligibility is admin-configurable via the Subscription Settings global.
+    let opleiderTiers = DEFAULT_OPLEIDER_TIERS
+    let brandTiers = DEFAULT_BRAND_TIERS
+    try {
+      const settings = (await payload.findGlobal({ slug: 'subscription-settings' as never })) as {
+        homepageOpleiderTiers?: string[]
+        homepageBrandTiers?: string[]
+      }
+      if (settings?.homepageOpleiderTiers?.length) opleiderTiers = settings.homepageOpleiderTiers
+      if (settings?.homepageBrandTiers?.length) brandTiers = settings.homepageBrandTiers
+    } catch {
+      /* global not created yet -> defaults */
+    }
+
     const [trainersRes, brandsRes] = await Promise.all([
       payload.find({ collection: 'trainers', depth: 1, limit: 500 }),
       payload.find({ collection: 'brands', depth: 1, limit: 500 }),
@@ -353,47 +371,54 @@ export async function getHomepageSections(): Promise<{
     const ownerTier = (o: unknown, key: 'subscriptionTier' | 'brandTier'): string | undefined =>
       o && typeof o === 'object' ? (o as Record<string, string | undefined>)[key] : undefined
 
-    const premiumTrainerIds = (trainersRes.docs as { id: number; owner?: unknown }[])
-      .filter((t) => ownerTier(t.owner, 'subscriptionTier') === 'premium')
+    const eligibleTrainerIds = (trainersRes.docs as { id: number; owner?: unknown }[])
+      .filter((t) => opleiderTiers.includes(ownerTier(t.owner, 'subscriptionTier') || ''))
       .map((t) => t.id)
-    const proPremiumBrandIds = (brandsRes.docs as { id: number; owner?: unknown }[])
-      .filter((b) => ['partner_professional', 'partner_premium'].includes(ownerTier(b.owner, 'brandTier') || ''))
+    const eligibleBrandIds = (brandsRes.docs as { id: number; owner?: unknown }[])
+      .filter((b) => brandTiers.includes(ownerTier(b.owner, 'brandTier') || ''))
       .map((b) => b.id)
-    const premiumBrandIds = new Set(
+    // Highest-tier accounts are weighted first in the featured / brand lists.
+    const topBrandIds = new Set(
       (brandsRes.docs as { id: number; owner?: unknown }[])
         .filter((b) => ownerTier(b.owner, 'brandTier') === 'partner_premium')
         .map((b) => String(b.id)),
     )
+    const topTrainerIds = new Set(
+      (trainersRes.docs as { id: number; owner?: unknown }[])
+        .filter((t) => ownerTier(t.owner, 'subscriptionTier') === 'premium')
+        .map((t) => String(t.id)),
+    )
+    const isTop = (c: Course) => topBrandIds.has(relId(c.brand)) || topTrainerIds.has(relId(c.trainer))
 
-    // B4 - brand courses, premium brands weighted first
+    // Section 2 - Merken & Leveranciers only (premium weighted first)
     let brandCourses: CourseCardData[] = []
-    if (proPremiumBrandIds.length) {
+    if (eligibleBrandIds.length) {
       const res = await payload.find({
         collection: 'courses',
-        where: { and: [{ status: { equals: 'published' } }, { brand: { in: proPremiumBrandIds } }] } as never,
+        where: { and: [{ status: { equals: 'published' } }, { brand: { in: eligibleBrandIds } }] } as never,
         depth: 2,
         limit: 24,
       })
-      const docs = [...(res.docs as Course[])]
-      docs.sort((a, b) => (premiumBrandIds.has(relId(b.brand)) ? 1 : 0) - (premiumBrandIds.has(relId(a.brand)) ? 1 : 0))
-      brandCourses = docs.slice(0, 8).map(toCard)
+      const docs = [...(res.docs as Course[])].sort((a, b) => (isTop(b) ? 1 : 0) - (isTop(a) ? 1 : 0))
+      brandCourses = docs.slice(0, 6).map(toCard)
     }
 
-    // B5 - opleider courses, premium trainers only
+    // Section 3 - individual Opleiders only (premium weighted first)
     let opleiderCourses: CourseCardData[] = []
-    if (premiumTrainerIds.length) {
+    if (eligibleTrainerIds.length) {
       const res = await payload.find({
         collection: 'courses',
-        where: { and: [{ status: { equals: 'published' } }, { trainer: { in: premiumTrainerIds } }] } as never,
+        where: { and: [{ status: { equals: 'published' } }, { trainer: { in: eligibleTrainerIds } }] } as never,
         depth: 2,
-        limit: 12,
+        limit: 24,
       })
-      opleiderCourses = (res.docs as Course[]).slice(0, 8).map(toCard)
+      const docs = [...(res.docs as Course[])].sort((a, b) => (isTop(b) ? 1 : 0) - (isTop(a) ? 1 : 0))
+      opleiderCourses = docs.slice(0, 6).map(toCard)
     }
 
-    // B3 - courses grouped by main category, from the combined exposure pool
-    let categorySections: HomepageCategorySection[] = []
-    if (proPremiumBrandIds.length || premiumTrainerIds.length) {
+    // Section 1 - "Uitgelicht op Blissify": mixed pool (Merken + Opleiders), top-tier first
+    let featured: CourseCardData[] = []
+    if (eligibleBrandIds.length || eligibleTrainerIds.length) {
       const res = await payload.find({
         collection: 'courses',
         where: {
@@ -401,8 +426,8 @@ export async function getHomepageSections(): Promise<{
             { status: { equals: 'published' } },
             {
               or: [
-                { brand: { in: proPremiumBrandIds.length ? proPremiumBrandIds : [-1] } },
-                { trainer: { in: premiumTrainerIds.length ? premiumTrainerIds : [-1] } },
+                { brand: { in: eligibleBrandIds.length ? eligibleBrandIds : [-1] } },
+                { trainer: { in: eligibleTrainerIds.length ? eligibleTrainerIds : [-1] } },
               ],
             },
           ],
@@ -410,19 +435,11 @@ export async function getHomepageSections(): Promise<{
         depth: 2,
         limit: 100,
       })
-      const byMain = new Map<string, HomepageCategorySection>()
-      for (const c of res.docs as Course[]) {
-        const cat = c.category
-        if (!cat || typeof cat !== 'object') continue
-        const parent = (cat as Category).parent
-        const main = parent && typeof parent === 'object' ? (parent as Category) : (cat as Category)
-        if (!byMain.has(main.slug)) byMain.set(main.slug, { slug: main.slug, name: main.name, courses: [] })
-        byMain.get(main.slug)!.courses.push(toCard(c))
-      }
-      categorySections = [...byMain.values()].filter((s) => s.courses.length > 0)
+      const docs = [...(res.docs as Course[])].sort((a, b) => (isTop(b) ? 1 : 0) - (isTop(a) ? 1 : 0))
+      featured = docs.slice(0, 6).map(toCard)
     }
 
-    return { brandCourses, opleiderCourses, categorySections }
+    return { featured, brandCourses, opleiderCourses }
   } catch {
     return empty
   }

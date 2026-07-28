@@ -6,7 +6,6 @@ import { SiteFooter, Marquee } from '@/components/site/SiteFooter'
 import { StatCounters } from '@/components/site/StatCounters'
 import { Faq } from '@/components/site/Faq'
 import { SearchCard } from '@/components/site/SearchCard'
-import { HomeCategoryExplorer } from '@/components/site/HomeCategoryExplorer'
 import { MerkenSearchBlock } from '@/components/site/MerkenSearchBlock'
 import { Eyebrow, ButtonLink, CourseCard } from '@/components/ui'
 import { getPricing, getCourseFilterOptions, getHomepageSections, getMerkenFacets } from '@/lib/data'
@@ -70,7 +69,7 @@ export default async function HomePage() {
   const faqItems = Array.isArray(hp.faq) && hp.faq.length ? hp.faq.map((f: { question: string; answer: string }) => ({ q: f.question, a: f.answer })) : FAQ_HOME
 
   const searchOptions = await getCourseFilterOptions()
-  const { brandCourses, opleiderCourses, categorySections } = await getHomepageSections()
+  const { featured, brandCourses, opleiderCourses } = await getHomepageSections()
   const merkenFacets = await getMerkenFacets()
   const pricingData = await getPricing()
   const pricing = pricingData.intro
@@ -185,19 +184,26 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* B3 - COURSES BY CATEGORY (tier-gated exposure pool) */}
-      {categorySections.length ? (
+      {/* SECTION 1 - UITGELICHT OP BLISSIFY (mixed: Merken + Opleiders) */}
+      {featured.length ? (
         <section>
-          <div className="bl-container" style={{ paddingTop: 96, paddingBottom: 40 }}>
-            <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 40, lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: '0 0 24px', textWrap: 'balance' }}>
-              Opleidingen per categorie
-            </h2>
-            <HomeCategoryExplorer sections={categorySections} />
+          <div className="bl-container" style={{ paddingTop: 96, paddingBottom: 96 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, marginBottom: 32 }}>
+              <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 40, lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: 0 }}>
+                Uitgelicht op Blissify
+              </h2>
+              <a href="/opleidingen" className="bl-textlink">Bekijk alle opleidingen</a>
+            </div>
+            <div className="bl-grid-3">
+              {featured.slice(0, 6).map((c) => (
+                <CourseCard key={c.slug} {...c} />
+              ))}
+            </div>
           </div>
         </section>
       ) : null}
 
-      {/* B4 - FEATURED MERKEN & LEVERANCIERS COURSES */}
+      {/* SECTION 2 - MERKEN & LEVERANCIERS ONLY */}
       {brandCourses.length ? (
         <section style={{ background: 'var(--surface-card)', borderTop: '0.5px solid var(--border-hairline)' }}>
           <div className="bl-container" style={{ paddingTop: 96, paddingBottom: 96 }}>
@@ -216,7 +222,7 @@ export default async function HomePage() {
         </section>
       ) : null}
 
-      {/* B5 - FEATURED OPLEIDER COURSES (Premium only) */}
+      {/* SECTION 3 - INDIVIDUAL OPLEIDERS ONLY (eligibility admin-configurable) */}
       {opleiderCourses.length ? (
         <section>
           <div className="bl-container" style={{ paddingTop: 96, paddingBottom: 96 }}>

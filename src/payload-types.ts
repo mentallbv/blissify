@@ -104,6 +104,7 @@ export interface Config {
     branding: Branding;
     'seo-settings': SeoSetting;
     pricing: Pricing;
+    'subscription-settings': SubscriptionSetting;
   };
   globalsSelect: {
     navigation: NavigationSelect<false> | NavigationSelect<true>;
@@ -112,6 +113,7 @@ export interface Config {
     branding: BrandingSelect<false> | BrandingSelect<true>;
     'seo-settings': SeoSettingsSelect<false> | SeoSettingsSelect<true>;
     pricing: PricingSelect<false> | PricingSelect<true>;
+    'subscription-settings': SubscriptionSettingsSelect<false> | SubscriptionSettingsSelect<true>;
   };
   locale: null;
   widgets: {
@@ -314,8 +316,33 @@ export interface Brand {
    * Land van herkomst
    */
   herkomst?: ('belgisch' | 'nederlands' | 'europees' | 'internationaal') | null;
+  productType?:
+    | (
+        | 'skincare-huidverbetering'
+        | 'esthetische-technologie'
+        | 'make-up-pmu'
+        | 'wenkbrauwen-wimpers'
+        | 'nagels-hand-voet'
+        | 'haarverzorging-scalp'
+        | 'massage-body'
+        | 'waxing-ontharing'
+        | 'wellness-holistisch'
+        | 'business-salon'
+      )[]
+    | null;
+  positionering?: ('starter-friendly' | 'premium-luxe' | 'professioneel-salon' | 'medisch-esthetisch') | null;
   tags?:
-    | ('belgisch' | 'vegan' | 'natuurlijk' | 'cruelty-free' | 'professioneel' | 'biologisch' | 'duurzaam' | 'luxe')[]
+    | (
+        | 'belgisch'
+        | 'vegan'
+        | 'natuurlijk'
+        | 'cruelty-free'
+        | 'duurzaam'
+        | 'holistisch'
+        | 'professioneel'
+        | 'biologisch'
+        | 'luxe'
+      )[]
     | null;
   /**
    * Interne markering (niet publiek zichtbaar)
@@ -966,6 +993,8 @@ export interface BrandsSelect<T extends boolean = true> {
   phone?: T;
   typePartner?: T;
   herkomst?: T;
+  productType?: T;
+  positionering?: T;
   tags?: T;
   verified?: T;
   featured?: T;
@@ -1334,7 +1363,7 @@ export interface Homepage {
     cards?:
       | {
           /**
-           * Tabler-klasse, bijv. ti ti-rosette-discount-check
+           * Tabler-klasse, bijv. ti ti-sparkles
            */
           icon?: string | null;
           title: string;
@@ -1554,6 +1583,23 @@ export interface Pricing {
     buttonLabel?: string | null;
     buttonUrl?: string | null;
   };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscription-settings".
+ */
+export interface SubscriptionSetting {
+  id: number;
+  /**
+   * Welke Opleider-abonnementen mogen uitgelicht worden op de homepage.
+   */
+  homepageOpleiderTiers?: ('basis' | 'medium' | 'premium')[] | null;
+  /**
+   * Welke Merk & Leverancier-abonnementen mogen uitgelicht worden op de homepage.
+   */
+  homepageBrandTiers?: ('partner_listing' | 'partner_professional' | 'partner_premium')[] | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -1783,6 +1829,17 @@ export interface PricingSelect<T extends boolean = true> {
         buttonLabel?: T;
         buttonUrl?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "subscription-settings_select".
+ */
+export interface SubscriptionSettingsSelect<T extends boolean = true> {
+  homepageOpleiderTiers?: T;
+  homepageBrandTiers?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
