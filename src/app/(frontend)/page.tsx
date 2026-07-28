@@ -6,25 +6,29 @@ import { SiteFooter, Marquee } from '@/components/site/SiteFooter'
 import { StatCounters } from '@/components/site/StatCounters'
 import { Faq } from '@/components/site/Faq'
 import { SearchCard } from '@/components/site/SearchCard'
-import { Eyebrow, Tag, ButtonLink } from '@/components/ui'
+import { Eyebrow, ButtonLink } from '@/components/ui'
 import { getPricing, getCourseFilterOptions } from '@/lib/data'
 import { FAQ_HOME } from '@/lib/pricing'
 
-const HERO_PILLS = [
-  { label: 'Massage', slug: 'massage' },
-  { label: 'Nagelstyliste', slug: 'nagelstyliste' },
-  { label: 'Reflexologie', slug: 'voetreflexologie' },
-  { label: 'Schoonheid', slug: 'schoonheid' },
-  { label: 'Yoga', slug: 'yoga' },
-  { label: 'Voeding', slug: 'voeding' },
-  { label: 'Aromatherapie', slug: 'aromatherapie' },
-  { label: 'Reiki', slug: 'reiki' },
-]
-
 export const dynamic = 'force-dynamic'
 
+/** Live counts for the hero stat strip - never hardcoded. */
+async function getCounts(): Promise<{ courses: number; opleiders: number; merken: number }> {
+  try {
+    const payload = await getPayload({ config: await config })
+    const [courses, trainers, brands] = await Promise.all([
+      payload.count({ collection: 'courses' as never, where: { status: { equals: 'published' } } as never }),
+      payload.count({ collection: 'trainers' as never }),
+      payload.count({ collection: 'brands' as never }),
+    ])
+    return { courses: courses.totalDocs, opleiders: trainers.totalDocs, merken: brands.totalDocs }
+  } catch {
+    return { courses: 0, opleiders: 0, merken: 0 }
+  }
+}
+
 const DEFAULT_DARK_CARDS = [
-  { icon: 'ti ti-rosette-discount-check', title: 'Curatorisch, niet algoritmisch', body: 'Een zorgvuldig samengesteld overzicht van opleiders en opleidingen. Een Blissify-vermelding betekent iets.' },
+  { icon: 'ti ti-sparkles', title: 'Curatorisch, niet algoritmisch', body: 'Een zorgvuldig samengesteld overzicht van opleiders en opleidingen. Een Blissify-vermelding betekent iets.' },
   { icon: 'ti ti-eye-check', title: 'Transparant', body: 'Prijs, duur, erkenning en locatie staan altijd vermeld. Nooit verborgen.' },
   { icon: 'ti ti-calendar-event', title: 'Avond, weekend of online', body: 'Vind het lesmoment dat bij jouw agenda past, zonder tussenpersoon.' },
 ]
@@ -33,12 +37,6 @@ const DEFAULT_TILES = [
   { title: 'Ontdek opleiders', body: 'Een gecureerd overzicht van opleiders en merken.', image: null as string | null },
   { title: 'Schrijf je in', body: 'Vraag rechtstreeks informatie aan.', image: null as string | null },
 ]
-const DEFAULT_STATS = [
-  { target: 847, suffix: '', label: 'Opleidingen' },
-  { target: 124, suffix: '', label: 'Opleiders' },
-  { target: 3, suffix: '', label: 'Landen' },
-]
-
 const mediaUrl = (m: unknown): string | null => (m && typeof m === 'object' && (m as { url?: string }).url ? (m as { url: string }).url : null)
 
 async function getHomepage(): Promise<Record<string, any> | null> {
@@ -60,13 +58,13 @@ export default async function HomePage() {
   const tiles = Array.isArray(photo.tiles) && photo.tiles.length
     ? photo.tiles.map((t: Record<string, unknown>) => ({ title: t.title, body: t.body, image: mediaUrl(t.image) }))
     : DEFAULT_TILES
-  const stats = Array.isArray(hp.stats) && hp.stats.length
-    ? hp.stats.map((s: { value: string; label: string }) => {
-        const target = parseInt(String(s.value).replace(/\D/g, ''), 10) || 0
-        const suffix = String(s.value).replace(/[0-9.\s]/g, '')
-        return { target, suffix, label: s.label }
-      })
-    : DEFAULT_STATS
+  // Stat strip is fully dynamic (live counts), never hardcoded. Third stat = brands.
+  const counts = await getCounts()
+  const stats = [
+    { target: counts.courses, suffix: '', label: 'Opleidingen' },
+    { target: counts.opleiders, suffix: '', label: 'Opleiders' },
+    { target: counts.merken, suffix: '', label: 'Merken' },
+  ]
   const faqItems = Array.isArray(hp.faq) && hp.faq.length ? hp.faq.map((f: { question: string; answer: string }) => ({ q: f.question, a: f.answer })) : FAQ_HOME
 
   const searchOptions = await getCourseFilterOptions()
@@ -109,26 +107,15 @@ export default async function HomePage() {
                 <ButtonLink href={hero.secondaryCtaUrl || '/voor-aanbieders'} variant="ghost">
                   {hero.secondaryCtaLabel || 'Publiceer jouw opleiding'}
                 </ButtonLink>
-              </div>
-              <div className="bl-hero-pills" style={{ display: 'flex', gap: 8, marginTop: 28, flexWrap: 'wrap' }}>
-                {HERO_PILLS.map((p) => (
-                  <Tag key={p.slug} as="a" href={`/opleidingen/${p.slug}`}>
-                    {p.label}
-                  </Tag>
-                ))}
+                <ButtonLink href={hero.tertiaryCtaUrl || '/registreren?type=brand'} variant="ghost">
+                  {hero.tertiaryCtaLabel || 'Zet je merk in de kijker'}
+                </ButtonLink>
               </div>
             </div>
 
             {/* Right column */}
-            <SearchCard categories={searchOptions.categories} cities={searchOptions.cities} />
+            <SearchCard categories={searchOptions.categories} cities={searchOptions.cities} counts={counts} />
           </div>
-        </div>
-      </section>
-
-      {/* TRUST STRIP */}
-      <section style={{ background: 'var(--surface-card)', borderTop: '0.5px solid var(--border-hairline)', borderBottom: '0.5px solid var(--border-hairline)' }}>
-        <div className="bl-container" style={{ paddingTop: 28, paddingBottom: 28, textAlign: 'center', fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 'var(--type-sm)', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-meta)' }}>
-          {hp.trustText || 'Vertrouwd door 124 opleiders in heel België'}
         </div>
       </section>
 

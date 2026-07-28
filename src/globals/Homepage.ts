@@ -48,7 +48,7 @@ export const Homepage: GlobalConfig = {
           name: 'cards',
           type: 'array',
           fields: [
-            { name: 'icon', type: 'text', admin: { description: 'Tabler-klasse, bijv. ti ti-rosette-discount-check' } },
+            { name: 'icon', type: 'text', admin: { description: 'Tabler-klasse, bijv. ti ti-sparkles' } },
             { name: 'title', type: 'text', required: true },
             { name: 'body', type: 'textarea' },
           ],
