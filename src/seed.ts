@@ -40,22 +40,24 @@ const BRANDS: {
   tier: BrandTier
   typePartner: string
   herkomst: string
+  positionering: string
+  productType: string[]
   tags: string[]
   featured?: boolean
 }[] = [
   // Partner Listing (cannot create/publish any course)
-  { key: 'skinlab', name: 'Skinlab Belgium', email: 'info@skinlab.be', tier: 'partner_listing', typePartner: 'productmerken', herkomst: 'belgisch', tags: ['belgisch', 'professioneel'] },
-  { key: 'districos', name: 'Districos Groothandel', email: 'info@districos.be', tier: 'partner_listing', typePartner: 'groothandels_distributeurs', herkomst: 'belgisch', tags: ['belgisch'] },
-  { key: 'pureaesthetics', name: 'Pure Aesthetics NV', email: 'info@pureaesthetics.be', tier: 'partner_listing', typePartner: 'leveranciers', herkomst: 'belgisch', tags: ['professioneel', 'luxe'] },
-  { key: 'bellanails', name: 'Bella Nails Supply', email: 'info@bellanails.be', tier: 'partner_listing', typePartner: 'leveranciers', herkomst: 'nederlands', tags: ['professioneel'] },
+  { key: 'skinlab', name: 'Skinlab Belgium', email: 'info@skinlab.be', tier: 'partner_listing', typePartner: 'productmerken', herkomst: 'belgisch', positionering: 'professioneel-salon', productType: ['skincare-huidverbetering'], tags: ['belgisch', 'professioneel'] },
+  { key: 'districos', name: 'Districos Groothandel', email: 'info@districos.be', tier: 'partner_listing', typePartner: 'groothandels_distributeurs', herkomst: 'belgisch', positionering: 'starter-friendly', productType: ['business-salon', 'skincare-huidverbetering'], tags: ['belgisch'] },
+  { key: 'pureaesthetics', name: 'Pure Aesthetics NV', email: 'info@pureaesthetics.be', tier: 'partner_listing', typePartner: 'leveranciers', herkomst: 'belgisch', positionering: 'medisch-esthetisch', productType: ['esthetische-technologie'], tags: ['professioneel', 'luxe'] },
+  { key: 'bellanails', name: 'Bella Nails Supply', email: 'info@bellanails.be', tier: 'partner_listing', typePartner: 'leveranciers', herkomst: 'nederlands', positionering: 'starter-friendly', productType: ['nagels-hand-voet'], tags: ['professioneel'] },
   // Partner Professional (up to 10 courses, isBookable)
-  { key: 'lumiere', name: 'Lumière Cosmetics', email: 'info@lumierecosmetics.be', tier: 'partner_professional', typePartner: 'productmerken', herkomst: 'europees', tags: ['luxe', 'professioneel'], featured: true },
-  { key: 'dermatech', name: 'DermaTech Solutions', email: 'info@dermatech.be', tier: 'partner_professional', typePartner: 'apparatuurmerken', herkomst: 'belgisch', tags: ['professioneel'] },
-  { key: 'naturi', name: 'Naturi Skincare', email: 'info@naturi.be', tier: 'partner_professional', typePartner: 'productmerken', herkomst: 'belgisch', tags: ['natuurlijk', 'vegan', 'duurzaam'] },
+  { key: 'lumiere', name: 'Lumière Cosmetics', email: 'info@lumierecosmetics.be', tier: 'partner_professional', typePartner: 'productmerken', herkomst: 'europees', positionering: 'premium-luxe', productType: ['skincare-huidverbetering', 'make-up-pmu'], tags: ['luxe', 'professioneel'], featured: true },
+  { key: 'dermatech', name: 'DermaTech Solutions', email: 'info@dermatech.be', tier: 'partner_professional', typePartner: 'apparatuurmerken', herkomst: 'belgisch', positionering: 'medisch-esthetisch', productType: ['esthetische-technologie', 'waxing-ontharing'], tags: ['professioneel'] },
+  { key: 'naturi', name: 'Naturi Skincare', email: 'info@naturi.be', tier: 'partner_professional', typePartner: 'productmerken', herkomst: 'belgisch', positionering: 'professioneel-salon', productType: ['skincare-huidverbetering', 'wellness-holistisch'], tags: ['natuurlijk', 'vegan', 'duurzaam', 'holistisch'] },
   // Partner Premium (unlimited, isBookable)
-  { key: 'comfort', name: 'Comfort Zone Belgium', email: 'info@comfortzone.be', tier: 'partner_premium', typePartner: 'productmerken', herkomst: 'europees', tags: ['luxe', 'professioneel'], featured: true },
-  { key: 'estheticpro', name: 'EstheticPro Group', email: 'info@estheticpro.be', tier: 'partner_premium', typePartner: 'apparatuurmerken', herkomst: 'internationaal', tags: ['professioneel', 'luxe'], featured: true },
-  { key: 'biobeaute', name: 'Bio Beauté Belgium', email: 'info@biobeaute.be', tier: 'partner_premium', typePartner: 'productmerken', herkomst: 'belgisch', tags: ['natuurlijk', 'biologisch', 'vegan'] },
+  { key: 'comfort', name: 'Comfort Zone Belgium', email: 'info@comfortzone.be', tier: 'partner_premium', typePartner: 'productmerken', herkomst: 'europees', positionering: 'premium-luxe', productType: ['skincare-huidverbetering', 'massage-body'], tags: ['luxe', 'professioneel'], featured: true },
+  { key: 'estheticpro', name: 'EstheticPro Group', email: 'info@estheticpro.be', tier: 'partner_premium', typePartner: 'apparatuurmerken', herkomst: 'internationaal', positionering: 'medisch-esthetisch', productType: ['esthetische-technologie', 'waxing-ontharing'], tags: ['professioneel', 'luxe'] },
+  { key: 'biobeaute', name: 'Bio Beauté Belgium', email: 'info@biobeaute.be', tier: 'partner_premium', typePartner: 'productmerken', herkomst: 'belgisch', positionering: 'professioneel-salon', productType: ['skincare-huidverbetering', 'wellness-holistisch'], tags: ['natuurlijk', 'biologisch', 'vegan', 'holistisch'] },
 ]
 
 type OpleiderTier = 'basis' | 'medium' | 'premium'
@@ -233,6 +235,8 @@ async function seed() {
         owner: (user as { id: number }).id,
         typePartner: b.typePartner,
         herkomst: b.herkomst,
+        positionering: b.positionering,
+        productType: b.productType,
         tags: b.tags,
         featured: Boolean(b.featured),
         description: rt(`${b.name} is een ${b.typePartner} actief in de Belgische beauty- en wellnesssector.`),

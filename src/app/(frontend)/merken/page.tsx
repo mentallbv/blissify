@@ -2,8 +2,8 @@ import React from 'react'
 import type { Metadata } from 'next'
 import { SiteChrome } from '@/components/site/SiteChrome'
 import { Eyebrow, Avatar, TypeBadge } from '@/components/ui'
-import { FilterPills } from '@/components/site/FilterPills'
-import { getBrandCards, getBrandFilterOptions } from '@/lib/data'
+import { MerkenFilterBar } from '@/components/site/MerkenFilterBar'
+import { getBrandCards, getMerkenFacets, type MerkenFilters } from '@/lib/data'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,11 +14,20 @@ export const metadata: Metadata = {
 }
 
 const one = (v: string | string[] | undefined): string => (Array.isArray(v) ? v[0] : v || '')
+const list = (v: string | string[] | undefined): string[] => one(v).split(',').filter(Boolean)
 
 export default async function MerkenPage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const sp = await searchParams
-  const tag = one(sp.tag) || undefined
-  const [{ cards }, tagOptions] = await Promise.all([getBrandCards({ tag }), getBrandFilterOptions()])
+  const filters: MerkenFilters = {
+    q: one(sp.q) || undefined,
+    producttype: list(sp.producttype),
+    typePartner: one(sp.typePartner) || undefined,
+    herkomst: one(sp.herkomst) || undefined,
+    positionering: one(sp.positionering) || undefined,
+    filosofie: one(sp.filosofie) || undefined,
+    extra: list(sp.extra),
+  }
+  const [{ cards }, facets] = await Promise.all([getBrandCards(filters), getMerkenFacets()])
   return (
     <SiteChrome>
       <section className="bl-container" style={{ paddingTop: 72, paddingBottom: 32 }}>
@@ -40,7 +49,7 @@ export default async function MerkenPage({ searchParams }: { searchParams: Promi
           Ontdek merken en leveranciers die samenwerken met professionele opleiders in de Belgische wellness- en beautysector.
         </p>
         <div style={{ marginTop: 24 }}>
-          <FilterPills paramKey="tag" options={tagOptions} />
+          <MerkenFilterBar facets={facets} basePath="/merken" />
         </div>
       </section>
 

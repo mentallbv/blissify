@@ -442,17 +442,38 @@ export type BrandCardData = {
   website?: string | null
 }
 
-export async function getBrandCards(opts: { tag?: string } = {}): Promise<{ cards: BrandCardData[]; isFallback: boolean }> {
+export type MerkenFilters = {
+  q?: string
+  producttype?: string[]
+  typePartner?: string
+  herkomst?: string
+  positionering?: string
+  filosofie?: string
+  extra?: string[]
+}
+
+export async function getBrandCards(opts: MerkenFilters = {}): Promise<{ cards: BrandCardData[]; isFallback: boolean }> {
   try {
     const payload = await client()
+    const and: Record<string, unknown>[] = []
+    if (opts.q) and.push({ name: { like: opts.q } })
+    if (opts.producttype?.length) and.push({ productType: { in: opts.producttype } })
+    if (opts.typePartner) and.push({ typePartner: { equals: opts.typePartner } })
+    if (opts.herkomst) and.push({ herkomst: { equals: opts.herkomst } })
+    if (opts.positionering) and.push({ positionering: { equals: opts.positionering } })
+    if (opts.filosofie) and.push({ tags: { contains: opts.filosofie } })
+    const hasFilters = and.length > 0 || Boolean(opts.extra?.length)
+    const newest = opts.extra?.includes('nieuw')
+
     const res = await payload.find({
       collection: 'brands',
-      where: (opts.tag ? { tags: { contains: opts.tag } } : undefined) as never,
+      where: (and.length ? { and } : undefined) as never,
+      sort: newest ? '-createdAt' : undefined,
       limit: 48,
       depth: 1,
     })
-    if (res.docs.length === 0 && !opts.tag) throw new Error('empty')
-    const cards = await Promise.all(
+    if (res.docs.length === 0 && !hasFilters) throw new Error('empty')
+    let cards = await Promise.all(
       res.docs.map(async (b) => {
         const courses = await payload.count({
           collection: 'courses',
@@ -475,6 +496,8 @@ export async function getBrandCards(opts: { tag?: string } = {}): Promise<{ card
         }
       }),
     )
+    // "Alleen met opleidingen" is a post-filter (depends on live course counts).
+    if (opts.extra?.includes('met-opleidingen')) cards = cards.filter((c) => c.courseCount > 0)
     return { cards, isFallback: false }
   } catch {
     return {
@@ -493,6 +516,54 @@ export async function getBrandCards(opts: { tag?: string } = {}): Promise<{ card
       isFallback: true,
     }
   }
+}
+
+/** Live per-option counts for the Merken filter (e.g. "Vegan (32)"). */
+export async function getMerkenFacets(): Promise<import('./merken-filters').MerkenFacets> {
+  const facets: import('./merken-filters').MerkenFacets = {}
+  try {
+    const payload = await client()
+    const res = await payload.find({ collection: 'brands', depth: 0, limit: 500 })
+    const brands = res.docs as {
+      id: number
+      productType?: string[] | null
+      typePartner?: string | null
+      herkomst?: string | null
+      positionering?: string | null
+      tags?: string[] | null
+      createdAt?: string
+    }[]
+
+    const inc = (group: string, value: string) => {
+      facets[group] ||= {}
+      facets[group][value] = (facets[group][value] || 0) + 1
+    }
+    const thirtyDaysAgo = Date.now() - 60 * 24 * 60 * 60 * 1000
+
+    // brands that have >=1 published course (for "Alleen met opleidingen")
+    const coursesRes = await payload.find({
+      collection: 'courses',
+      where: { and: [{ status: { equals: 'published' } }, { brand: { exists: true } }] } as never,
+      depth: 0,
+      limit: 1000,
+    })
+    const brandsWithCourses = new Set(
+      (coursesRes.docs as { brand?: unknown }[]).map((c) => (c.brand && typeof c.brand === 'object' ? (c.brand as { id: number }).id : c.brand)).filter(Boolean).map(String),
+    )
+
+    for (const b of brands) {
+      ;(b.productType || []).forEach((v) => inc('producttype', v))
+      if (b.typePartner) inc('typePartner', b.typePartner)
+      if (b.herkomst) inc('herkomst', b.herkomst)
+      if (b.positionering) inc('positionering', b.positionering)
+      ;(b.tags || []).forEach((v) => inc('filosofie', v))
+      if (brandsWithCourses.has(String(b.id))) inc('extra', 'met-opleidingen')
+      if (b.createdAt && new Date(b.createdAt).getTime() >= thirtyDaysAgo) inc('extra', 'nieuw')
+    }
+  } catch {
+    // graceful: empty facets -> filter shows options without counts
+  }
+  return facets
 }
 
 export async function getBrandBySlug(

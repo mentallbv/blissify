@@ -7,8 +7,9 @@ import { StatCounters } from '@/components/site/StatCounters'
 import { Faq } from '@/components/site/Faq'
 import { SearchCard } from '@/components/site/SearchCard'
 import { HomeCategoryExplorer } from '@/components/site/HomeCategoryExplorer'
+import { MerkenSearchBlock } from '@/components/site/MerkenSearchBlock'
 import { Eyebrow, ButtonLink, CourseCard } from '@/components/ui'
-import { getPricing, getCourseFilterOptions, getHomepageSections } from '@/lib/data'
+import { getPricing, getCourseFilterOptions, getHomepageSections, getMerkenFacets } from '@/lib/data'
 import { FAQ_HOME } from '@/lib/pricing'
 
 export const dynamic = 'force-dynamic'
@@ -70,6 +71,7 @@ export default async function HomePage() {
 
   const searchOptions = await getCourseFilterOptions()
   const { brandCourses, opleiderCourses, categorySections } = await getHomepageSections()
+  const merkenFacets = await getMerkenFacets()
   const pricingData = await getPricing()
   const pricing = pricingData.intro
   const tiers = pricingData.tiers
@@ -118,6 +120,13 @@ export default async function HomePage() {
             {/* Right column */}
             <SearchCard categories={searchOptions.categories} cities={searchOptions.cities} counts={counts} />
           </div>
+        </div>
+      </section>
+
+      {/* B6 - ONTDEK MERKEN & LEVERANCIERS */}
+      <section>
+        <div className="bl-container" style={{ paddingTop: 8, paddingBottom: 88 }}>
+          <MerkenSearchBlock facets={merkenFacets} />
         </div>
       </section>
 
