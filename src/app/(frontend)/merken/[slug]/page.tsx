@@ -29,14 +29,26 @@ export default async function MerkPage({ params }: Params) {
   return (
     <SiteChrome>
       {brand.id != null ? <TrackPageView kind="brand" id={brand.id} /> : null}
-      {/* Dark forest header */}
-      <header style={{ background: 'var(--surface-dark)' }}>
+      {/* Dark forest header (brand cover as backdrop when present) */}
+      <header
+        style={{
+          background: 'var(--surface-dark)',
+          backgroundImage: brand.cover ? `linear-gradient(rgba(26,46,37,0.72),rgba(26,46,37,0.72)), url(${brand.cover})` : 'none',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
         <div className="bl-container" style={{ paddingTop: 48, paddingBottom: 48 }}>
           <div style={{ display: 'flex', gap: 24, alignItems: 'center' }}>
-            <div style={{ width: 80, height: 80, borderRadius: 'var(--radius-md)', background: 'var(--surface-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: '0 0 80px' }}>
-              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 40, color: 'var(--blissify-forest)' }}>
-                {brand.initial}
-              </span>
+            <div style={{ width: 80, height: 80, borderRadius: 'var(--radius-md)', background: 'var(--surface-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: '0 0 80px', overflow: 'hidden' }}>
+              {brand.logo ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={brand.logo} alt={brand.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              ) : (
+                <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 40, color: 'var(--blissify-forest)' }}>
+                  {brand.initial}
+                </span>
+              )}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
               <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 48, lineHeight: 1.1, letterSpacing: '-0.01em', color: 'var(--blissify-chalk)', margin: 0 }}>

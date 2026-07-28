@@ -30,6 +30,93 @@ const slugify = (s: string) =>
 const PASSWORD = 'Test1234!'
 const TEST_NOTIFY = 'test-inschrijvingen@blissify.be'
 
+// ── Dummy imagery (downloaded + uploaded into Media at seed time) ────────────
+// Unsplash photo IDs are topical; a Picsum fallback guarantees an image even if
+// an ID is unavailable. Brand logos use a wordmark generator, opleider avatars
+// use real portrait photos - both reliable, no API key.
+const unsplash = (id: string) => `https://images.unsplash.com/photo-${id}?w=1200&h=800&q=80&auto=format&fit=crop`
+
+// Course cover photos by topic (2 per topic for variety).
+const TOPIC_IMG: Record<string, string[]> = {
+  skincare: ['1616394584738-fc6e612e71b9', '1570172619644-dfd03ed5d881'],
+  facials: ['1512290923902-8a9f81dc236c', '1620331311520-246422fd82f9'],
+  nails: ['1604654894610-df63bc536371', '1522337660859-02fbefca4702'],
+  makeup: ['1522335789203-aabd1fc54bc9', '1596462502278-27bfdc403348'],
+  hair: ['1560066984-138dadb4c035', '1522337360788-8b13dee7a37e'],
+  waxing: ['1608248543803-ba4f8c70ae0b', '1519824145371-296894a0daa9'],
+  massage: ['1519823551278-64ac92734fb1', '1600334129128-685c5582fd35'],
+  wellness: ['1600334089648-b0d9d3028eb2', '1545205597-3d9d02c29597'],
+  body: ['1519824145371-296894a0daa9', '1540555700478-4be289fbecef'],
+  nutrition: ['1490645935967-10de6ba17061', '1512621776951-a57141f2eefd'],
+  yoga: ['1544367567-0f2fcb009e0b', '1506126613408-eca07ce68773'],
+  business: ['1600880292203-757bb62b4baf', '1556740738-b6a63e27c4df'],
+}
+const CAT_TOPIC: Record<string, string> = {
+  nagelstyliste: 'nails', schoonheidszorg: 'skincare', gezichtsbehandelingen: 'facials', 'make-up': 'makeup',
+  haarverzorging: 'hair', 'epilatie-ontharing': 'waxing', lichaamsverzorging: 'body',
+  massage: 'massage', 'klassieke-massage': 'massage', sportmassage: 'massage', 'hot-stone-massage': 'massage',
+  voetreflexologie: 'massage', lymfedrainage: 'massage', 'ayurvedische-massage': 'massage',
+  aromatherapie: 'wellness', reiki: 'wellness', 'energetische-healing': 'wellness', ayurveda: 'wellness', meditatie: 'wellness', mindfulness: 'wellness',
+  yoga: 'yoga', pilates: 'yoga', voeding: 'nutrition', darmgezondheid: 'nutrition',
+  'persoonlijke-ontwikkeling': 'business', coaching: 'business',
+}
+const courseImg = (categorySlug: string, idx: number): string => {
+  const arr = TOPIC_IMG[CAT_TOPIC[categorySlug] || 'wellness'] || TOPIC_IMG.wellness
+  return unsplash(arr[idx % arr.length])
+}
+// Salon / product-shelf style cover photos for brand pages.
+const BRAND_COVER_IDS = ['1560066984-138dadb4c035', '1596462502278-27bfdc403348', '1522337660859-02fbefca4702', '1600334089648-b0d9d3028eb2', '1556760544-74068565f05c', '1470259078422-826894b933aa']
+// Portrait headshots per opleider (reliable, diverse).
+const HEADSHOT: Record<string, string> = {
+  sara: 'women/44', tom: 'men/32', jana: 'women/68', kevin: 'men/75',
+  nele: 'women/12', bram: 'men/46', eline: 'women/33', wout: 'men/22',
+  lieve: 'women/58', anke: 'women/25', sofie: 'women/90', ruben: 'men/60',
+}
+const headshotUrl = (key: string) => `https://randomuser.me/api/portraits/${HEADSHOT[key] || 'women/1'}.jpg`
+const logoUrl = (name: string) => `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&size=256&background=1a2e25&color=f5f0ea&bold=true&format=png`
+
+// Fetch an image (with Picsum fallback) and upload it into the Media collection.
+const mediaCache = new Map<string, number | null>()
+async function uploadImage(
+  payload: Awaited<ReturnType<typeof getPayload>>,
+  url: string,
+  alt: string,
+  fallbackSeed?: string,
+): Promise<number | null> {
+  if (mediaCache.has(url)) return mediaCache.get(url) as number | null
+  const grab = async (u: string) => {
+    const r = await fetch(u)
+    if (!r.ok) throw new Error(`HTTP ${r.status}`)
+    const ct = r.headers.get('content-type') || 'image/jpeg'
+    return { buf: Buffer.from(await r.arrayBuffer()), mimetype: ct, ext: ct.includes('png') ? 'png' : 'jpg' }
+  }
+  let img: { buf: Buffer; mimetype: string; ext: string } | null = null
+  try {
+    img = await grab(url)
+  } catch {
+    if (fallbackSeed) {
+      try {
+        img = await grab(`https://picsum.photos/seed/${encodeURIComponent(fallbackSeed)}/1200/800`)
+      } catch {
+        img = null
+      }
+    }
+  }
+  if (!img) {
+    console.warn(`  ! image skipped (fetch failed): ${url}`)
+    mediaCache.set(url, null)
+    return null
+  }
+  const doc = await payload.create({
+    collection: 'media' as never,
+    data: { alt } as never,
+    file: { data: img.buf, mimetype: img.mimetype, name: `${(fallbackSeed || 'img').replace(/[^a-z0-9-]/gi, '-')}-${Date.now()}.${img.ext}`, size: img.buf.length },
+  })
+  const id = (doc as { id: number }).id
+  mediaCache.set(url, id)
+  return id
+}
+
 // ── Test dataset definitions ─────────────────────────────────────────────────
 
 type BrandTier = 'partner_listing' | 'partner_professional' | 'partner_premium'
@@ -222,17 +309,22 @@ async function seed() {
   // ── BRAND accounts + profiles ──────────────────────────────────────────────
   console.log('\n🏷️  Creating Merken & Leveranciers...')
   const brands: Record<string, { id: number }> = {}
-  for (const b of BRANDS) {
+  for (let bi = 0; bi < BRANDS.length; bi++) {
+    const b = BRANDS[bi]
     const user = await payload.create({
       collection: 'users' as never,
       data: { email: b.email, password: PASSWORD, name: b.name, role: 'brand', brandTier: b.tier, subscriptionStatus: 'active' } as never,
     })
+    const logo = await uploadImage(payload, logoUrl(b.name), `${b.name} logo`)
+    const coverImage = await uploadImage(payload, unsplash(BRAND_COVER_IDS[bi % BRAND_COVER_IDS.length]), `${b.name} sfeerbeeld`, `${b.key}-cover`)
     brands[b.key] = (await payload.create({
       collection: 'brands' as never,
       data: {
         name: b.name,
         slug: slugify(b.name),
         owner: (user as { id: number }).id,
+        logo,
+        coverImage,
         typePartner: b.typePartner,
         herkomst: b.herkomst,
         positionering: b.positionering,
@@ -253,12 +345,14 @@ async function seed() {
       collection: 'users' as never,
       data: { email: o.email, password: PASSWORD, name: o.name, role: 'trainer', subscriptionTier: o.tier, subscriptionStatus: 'active' } as never,
     })
+    const photo = await uploadImage(payload, headshotUrl(o.key), o.name, o.key)
     trainers[o.key] = (await payload.create({
       collection: 'trainers' as never,
       data: {
         displayName: o.name,
         slug: slugify(o.name),
         owner: (user as { id: number }).id,
+        photo,
         specializations: o.specs,
         location: { city: o.city, province: o.province, online: false },
         // profileAccentColor is enforced by the Trainers hook: cleared unless medium/premium.
@@ -275,15 +369,17 @@ async function seed() {
   const opleiderName: Record<string, string> = Object.fromEntries(OPLEIDERS.map((o) => [o.key, o.name]))
   const slugsByOwner: Record<string, string[]> = {}
 
-  async function createCourse(c: CourseSeed, kind: 'brand' | 'opleider') {
+  async function createCourse(c: CourseSeed, kind: 'brand' | 'opleider', idx: number) {
     const slug = slugify(c.title)
     const isOnline = c.format.includes('online')
     const startMonths = [2, 4, 6][Math.floor(Math.random() * 3)]
+    const coverImage = await uploadImage(payload, courseImg(c.categorySlug, idx), c.title, slug)
     const base = {
       title: c.title,
       slug,
       status: 'published',
       category: catBySlug[c.categorySlug] || catBySlug['massage'],
+      coverImage,
       shortDescription: `${c.title} - professionele opleiding via Blissify.`,
       description: rt(`${c.title}. Een praktijkgerichte opleiding voor professionals in de beauty- en wellnesssector.`),
       format: c.format,
@@ -303,8 +399,8 @@ async function seed() {
     ;(slugsByOwner[c.ownerKey] ||= []).push(slug)
   }
 
-  for (const c of BRAND_COURSES) await createCourse(c, 'brand')
-  for (const c of OPLEIDER_COURSES) await createCourse(c, 'opleider')
+  for (let i = 0; i < BRAND_COURSES.length; i++) await createCourse(BRAND_COURSES[i], 'brand', i)
+  for (let i = 0; i < OPLEIDER_COURSES.length; i++) await createCourse(OPLEIDER_COURSES[i], 'opleider', i)
   console.log(`  ✓ ${BRAND_COURSES.length} brand courses + ${OPLEIDER_COURSES.length} opleider courses`)
 
   // ── SUMMARY ──────────────────────────────────────────────────────────────

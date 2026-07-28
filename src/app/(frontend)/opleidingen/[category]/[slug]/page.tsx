@@ -137,12 +137,24 @@ export default async function CourseDetailPage({ params }: Params) {
   const courseRef = course ? String(course.id) : slug
   // Registration mode: Brand courses on Partner Professional/Premium (server-set).
   const bookable = Boolean(course && (course as { isBookable?: boolean }).isBookable)
+  const coverImg =
+    course && typeof (course as { coverImage?: unknown }).coverImage === 'object'
+      ? ((course as { coverImage?: { url?: string } }).coverImage?.url ?? null)
+      : null
 
   return (
     <SiteChrome>
       <TrackPageView kind="course" id={courseRef} />
       {/* Hero image band */}
-      <div style={{ height: 400, background: 'var(--surface-dark)' }} />
+      <div
+        style={{
+          height: 400,
+          background: 'var(--surface-dark)',
+          backgroundImage: coverImg ? `url(${coverImg})` : 'none',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      />
 
       <div className="bl-container">
         <div style={{ padding: '20px 0 0', fontFamily: 'var(--font-ui)', fontSize: 'var(--type-xs)', color: 'var(--text-body)' }}>

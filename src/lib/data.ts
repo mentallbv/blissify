@@ -455,6 +455,7 @@ export type BrandCardData = {
   providerCount: number
   courseCount: number
   logo: string | null
+  cover?: string | null
   about?: string
   website?: string | null
 }
@@ -609,6 +610,7 @@ export async function getBrandBySlug(
         providerCount: trainers.totalDocs,
         courseCount: courses.totalDocs,
         logo: mediaUrl(b.logo),
+        cover: mediaUrl((b as { coverImage?: number | Media | null }).coverImage),
         website: b.website,
       },
       providers: trainers.docs.map((t) => ({
