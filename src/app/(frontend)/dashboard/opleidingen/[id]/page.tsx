@@ -48,6 +48,14 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
 
   const categories = await getCategories()
   const cat = typeof course.category === 'object' ? (course.category as Category) : null
+  const details = course as Course & {
+    courseType?: string
+    participants?: { maximum?: number; privateOneToOne?: boolean }
+    modelRequired?: string
+    lunchProvided?: string
+    contact?: { email?: string; website?: string; instagram?: string; facebook?: string; tiktok?: string }
+    startDates?: { date: string; endDate?: string; startTime?: string; endTime?: string; spotsAvailable?: number }[]
+  }
 
   const initial: Partial<CourseFormValues> = {
     title: course.title,
@@ -66,6 +74,27 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
     durationValue: course.duration?.value != null ? String(course.duration.value) : '',
     durationUnit: course.duration?.unit || 'days',
     format: course.format || [],
+    courseType: details.courseType || '',
+    language: course.language || ['nl'],
+    targetAudience: (details as { targetAudience?: string[] }).targetAudience || [],
+    practical: (details as { practical?: string[] }).practical || [],
+    focus: (details as { focus?: string[] }).focus || [],
+    maximumParticipants: details.participants?.maximum != null ? String(details.participants.maximum) : '',
+    privateOneToOne: Boolean(details.participants?.privateOneToOne),
+    modelRequired: details.modelRequired || 'not_applicable',
+    lunchProvided: details.lunchProvided || 'not_applicable',
+    contactEmail: details.contact?.email || '',
+    contactWebsite: details.contact?.website || '',
+    instagram: details.contact?.instagram || '',
+    facebook: details.contact?.facebook || '',
+    tiktok: details.contact?.tiktok || '',
+    startDates: (details.startDates || []).map((item) => ({
+      date: item.date ? item.date.slice(0, 10) : '',
+      endDate: item.endDate ? item.endDate.slice(0, 10) : '',
+      startTime: item.startTime || '',
+      endTime: item.endTime || '',
+      spotsAvailable: item.spotsAvailable != null ? String(item.spotsAvailable) : '',
+    })),
     tags: (course.tags || []).join(', '),
   }
 

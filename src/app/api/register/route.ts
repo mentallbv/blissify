@@ -53,7 +53,7 @@ export async function POST(req: Request) {
         email,
         password,
         role,
-        subscriptionTier: 'basis',
+        ...(role === 'brand' ? { brandTier: 'partner_listing' } : { subscriptionTier: 'basis' }),
         // New aanbieders must pick a tier and pay before they can publish.
         subscriptionStatus: 'pending_payment',
       } as never,

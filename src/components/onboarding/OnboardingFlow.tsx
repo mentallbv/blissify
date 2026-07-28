@@ -22,7 +22,7 @@ const SPECS: { value: string; label: string }[] = [
   { value: 'reiki', label: 'Reiki' },
 ]
 
-export type OnboardingTier = PricingCardTier & { key: 'basis' | 'medium' | 'premium' }
+export type OnboardingTier = PricingCardTier & { key: string }
 
 const headingStyle: React.CSSProperties = {
   fontFamily: 'var(--font-display)',
@@ -54,7 +54,17 @@ const fieldLabelStyle: React.CSSProperties = {
 }
 
 /** Post-registration onboarding: profile completion, then subscription selection. */
-export function OnboardingFlow({ tiers }: { tiers: OnboardingTier[] }) {
+export function OnboardingFlow({
+  tiers,
+  role,
+  initialTier,
+  billingCycle,
+}: {
+  tiers: OnboardingTier[]
+  role: 'trainer' | 'brand'
+  initialTier?: string
+  billingCycle: 'yearly' | 'monthly'
+}) {
   const [phase, setPhase] = React.useState<'profile' | 'tier'>('profile')
   const [current, setCurrent] = React.useState(2)
   const [name, setName] = React.useState('')
@@ -74,7 +84,12 @@ export function OnboardingFlow({ tiers }: { tiers: OnboardingTier[] }) {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ name, city, about, specializations: specs }),
+        body: JSON.stringify({
+          name,
+          city,
+          about,
+          ...(role === 'brand' ? { tags: specs } : { specializations: specs }),
+        }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data?.error || 'Opslaan mislukt.')
@@ -98,7 +113,7 @@ export function OnboardingFlow({ tiers }: { tiers: OnboardingTier[] }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ tier }),
+        body: JSON.stringify({ tier, billingCycle }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok || !data?.checkoutUrl) throw new Error(data?.error || 'checkout_failed')
@@ -170,7 +185,7 @@ export function OnboardingFlow({ tiers }: { tiers: OnboardingTier[] }) {
 
           {phase === 'profile' ? (
             <>
-              <h1 style={headingStyle}>Vul je opleiderprofiel aan</h1>
+              <h1 style={headingStyle}>Vul je {role === 'brand' ? 'merk- of leveranciersprofiel' : 'opleiderprofiel'} aan</h1>
               <p style={subheadStyle}>Deze gegevens verschijnen op je publieke profiel. Je kunt ze later altijd aanpassen.</p>
 
               <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: 32, display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -180,7 +195,7 @@ export function OnboardingFlow({ tiers }: { tiers: OnboardingTier[] }) {
                   <Select label="Locatie" placeholder="Kies een stad" options={LOCATIONS} value={city} onChange={(e) => setCity(e.target.value)} />
                 </div>
                 <div>
-                  <span style={fieldLabelStyle}>Specialisaties</span>
+                  <span style={fieldLabelStyle}>{role === 'brand' ? 'Categorieën en trefwoorden' : 'Specialisaties'}</span>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                     {SPECS.map((s) => (
                       <Tag key={s.value} as="button" active={specs.includes(s.value)} onClick={() => toggleSpec(s.value)}>
@@ -190,7 +205,7 @@ export function OnboardingFlow({ tiers }: { tiers: OnboardingTier[] }) {
                   </div>
                 </div>
                 <div>
-                  <span style={fieldLabelStyle}>Over de opleider</span>
+                  <span style={fieldLabelStyle}>Over {role === 'brand' ? 'het merk of de leverancier' : 'de opleider'}</span>
                   <textarea
                     value={about}
                     onChange={(e) => setAbout(e.target.value)}
@@ -216,14 +231,15 @@ export function OnboardingFlow({ tiers }: { tiers: OnboardingTier[] }) {
             <>
               <h1 style={headingStyle}>Kies je abonnement</h1>
               <p style={subheadStyle}>
-                Kies een formule om je profiel te activeren. Je wordt doorgestuurd naar onze betaalpartner Mollie. Publiceren kan zodra je betaling is bevestigd.
+                Kies een formule om je profiel te activeren. Je wordt doorgestuurd naar onze betaalpartner Mollie.
+                Je betaalt {billingCycle === 'monthly' ? 'maandelijks' : 'jaarlijks'}; publiceren kan zodra je betaling is bevestigd.
               </p>
 
               <div className="bl-cat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, alignItems: 'start' }}>
                 {tiers.map((t) => (
                   <PricingCard
                     key={t.key}
-                    tier={t}
+                    tier={{ ...t, recommended: t.key === initialTier || t.recommended }}
                     cta={
                       <Button variant={t.recommended ? 'accent' : 'primary'} fullWidth onClick={() => startCheckout(t.key)} disabled={loading}>
                         {loading ? 'Bezig...' : `Kies ${t.name}`}

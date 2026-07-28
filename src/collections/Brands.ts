@@ -62,6 +62,17 @@ export const Brands: CollectionConfig = {
       relationTo: 'media',
     },
     {
+      name: 'gallery',
+      type: 'array',
+      label: 'Sfeerfoto’s',
+      maxRows: 5,
+      admin: { description: 'Maximaal vijf sfeer- of productfoto’s voor de publieke merkpagina.' },
+      fields: [
+        { name: 'image', type: 'upload', relationTo: 'media', required: true },
+        { name: 'caption', type: 'text', label: 'Bijschrift' },
+      ],
+    },
+    {
       name: 'description',
       type: 'richText',
     },
@@ -72,6 +83,26 @@ export const Brands: CollectionConfig = {
     {
       name: 'email',
       type: 'email',
+    },
+    {
+      name: 'social',
+      type: 'group',
+      label: 'Sociale kanalen',
+      fields: [
+        { name: 'instagram', type: 'text' },
+        { name: 'facebook', type: 'text' },
+        { name: 'tiktok', type: 'text' },
+      ],
+    },
+    {
+      name: 'localPartners',
+      type: 'array',
+      label: 'Lokale partners / distributeurs',
+      fields: [
+        { name: 'name', type: 'text', required: true, label: 'Naam' },
+        { name: 'country', type: 'text', required: true, label: 'Land of regio' },
+        { name: 'website', type: 'text' },
+      ],
     },
     {
       name: 'phone',

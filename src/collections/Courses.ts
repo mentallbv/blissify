@@ -1,26 +1,11 @@
 import type { CollectionConfig, Access } from 'payload'
 import { seoFields } from '@/fields/seo'
 import { getBrandIdForUser, getTrainerIdForUser } from '@/access'
-
-// Opleider (trainer) active-course limits.
-const TIER_LIMITS: Record<string, number> = {
-  basis: 1,
-  medium: 5,
-  premium: Infinity,
-}
-
-// Merk & Leverancier (brand) active-course limits. Partner Listing cannot
-// publish any courses at all (hard gate, not a low limit).
-const BRAND_LIMITS: Record<string, number> = {
-  partner_listing: 0,
-  partner_professional: 10,
-  partner_premium: Infinity,
-}
+import { tierForUser, type TierFeatures } from '@/lib/tier-features'
 
 /** Active-course limit for a user, based on account type + tier. */
 function courseLimitFor(user: { role?: string; subscriptionTier?: string; brandTier?: string }): number {
-  if (user.role === 'brand') return BRAND_LIMITS[user.brandTier || 'partner_listing'] ?? 0
-  return TIER_LIMITS[user.subscriptionTier || 'basis'] ?? 1
+  return tierForUser(user).features.courseLimit
 }
 
 /**
@@ -34,13 +19,29 @@ async function resolveIsBookable(brandRel: unknown, req: { payload: any }): Prom
   const brandId = typeof brandRel === 'object' ? (brandRel as { id?: number | string }).id : brandRel
   if (!brandId) return false
   try {
-    const brand = await req.payload.findByID({ collection: 'brands', id: brandId, depth: 1, overrideAccess: true })
+    const brand = await req.payload.findByID({ collection: 'brands', id: brandId, depth: 0, overrideAccess: true })
     const owner = (brand as { owner?: unknown })?.owner
-    const tier = typeof owner === 'object' ? (owner as { brandTier?: string })?.brandTier : undefined
-    return tier === 'partner_professional' || tier === 'partner_premium'
+    const ownerId = typeof owner === 'object' ? (owner as { id?: number | string })?.id : owner
+    if (!ownerId) return false
+    const user = await req.payload.findByID({ collection: 'users', id: ownerId, depth: 0, overrideAccess: true })
+    return tierForUser(user).features.hasInPlatformRegistration
   } catch {
     return false
   }
+}
+
+async function resolveOwnerFeatures(data: Record<string, unknown>, originalDoc: any, req: { payload: any }): Promise<TierFeatures> {
+  const brandRel = data.brand ?? originalDoc?.brand
+  const trainerRel = data.trainer ?? originalDoc?.trainer
+  const profileRel = brandRel || trainerRel
+  const collection = brandRel ? 'brands' : 'trainers'
+  const profileId = typeof profileRel === 'object' ? (profileRel as { id?: number | string })?.id : profileRel
+  if (!profileId) return tierForUser({ role: brandRel ? 'brand' : 'trainer' }).features
+  const profile = await req.payload.findByID({ collection, id: profileId, depth: 0, overrideAccess: true })
+  const ownerId = typeof profile.owner === 'object' ? profile.owner?.id : profile.owner
+  if (!ownerId) return tierForUser({ role: brandRel ? 'brand' : 'trainer' }).features
+  const owner = await req.payload.findByID({ collection: 'users', id: ownerId, depth: 0, overrideAccess: true })
+  return tierForUser(owner).features
 }
 
 const readAccess: Access = ({ req }) => {
@@ -83,6 +84,7 @@ const deleteAccess: Access = ({ req }) => {
   if (user.role === 'brand') return { 'brand.owner': { equals: user.id } } as any
   return false
 }
+const adminField = ({ req }: { req: { user?: unknown } }) => (req.user as { role?: string } | null)?.role === 'admin'
 
 export const Courses: CollectionConfig = {
   slug: 'courses',
@@ -98,7 +100,7 @@ export const Courses: CollectionConfig = {
       if (!user) return false
       if (user.role === 'admin' || user.role === 'trainer') return true
       // Brand accounts: Partner Listing cannot create any course (hard gate).
-      if (user.role === 'brand') return (user.brandTier || 'partner_listing') !== 'partner_listing'
+      if (user.role === 'brand') return tierForUser(user).features.canPublishCourses
       return false
     },
     update: updateAccess,
@@ -114,6 +116,14 @@ export const Courses: CollectionConfig = {
         // tier, for every writer (incl. admin), and never trusted from the client.
         const brandRel = (data as { brand?: unknown }).brand ?? originalDoc?.brand
         ;(data as { isBookable?: boolean }).isBookable = await resolveIsBookable(brandRel, req)
+        const ownerFeatures = await resolveOwnerFeatures(data as Record<string, unknown>, originalDoc, req)
+        data.tierPriority = ownerFeatures.searchPriority
+        if ((data.featured ?? originalDoc?.featured) && !ownerFeatures.hasHomepageExposure) {
+          data.featured = false
+          data.featuredPosition = null
+        } else if (data.featured ?? originalDoc?.featured) {
+          data.featuredPosition = ownerFeatures.searchPriority >= 3 ? 'permanent_top' : 'top'
+        }
 
         if (!user || user.role === 'admin') return data
 
@@ -224,16 +234,30 @@ export const Courses: CollectionConfig = {
       name: 'featured',
       type: 'checkbox',
       defaultValue: false,
+      access: { update: adminField },
       admin: { position: 'sidebar', description: 'Uitgelicht in de directory' },
     },
     {
       name: 'featuredPosition',
       type: 'select',
+      access: { update: adminField },
       options: [
         { label: 'Bovenaan directory', value: 'top' },
         { label: 'Permanent bovenaan (Premium)', value: 'permanent_top' },
       ],
       admin: { position: 'sidebar', condition: (data) => data.featured },
+    },
+    {
+      name: 'tierPriority',
+      type: 'number',
+      defaultValue: 0,
+      index: true,
+      access: { update: adminField },
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'Automatische zoekprioriteit op basis van het abonnement.',
+      },
     },
     {
       name: 'trainer',
@@ -270,6 +294,20 @@ export const Courses: CollectionConfig = {
         { label: 'Online', value: 'online' },
         { label: 'Fysiek', value: 'fysiek' },
         { label: 'Hybride', value: 'hybride' },
+      ],
+    },
+    {
+      name: 'courseType',
+      type: 'select',
+      label: 'Type opleiding',
+      options: [
+        { label: 'Praktijktraining', value: 'practice_training' },
+        { label: 'Online cursus', value: 'online_course' },
+        { label: 'Live cursus', value: 'live_course' },
+        { label: 'Coachingsessie', value: 'coaching' },
+        { label: 'Workshop', value: 'workshop' },
+        { label: 'Webinar', value: 'webinar' },
+        { label: 'Evenement', value: 'event' },
       ],
     },
     {
@@ -339,6 +377,56 @@ export const Courses: CollectionConfig = {
         { label: 'Alle niveaus', value: 'all' },
       ],
     },
+    {
+      name: 'targetAudience',
+      type: 'select',
+      hasMany: true,
+      label: 'Niveau en doelgroep',
+      options: [
+        { label: 'Beginner friendly', value: 'beginner-friendly' },
+        { label: 'Intermediate', value: 'intermediate' },
+        { label: 'Expert / Advanced', value: 'expert-advanced' },
+        { label: 'Professional only', value: 'professional-only' },
+        { label: 'Startende ondernemer', value: 'startende-ondernemer' },
+      ],
+    },
+    {
+      name: 'practical',
+      type: 'select',
+      hasMany: true,
+      label: 'Praktisch',
+      options: [
+        { label: 'Online', value: 'online' },
+        { label: 'Praktijkopleiding', value: 'praktijkopleiding' },
+        { label: '1-daagse opleiding', value: 'een-dag' },
+        { label: 'Meerdere dagen', value: 'meerdere-dagen' },
+        { label: 'Op locatie', value: 'op-locatie' },
+        { label: 'Kleine groepen (<12)', value: 'kleine-groepen' },
+      ],
+    },
+    {
+      name: 'focus',
+      type: 'select',
+      hasMany: true,
+      label: 'Focus en filosofie',
+      options: [
+        { label: 'Huidverbeterend', value: 'huidverbeterend' },
+        { label: 'Medisch-esthetisch', value: 'medisch-esthetisch' },
+        { label: 'Holistisch', value: 'holistisch' },
+        { label: 'Ontspannend', value: 'ontspannend' },
+        { label: 'Cosmetisch', value: 'cosmetisch' },
+        { label: 'Therapeutisch', value: 'therapeutisch' },
+        { label: 'Energetisch', value: 'energetisch' },
+      ],
+    },
+    {
+      name: 'popular',
+      type: 'checkbox',
+      defaultValue: false,
+      label: 'Trending / populair',
+      access: { update: adminField },
+      admin: { position: 'sidebar', description: 'Handmatig beheerd door Blissify.' },
+    },
     { name: 'certificate', type: 'checkbox', defaultValue: false, label: 'Certificaat uitgereikt' },
     { name: 'accreditation', type: 'text', label: 'Accreditatie / erkenning' },
     {
@@ -372,10 +460,54 @@ export const Courses: CollectionConfig = {
     {
       name: 'startDates',
       type: 'array',
-      label: 'Startdata',
+      label: 'Data en tijdstippen',
       fields: [
-        { name: 'date', type: 'date', required: true },
+        { name: 'date', type: 'date', required: true, label: 'Startdatum' },
+        { name: 'endDate', type: 'date', label: 'Einddatum' },
+        { name: 'startTime', type: 'text', label: 'Starttijd', admin: { placeholder: '09:00' } },
+        { name: 'endTime', type: 'text', label: 'Eindtijd', admin: { placeholder: '17:00' } },
         { name: 'spotsAvailable', type: 'number' },
+      ],
+    },
+    {
+      name: 'participants',
+      type: 'group',
+      label: 'Deelnemers',
+      fields: [
+        { name: 'maximum', type: 'number', min: 1, label: 'Maximum aantal deelnemers' },
+        { name: 'privateOneToOne', type: 'checkbox', defaultValue: false, label: 'Privé / één-op-één' },
+      ],
+    },
+    {
+      name: 'modelRequired',
+      type: 'select',
+      label: 'Model meenemen',
+      options: [
+        { label: 'Niet van toepassing', value: 'not_applicable' },
+        { label: 'Ja', value: 'yes' },
+        { label: 'Nee', value: 'no' },
+      ],
+    },
+    {
+      name: 'lunchProvided',
+      type: 'select',
+      label: 'Lunch voorzien',
+      options: [
+        { label: 'Niet van toepassing', value: 'not_applicable' },
+        { label: 'Ja', value: 'yes' },
+        { label: 'Nee', value: 'no' },
+      ],
+    },
+    {
+      name: 'contact',
+      type: 'group',
+      label: 'Contact en sociale links',
+      fields: [
+        { name: 'email', type: 'email' },
+        { name: 'website', type: 'text' },
+        { name: 'instagram', type: 'text' },
+        { name: 'facebook', type: 'text' },
+        { name: 'tiktok', type: 'text' },
       ],
     },
     {

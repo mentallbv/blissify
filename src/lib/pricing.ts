@@ -24,7 +24,7 @@ export const TIERS: Tier[] = [
     tagline: 'Voor groeiende opleiders',
     price: '€ 249',
     desc: 'Voor groeiende opleiders die meer bereik en inzicht willen.',
-    features: ['Tot 5 opleidingen', 'Opleider profiel', 'Aanvraagbeheer', 'Analytisch dashboard', 'Nieuwsbrief-vermelding'],
+    features: ['Tot 5 opleidingen', 'Professioneel opleiderprofiel', 'Uitgebreide statistieken', 'Prioriteit in zoekresultaten', 'Eigen branding (logo + kleuren)'],
     recommended: true,
   },
   {
@@ -33,7 +33,7 @@ export const TIERS: Tier[] = [
     tagline: 'Voor maximale zichtbaarheid',
     price: '€ 549',
     desc: 'Voor maximale zichtbaarheid met toppositie en support.',
-    features: ['Onbeperkte opleidingen', 'Toppositie in resultaten', 'Premium badge', 'Featured plaatsing', 'Prioriteitssupport', 'Nieuwsbrief-vermelding'],
+    features: ['Onbeperkte opleidingen', 'Toppositie in zoekresultaten', 'Premium badge', 'Homepage exposure (rotatie)', 'Prioriteitssupport', 'Geavanceerde analytics + leadrapportage'],
   },
 ]
 
@@ -41,9 +41,11 @@ export const COMPARE_ROWS: { feature: string; basis: string; medium: string; pre
   { feature: 'Aantal opleidingen', basis: '1', medium: 'Tot 5', premium: 'Onbeperkt' },
   { feature: 'Opleider profiel', basis: 'Ja', medium: 'Ja', premium: 'Ja' },
   { feature: 'Aanvraagbeheer', basis: 'Ja', medium: 'Ja', premium: 'Ja' },
-  { feature: 'Analytisch dashboard', basis: '–', medium: 'Ja', premium: 'Ja' },
-  { feature: 'Nieuwsbrief-vermelding', basis: '–', medium: 'Ja', premium: 'Ja' },
-  { feature: 'Featured plaatsing', basis: '–', medium: '–', premium: 'Ja' },
+  { feature: 'Uitgebreide statistieken', basis: '–', medium: 'Ja', premium: 'Ja' },
+  { feature: 'Prioriteit in zoekresultaten', basis: '–', medium: 'Ja', premium: 'Toppositie' },
+  { feature: 'Eigen branding', basis: '–', medium: 'Ja', premium: 'Ja' },
+  { feature: 'Homepage exposure', basis: '–', medium: '–', premium: 'Rotatie' },
+  { feature: 'Premium badge', basis: '–', medium: '–', premium: 'Ja' },
   { feature: 'Prioriteitssupport', basis: '–', medium: '–', premium: 'Ja' },
 ]
 
@@ -137,7 +139,7 @@ export const BRAND_PRICING_FALLBACK: PricingData = {
       period: '/jaar',
       desc: 'Presenteer je merk of aanbod aan professionals op Blissify.',
       recommended: false,
-      features: ['Merk- of leveranciersprofiel', 'Logo, banner en bedrijfsomschrijving', 'Website en sociale kanalen', 'Vermelding in Merken & Leveranciers', 'Geen opleidingen publiceren'],
+      features: ['Featured badge op het merkprofiel', 'Eigen brandpagina', 'Logo, coverfoto en bedrijfsomschrijving', 'Website en sociale kanalen', 'Uitgebreide merkfilters', 'Basisstatistieken', 'Geen opleidingen publiceren'],
     },
     {
       key: 'partner_professional',
@@ -148,7 +150,7 @@ export const BRAND_PRICING_FALLBACK: PricingData = {
       period: '/jaar',
       desc: 'Combineer je merkprofiel met opleidingen en directe inschrijvingen.',
       recommended: true,
-      features: ['Alles uit Partner Listing', 'Tot 10 opleidingen', 'In-platform inschrijvingen', 'Aanvraag- en inschrijvingsdashboard', 'Analytische inzichten', 'Kan uitgelicht worden op de homepage'],
+      features: ['Alles uit Partner Listing', 'Tot 10 opleidingen per jaar', 'In-platform inschrijvingen', 'Topranking binnen de categorie', 'Maandelijkse homepage exposure', 'Uitgebreide analytics'],
     },
     {
       key: 'partner_premium',
@@ -159,7 +161,7 @@ export const BRAND_PRICING_FALLBACK: PricingData = {
       period: '/jaar',
       desc: 'Maximale zichtbaarheid, onbeperkt publiceren en prioritaire ondersteuning.',
       recommended: false,
-      features: ['Alles uit Partner Professional', 'Onbeperkte opleidingen', 'Premium badge', 'Toppositie in relevante resultaten', 'Uitgelichte homepageplaatsingen', 'Prioriteitssupport'],
+      features: ['Alles uit Partner Professional', 'Onbeperkte opleidingen, workshops en events', 'Premium badge', 'Prioriteit ranking en extra homepage exposure', 'Co-branded opleidingen', 'Geavanceerde analytics en lead-export'],
     },
   ],
   comparison: {
@@ -170,8 +172,9 @@ export const BRAND_PRICING_FALLBACK: PricingData = {
       { feature: 'Merk- of leveranciersprofiel', v1: 'Ja', v2: 'Ja', v3: 'Ja' },
       { feature: 'Aantal opleidingen', v1: '–', v2: 'Tot 10', v3: 'Onbeperkt' },
       { feature: 'In-platform inschrijvingen', v1: '–', v2: 'Ja', v3: 'Ja' },
-      { feature: 'Analytisch dashboard', v1: '–', v2: 'Ja', v3: 'Ja' },
-      { feature: 'Homepage-uitlichting', v1: '–', v2: 'Mogelijk', v3: 'Prioritair' },
+      { feature: 'Analytisch dashboard', v1: 'Basis', v2: 'Uitgebreid', v3: 'Geavanceerd + export' },
+      { feature: 'Ranking', v1: 'Standaard', v2: 'Topranking', v3: 'Prioriteit' },
+      { feature: 'Homepage-uitlichting', v1: '–', v2: 'Maandelijkse rotatie', v3: 'Extra exposure' },
       { feature: 'Premium badge', v1: '–', v2: '–', v3: 'Ja' },
       { feature: 'Prioriteitssupport', v1: '–', v2: '–', v3: 'Ja' },
     ],

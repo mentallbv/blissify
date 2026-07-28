@@ -5,6 +5,8 @@ import { MetricCard } from '@/components/ui'
 import { getCurrentUser, getCurrentProfile } from '@/lib/session'
 import { getMyCourses } from '@/lib/dashboard-data'
 import { getProfileViewEvents, getLeadsForCourses, supabaseConfigured } from '@/lib/supabase'
+import { tierForUser } from '@/lib/tier-features'
+import { redirect } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,6 +14,7 @@ const MONTHS = ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', '
 
 export default async function DashboardAnalyticsPage() {
   const user = await getCurrentUser()
+  if (!user || !tierForUser(user).features.hasAnalytics) redirect('/dashboard/abonnement')
   const profile = await getCurrentProfile(user)
   const courses = await getMyCourses(profile)
 

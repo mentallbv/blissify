@@ -84,6 +84,24 @@ export function buildCourseData(body: Record<string, unknown>): Record<string, u
     description: lexical(str(body.description)),
     externalUrl: str(body.externalUrl),
     certificate: Boolean(body.certificate),
+    courseType: str(body.courseType),
+    language: Array.isArray(body.language) ? body.language : ['nl'],
+    targetAudience: Array.isArray(body.targetAudience) ? body.targetAudience : [],
+    practical: Array.isArray(body.practical) ? body.practical : [],
+    focus: Array.isArray(body.focus) ? body.focus : [],
+    participants: {
+      maximum: num(body.maximumParticipants),
+      privateOneToOne: Boolean(body.privateOneToOne),
+    },
+    modelRequired: str(body.modelRequired) || 'not_applicable',
+    lunchProvided: str(body.lunchProvided) || 'not_applicable',
+    contact: {
+      email: str(body.contactEmail),
+      website: str(body.contactWebsite),
+      instagram: str(body.instagram),
+      facebook: str(body.facebook),
+      tiktok: str(body.tiktok),
+    },
   }
   if (num(body.category) !== undefined) data.category = num(body.category)
   if (Array.isArray(body.format)) data.format = body.format
@@ -109,6 +127,20 @@ export function buildCourseData(body: Record<string, unknown>): Record<string, u
       .split(',')
       .map((t) => t.trim())
       .filter(Boolean)
+  }
+  if (Array.isArray(body.startDates)) {
+    data.startDates = body.startDates
+      .map((item) => {
+        const row = item as Record<string, unknown>
+        return {
+          date: str(row.date),
+          endDate: str(row.endDate) || undefined,
+          startTime: str(row.startTime),
+          endTime: str(row.endTime),
+          spotsAvailable: num(row.spotsAvailable),
+        }
+      })
+      .filter((item) => item.date)
   }
   return data
 }

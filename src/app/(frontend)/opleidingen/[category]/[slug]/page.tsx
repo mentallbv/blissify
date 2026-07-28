@@ -5,14 +5,16 @@ import { SiteChrome } from '@/components/site/SiteChrome'
 import { Eyebrow, Avatar, TypeBadge, Button, Tag } from '@/components/ui'
 import { RequestInfoButton } from '@/components/site/RequestInfoButton'
 import { RegisterCourseButton } from '@/components/site/RegisterCourseButton'
+import { ReviewForm } from '@/components/site/ReviewForm'
+import { CourseCard } from '@/components/ui/CourseCard'
 import { TrackPageView } from '@/components/site/TrackPageView'
-import { getCourseBySlug, getCourseCards } from '@/lib/data'
+import { getApprovedCourseReviews, getCourseBySlug, getCourseCards, getCourseTierContext } from '@/lib/data'
 import { FALLBACK_COURSES } from '@/lib/fallback'
 import { formatPrice, formatDuration, formatFormat, courseLocation } from '@/lib/format'
 import { isCitySlug, cityName } from '@/lib/cities'
 import { CATEGORY_CONTENT } from '@/lib/categories'
 import { CityLanding } from '@/components/site/CityLanding'
-import type { Course, Category, Brand } from '@/payload-types'
+import type { Course, Category, Brand, Trainer } from '@/payload-types'
 
 export const dynamic = 'force-dynamic'
 
@@ -25,6 +27,7 @@ type DetailView = {
   category: string
   provider: string
   providerSlug: string
+  providerType: 'brand' | 'trainer'
   providerEmail: string
   location: string
   price: string
@@ -32,11 +35,29 @@ type DetailView = {
   chips: string[]
   keywords: string[]
   about: string[]
+  courseType: string
+  languages: string
+  level: string
+  maximumParticipants?: number
+  privateOneToOne: boolean
+  modelRequired: string
+  lunchProvided: string
+  startDates: { date: string; endDate?: string; startTime?: string; endTime?: string; spotsAvailable?: number }[]
+  contact: { email?: string; website?: string; instagram?: string; facebook?: string; tiktok?: string }
 }
 
 function viewFromCourse(c: Course): DetailView {
+  const details = c as Course & {
+    courseType?: string
+    participants?: { maximum?: number; privateOneToOne?: boolean }
+    modelRequired?: string
+    lunchProvided?: string
+    startDates?: DetailView['startDates']
+    contact?: DetailView['contact']
+  }
   const cat = typeof c.category === 'object' ? (c.category as Category) : null
   const brand = typeof c.brand === 'object' ? (c.brand as Brand) : null
+  const trainer = typeof c.trainer === 'object' ? (c.trainer as Trainer) : null
   const dur = formatDuration(c.duration)
   const fmt = formatFormat(c.format)
   const chips = [
@@ -48,15 +69,25 @@ function viewFromCourse(c: Course): DetailView {
   return {
     title: c.title,
     category: cat?.name || 'Opleiding',
-    provider: brand?.name || 'Blissify-opleider',
-    providerSlug: brand?.slug || '',
-    providerEmail: brand?.email || '',
+    provider: brand?.name || trainer?.displayName || 'Blissify-opleider',
+    providerSlug: brand?.slug || trainer?.slug || '',
+    providerType: brand ? 'brand' : 'trainer',
+    providerEmail: details.contact?.email || brand?.email || trainer?.email || '',
     location: courseLocation(c),
     price: formatPrice(c.price),
     format: [dur, fmt].filter(Boolean).join(' · ') || 'Op aanvraag',
     chips,
     keywords: (c.tags || []).slice(0, 4),
     about: [c.shortDescription].filter(Boolean) as string[],
+    courseType: details.courseType || '',
+    languages: (c.language || []).map((language) => ({ nl: 'Nederlands', fr: 'Frans', en: 'Engels' }[language] || language)).join(', '),
+    level: ({ beginner: 'Beginner', gevorderd: 'Gevorderd', expert: 'Expert', all: 'Alle niveaus' } as Record<string, string>)[c.level || ''] || '',
+    maximumParticipants: details.participants?.maximum,
+    privateOneToOne: Boolean(details.participants?.privateOneToOne),
+    modelRequired: details.modelRequired || 'not_applicable',
+    lunchProvided: details.lunchProvided || 'not_applicable',
+    startDates: details.startDates || [],
+    contact: details.contact || {},
   }
 }
 
@@ -111,6 +142,7 @@ export default async function CourseDetailPage({ params }: Params) {
         category: fb!.category,
         provider: fb!.provider,
         providerSlug: fb!.providerSlug,
+        providerType: 'trainer',
         providerEmail: '',
         location: fb!.location,
         price: fb!.price,
@@ -118,6 +150,14 @@ export default async function CourseDetailPage({ params }: Params) {
         chips: [fb!.format, fb!.location, 'Certificaat inbegrepen', 'Max 12 deelnemers'],
         keywords: [],
         about: [],
+        courseType: '',
+        languages: '',
+        level: '',
+        privateOneToOne: false,
+        modelRequired: 'not_applicable',
+        lunchProvided: 'not_applicable',
+        startDates: [],
+        contact: {},
       }
 
   const aboutParas = v.about.length
@@ -135,6 +175,11 @@ export default async function CourseDetailPage({ params }: Params) {
   ]
 
   const courseRef = course ? String(course.id) : slug
+  const reviews = course ? await getApprovedCourseReviews(course.id) : []
+  const tierContext = course ? await getCourseTierContext(course) : null
+  const similarResult = course ? await getCourseCards({ categorySlug: category, limit: 4 }) : { cards: [], total: 0, isFallback: false }
+  const similarCourses = similarResult.cards.filter((card) => card.slug !== slug).slice(0, 3)
+  const averageRating = reviews.length ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length : 0
   // Registration mode: Brand courses on Partner Professional/Premium (server-set).
   const bookable = Boolean(course && (course as { isBookable?: boolean }).isBookable)
   const coverImg =
@@ -144,6 +189,7 @@ export default async function CourseDetailPage({ params }: Params) {
 
   return (
     <SiteChrome>
+      <div style={tierContext?.accentColor ? ({ '--text-accent': tierContext.accentColor } as React.CSSProperties) : undefined}>
       <TrackPageView kind="course" id={courseRef} />
       {/* Hero image band */}
       <div
@@ -165,6 +211,13 @@ export default async function CourseDetailPage({ params }: Params) {
           {/* Left */}
           <div>
             <Eyebrow tone="accent">{v.category}</Eyebrow>
+            {tierContext?.features.hasPremiumBadge ? (
+              <div style={{ marginTop: 12 }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, borderRadius: 'var(--radius-pill)', padding: '5px 11px', background: 'var(--surface-dark)', color: 'var(--blissify-chalk)', fontFamily: 'var(--font-ui)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.09em' }}>
+                  <i className="ti ti-crown" /> Premium
+                </span>
+              </div>
+            ) : null}
             <h1
               style={{
                 fontFamily: 'var(--font-display)',
@@ -249,19 +302,74 @@ export default async function CourseDetailPage({ params }: Params) {
               </Para>
             </Section>
 
-            <Section title="Volgende data">
-              <div style={{ display: 'flex', flexDirection: 'column', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', overflow: 'hidden', maxWidth: 520 }}>
+            <Section title="Praktische informatie">
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12, maxWidth: 620 }}>
                 {[
-                  ['14 - 17 januari 2026', '4 plaatsen vrij'],
-                  ['11 - 14 maart 2026', '7 plaatsen vrij'],
-                  ['6 - 9 mei 2026', 'Plaatsen beschikbaar'],
-                ].map(([date, spots]) => (
-                  <div key={date} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 18px', borderBottom: '0.5px solid var(--border-hairline)', background: 'var(--surface-card)' }}>
-                    <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 15, color: 'var(--text-strong)' }}>{date}</span>
-                    <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 13, color: 'var(--text-accent)' }}>{spots}</span>
+                  ['Type', ({ practice_training: 'Praktijktraining', online_course: 'Online cursus', live_course: 'Live cursus', coaching: 'Coachingsessie', workshop: 'Workshop', webinar: 'Webinar', event: 'Evenement' } as Record<string, string>)[v.courseType]],
+                  ['Taal', v.languages],
+                  ['Niveau', v.level],
+                  ['Deelnemers', v.privateOneToOne ? 'Privé / één-op-één' : v.maximumParticipants ? `Maximaal ${v.maximumParticipants}` : 'Niet vermeld'],
+                  ['Model meenemen', v.modelRequired === 'yes' ? 'Ja' : v.modelRequired === 'no' ? 'Nee' : 'Niet van toepassing'],
+                  ['Lunch voorzien', v.lunchProvided === 'yes' ? 'Ja' : v.lunchProvided === 'no' ? 'Nee' : 'Niet van toepassing'],
+                ].filter(([, value]) => Boolean(value)).map(([label, value]) => (
+                  <div key={label} style={{ border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-sm)', background: 'var(--surface-card)', padding: 14 }}>
+                    <div style={{ fontFamily: 'var(--font-ui)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-meta)', marginBottom: 5 }}>{label}</div>
+                    <div style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-strong)' }}>{value}</div>
                   </div>
                 ))}
               </div>
+            </Section>
+
+            {v.startDates.length ? <Section title="Volgende data">
+              <div style={{ display: 'flex', flexDirection: 'column', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', overflow: 'hidden', maxWidth: 520 }}>
+                {v.startDates.map((item, index) => {
+                  const start = new Date(item.date).toLocaleDateString('nl-BE', { day: 'numeric', month: 'long', year: 'numeric' })
+                  const end = item.endDate ? new Date(item.endDate).toLocaleDateString('nl-BE', { day: 'numeric', month: 'long', year: 'numeric' }) : ''
+                  return <div key={`${item.date}-${index}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, padding: '16px 18px', borderBottom: '0.5px solid var(--border-hairline)', background: 'var(--surface-card)' }}>
+                    <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 15, color: 'var(--text-strong)' }}>
+                      {start}{end ? ` – ${end}` : ''}{item.startTime ? ` · ${item.startTime}${item.endTime ? `–${item.endTime}` : ''}` : ''}
+                    </span>
+                    <span style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-accent)', whiteSpace: 'nowrap' }}>
+                      {item.spotsAvailable != null ? `${item.spotsAvailable} plaatsen vrij` : 'Plaatsen beschikbaar'}
+                    </span>
+                  </div>
+                })}
+              </div>
+            </Section> : null}
+
+            {similarCourses.length ? (
+              <Section title="Gelijkaardige opleidingen">
+                <div className="bl-cat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+                  {similarCourses.map((card) => <CourseCard key={card.href} {...card} />)}
+                </div>
+              </Section>
+            ) : null}
+
+            <Section title="Reviews">
+              {reviews.length ? (
+                <>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+                    <strong style={{ fontFamily: 'var(--display)', fontSize: 28, color: 'var(--text-brand)' }}>{averageRating.toFixed(1).replace('.', ',')}</strong>
+                    <span style={{ color: 'var(--blissify-terracotta)' }}>{'★'.repeat(Math.round(averageRating))}{'☆'.repeat(5 - Math.round(averageRating))}</span>
+                    <span style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-meta)' }}>{reviews.length} {reviews.length === 1 ? 'review' : 'reviews'}</span>
+                  </div>
+                  <div style={{ display: 'grid', gap: 12, marginBottom: 32 }}>
+                    {reviews.map((review) => (
+                      <article key={review.id} style={{ border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', background: 'var(--surface-card)', padding: 20 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginBottom: 8 }}>
+                          <strong style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-strong)' }}>{review.reviewerName}</strong>
+                          <span style={{ color: 'var(--blissify-terracotta)', fontSize: 14 }}>{'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}</span>
+                        </div>
+                        <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, lineHeight: 1.7, color: 'var(--text-body)', margin: 0 }}>{review.body}</p>
+                      </article>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <Para>Er zijn nog geen goedgekeurde reviews voor deze opleiding.</Para>
+              )}
+              <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 22, color: 'var(--text-brand)', margin: '28px 0 16px' }}>Deel jouw ervaring</h3>
+              <ReviewForm courseId={courseRef} />
             </Section>
           </div>
 
@@ -297,18 +405,28 @@ export default async function CourseDetailPage({ params }: Params) {
                     {v.provider}
                   </div>
                   <div style={{ marginTop: 4 }}>
-                    <TypeBadge type="trainer" />
+                    <TypeBadge type={v.providerType} />
                   </div>
                 </div>
               </div>
               {v.providerSlug ? (
-                <a href={`/opleiders/${v.providerSlug}`} className="bl-textlink" style={{ display: 'inline-block', marginTop: 14 }}>
-                  Bekijk opleider profiel
+                <a href={v.providerType === 'brand' ? `/merken/${v.providerSlug}` : `/opleiders/${v.providerSlug}`} className="bl-textlink" style={{ display: 'inline-block', marginTop: 14 }}>
+                  Bekijk {v.providerType === 'brand' ? 'merkprofiel' : 'opleiderprofiel'}
                 </a>
+              ) : null}
+              {Object.values(v.contact).some(Boolean) ? (
+                <div style={{ borderTop: '0.5px solid var(--border-hairline)', marginTop: 18, paddingTop: 16, display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+                  {v.contact.email ? <a href={`mailto:${v.contact.email}`} aria-label="E-mail"><i className="ti ti-mail" /></a> : null}
+                  {v.contact.website ? <a href={v.contact.website} target="_blank" rel="noreferrer" aria-label="Website"><i className="ti ti-world" /></a> : null}
+                  {v.contact.instagram ? <a href={v.contact.instagram} target="_blank" rel="noreferrer" aria-label="Instagram"><i className="ti ti-brand-instagram" /></a> : null}
+                  {v.contact.facebook ? <a href={v.contact.facebook} target="_blank" rel="noreferrer" aria-label="Facebook"><i className="ti ti-brand-facebook" /></a> : null}
+                  {v.contact.tiktok ? <a href={v.contact.tiktok} target="_blank" rel="noreferrer" aria-label="TikTok"><i className="ti ti-brand-tiktok" /></a> : null}
+                </div>
               ) : null}
             </div>
           </div>
         </div>
+      </div>
       </div>
     </SiteChrome>
   )

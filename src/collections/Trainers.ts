@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 import { isAdmin } from '@/access'
 import { seoFields } from '@/fields/seo'
+import { tierForUser } from '@/lib/tier-features'
 
 export const Trainers: CollectionConfig = {
   slug: 'trainers',
@@ -43,7 +44,7 @@ export const Trainers: CollectionConfig = {
               tier = undefined
             }
           }
-          if (tier !== 'medium' && tier !== 'premium') {
+          if (!tierForUser({ role: 'trainer', subscriptionTier: tier }).features.hasProfileBranding) {
             ;(data as { profileAccentColor?: string | null }).profileAccentColor = null
           }
         }

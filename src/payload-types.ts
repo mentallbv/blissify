@@ -73,6 +73,7 @@ export interface Config {
     brands: Brand;
     trainers: Trainer;
     courses: Course;
+    reviews: Review;
     pages: Page;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -87,6 +88,7 @@ export interface Config {
     brands: BrandsSelect<false> | BrandsSelect<true>;
     trainers: TrainersSelect<false> | TrainersSelect<true>;
     courses: CoursesSelect<false> | CoursesSelect<true>;
+    reviews: ReviewsSelect<false> | ReviewsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -188,6 +190,17 @@ export interface User {
    * Mollie Subscription ID (auto-ingevuld)
    */
   mollieSubscriptionId?: string | null;
+  /**
+   * Meerdere antwoordsjablonen voor aanvragen. Alleen beschikbaar in Premium.
+   */
+  responseTemplates?:
+    | {
+        name: string;
+        subject: string;
+        body: string;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -306,6 +319,16 @@ export interface Brand {
   owner: number | User;
   logo?: (number | null) | Media;
   coverImage?: (number | null) | Media;
+  /**
+   * Maximaal vijf sfeer- of productfoto’s voor de publieke merkpagina.
+   */
+  gallery?:
+    | {
+        image: number | Media;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   description?: {
     root: {
       type: string;
@@ -323,6 +346,19 @@ export interface Brand {
   } | null;
   website?: string | null;
   email?: string | null;
+  social?: {
+    instagram?: string | null;
+    facebook?: string | null;
+    tiktok?: string | null;
+  };
+  localPartners?:
+    | {
+        name: string;
+        country: string;
+        website?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   phone?: string | null;
   /**
    * Type Merk & Leverancier
@@ -496,6 +532,10 @@ export interface Course {
   featured?: boolean | null;
   featuredPosition?: ('top' | 'permanent_top') | null;
   /**
+   * Automatische zoekprioriteit op basis van het abonnement.
+   */
+  tierPriority?: number | null;
+  /**
    * Trainer die de opleiding geeft
    */
   trainer?: (number | null) | Trainer;
@@ -525,6 +565,9 @@ export interface Course {
     [k: string]: unknown;
   };
   format?: ('online' | 'fysiek' | 'hybride')[] | null;
+  courseType?:
+    | ('practice_training' | 'online_course' | 'live_course' | 'coaching' | 'workshop' | 'webinar' | 'event')
+    | null;
   location?: {
     address?: string | null;
     city?: string | null;
@@ -543,6 +586,27 @@ export interface Course {
   };
   language?: ('nl' | 'fr' | 'en')[] | null;
   level?: ('beginner' | 'gevorderd' | 'expert' | 'all') | null;
+  targetAudience?:
+    | ('beginner-friendly' | 'intermediate' | 'expert-advanced' | 'professional-only' | 'startende-ondernemer')[]
+    | null;
+  practical?:
+    | ('online' | 'praktijkopleiding' | 'een-dag' | 'meerdere-dagen' | 'op-locatie' | 'kleine-groepen')[]
+    | null;
+  focus?:
+    | (
+        | 'huidverbeterend'
+        | 'medisch-esthetisch'
+        | 'holistisch'
+        | 'ontspannend'
+        | 'cosmetisch'
+        | 'therapeutisch'
+        | 'energetisch'
+      )[]
+    | null;
+  /**
+   * Handmatig beheerd door Blissify.
+   */
+  popular?: boolean | null;
   certificate?: boolean | null;
   accreditation?: string | null;
   /**
@@ -565,10 +629,26 @@ export interface Course {
   startDates?:
     | {
         date: string;
+        endDate?: string | null;
+        startTime?: string | null;
+        endTime?: string | null;
         spotsAvailable?: number | null;
         id?: string | null;
       }[]
     | null;
+  participants?: {
+    maximum?: number | null;
+    privateOneToOne?: boolean | null;
+  };
+  modelRequired?: ('not_applicable' | 'yes' | 'no') | null;
+  lunchProvided?: ('not_applicable' | 'yes' | 'no') | null;
+  contact?: {
+    email?: string | null;
+    website?: string | null;
+    instagram?: string | null;
+    facebook?: string | null;
+    tiktok?: string | null;
+  };
   /**
    * Vrije trefwoorden voor zoeken
    */
@@ -598,6 +678,29 @@ export interface Course {
      */
     noindex?: boolean | null;
   };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Geverifieerde beoordelingen. Alleen goedgekeurde reviews verschijnen op de website.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reviews".
+ */
+export interface Review {
+  id: number;
+  course: number | Course;
+  reviewerName: string;
+  reviewerEmail: string;
+  emailFingerprint: string;
+  submissionKey: string;
+  rating: number;
+  body: string;
+  status: 'awaiting_verification' | 'pending' | 'approved' | 'rejected';
+  verifiedAt?: string | null;
+  verificationSentAt?: string | null;
+  verificationExpiresAt?: string | null;
+  verificationTokenHash?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -826,6 +929,10 @@ export interface PayloadLockedDocument {
         value: number | Course;
       } | null)
     | ({
+        relationTo: 'reviews';
+        value: number | Review;
+      } | null)
+    | ({
         relationTo: 'pages';
         value: number | Page;
       } | null);
@@ -888,6 +995,14 @@ export interface UsersSelect<T extends boolean = true> {
   subscriptionMinimumEndsAt?: T;
   mollieCustomerId?: T;
   mollieSubscriptionId?: T;
+  responseTemplates?:
+    | T
+    | {
+        name?: T;
+        subject?: T;
+        body?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -999,9 +1114,31 @@ export interface BrandsSelect<T extends boolean = true> {
   owner?: T;
   logo?: T;
   coverImage?: T;
+  gallery?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        id?: T;
+      };
   description?: T;
   website?: T;
   email?: T;
+  social?:
+    | T
+    | {
+        instagram?: T;
+        facebook?: T;
+        tiktok?: T;
+      };
+  localPartners?:
+    | T
+    | {
+        name?: T;
+        country?: T;
+        website?: T;
+        id?: T;
+      };
   phone?: T;
   typePartner?: T;
   herkomst?: T;
@@ -1074,6 +1211,7 @@ export interface CoursesSelect<T extends boolean = true> {
   status?: T;
   featured?: T;
   featuredPosition?: T;
+  tierPriority?: T;
   trainer?: T;
   brand?: T;
   category?: T;
@@ -1081,6 +1219,7 @@ export interface CoursesSelect<T extends boolean = true> {
   shortDescription?: T;
   description?: T;
   format?: T;
+  courseType?: T;
   location?:
     | T
     | {
@@ -1105,6 +1244,10 @@ export interface CoursesSelect<T extends boolean = true> {
       };
   language?: T;
   level?: T;
+  targetAudience?: T;
+  practical?: T;
+  focus?: T;
+  popular?: T;
   certificate?: T;
   accreditation?: T;
   externalUrl?: T;
@@ -1119,8 +1262,28 @@ export interface CoursesSelect<T extends boolean = true> {
     | T
     | {
         date?: T;
+        endDate?: T;
+        startTime?: T;
+        endTime?: T;
         spotsAvailable?: T;
         id?: T;
+      };
+  participants?:
+    | T
+    | {
+        maximum?: T;
+        privateOneToOne?: T;
+      };
+  modelRequired?: T;
+  lunchProvided?: T;
+  contact?:
+    | T
+    | {
+        email?: T;
+        website?: T;
+        instagram?: T;
+        facebook?: T;
+        tiktok?: T;
       };
   tags?: T;
   seo?:
@@ -1132,6 +1295,26 @@ export interface CoursesSelect<T extends boolean = true> {
         ogImage?: T;
         noindex?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "reviews_select".
+ */
+export interface ReviewsSelect<T extends boolean = true> {
+  course?: T;
+  reviewerName?: T;
+  reviewerEmail?: T;
+  emailFingerprint?: T;
+  submissionKey?: T;
+  rating?: T;
+  body?: T;
+  status?: T;
+  verifiedAt?: T;
+  verificationSentAt?: T;
+  verificationExpiresAt?: T;
+  verificationTokenHash?: T;
   updatedAt?: T;
   createdAt?: T;
 }

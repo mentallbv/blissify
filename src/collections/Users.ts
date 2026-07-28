@@ -1,9 +1,15 @@
 import type { CollectionConfig, FieldAccess } from 'payload'
 import { isAdmin, isAdminOrSelf } from '@/access'
+import { tierForUser } from '@/lib/tier-features'
 
 const adminOnlyField: FieldAccess = ({ req }) => {
   const user = req.user as any
   return user?.role === 'admin'
+}
+
+const premiumTemplateField: FieldAccess = ({ req }) => {
+  const user = req.user as { role?: string; subscriptionTier?: string; brandTier?: string } | null
+  return user?.role === 'admin' || Boolean(user && tierForUser(user).features.hasResponseTemplates)
 }
 
 export const Users: CollectionConfig = {
@@ -26,6 +32,48 @@ export const Users: CollectionConfig = {
     update: isAdminOrSelf,
     delete: isAdmin,
     admin: ({ req }) => (req.user as { role?: string })?.role === 'admin',
+  },
+  hooks: {
+    afterChange: [
+      async ({ doc, previousDoc, operation, req }) => {
+        if (operation !== 'update') return
+        const current = doc as { id: number | string; role?: string; subscriptionTier?: string; brandTier?: string }
+        const previous = previousDoc as { subscriptionTier?: string; brandTier?: string } | undefined
+        const tierChanged =
+          current.subscriptionTier !== previous?.subscriptionTier ||
+          current.brandTier !== previous?.brandTier
+        if (!tierChanged || (current.role !== 'trainer' && current.role !== 'brand')) return
+
+        const collection = current.role === 'brand' ? 'brands' : 'trainers'
+        const relationship = current.role === 'brand' ? 'brand' : 'trainer'
+        const profiles = await req.payload.find({
+          collection,
+          where: { owner: { equals: current.id } },
+          limit: 1,
+          depth: 0,
+          overrideAccess: true,
+        })
+        const profile = profiles.docs[0]
+        if (!profile) return
+        const courses = await req.payload.find({
+          collection: 'courses',
+          where: { [relationship]: { equals: profile.id } } as never,
+          limit: 500,
+          depth: 0,
+          overrideAccess: true,
+        })
+        await Promise.all(
+          courses.docs.map((course) =>
+            req.payload.update({
+              collection: 'courses',
+              id: course.id,
+              data: { featured: course.featured } as never,
+              overrideAccess: true,
+            }),
+          ),
+        )
+      },
+    ],
   },
   fields: [
     {
@@ -168,6 +216,25 @@ export const Users: CollectionConfig = {
       type: 'text',
       access: { read: adminOnlyField, update: adminOnlyField },
       admin: { position: 'sidebar', readOnly: true, description: 'Mollie Subscription ID (auto-ingevuld)' },
+    },
+    {
+      name: 'responseTemplates',
+      type: 'array',
+      maxRows: 10,
+      label: 'Antwoordsjablonen',
+      access: {
+        create: premiumTemplateField,
+        read: premiumTemplateField,
+        update: premiumTemplateField,
+      },
+      admin: {
+        description: 'Meerdere antwoordsjablonen voor aanvragen. Alleen beschikbaar in Premium.',
+      },
+      fields: [
+        { name: 'name', type: 'text', required: true, label: 'Naam' },
+        { name: 'subject', type: 'text', required: true, label: 'Onderwerp' },
+        { name: 'body', type: 'textarea', required: true, label: 'Bericht' },
+      ],
     },
   ],
 }

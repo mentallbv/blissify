@@ -11,6 +11,7 @@ import {
   type PricingCatalog,
   type PricingData,
 } from './pricing'
+import { tierForUser, type TierFeatures } from './tier-features'
 import {
   FALLBACK_COURSES,
   FALLBACK_PROVIDERS,
@@ -32,6 +33,9 @@ export type CourseCardData = {
   price: string
   format: string
   image: string | null
+  providerType: 'trainer' | 'brand'
+  premium: boolean
+  featured: boolean
 }
 
 export type ProviderCardData = {
@@ -84,6 +88,9 @@ function fallbackCard(c: FallbackCourse): CourseCardData {
     price: c.price,
     format: c.format,
     image: null,
+    providerType: 'trainer',
+    premium: false,
+    featured: false,
   }
 }
 
@@ -105,6 +112,10 @@ function toCard(c: Course): CourseCardData {
   const brand = rel<Brand>(c.brand)
   const trainer = c.trainer && typeof c.trainer === 'object' ? (c.trainer as Trainer) : null
   const categorySlug = cat?.slug || 'overig'
+  const owner = (brand as { owner?: unknown } | null)?.owner || (trainer as { owner?: unknown } | null)?.owner
+  const ownerUser = owner && typeof owner === 'object' ? owner as { role?: string; subscriptionTier?: string; brandTier?: string } : null
+  const derivedPriority = ownerUser ? tierForUser(ownerUser).features.searchPriority : 0
+  const priority = Number((c as Course & { tierPriority?: number }).tierPriority || derivedPriority)
   return {
     slug: c.slug,
     href: `/opleidingen/${categorySlug}/${c.slug}`,
@@ -117,6 +128,9 @@ function toCard(c: Course): CourseCardData {
     price: formatPrice(c.price),
     format: formatCardMeta(c),
     image: mediaUrl(c.coverImage),
+    providerType: brand ? 'brand' : 'trainer',
+    premium: priority >= 3,
+    featured: Boolean(c.featured),
   }
 }
 
@@ -133,13 +147,20 @@ export type CourseFilters = {
   priceMin?: number
   priceMax?: number
   keyword?: string
+  providerType?: 'trainer' | 'brand'
+  targetAudiences?: string[]
+  practical?: string[]
+  focus?: string[]
+  popular?: boolean
+  free?: boolean
+  newOnly?: boolean
   sort?: CourseSort
 }
 
 // "Meest relevant" approximates subscription-tier priority via featured flags,
 // since courses carry no denormalised tier field (see note in getCoursePageData).
 const SORT_MAP: Record<CourseSort, string | string[]> = {
-  relevant: ['-featured', '-createdAt'],
+  relevant: ['-tierPriority', '-featured', '-createdAt'],
   'price-asc': 'price.amount',
   recent: '-createdAt',
 }
@@ -156,7 +177,16 @@ export async function getCourseCards(opts: CourseFilters = {}): Promise<{
     if (opts.categorySlug) {
       const cat = await payload.find({ collection: 'categories', where: { slug: { equals: opts.categorySlug } }, limit: 1 })
       const id = cat.docs[0]?.id
-      if (id) and.push({ category: { equals: id } })
+      if (id) {
+        const children = await payload.find({
+          collection: 'categories',
+          where: { parent: { equals: id } },
+          limit: 200,
+          depth: 0,
+        })
+        const ids = [id, ...children.docs.map((child) => child.id)]
+        and.push({ category: { in: ids } })
+      }
       else and.push({ category: { equals: -1 } }) // unknown category -> no matches
     }
     if (opts.city) and.push({ 'location.city': { equals: opts.city } })
@@ -169,13 +199,24 @@ export async function getCourseCards(opts: CourseFilters = {}): Promise<{
         or: [{ title: { like: opts.keyword } }, { shortDescription: { like: opts.keyword } }],
       })
     }
+    if (opts.providerType === 'brand') and.push({ brand: { exists: true } })
+    if (opts.providerType === 'trainer') and.push({ trainer: { exists: true } })
+    if (opts.targetAudiences?.length) and.push({ targetAudience: { in: opts.targetAudiences } })
+    if (opts.practical?.length) and.push({ practical: { in: opts.practical } })
+    if (opts.focus?.length) and.push({ focus: { in: opts.focus } })
+    if (opts.popular) and.push({ popular: { equals: true } })
+    if (opts.free) and.push({ 'price.isFree': { equals: true } })
+    if (opts.newOnly) {
+      const since = new Date(Date.now() - 30 * 86400000).toISOString()
+      and.push({ createdAt: { greater_than_equal: since } })
+    }
 
     const res = await payload.find({
       collection: 'courses',
       where: { and } as never,
       limit: opts.limit || 24,
       page: opts.page || 1,
-      depth: 1,
+      depth: 2,
       sort: SORT_MAP[opts.sort || 'relevant'] as never,
     })
     return { cards: res.docs.map(toCard), total: res.totalDocs, isFallback: false }
@@ -197,7 +238,7 @@ export async function getCourseCards(opts: CourseFilters = {}): Promise<{
 }
 
 export type CourseFilterOptions = {
-  categories: { slug: string; name: string }[]
+  categories: { slug: string; name: string; parentSlug: string | null }[]
   cities: string[]
   priceMin: number
   priceMax: number
@@ -224,14 +265,18 @@ export async function getCourseFilterOptions(): Promise<CourseFilterOptions> {
       }
     })
     return {
-      categories: cats.docs.map((c) => ({ slug: c.slug, name: c.name })),
+      categories: cats.docs.map((c) => ({
+        slug: c.slug,
+        name: c.name,
+        parentSlug: c.parent && typeof c.parent === 'object' ? c.parent.slug : null,
+      })),
       cities: Array.from(cities).sort((a, b) => a.localeCompare(b, 'nl-BE')),
       priceMin: Number.isFinite(min) ? Math.floor(min) : 0,
       priceMax: max > 0 ? Math.ceil(max) : 2000,
     }
   } catch {
     return {
-      categories: CATEGORY_TILES.map((c) => ({ slug: c.slug, name: c.name })),
+      categories: CATEGORY_TILES.map((c) => ({ slug: c.slug, name: c.name, parentSlug: null })),
       cities: ['Antwerpen', 'Gent', 'Brussel', 'Brugge', 'Leuven', 'Online'],
       priceMin: 0,
       priceMax: 2000,
@@ -402,7 +447,7 @@ export async function getHomepageSections(): Promise<{
     if (eligibleBrandIds.length) {
       const res = await payload.find({
         collection: 'courses',
-        where: { and: [{ status: { equals: 'published' } }, { brand: { in: eligibleBrandIds } }] } as never,
+        where: { and: [{ status: { equals: 'published' } }, { featured: { equals: true } }, { brand: { in: eligibleBrandIds } }] } as never,
         depth: 2,
         limit: 24,
       })
@@ -415,7 +460,7 @@ export async function getHomepageSections(): Promise<{
     if (eligibleTrainerIds.length) {
       const res = await payload.find({
         collection: 'courses',
-        where: { and: [{ status: { equals: 'published' } }, { trainer: { in: eligibleTrainerIds } }] } as never,
+        where: { and: [{ status: { equals: 'published' } }, { featured: { equals: true } }, { trainer: { in: eligibleTrainerIds } }] } as never,
         depth: 2,
         limit: 24,
       })
@@ -431,6 +476,7 @@ export async function getHomepageSections(): Promise<{
         where: {
           and: [
             { status: { equals: 'published' } },
+            { featured: { equals: true } },
             {
               or: [
                 { brand: { in: eligibleBrandIds.length ? eligibleBrandIds : [-1] } },
@@ -465,6 +511,27 @@ export type BrandCardData = {
   cover?: string | null
   about?: string
   website?: string | null
+  email?: string | null
+  partnerType?: string | null
+  origin?: string | null
+  social?: { instagram?: string | null; facebook?: string | null; tiktok?: string | null }
+  gallery?: { image: string; caption?: string | null }[]
+  localPartners?: { name: string; country: string; website?: string | null }[]
+}
+
+function richTextToPlainText(value: unknown): string {
+  const root = (value as { root?: { children?: unknown[] } } | null)?.root
+  if (!root?.children) return ''
+  const parts: string[] = []
+  const walk = (nodes: unknown[]) => {
+    for (const raw of nodes) {
+      const node = raw as { text?: string; children?: unknown[] }
+      if (node.text) parts.push(node.text)
+      if (node.children) walk(node.children)
+    }
+  }
+  walk(root.children)
+  return parts.join(' ').trim()
 }
 
 export type MerkenFilters = {
@@ -599,6 +666,11 @@ export async function getBrandBySlug(
     const res = await payload.find({ collection: 'brands', where: { slug: { equals: slug } }, limit: 1, depth: 1 })
     if (res.docs.length === 0) throw new Error('empty')
     const b = res.docs[0]
+    const details = b as typeof b & {
+      gallery?: { image?: number | Media | null; caption?: string | null }[]
+      social?: { instagram?: string | null; facebook?: string | null; tiktok?: string | null }
+      localPartners?: { name: string; country: string; website?: string | null }[]
+    }
     const courses = await payload.find({
       collection: 'courses',
       where: { brand: { equals: b.id }, status: { equals: 'published' } } as never,
@@ -618,7 +690,17 @@ export async function getBrandBySlug(
         courseCount: courses.totalDocs,
         logo: mediaUrl(b.logo),
         cover: mediaUrl((b as { coverImage?: number | Media | null }).coverImage),
+        about: richTextToPlainText(b.description),
         website: b.website,
+        email: b.email,
+        partnerType: b.typePartner,
+        origin: b.herkomst,
+        social: details.social || {},
+        gallery: (details.gallery || []).flatMap((item) => {
+          const image = mediaUrl(item.image)
+          return image ? [{ image, caption: item.caption }] : []
+        }),
+        localPartners: details.localPartners || [],
       },
       providers: trainers.docs.map((t) => ({
         slug: t.slug,
@@ -773,6 +855,76 @@ export async function getPricingCatalog(): Promise<PricingCatalog> {
 /** Backward-compatible trainer pricing accessor. */
 export async function getPricing(): Promise<PricingData> {
   return (await getPricingCatalog()).opleiders
+}
+
+export type PublicReview = {
+  id: string
+  reviewerName: string
+  rating: number
+  body: string
+  createdAt: string
+}
+
+export async function getApprovedCourseReviews(courseId: string | number): Promise<PublicReview[]> {
+  try {
+    const payload = await client()
+    const result = await payload.find({
+      collection: 'reviews' as never,
+      where: { and: [{ course: { equals: courseId } }, { status: { equals: 'approved' } }] } as never,
+      sort: '-createdAt',
+      limit: 50,
+      depth: 0,
+      overrideAccess: true,
+    })
+    return result.docs.map((review: any) => ({
+      id: String(review.id),
+      reviewerName: review.reviewerName,
+      rating: Number(review.rating),
+      body: review.body,
+      createdAt: review.createdAt,
+    }))
+  } catch {
+    return []
+  }
+}
+
+export type CourseTierContext = {
+  role: 'trainer' | 'brand'
+  tier: string
+  features: TierFeatures
+  accentColor: string | null
+}
+
+export async function getCourseTierContext(course: Course): Promise<CourseTierContext> {
+  const role = course.brand ? 'brand' : 'trainer'
+  const fallback = tierForUser({ role })
+  try {
+    const payload = await client()
+    const relation = role === 'brand' ? course.brand : course.trainer
+    const profileId = relation && typeof relation === 'object' ? relation.id : relation
+    if (!profileId) return { ...fallback, accentColor: null }
+    const profile = await payload.findByID({
+      collection: role === 'brand' ? 'brands' : 'trainers',
+      id: profileId as never,
+      depth: 0,
+      overrideAccess: true,
+    })
+    const owner = (profile as { owner?: unknown }).owner
+    const ownerId = owner && typeof owner === 'object' ? (owner as { id?: number | string }).id : owner
+    if (!ownerId) return { ...fallback, accentColor: null }
+    const user = await payload.findByID({ collection: 'users', id: ownerId as never, depth: 0, overrideAccess: true })
+    const resolved = tierForUser(user)
+    const rawAccent = role === 'trainer' ? (profile as { profileAccentColor?: string | null }).profileAccentColor : null
+    const accentColor =
+      role === 'brand' && resolved.features.hasProfileBranding
+        ? '#8B6B2E'
+        : resolved.features.hasProfileBranding && rawAccent && /^#[0-9a-f]{6}$/i.test(rawAccent)
+          ? rawAccent
+          : null
+    return { ...resolved, accentColor }
+  } catch {
+    return { ...fallback, accentColor: null }
+  }
 }
 
 /** Distinct specialisaties + cities across trainers, for the /opleiders filters. */

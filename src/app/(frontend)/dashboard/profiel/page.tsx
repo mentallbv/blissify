@@ -30,12 +30,25 @@ export default async function DashboardProfilePage() {
 
   const doc = profile?.doc
   const initial = {
+    role: profile?.kind || 'trainer',
     name: profile ? (profile.kind === 'brand' ? profile.doc.name : profile.doc.displayName) : '',
     city: (doc as { location?: { city?: string } } | undefined)?.location?.city || '',
     website: (doc as { website?: string } | undefined)?.website || '',
     email: (doc as { email?: string } | undefined)?.email || '',
     phone: (doc as { phone?: string } | undefined)?.phone || '',
     about: profile ? lexicalToText(profile.kind === 'brand' ? profile.doc.description : profile.doc.bio) : '',
+    partnerType: profile?.kind === 'brand' ? profile.doc.typePartner || '' : '',
+    origin: profile?.kind === 'brand' ? profile.doc.herkomst || '' : '',
+    instagram: (doc as { social?: { instagram?: string } } | undefined)?.social?.instagram || '',
+    facebook: (doc as { social?: { facebook?: string } } | undefined)?.social?.facebook || '',
+    tiktok: (doc as { social?: { tiktok?: string } } | undefined)?.social?.tiktok || '',
+    localPartners: profile?.kind === 'brand'
+      ? ((profile.doc as typeof profile.doc & { localPartners?: { name: string; country: string; website?: string }[] }).localPartners || []).map((partner) => ({
+          name: partner.name,
+          country: partner.country,
+          website: partner.website || '',
+        }))
+      : [],
   }
 
   return (

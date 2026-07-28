@@ -1,7 +1,22 @@
 import React from 'react'
 import { AuthForm } from './AuthForm'
 
-export function AuthView({ mode }: { mode: 'inloggen' | 'registreren' }) {
+export function AuthView({
+  mode,
+  initialRole,
+  initialTier,
+  initialBilling,
+  registrationPricing,
+}: {
+  mode: 'inloggen' | 'registreren'
+  initialRole?: 'trainer' | 'brand'
+  initialTier?: string
+  initialBilling?: 'yearly' | 'monthly'
+  registrationPricing?: {
+    trainer: { key: string; name: string; price: string }[]
+    brand: { key: string; name: string; price: string }[]
+  }
+}) {
   const register = mode === 'registreren'
   const heading = register ? 'Account aanmaken' : 'Inloggen'
   const subtitle = register
@@ -38,7 +53,13 @@ export function AuthView({ mode }: { mode: 'inloggen' | 'registreren' }) {
           </h1>
           <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 14, color: 'var(--text-body)', margin: '8px 0 28px' }}>{subtitle}</p>
 
-          <AuthForm mode={mode} />
+          <AuthForm
+            mode={mode}
+            initialRole={initialRole}
+            initialTier={initialTier}
+            initialBilling={initialBilling}
+            registrationPricing={registrationPricing}
+          />
 
           <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 13, color: 'var(--text-body)', marginTop: 24, textAlign: 'center' }}>
             {switchText}{' '}

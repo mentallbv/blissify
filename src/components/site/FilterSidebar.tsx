@@ -9,6 +9,30 @@ const FORMATS = [
   { value: 'online', label: 'Online' },
   { value: 'hybride', label: 'Hybride' },
 ]
+const AUDIENCES = [
+  { value: 'beginner-friendly', label: 'Beginner friendly' },
+  { value: 'intermediate', label: 'Intermediate' },
+  { value: 'expert-advanced', label: 'Expert / Advanced' },
+  { value: 'professional-only', label: 'Professional only' },
+  { value: 'startende-ondernemer', label: 'Startende ondernemer' },
+]
+const PRACTICAL = [
+  { value: 'online', label: 'Online' },
+  { value: 'praktijkopleiding', label: 'Praktijkopleiding' },
+  { value: 'een-dag', label: '1-daagse opleiding' },
+  { value: 'meerdere-dagen', label: 'Meerdere dagen' },
+  { value: 'op-locatie', label: 'Op locatie' },
+  { value: 'kleine-groepen', label: 'Kleine groepen (<12)' },
+]
+const FOCUS = [
+  { value: 'huidverbeterend', label: 'Huidverbeterend' },
+  { value: 'medisch-esthetisch', label: 'Medisch-esthetisch' },
+  { value: 'holistisch', label: 'Holistisch' },
+  { value: 'ontspannend', label: 'Ontspannend' },
+  { value: 'cosmetisch', label: 'Cosmetisch' },
+  { value: 'therapeutisch', label: 'Therapeutisch' },
+  { value: 'energetisch', label: 'Energetisch' },
+]
 
 /**
  * Course filter rail. All state lives in the URL query string, so results are
@@ -24,7 +48,14 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
     categorie: params.get('categorie') || '',
     locatie: params.get('locatie') || '',
     format: params.get('format') || '',
+    aanbieder: params.get('aanbieder') || '',
+    doelgroep: params.get('doelgroep') || '',
+    praktisch: params.get('praktisch') || '',
+    focus: params.get('focus') || '',
     erkend: params.get('erkend') === 'true',
+    nieuw: params.get('nieuw') === 'true',
+    populair: params.get('populair') === 'true',
+    gratis: params.get('gratis') === 'true',
     prijsMax: params.get('prijsMax') || '',
   }
 
@@ -34,6 +65,11 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
     else next.set(key, value)
     next.delete('page')
     router.push(`${pathname}?${next.toString()}`, { scroll: false })
+  }
+  const toggleCsv = (key: 'doelgroep' | 'praktisch' | 'focus', value: string) => {
+    const selected = current[key].split(',').filter(Boolean)
+    const next = selected.includes(value) ? selected.filter((item) => item !== value) : [...selected, value]
+    update(key, next.length ? next.join(',') : null)
   }
 
   // Debounce the price slider so dragging doesn't fire a request per pixel.
@@ -49,7 +85,13 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
     priceTimer.current = setTimeout(() => update('prijsMax', Number(v) >= options.priceMax ? null : v), 350)
   }
 
-  const hasActive = Boolean(current.categorie || current.locatie || current.format || current.erkend || current.prijsMax)
+  const hasAdvanced = Boolean(current.praktisch || current.focus || current.erkend || current.nieuw || current.populair || current.gratis || current.prijsMax)
+  const [moreOpen, setMoreOpen] = React.useState(hasAdvanced)
+  const hasActive = Boolean(current.categorie || current.locatie || current.format || current.aanbieder || current.doelgroep || hasAdvanced)
+  const mainCategories = options.categories.filter((category) => !category.parentSlug)
+  const selectedCategory = options.categories.find((category) => category.slug === current.categorie)
+  const activeParent = selectedCategory?.parentSlug || selectedCategory?.slug || ''
+  const subcategories = options.categories.filter((category) => category.parentSlug === activeParent)
 
   const labelStyle: React.CSSProperties = { fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-strong)', marginBottom: 12 }
   const selectStyle: React.CSSProperties = { height: 40, fontSize: 13 }
@@ -68,14 +110,34 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
       {!lockCategory ? (
         <div style={{ marginBottom: 26 }}>
           <div style={labelStyle}>Categorie</div>
-          <select className="bl-select" value={current.categorie} onChange={(e) => update('categorie', e.target.value)} style={selectStyle}>
-            <option value="">Alle categorieën</option>
-            {options.categories.map((c) => (
+          <select className="bl-select" value={activeParent} onChange={(e) => update('categorie', e.target.value)} style={selectStyle}>
+            <option value="">Alle hoofdcategorieën</option>
+            {mainCategories.map((c) => (
               <option key={c.slug} value={c.slug}>{c.name}</option>
             ))}
           </select>
+          {activeParent && subcategories.length ? (
+            <select className="bl-select" value={selectedCategory?.parentSlug ? current.categorie : ''} onChange={(e) => update('categorie', e.target.value || activeParent)} style={{ ...selectStyle, marginTop: 8 }}>
+              <option value="">Alle subcategorieën</option>
+              {subcategories.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
+            </select>
+          ) : null}
         </div>
       ) : null}
+
+      <div style={{ marginBottom: 26 }}>
+        <div style={labelStyle}>Type aanbieder</div>
+        <select className="bl-select" value={current.aanbieder} onChange={(e) => update('aanbieder', e.target.value)} style={selectStyle}>
+          <option value="">Alle aanbieders</option>
+          <option value="trainer">Onafhankelijke Opleiders</option>
+          <option value="brand">Merken &amp; Partners</option>
+        </select>
+      </div>
+
+      <div style={{ marginBottom: 26 }}>
+        <div style={labelStyle}>Niveau &amp; doelgroep</div>
+        <CheckOptions options={AUDIENCES} selected={current.doelgroep} onToggle={(value) => toggleCsv('doelgroep', value)} />
+      </div>
 
       <div style={{ marginBottom: 26 }}>
         <div style={labelStyle}>Locatie</div>
@@ -87,7 +149,7 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
         </select>
       </div>
 
-      <div style={{ marginBottom: 26 }}>
+      <div style={{ marginBottom: 20 }}>
         <div style={labelStyle}>Type</div>
         <select className="bl-select" value={current.format} onChange={(e) => update('format', e.target.value)} style={selectStyle}>
           <option value="">Alle types</option>
@@ -95,6 +157,22 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
             <option key={f.value} value={f.value}>{f.label}</option>
           ))}
         </select>
+      </div>
+
+      <button type="button" onClick={() => setMoreOpen((open) => !open)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: 0, borderTop: '0.5px solid var(--border-hairline)', background: 'none', padding: '18px 0', cursor: 'pointer', fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 13, color: 'var(--text-strong)' }}>
+        Meer filters
+        <i className={`ti ti-chevron-${moreOpen ? 'up' : 'down'}`} />
+      </button>
+
+      {moreOpen ? <>
+      <div style={{ marginBottom: 26 }}>
+        <div style={labelStyle}>Praktisch</div>
+        <CheckOptions options={PRACTICAL} selected={current.praktisch} onToggle={(value) => toggleCsv('praktisch', value)} />
+      </div>
+
+      <div style={{ marginBottom: 26 }}>
+        <div style={labelStyle}>Focus &amp; filosofie</div>
+        <CheckOptions options={FOCUS} selected={current.focus} onToggle={(value) => toggleCsv('focus', value)} />
       </div>
 
       <div style={{ marginBottom: 26 }}>
@@ -129,6 +207,41 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
           <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 13, color: 'var(--text-body)' }}>Certificaat verstrekt</span>
         </label>
       </div>
+      <div style={{ display: 'grid', gap: 10, marginTop: 22 }}>
+        {[
+          ['nieuw', 'Nieuwe opleiding', current.nieuw],
+          ['populair', 'Trending / populair', current.populair],
+          ['gratis', 'Gratis', current.gratis],
+        ].map(([key, label, active]) => (
+          <label key={String(key)} style={{ display: 'flex', alignItems: 'center', gap: 9, cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-body)' }}>
+            <input type="checkbox" checked={Boolean(active)} onChange={() => update(String(key), active ? null : 'true')} />
+            {String(label)}
+          </label>
+        ))}
+      </div>
+      </> : null}
     </aside>
+  )
+}
+
+function CheckOptions({
+  options,
+  selected,
+  onToggle,
+}: {
+  options: { value: string; label: string }[]
+  selected: string
+  onToggle: (value: string) => void
+}) {
+  const active = selected.split(',').filter(Boolean)
+  return (
+    <div style={{ display: 'grid', gap: 9 }}>
+      {options.map((option) => (
+        <label key={option.value} style={{ display: 'flex', alignItems: 'center', gap: 9, cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-body)' }}>
+          <input type="checkbox" checked={active.includes(option.value)} onChange={() => onToggle(option.value)} />
+          {option.label}
+        </label>
+      ))}
+    </div>
   )
 }

@@ -4,13 +4,28 @@ import React from 'react'
 import { useRouter } from 'next/navigation'
 import { Input, Button, FieldLabel } from '@/components/ui'
 
-export function AuthForm({ mode }: { mode: 'inloggen' | 'registreren' }) {
+export function AuthForm({
+  mode,
+  initialRole = 'trainer',
+  initialTier,
+  initialBilling = 'yearly',
+  registrationPricing,
+}: {
+  mode: 'inloggen' | 'registreren'
+  initialRole?: 'trainer' | 'brand'
+  initialTier?: string
+  initialBilling?: 'yearly' | 'monthly'
+  registrationPricing?: {
+    trainer: { key: string; name: string; price: string }[]
+    brand: { key: string; name: string; price: string }[]
+  }
+}) {
   const register = mode === 'registreren'
   const router = useRouter()
   const [name, setName] = React.useState('')
   const [email, setEmail] = React.useState('')
   const [password, setPassword] = React.useState('')
-  const [role, setRole] = React.useState<'trainer' | 'brand'>('trainer')
+  const [role, setRole] = React.useState<'trainer' | 'brand'>(initialRole)
   const [error, setError] = React.useState<string | null>(null)
   const [loading, setLoading] = React.useState(false)
 
@@ -49,7 +64,10 @@ export function AuthForm({ mode }: { mode: 'inloggen' | 'registreren' }) {
           body: JSON.stringify({ name, email, role }),
         }).catch(() => {})
         await login()
-        router.push('/onboarding')
+        const onboardingParams = new URLSearchParams()
+        if (initialTier) onboardingParams.set('tier', initialTier)
+        onboardingParams.set('billing', initialBilling)
+        router.push(`/onboarding?${onboardingParams.toString()}`)
         router.refresh()
         return
       }
@@ -89,11 +107,30 @@ export function AuthForm({ mode }: { mode: 'inloggen' | 'registreren' }) {
                     color: on ? 'var(--blissify-chalk)' : 'var(--text-body)',
                   }}
                 >
-                  {r === 'trainer' ? 'Trainer' : 'Merk / academie'}
+                  {r === 'trainer' ? 'Opleider' : 'Merk / Leverancier'}
                 </button>
               )
             })}
           </div>
+        </div>
+      ) : null}
+
+      {register && registrationPricing ? (
+        <div style={{ border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-sm)', background: 'var(--surface-page)', padding: 14 }}>
+          <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 12, color: 'var(--text-strong)', marginBottom: 8 }}>
+            Abonnementen voor {role === 'trainer' ? 'opleiders' : 'merken en leveranciers'}
+          </div>
+          <div style={{ display: 'grid', gap: 6 }}>
+            {registrationPricing[role].map((tier) => (
+              <div key={tier.key} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, fontFamily: 'var(--font-ui)', fontSize: 12, color: tier.key === initialTier ? 'var(--text-accent)' : 'var(--text-body)' }}>
+                <span>{tier.name}</span>
+                <span>{tier.price}/jaar</span>
+              </div>
+            ))}
+          </div>
+          <a href={role === 'trainer' ? '/prijzen/opleiders' : '/prijzen/merken-leveranciers'} className="bl-textlink" style={{ display: 'inline-block', marginTop: 10, fontSize: 12 }}>
+            Bekijk alle details en maandprijzen
+          </a>
         </div>
       ) : null}
 

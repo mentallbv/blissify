@@ -62,6 +62,27 @@ export async function PATCH(req: Request) {
       if (role === 'brand') data.description = lexical(body.about)
       else data.bio = lexical(body.about)
     }
+    if (role === 'brand') {
+      const partnerTypes = ['productmerken', 'apparatuurmerken', 'groothandels_distributeurs', 'leveranciers']
+      const origins = ['belgisch', 'nederlands', 'europees', 'internationaal']
+      if (partnerTypes.includes(body.partnerType)) data.typePartner = body.partnerType
+      if (origins.includes(body.origin)) data.herkomst = body.origin
+      data.social = {
+        instagram: typeof body.instagram === 'string' ? body.instagram.trim() : '',
+        facebook: typeof body.facebook === 'string' ? body.facebook.trim() : '',
+        tiktok: typeof body.tiktok === 'string' ? body.tiktok.trim() : '',
+      }
+      if (Array.isArray(body.localPartners)) {
+        data.localPartners = body.localPartners
+          .map((partner: Record<string, unknown>) => ({
+            name: typeof partner.name === 'string' ? partner.name.trim() : '',
+            country: typeof partner.country === 'string' ? partner.country.trim() : '',
+            website: typeof partner.website === 'string' ? partner.website.trim() : '',
+          }))
+          .filter((partner: { name: string; country: string }) => partner.name && partner.country)
+          .slice(0, 20)
+      }
+    }
 
     const updated = await payload.update({
       collection,

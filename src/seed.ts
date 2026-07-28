@@ -418,6 +418,17 @@ async function seed() {
       price: { amount: c.price, currency: 'EUR', isFree: false, priceOnRequest: false },
       language: ['nl'],
       level: c.price > 600 ? 'gevorderd' : 'beginner',
+      targetAudience: c.price > 600 ? ['expert-advanced', 'professional-only'] : ['beginner-friendly'],
+      practical: isOnline
+        ? ['online']
+        : ['praktijkopleiding', idx % 3 === 0 ? 'meerdere-dagen' : 'een-dag', 'op-locatie', 'kleine-groepen'],
+      focus: c.categorySlug.includes('massage')
+        ? ['therapeutisch', 'ontspannend']
+        : c.categorySlug.includes('schoonheid') || c.categorySlug.includes('gezicht')
+          ? ['huidverbeterend', 'cosmetisch']
+          : ['holistisch'],
+      popular: idx % 4 === 0,
+      featured: idx % 2 === 0,
       certificate: c.erkend,
       accreditation: c.erkend ? 'Certificaat verstrekt door de aanbieder' : null,
       startDates: [{ date: futureDate(startMonths), spotsAvailable: 8 + Math.floor(Math.random() * 13) }],

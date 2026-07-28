@@ -21,6 +21,21 @@ export type CourseFormValues = {
   durationValue: string
   durationUnit: string
   format: string[]
+  courseType: string
+  language: string[]
+  targetAudience: string[]
+  practical: string[]
+  focus: string[]
+  maximumParticipants: string
+  privateOneToOne: boolean
+  modelRequired: string
+  lunchProvided: string
+  contactEmail: string
+  contactWebsite: string
+  instagram: string
+  facebook: string
+  tiktok: string
+  startDates: { date: string; endDate: string; startTime: string; endTime: string; spotsAvailable: string }[]
   tags: string
 }
 
@@ -41,6 +56,21 @@ const EMPTY: CourseFormValues = {
   durationValue: '',
   durationUnit: 'days',
   format: [],
+  courseType: '',
+  language: ['nl'],
+  targetAudience: [],
+  practical: [],
+  focus: [],
+  maximumParticipants: '',
+  privateOneToOne: false,
+  modelRequired: 'not_applicable',
+  lunchProvided: 'not_applicable',
+  contactEmail: '',
+  contactWebsite: '',
+  instagram: '',
+  facebook: '',
+  tiktok: '',
+  startDates: [],
   tags: '',
 }
 
@@ -65,6 +95,13 @@ export function CourseForm({
   const [loading, setLoading] = React.useState(false)
   const set = <K extends keyof CourseFormValues>(k: K, val: CourseFormValues[K]) => setV((s) => ({ ...s, [k]: val }))
   const toggleFormat = (f: string) => set('format', v.format.includes(f) ? v.format.filter((x) => x !== f) : [...v.format, f])
+  const toggleLanguage = (language: string) => set('language', v.language.includes(language) ? v.language.filter((item) => item !== language) : [...v.language, language])
+  const toggleMany = (key: 'targetAudience' | 'practical' | 'focus', value: string) =>
+    set(key, v[key].includes(value) ? v[key].filter((item) => item !== value) : [...v[key], value])
+  const addDate = () => set('startDates', [...v.startDates, { date: '', endDate: '', startTime: '', endTime: '', spotsAvailable: '' }])
+  const updateDate = (index: number, key: keyof CourseFormValues['startDates'][number], value: string) =>
+    set('startDates', v.startDates.map((item, itemIndex) => itemIndex === index ? { ...item, [key]: value } : item))
+  const removeDate = (index: number) => set('startDates', v.startDates.filter((_, itemIndex) => itemIndex !== index))
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -131,6 +168,21 @@ export function CourseForm({
       </div>
 
       <div style={card}>
+        <Select
+          label="Type opleiding"
+          placeholder="Kies een type"
+          value={v.courseType}
+          onChange={(e) => set('courseType', e.target.value)}
+          options={[
+            { value: 'practice_training', label: 'Praktijktraining' },
+            { value: 'online_course', label: 'Online cursus' },
+            { value: 'live_course', label: 'Live cursus' },
+            { value: 'coaching', label: 'Coachingsessie' },
+            { value: 'workshop', label: 'Workshop' },
+            { value: 'webinar', label: 'Webinar' },
+            { value: 'event', label: 'Evenement' },
+          ]}
+        />
         <div>
           <FieldLabel>Lesvorm</FieldLabel>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
@@ -138,6 +190,38 @@ export function CourseForm({
               <Tag key={f.value} as="button" active={v.format.includes(f.value)} onClick={() => toggleFormat(f.value)}>
                 {f.label}
               </Tag>
+            ))}
+          </div>
+        </div>
+        <div>
+          <FieldLabel>Taal</FieldLabel>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {[['nl', 'Nederlands'], ['fr', 'Frans'], ['en', 'Engels']].map(([key, label]) => (
+              <Tag key={key} as="button" active={v.language.includes(key)} onClick={() => toggleLanguage(key)}>{label}</Tag>
+            ))}
+          </div>
+        </div>
+        <div>
+          <FieldLabel>Niveau &amp; doelgroep</FieldLabel>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {[['beginner-friendly', 'Beginner friendly'], ['intermediate', 'Intermediate'], ['expert-advanced', 'Expert / Advanced'], ['professional-only', 'Professional only'], ['startende-ondernemer', 'Startende ondernemer']].map(([key, label]) => (
+              <Tag key={key} as="button" active={v.targetAudience.includes(key)} onClick={() => toggleMany('targetAudience', key)}>{label}</Tag>
+            ))}
+          </div>
+        </div>
+        <div>
+          <FieldLabel>Praktisch</FieldLabel>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {[['online', 'Online'], ['praktijkopleiding', 'Praktijkopleiding'], ['een-dag', '1-daagse'], ['meerdere-dagen', 'Meerdere dagen'], ['op-locatie', 'Op locatie'], ['kleine-groepen', 'Kleine groepen (<12)']].map(([key, label]) => (
+              <Tag key={key} as="button" active={v.practical.includes(key)} onClick={() => toggleMany('practical', key)}>{label}</Tag>
+            ))}
+          </div>
+        </div>
+        <div>
+          <FieldLabel>Focus &amp; filosofie</FieldLabel>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {[['huidverbeterend', 'Huidverbeterend'], ['medisch-esthetisch', 'Medisch-esthetisch'], ['holistisch', 'Holistisch'], ['ontspannend', 'Ontspannend'], ['cosmetisch', 'Cosmetisch'], ['therapeutisch', 'Therapeutisch'], ['energetisch', 'Energetisch']].map(([key, label]) => (
+              <Tag key={key} as="button" active={v.focus.includes(key)} onClick={() => toggleMany('focus', key)}>{label}</Tag>
             ))}
           </div>
         </div>
@@ -155,6 +239,17 @@ export function CourseForm({
               { value: 'all', label: 'Alle niveaus' },
             ]}
           />
+        </div>
+        <div className="bl-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, alignItems: 'end' }}>
+          <Input label="Maximum deelnemers" type="number" value={v.maximumParticipants} onChange={(e) => set('maximumParticipants', e.target.value)} />
+          <label style={{ display: 'flex', alignItems: 'center', gap: 10, height: 44, fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-body)' }}>
+            <input type="checkbox" checked={v.privateOneToOne} onChange={(e) => set('privateOneToOne', e.target.checked)} />
+            Privé / één-op-één
+          </label>
+        </div>
+        <div className="bl-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <Select label="Model meenemen" value={v.modelRequired} onChange={(e) => set('modelRequired', e.target.value)} options={[{ value: 'not_applicable', label: 'Niet van toepassing' }, { value: 'yes', label: 'Ja' }, { value: 'no', label: 'Nee' }]} />
+          <Select label="Lunch voorzien" value={v.lunchProvided} onChange={(e) => set('lunchProvided', e.target.value)} options={[{ value: 'not_applicable', label: 'Niet van toepassing' }, { value: 'yes', label: 'Ja' }, { value: 'no', label: 'Nee' }]} />
         </div>
         <div className="bl-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           <Input label="Duur (aantal)" type="number" value={v.durationValue} onChange={(e) => set('durationValue', e.target.value)} />
@@ -183,6 +278,41 @@ export function CourseForm({
           Certificaat inbegrepen
         </label>
         <Input label="Trefwoorden (komma-gescheiden)" value={v.tags} onChange={(e) => set('tags', e.target.value)} />
+      </div>
+
+      <div style={card}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, color: 'var(--text-brand)' }}>Data en tijdstippen</div>
+            <div style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-meta)', marginTop: 4 }}>Voeg alle geplande lesmomenten toe.</div>
+          </div>
+          <Button type="button" variant="ghost" size="sm" onClick={addDate}>Datum toevoegen</Button>
+        </div>
+        {v.startDates.map((item, index) => (
+          <div key={index} style={{ border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-sm)', padding: 16, display: 'grid', gap: 12 }}>
+            <div className="bl-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+              <Input label="Startdatum" type="date" value={item.date} onChange={(e) => updateDate(index, 'date', e.target.value)} />
+              <Input label="Einddatum" type="date" value={item.endDate} onChange={(e) => updateDate(index, 'endDate', e.target.value)} />
+              <Input label="Starttijd" type="time" value={item.startTime} onChange={(e) => updateDate(index, 'startTime', e.target.value)} />
+              <Input label="Eindtijd" type="time" value={item.endTime} onChange={(e) => updateDate(index, 'endTime', e.target.value)} />
+            </div>
+            <div style={{ display: 'flex', gap: 12, alignItems: 'end' }}>
+              <div style={{ flex: 1 }}><Input label="Beschikbare plaatsen" type="number" value={item.spotsAvailable} onChange={(e) => updateDate(index, 'spotsAvailable', e.target.value)} /></div>
+              <Button type="button" variant="ghost" size="sm" onClick={() => removeDate(index)}>Verwijderen</Button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div style={card}>
+        <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, color: 'var(--text-brand)' }}>Contact en sociale kanalen</div>
+        <div className="bl-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+          <Input label="Contact e-mail" type="email" value={v.contactEmail} onChange={(e) => set('contactEmail', e.target.value)} />
+          <Input label="Website" value={v.contactWebsite} onChange={(e) => set('contactWebsite', e.target.value)} />
+          <Input label="Instagram" value={v.instagram} onChange={(e) => set('instagram', e.target.value)} />
+          <Input label="Facebook" value={v.facebook} onChange={(e) => set('facebook', e.target.value)} />
+          <Input label="TikTok" value={v.tiktok} onChange={(e) => set('tiktok', e.target.value)} />
+        </div>
       </div>
 
       <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>

@@ -14,6 +14,9 @@ export function CourseCard({
   price,
   format,
   image = null,
+  providerType = 'trainer',
+  premium = false,
+  featured = false,
 }: {
   href?: string
   title: string
@@ -23,6 +26,9 @@ export function CourseCard({
   price: string
   format: string
   image?: string | null
+  providerType?: 'trainer' | 'brand'
+  premium?: boolean
+  featured?: boolean
 }) {
   return (
     <a href={href} className="bl-coursecard" style={{ display: 'block', overflow: 'hidden' }}>
@@ -52,6 +58,10 @@ export function CourseCard({
         >
           {category}
         </span>
+        <div style={{ position: 'absolute', right: 12, top: 12, display: 'flex', gap: 6 }}>
+          {featured ? <span style={{ borderRadius: 999, padding: '4px 8px', background: 'rgba(26,46,37,0.9)', color: '#fff', fontFamily: 'var(--font-ui)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Uitgelicht</span> : null}
+          {premium ? <span style={{ borderRadius: 999, padding: '4px 8px', background: 'var(--blissify-terracotta)', color: '#fff', fontFamily: 'var(--font-ui)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Premium</span> : null}
+        </div>
       </div>
       <div style={{ padding: 16 }}>
         <h3
@@ -76,7 +86,10 @@ export function CourseCard({
             lineHeight: 1.4,
           }}
         >
-          {provider} · {location}
+          <span style={{ color: providerType === 'brand' ? 'var(--badge-brand-fg)' : 'var(--badge-trainer-fg)', fontWeight: 500 }}>
+            {providerType === 'brand' ? 'Merk & Leverancier' : 'Opleider'}
+          </span>
+          {' · '}{provider} · {location}
         </p>
         <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
           <span

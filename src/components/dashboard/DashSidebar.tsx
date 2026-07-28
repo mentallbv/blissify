@@ -15,11 +15,23 @@ const NAV = [
 // Inschrijvingen tab, only for Brand accounts with in-platform registration.
 const REGISTRATIONS_ITEM = { id: 'registrations', label: 'Inschrijvingen', icon: 'ti-clipboard-check', href: '/dashboard/inschrijvingen' }
 
-export function DashSidebar({ providerName = 'Opleider', showRegistrations = false }: { providerName?: string; showRegistrations?: boolean }) {
+export function DashSidebar({
+  providerName = 'Opleider',
+  showRegistrations = false,
+  showAnalytics = false,
+}: {
+  providerName?: string
+  showRegistrations?: boolean
+  showAnalytics?: boolean
+}) {
   const pathname = usePathname()
   const router = useRouter()
   const isActive = (href: string) => (href === '/dashboard' ? pathname === href : pathname.startsWith(href))
-  const nav = showRegistrations ? [...NAV.slice(0, 3), REGISTRATIONS_ITEM, ...NAV.slice(3)] : NAV
+  const baseNav = showAnalytics ? NAV : NAV.filter((item) => item.id !== 'analytics')
+  const leadIndex = baseNav.findIndex((item) => item.id === 'leads')
+  const nav = showRegistrations
+    ? [...baseNav.slice(0, leadIndex + 1), REGISTRATIONS_ITEM, ...baseNav.slice(leadIndex + 1)]
+    : baseNav
 
   async function logout() {
     await fetch('/api/users/logout', { method: 'POST', credentials: 'include' }).catch(() => {})
