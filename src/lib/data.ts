@@ -1,6 +1,6 @@
 import { getPayload } from 'payload'
 import config from '@/payload.config'
-import type { Course, Brand, Category, Media } from '@/payload-types'
+import type { Course, Brand, Category, Media, Trainer } from '@/payload-types'
 import { formatPrice, formatCardMeta, courseLocation } from './format'
 import { CATEGORY_CONTENT } from './categories'
 import { PRICING_FALLBACK, type PricingData } from './pricing'
@@ -96,6 +96,7 @@ function fallbackProvider(p: FallbackProvider): ProviderCardData {
 function toCard(c: Course): CourseCardData {
   const cat = rel<Category>(c.category)
   const brand = rel<Brand>(c.brand)
+  const trainer = c.trainer && typeof c.trainer === 'object' ? (c.trainer as Trainer) : null
   const categorySlug = cat?.slug || 'overig'
   return {
     slug: c.slug,
@@ -103,8 +104,8 @@ function toCard(c: Course): CourseCardData {
     title: c.title,
     category: cat?.name || 'Opleiding',
     categorySlug,
-    provider: brand?.name || 'Blissify-opleider',
-    providerSlug: brand?.slug || '',
+    provider: brand?.name || trainer?.displayName || 'Blissify-opleider',
+    providerSlug: brand?.slug || trainer?.slug || '',
     location: courseLocation(c),
     price: formatPrice(c.price),
     format: formatCardMeta(c),
@@ -326,6 +327,104 @@ export async function getProviderBySlug(
     if (!fp) return { provider: null, courses: [], isFallback: true }
     const courses = FALLBACK_COURSES.filter((c) => c.providerSlug === slug).map(fallbackCard)
     return { provider: fallbackProvider(fp), courses, isFallback: true }
+  }
+}
+
+// ── Homepage exposure sections (B3/B4/B5) ───────────────────────────────────
+// Tier-gated: only courses owned by accounts with a "homepage exposure" perk.
+//   - Opleider Premium (subscriptionTier premium)
+//   - Brand Partner Professional / Premium (brandTier), Premium weighted first
+const relId = (v: unknown): string => (v && typeof v === 'object' ? String((v as { id?: unknown }).id) : String(v))
+
+export type HomepageCategorySection = { slug: string; name: string; courses: CourseCardData[] }
+
+export async function getHomepageSections(): Promise<{
+  brandCourses: CourseCardData[]
+  opleiderCourses: CourseCardData[]
+  categorySections: HomepageCategorySection[]
+}> {
+  const empty = { brandCourses: [], opleiderCourses: [], categorySections: [] as HomepageCategorySection[] }
+  try {
+    const payload = await client()
+    const [trainersRes, brandsRes] = await Promise.all([
+      payload.find({ collection: 'trainers', depth: 1, limit: 500 }),
+      payload.find({ collection: 'brands', depth: 1, limit: 500 }),
+    ])
+    const ownerTier = (o: unknown, key: 'subscriptionTier' | 'brandTier'): string | undefined =>
+      o && typeof o === 'object' ? (o as Record<string, string | undefined>)[key] : undefined
+
+    const premiumTrainerIds = (trainersRes.docs as { id: number; owner?: unknown }[])
+      .filter((t) => ownerTier(t.owner, 'subscriptionTier') === 'premium')
+      .map((t) => t.id)
+    const proPremiumBrandIds = (brandsRes.docs as { id: number; owner?: unknown }[])
+      .filter((b) => ['partner_professional', 'partner_premium'].includes(ownerTier(b.owner, 'brandTier') || ''))
+      .map((b) => b.id)
+    const premiumBrandIds = new Set(
+      (brandsRes.docs as { id: number; owner?: unknown }[])
+        .filter((b) => ownerTier(b.owner, 'brandTier') === 'partner_premium')
+        .map((b) => String(b.id)),
+    )
+
+    // B4 - brand courses, premium brands weighted first
+    let brandCourses: CourseCardData[] = []
+    if (proPremiumBrandIds.length) {
+      const res = await payload.find({
+        collection: 'courses',
+        where: { and: [{ status: { equals: 'published' } }, { brand: { in: proPremiumBrandIds } }] } as never,
+        depth: 2,
+        limit: 24,
+      })
+      const docs = [...(res.docs as Course[])]
+      docs.sort((a, b) => (premiumBrandIds.has(relId(b.brand)) ? 1 : 0) - (premiumBrandIds.has(relId(a.brand)) ? 1 : 0))
+      brandCourses = docs.slice(0, 8).map(toCard)
+    }
+
+    // B5 - opleider courses, premium trainers only
+    let opleiderCourses: CourseCardData[] = []
+    if (premiumTrainerIds.length) {
+      const res = await payload.find({
+        collection: 'courses',
+        where: { and: [{ status: { equals: 'published' } }, { trainer: { in: premiumTrainerIds } }] } as never,
+        depth: 2,
+        limit: 12,
+      })
+      opleiderCourses = (res.docs as Course[]).slice(0, 8).map(toCard)
+    }
+
+    // B3 - courses grouped by main category, from the combined exposure pool
+    let categorySections: HomepageCategorySection[] = []
+    if (proPremiumBrandIds.length || premiumTrainerIds.length) {
+      const res = await payload.find({
+        collection: 'courses',
+        where: {
+          and: [
+            { status: { equals: 'published' } },
+            {
+              or: [
+                { brand: { in: proPremiumBrandIds.length ? proPremiumBrandIds : [-1] } },
+                { trainer: { in: premiumTrainerIds.length ? premiumTrainerIds : [-1] } },
+              ],
+            },
+          ],
+        } as never,
+        depth: 2,
+        limit: 100,
+      })
+      const byMain = new Map<string, HomepageCategorySection>()
+      for (const c of res.docs as Course[]) {
+        const cat = c.category
+        if (!cat || typeof cat !== 'object') continue
+        const parent = (cat as Category).parent
+        const main = parent && typeof parent === 'object' ? (parent as Category) : (cat as Category)
+        if (!byMain.has(main.slug)) byMain.set(main.slug, { slug: main.slug, name: main.name, courses: [] })
+        byMain.get(main.slug)!.courses.push(toCard(c))
+      }
+      categorySections = [...byMain.values()].filter((s) => s.courses.length > 0)
+    }
+
+    return { brandCourses, opleiderCourses, categorySections }
+  } catch {
+    return empty
   }
 }
 

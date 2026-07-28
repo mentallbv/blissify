@@ -6,8 +6,9 @@ import { SiteFooter, Marquee } from '@/components/site/SiteFooter'
 import { StatCounters } from '@/components/site/StatCounters'
 import { Faq } from '@/components/site/Faq'
 import { SearchCard } from '@/components/site/SearchCard'
-import { Eyebrow, ButtonLink } from '@/components/ui'
-import { getPricing, getCourseFilterOptions } from '@/lib/data'
+import { HomeCategoryExplorer } from '@/components/site/HomeCategoryExplorer'
+import { Eyebrow, ButtonLink, CourseCard } from '@/components/ui'
+import { getPricing, getCourseFilterOptions, getHomepageSections } from '@/lib/data'
 import { FAQ_HOME } from '@/lib/pricing'
 
 export const dynamic = 'force-dynamic'
@@ -68,6 +69,7 @@ export default async function HomePage() {
   const faqItems = Array.isArray(hp.faq) && hp.faq.length ? hp.faq.map((f: { question: string; answer: string }) => ({ q: f.question, a: f.answer })) : FAQ_HOME
 
   const searchOptions = await getCourseFilterOptions()
+  const { brandCourses, opleiderCourses, categorySections } = await getHomepageSections()
   const pricingData = await getPricing()
   const pricing = pricingData.intro
   const tiers = pricingData.tiers
@@ -173,6 +175,56 @@ export default async function HomePage() {
         </div>
         </div>
       </section>
+
+      {/* B3 - COURSES BY CATEGORY (tier-gated exposure pool) */}
+      {categorySections.length ? (
+        <section>
+          <div className="bl-container" style={{ paddingTop: 96, paddingBottom: 40 }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 40, lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: '0 0 24px', textWrap: 'balance' }}>
+              Opleidingen per categorie
+            </h2>
+            <HomeCategoryExplorer sections={categorySections} />
+          </div>
+        </section>
+      ) : null}
+
+      {/* B4 - FEATURED MERKEN & LEVERANCIERS COURSES */}
+      {brandCourses.length ? (
+        <section style={{ background: 'var(--surface-card)', borderTop: '0.5px solid var(--border-hairline)' }}>
+          <div className="bl-container" style={{ paddingTop: 96, paddingBottom: 96 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, marginBottom: 32 }}>
+              <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 40, lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: 0 }}>
+                Uitgelicht van Merken & Leveranciers
+              </h2>
+              <a href="/merken" className="bl-textlink">Bekijk alle merken</a>
+            </div>
+            <div className="bl-grid-3">
+              {brandCourses.slice(0, 6).map((c) => (
+                <CourseCard key={c.slug} {...c} />
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {/* B5 - FEATURED OPLEIDER COURSES (Premium only) */}
+      {opleiderCourses.length ? (
+        <section>
+          <div className="bl-container" style={{ paddingTop: 96, paddingBottom: 96 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, marginBottom: 32 }}>
+              <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 40, lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: 0 }}>
+                Uitgelichte opleidingen van opleiders
+              </h2>
+              <a href="/opleiders" className="bl-textlink">Bekijk alle opleiders</a>
+            </div>
+            <div className="bl-grid-3">
+              {opleiderCourses.slice(0, 6).map((c) => (
+                <CourseCard key={c.slug} {...c} />
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       {/* STATS */}
       <section style={{ background: 'var(--surface-card)', borderTop: '0.5px solid var(--border-hairline)', borderBottom: '0.5px solid var(--border-hairline)' }}>
