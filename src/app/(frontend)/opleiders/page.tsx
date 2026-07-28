@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: 'Wellness opleiders in België - Beauty en wellness academies',
   description:
-    'Ontdek wellness opleiders in België. Massageacademies, beautyscholen, yogascholen en meer. Een gecureerd overzicht van opleiders op Blissify.',
+    'Ontdek wellness opleiders in België. Massageacademies, beautyscholen, yogascholen en meer. Vergelijk profielen en opleidingen op Blissify.',
 }
 
 const one = (v: string | string[] | undefined): string => (Array.isArray(v) ? v[0] : v || '')
@@ -37,7 +37,7 @@ export default async function OpleidersPage({ searchParams }: { searchParams: SP
           Opleiders in België
         </h1>
         <p style={{ fontFamily: 'var(--font-ui)', fontSize: 16, lineHeight: 1.7, color: 'var(--text-body)', maxWidth: 640, margin: '20px 0 0' }}>
-          Ontdek een gecureerd overzicht van beauty- en wellnessopleiders in heel België. Vergelijk hun opleidingen en
+          Ontdek beauty- en wellnessopleiders in heel België. Vergelijk hun profielen en opleidingen en
           vraag rechtstreeks informatie aan.
         </p>
       </section>
@@ -66,12 +66,12 @@ export default async function OpleidersPage({ searchParams }: { searchParams: SP
       <section style={{ background: 'var(--surface-card)', borderTop: '0.5px solid var(--border-hairline)', borderBottom: '0.5px solid var(--border-hairline)' }}>
         <div className="bl-container" style={{ paddingTop: 64, paddingBottom: 80 }}>
           <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 28, color: 'var(--text-brand)', margin: '0 0 16px' }}>
-            Een gecureerd overzicht
+            Vergelijk zelf wat bij je past
           </h2>
           <p style={{ fontFamily: 'var(--font-ui)', fontSize: 16, lineHeight: 1.7, color: 'var(--text-body)', maxWidth: 720, margin: 0 }}>
-            Blissify brengt beauty- en wellnessopleiders op één plek samen, met heldere informatie over prijs, duur,
-            locatie en de erkenning van elke opleiding. Zo vergelijk je opleidingen en neem je rechtstreeks contact op
-            met de opleider die bij jou past.
+            Blissify brengt beauty- en wellnessopleiders op één plek samen. De informatie op ieder profiel wordt door
+            de aanbieder aangeleverd. Vergelijk prijs, duur, locatie, certificaatinformatie, website en aanbod, en neem
+            rechtstreeks contact op met de opleider die bij jou past.
           </p>
         </div>
       </section>

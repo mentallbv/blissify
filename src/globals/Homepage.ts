@@ -24,7 +24,7 @@ export const Homepage: GlobalConfig = {
           name: 'subtitle',
           type: 'textarea',
           defaultValue:
-            'Vind erkende, professionele opleidingen in massage, nagelstyliste, reflexologie, yoga, voeding en beauty, zorgvuldig samengebracht door Blissify.',
+            'Vind professionele opleidingen in massage, nagelstyliste, reflexologie, yoga, voeding en beauty, overzichtelijk samengebracht door Blissify.',
         },
         { name: 'primaryCtaLabel', type: 'text', defaultValue: 'Vind een opleiding' },
         { name: 'primaryCtaUrl', type: 'text', defaultValue: '/opleidingen' },

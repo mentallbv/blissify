@@ -6,7 +6,7 @@ export const Trainers: CollectionConfig = {
   slug: 'trainers',
   admin: {
     useAsTitle: 'displayName',
-    defaultColumns: ['displayName', 'owner', 'brand', 'verified'],
+    defaultColumns: ['displayName', 'owner', 'brand', 'featured'],
     group: 'Gebruikers',
   },
   access: {
@@ -152,12 +152,6 @@ export const Trainers: CollectionConfig = {
         placeholder: '#1A2E25',
         description: 'Hex-kleur voor je profielaccent (bijv. #1A2E25). Beschikbaar vanaf Medium; automatisch genegeerd op Basis.',
       },
-    },
-    {
-      name: 'verified',
-      type: 'checkbox',
-      defaultValue: false,
-      admin: { position: 'sidebar', description: 'Interne markering (niet publiek zichtbaar)' },
     },
     {
       name: 'featured',

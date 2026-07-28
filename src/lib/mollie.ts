@@ -31,6 +31,20 @@ export const BRAND_TIER_LABEL: Record<BrandTier, string> = {
   partner_professional: 'Partner Professional',
   partner_premium: 'Partner Premium',
 }
+export type PlanTier = Tier | BrandTier
+export type BillingCycle = 'yearly' | 'monthly'
+
+export function isTrainerTier(tier: string): tier is Tier {
+  return tier in TIER_AMOUNT
+}
+
+export function isBrandTier(tier: string): tier is BrandTier {
+  return tier in BRAND_TIER_AMOUNT
+}
+
+export function planLabel(tier: PlanTier): string {
+  return isTrainerTier(tier) ? TIER_LABEL[tier] : BRAND_TIER_LABEL[tier]
+}
 
 export function mollieConfigured(): boolean {
   return Boolean(KEY)
@@ -69,7 +83,9 @@ export function createCustomer(name: string, email: string): Promise<MollieCusto
 /** First (mandate-creating) payment. Returns the hosted checkout URL via _links.checkout. */
 export function createFirstPayment(opts: {
   customerId: string
-  tier: Tier
+  tier: PlanTier
+  trialEnabled: boolean
+  amount: string
   description: string
   redirectUrl: string
   metadata: Record<string, unknown>
@@ -77,7 +93,9 @@ export function createFirstPayment(opts: {
   return mollie<MolliePayment>(`/customers/${opts.customerId}/payments`, {
     method: 'POST',
     body: JSON.stringify({
-      amount: { currency: 'EUR', value: TIER_AMOUNT[opts.tier] },
+      // A small authorization payment creates the mandate before a free trial.
+      // €0.02 also supports Bancontact's documented minimum amount.
+      amount: { currency: 'EUR', value: opts.trialEnabled ? '0.02' : opts.amount },
       description: opts.description,
       sequenceType: 'first',
       redirectUrl: opts.redirectUrl,
@@ -92,12 +110,20 @@ export function getPayment(id: string): Promise<MolliePayment> {
 }
 
 /** Recurring yearly subscription tied to the customer + active mandate. */
-export function createSubscription(opts: { customerId: string; tier: Tier; description: string }): Promise<MollieSubscription> {
+export function createSubscription(opts: {
+  customerId: string
+  tier: PlanTier
+  description: string
+  amount: string
+  billingCycle: BillingCycle
+  startDate?: string
+}): Promise<MollieSubscription> {
   return mollie<MollieSubscription>(`/customers/${opts.customerId}/subscriptions`, {
     method: 'POST',
     body: JSON.stringify({
-      amount: { currency: 'EUR', value: TIER_AMOUNT[opts.tier] },
-      interval: '12 months',
+      amount: { currency: 'EUR', value: opts.amount },
+      interval: opts.billingCycle === 'monthly' ? '1 month' : '12 months',
+      startDate: opts.startDate,
       description: opts.description,
       webhookUrl: MOLLIE_WEBHOOK_URL || undefined,
       metadata: { tier: opts.tier },

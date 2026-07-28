@@ -28,7 +28,7 @@ export const SeoSettings: GlobalConfig = {
     {
       name: 'defaultDescription',
       type: 'textarea',
-      defaultValue: 'Ontdek erkende opleidingen in massage, nagelstyliste, yoga, wellness en meer. Vind de beste trainers en merken in België.',
+      defaultValue: 'Ontdek professionele opleidingen in massage, nagelstyliste, yoga, wellness en meer. Vergelijk trainers en merken in België.',
       admin: { description: 'Fallback meta description (max 160 tekens)' },
     },
     {

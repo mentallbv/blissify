@@ -16,8 +16,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { brand } = await getBrandBySlug(slug)
   if (!brand) return {}
   return {
-    title: `${brand.name} - Gecertificeerde opleiders & opleidingen in België | Blissify`,
-    description: `Vind gecertificeerde ${brand.name} opleiders in België. Ontdek ${brand.courseCount} erkende opleidingen in ${brand.sector.toLowerCase()} via Blissify.`,
+    title: `${brand.name} - Opleiders & opleidingen in België | Blissify`,
+    description: `Vind ${brand.name} opleiders in België. Bekijk ${brand.courseCount} opleidingen in ${brand.sector.toLowerCase()} en vergelijk het aanbod via Blissify.`,
   }
 }
 

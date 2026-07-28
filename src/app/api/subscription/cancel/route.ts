@@ -12,7 +12,28 @@ export async function POST() {
     const { user } = await payload.auth({ headers: await getHeaders() })
     if (!user) return NextResponse.json({ error: 'Niet ingelogd.' }, { status: 401 })
 
-    const u = user as { id: number; email: string; subscriptionTier?: string; mollieCustomerId?: string; mollieSubscriptionId?: string }
+    const u = user as {
+      id: number
+      email: string
+      subscriptionTier?: string
+      subscriptionCommitment?: string
+      subscriptionMinimumEndsAt?: string
+      mollieCustomerId?: string
+      mollieSubscriptionId?: string
+    }
+
+    if (
+      u.subscriptionCommitment === 'annual' &&
+      u.subscriptionMinimumEndsAt &&
+      new Date(u.subscriptionMinimumEndsAt).getTime() > Date.now()
+    ) {
+      return NextResponse.json(
+        {
+          error: `Dit abonnement heeft een jaarverbintenis en kan worden opgezegd vanaf ${new Date(u.subscriptionMinimumEndsAt).toLocaleDateString('nl-BE')}.`,
+        },
+        { status: 409 },
+      )
+    }
 
     if (mollieConfigured() && u.mollieCustomerId && u.mollieSubscriptionId) {
       await cancelSubscription(u.mollieCustomerId, u.mollieSubscriptionId).catch((err) => console.error('[mollie] cancel failed', err))

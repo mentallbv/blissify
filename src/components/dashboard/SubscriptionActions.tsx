@@ -69,7 +69,17 @@ export function SubscriptionBanner({ status, tier }: { status: string; tier: str
 }
 
 /** Starts a Mollie checkout for a tier and redirects to the hosted payment page. */
-export function CheckoutButton({ tier, label, variant = 'primary' }: { tier: string; label: string; variant?: 'primary' | 'accent' | 'ghost' }) {
+export function CheckoutButton({
+  tier,
+  label,
+  billingCycle = 'yearly',
+  variant = 'primary',
+}: {
+  tier: string
+  label: string
+  billingCycle?: 'yearly' | 'monthly'
+  variant?: 'primary' | 'accent' | 'ghost'
+}) {
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
 
@@ -81,7 +91,7 @@ export function CheckoutButton({ tier, label, variant = 'primary' }: { tier: str
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ tier }),
+        body: JSON.stringify({ tier, billingCycle }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok || !data?.checkoutUrl) throw new Error(data?.error || 'Kon de betaling niet starten.')
@@ -106,18 +116,25 @@ export function CheckoutButton({ tier, label, variant = 'primary' }: { tier: str
 export function CancelButton() {
   const router = useRouter()
   const [loading, setLoading] = React.useState(false)
+  const [error, setError] = React.useState<string | null>(null)
 
   async function cancel() {
     if (!confirm('Weet je zeker dat je je abonnement wil opzeggen?')) return
     setLoading(true)
-    await fetch('/api/subscription/cancel', { method: 'POST', credentials: 'include' }).catch(() => {})
+    setError(null)
+    const response = await fetch('/api/subscription/cancel', { method: 'POST', credentials: 'include' }).catch(() => null)
+    const data = await response?.json().catch(() => ({}))
+    if (!response?.ok) setError(data?.error || 'Annuleren is niet gelukt.')
     setLoading(false)
     router.refresh()
   }
 
   return (
-    <Button variant="ghost" onClick={cancel} disabled={loading}>
-      {loading ? 'Bezig…' : 'Abonnement opzeggen'}
-    </Button>
+    <>
+      <Button variant="ghost" onClick={cancel} disabled={loading}>
+        {loading ? 'Bezig…' : 'Abonnement opzeggen'}
+      </Button>
+      {error ? <span style={{ display: 'block', marginTop: 8, fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--status-error)' }}>{error}</span> : null}
+    </>
   )
 }

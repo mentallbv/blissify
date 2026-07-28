@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     template: '%s | Blissify',
   },
   description:
-    'Ontdek honderden erkende wellness opleidingen in België. Massage, nagelstyliste, reflexologie, yoga, voeding en meer. Vind de juiste opleiding via Blissify.',
+    'Ontdek wellnessopleidingen in België. Massage, nagelstyliste, reflexologie, yoga, voeding en meer. Vergelijk aanbieders en vind de juiste opleiding via Blissify.',
   icons: {
     icon: [
       { url: '/brand/favicon.svg', type: 'image/svg+xml' },

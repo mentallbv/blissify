@@ -5,7 +5,7 @@ export const Brands: CollectionConfig = {
   slug: 'brands',
   admin: {
     useAsTitle: 'name',
-    defaultColumns: ['name', 'owner', 'verified'],
+    defaultColumns: ['name', 'owner', 'featured'],
     group: 'Gebruikers',
   },
   access: {
@@ -144,15 +144,6 @@ export const Brands: CollectionConfig = {
         { label: 'Biologisch', value: 'biologisch' },
         { label: 'Luxe', value: 'luxe' },
       ],
-    },
-    {
-      name: 'verified',
-      type: 'checkbox',
-      defaultValue: false,
-      admin: {
-        position: 'sidebar',
-        description: 'Interne markering (niet publiek zichtbaar)',
-      },
     },
     {
       name: 'featured',

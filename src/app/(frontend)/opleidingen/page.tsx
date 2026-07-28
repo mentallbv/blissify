@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: 'Wellness opleidingen in België - Alle categorieën',
   description:
-    'Zoek en vergelijk wellnessopleidingen in België. Massage, nagelstyliste, schoonheid, yoga, reflexologie en meer. Filter op locatie, lesmoment en erkenning.',
+    'Zoek en vergelijk wellnessopleidingen in België. Massage, nagelstyliste, schoonheid, yoga, reflexologie en meer. Filter op locatie, lesmoment en certificaat.',
 }
 
 type SP = Promise<Record<string, string | string[] | undefined>>

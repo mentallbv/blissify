@@ -9,6 +9,8 @@ export const dynamic = 'force-dynamic'
 
 export default async function DashboardCoursesPage() {
   const user = await getCurrentUser()
+  const account = user as { role?: string; brandTier?: string } | null
+  const canAddCourse = !(account?.role === 'brand' && (account.brandTier || 'partner_listing') === 'partner_listing')
   const profile = await getCurrentProfile(user)
   const courses = await getMyCourses(profile)
   const rows = courses.map((c) => ({
@@ -21,9 +23,11 @@ export default async function DashboardCoursesPage() {
     <>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
         <PageTitle>Opleidingen</PageTitle>
-        <ButtonLink href="/dashboard/opleidingen/nieuw" variant="accent" size="sm" icon={<i className="ti ti-plus" />}>
-          Opleiding toevoegen
-        </ButtonLink>
+        {canAddCourse ? (
+          <ButtonLink href="/dashboard/opleidingen/nieuw" variant="accent" size="sm" icon={<i className="ti ti-plus" />}>
+            Opleiding toevoegen
+          </ButtonLink>
+        ) : null}
       </div>
       {rows.length ? (
         <CoursesManager rows={rows} />
@@ -42,12 +46,16 @@ export default async function DashboardCoursesPage() {
             textAlign: 'center',
           }}
         >
-          <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.7, color: 'var(--text-meta)', margin: '0 0 20px', maxWidth: 460 }}>
-            Je hebt nog geen opleidingen aangemaakt.
+          <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.7, color: 'var(--text-meta)', margin: canAddCourse ? '0 0 20px' : 0, maxWidth: 460 }}>
+            {canAddCourse
+              ? 'Je hebt nog geen opleidingen aangemaakt.'
+              : 'Met Partner Listing kun je je merk presenteren, maar geen opleidingen publiceren. Upgrade naar Partner Professional of Premium om opleidingen toe te voegen.'}
           </p>
-          <ButtonLink href="/dashboard/opleidingen/nieuw" variant="primary" size="sm">
-            Maak je eerste opleiding
-          </ButtonLink>
+          {canAddCourse ? (
+            <ButtonLink href="/dashboard/opleidingen/nieuw" variant="primary" size="sm">
+              Maak je eerste opleiding
+            </ButtonLink>
+          ) : null}
         </div>
       )}
     </>

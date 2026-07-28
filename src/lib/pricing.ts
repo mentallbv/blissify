@@ -48,11 +48,13 @@ export const COMPARE_ROWS: { feature: string; basis: string; medium: string; pre
 ]
 
 export type PricingData = {
+  audience?: 'opleiders' | 'brands'
   intro: { eyebrow: string; title: string; subtitle: string }
   tiers: {
     key: string
     name: string
     tagline: string
+    annualPrice?: number
     price: string
     period: string
     desc: string
@@ -63,8 +65,31 @@ export type PricingData = {
   bottomCta: { title: string; body: string; buttonLabel: string; buttonUrl: string }
 }
 
+export type BillingSettings = {
+  trialEnabled: boolean
+  trialDays: number
+  monthlyEnabled: boolean
+  monthlyMarkupPercent: number
+  monthlyCommitment: 'annual' | 'cancel_anytime'
+}
+
+export type PricingCatalog = {
+  billing: BillingSettings
+  opleiders: PricingData
+  brands: PricingData
+}
+
+export const BILLING_FALLBACK: BillingSettings = {
+  trialEnabled: true,
+  trialDays: 7,
+  monthlyEnabled: true,
+  monthlyMarkupPercent: 10,
+  monthlyCommitment: 'annual',
+}
+
 /** Fallback used when the Pricing global is empty or the DB is unreachable. */
 export const PRICING_FALLBACK: PricingData = {
+  audience: 'opleiders',
   intro: {
     eyebrow: 'Prijzen voor opleiders',
     title: 'Eenvoudige, eerlijke prijzen.',
@@ -74,6 +99,7 @@ export const PRICING_FALLBACK: PricingData = {
     key: t.key,
     name: t.name,
     tagline: t.tagline,
+    annualPrice: Number(t.price.replace(/[^\d]/g, '')),
     price: t.price,
     period: '/jaar',
     desc: t.desc,
@@ -94,9 +120,83 @@ export const PRICING_FALLBACK: PricingData = {
   },
 }
 
+export const BRAND_PRICING_FALLBACK: PricingData = {
+  audience: 'brands',
+  intro: {
+    eyebrow: 'Prijzen voor Merken & Leveranciers',
+    title: 'Kies de zichtbaarheid die bij je merk past.',
+    subtitle: 'Een professioneel merkprofiel, opleidingen en gerichte zichtbaarheid binnen de beauty- en wellnesssector.',
+  },
+  tiers: [
+    {
+      key: 'partner_listing',
+      name: 'Partner Listing',
+      tagline: 'Voor een professionele aanwezigheid',
+      annualPrice: 490,
+      price: '€ 490',
+      period: '/jaar',
+      desc: 'Presenteer je merk of aanbod aan professionals op Blissify.',
+      recommended: false,
+      features: ['Merk- of leveranciersprofiel', 'Logo, banner en bedrijfsomschrijving', 'Website en sociale kanalen', 'Vermelding in Merken & Leveranciers', 'Geen opleidingen publiceren'],
+    },
+    {
+      key: 'partner_professional',
+      name: 'Partner Professional',
+      tagline: 'Voor merken die opleidingen aanbieden',
+      annualPrice: 890,
+      price: '€ 890',
+      period: '/jaar',
+      desc: 'Combineer je merkprofiel met opleidingen en directe inschrijvingen.',
+      recommended: true,
+      features: ['Alles uit Partner Listing', 'Tot 10 opleidingen', 'In-platform inschrijvingen', 'Aanvraag- en inschrijvingsdashboard', 'Analytische inzichten', 'Kan uitgelicht worden op de homepage'],
+    },
+    {
+      key: 'partner_premium',
+      name: 'Partner Premium',
+      tagline: 'Voor maximale zichtbaarheid',
+      annualPrice: 1490,
+      price: '€ 1.490',
+      period: '/jaar',
+      desc: 'Maximale zichtbaarheid, onbeperkt publiceren en prioritaire ondersteuning.',
+      recommended: false,
+      features: ['Alles uit Partner Professional', 'Onbeperkte opleidingen', 'Premium badge', 'Toppositie in relevante resultaten', 'Uitgelichte homepageplaatsingen', 'Prioriteitssupport'],
+    },
+  ],
+  comparison: {
+    col1: 'Partner Listing',
+    col2: 'Partner Professional',
+    col3: 'Partner Premium',
+    rows: [
+      { feature: 'Merk- of leveranciersprofiel', v1: 'Ja', v2: 'Ja', v3: 'Ja' },
+      { feature: 'Aantal opleidingen', v1: '–', v2: 'Tot 10', v3: 'Onbeperkt' },
+      { feature: 'In-platform inschrijvingen', v1: '–', v2: 'Ja', v3: 'Ja' },
+      { feature: 'Analytisch dashboard', v1: '–', v2: 'Ja', v3: 'Ja' },
+      { feature: 'Homepage-uitlichting', v1: '–', v2: 'Mogelijk', v3: 'Prioritair' },
+      { feature: 'Premium badge', v1: '–', v2: '–', v3: 'Ja' },
+      { feature: 'Prioriteitssupport', v1: '–', v2: '–', v3: 'Ja' },
+    ],
+  },
+  bottomCta: {
+    title: 'Zet je merk in de kijker.',
+    body: 'Bereik opleiders en professionals die actief zoeken naar producten, apparatuur en opleidingen.',
+    buttonLabel: 'Registreer als merk of leverancier',
+    buttonUrl: '/registreren?type=brand',
+  },
+}
+
+export const PRICING_CATALOG_FALLBACK: PricingCatalog = {
+  billing: BILLING_FALLBACK,
+  opleiders: PRICING_FALLBACK,
+  brands: BRAND_PRICING_FALLBACK,
+}
+
+export function monthlyPrice(annualPrice: number, markupPercent: number): number {
+  return Math.round((annualPrice * (1 + markupPercent / 100) / 12) * 100) / 100
+}
+
 export const FAQ_HOME = [
-  { q: 'Wat is Blissify?', a: 'Blissify is een Belgisch platform dat cursisten verbindt met professionele wellness- en beauty-opleiders. Je vindt er een gecureerd overzicht van erkende opleidingen.' },
-  { q: 'Hoe kies ik de juiste opleiding?', a: 'Op Blissify vind je een gecureerd overzicht van opleidingen met heldere informatie over prijs, duur, locatie en de erkenning van elke opleiding, zodat je opleidingen kunt vergelijken en rechtstreeks contact opneemt met de opleider.' },
+  { q: 'Wat is Blissify?', a: 'Blissify is een Belgisch platform dat cursisten verbindt met professionele wellness- en beauty-opleiders. Je vindt er een overzicht van opleidingen en aanbieders.' },
+  { q: 'Hoe kies ik de juiste opleiding?', a: 'Vergelijk de informatie die aanbieders zelf publiceren, zoals prijs, duur, locatie, programma, certificaatinformatie, reviews, website en sociale kanalen. Zo bepaal je zelf welke opleiding het beste bij je past.' },
   { q: 'Kost het iets om een opleiding te zoeken?', a: 'Nee. Zoeken en vergelijken is volledig gratis voor cursisten. Je vraagt informatie rechtstreeks aan bij de opleider, zonder tussenpersoon.' },
-  { q: 'Wat betekent een erkend certificaat?', a: 'Een erkende opleiding voldoet aan de kwaliteits- en urenstandaarden van een beroepsfederatie of onderwijsinstelling. Filter op Erkend certificaat om enkel die programma’s te zien.' },
+  { q: 'Wie verstrekt het certificaat?', a: 'Een eventueel certificaat wordt verstrekt door de opleider of het merk. Blissify controleert of erkent certificaten niet. Vraag de aanbieder naar de inhoud, voorwaarden en eventuele aansluiting bij een beroepsorganisatie.' },
 ]

@@ -6,8 +6,9 @@ import { SiteFooter, Marquee } from '@/components/site/SiteFooter'
 import { StatCounters } from '@/components/site/StatCounters'
 import { Faq } from '@/components/site/Faq'
 import { SearchCard } from '@/components/site/SearchCard'
+import { PricingPlans } from '@/components/site/PricingPlans'
 import { Eyebrow, ButtonLink, CourseCard } from '@/components/ui'
-import { getPricing, getCourseFilterOptions, getHomepageSections } from '@/lib/data'
+import { getPricingCatalog, getCourseFilterOptions, getHomepageSections } from '@/lib/data'
 import { FAQ_HOME } from '@/lib/pricing'
 
 export const dynamic = 'force-dynamic'
@@ -28,16 +29,20 @@ async function getCounts(): Promise<{ courses: number; opleiders: number; merken
 }
 
 const DEFAULT_DARK_CARDS = [
-  { icon: 'ti ti-sparkles', title: 'Curatorisch, niet algoritmisch', body: 'Een zorgvuldig samengesteld overzicht van opleiders en opleidingen. Een Blissify-vermelding betekent iets.' },
-  { icon: 'ti ti-eye-check', title: 'Transparant', body: 'Prijs, duur, erkenning en locatie staan altijd vermeld. Nooit verborgen.' },
+  { icon: 'ti ti-sparkles', title: 'Overzichtelijk, niet algoritmisch', body: 'Vergelijk opleiders en opleidingen op basis van de informatie die zij zelf beschikbaar stellen.' },
+  { icon: 'ti ti-eye-check', title: 'Transparant', body: 'Prijs, duur, certificaatinformatie en locatie staan duidelijk vermeld wanneer de aanbieder die informatie opgeeft.' },
   { icon: 'ti ti-calendar-event', title: 'Avond, weekend of online', body: 'Vind het lesmoment dat bij jouw agenda past, zonder tussenpersoon.' },
 ]
 const DEFAULT_TILES = [
-  { title: 'Zoek & vergelijk', body: 'Filter op categorie, locatie, lesmoment en erkenning.', image: null as string | null },
-  { title: 'Ontdek opleiders', body: 'Een gecureerd overzicht van opleiders en merken.', image: null as string | null },
+  { title: 'Zoek & vergelijk', body: 'Filter op categorie, locatie, lesmoment en certificaatinformatie.', image: null as string | null },
+  { title: 'Ontdek opleiders', body: 'Een helder overzicht van opleiders en merken.', image: null as string | null },
   { title: 'Schrijf je in', body: 'Vraag rechtstreeks informatie aan.', image: null as string | null },
 ]
 const mediaUrl = (m: unknown): string | null => (m && typeof m === 'object' && (m as { url?: string }).url ? (m as { url: string }).url : null)
+const cleanTrustCopy = (value: string) =>
+  value
+    .replace(/geverifieerde opleiders/gi, 'Professionele opleiders')
+    .replace(/geverifieerde aanbieders/gi, 'Professionele aanbieders')
 
 async function getHomepage(): Promise<Record<string, any> | null> {
   try {
@@ -54,7 +59,13 @@ export default async function HomePage() {
   const why = hp.why || {}
   const photo = hp.photoSection || {}
 
-  const darkCards = Array.isArray(why.cards) && why.cards.length ? why.cards : DEFAULT_DARK_CARDS
+  const darkCards = (Array.isArray(why.cards) && why.cards.length ? why.cards : DEFAULT_DARK_CARDS).map(
+    (card: { icon?: string; title: string; body?: string }) => ({
+      ...card,
+      title: cleanTrustCopy(card.title),
+      body: card.body ? cleanTrustCopy(card.body) : card.body,
+    }),
+  )
   const tiles = Array.isArray(photo.tiles) && photo.tiles.length
     ? photo.tiles.map((t: Record<string, unknown>) => ({ title: t.title, body: t.body, image: mediaUrl(t.image) }))
     : DEFAULT_TILES
@@ -69,9 +80,7 @@ export default async function HomePage() {
 
   const searchOptions = await getCourseFilterOptions()
   const { featured, brandCourses, opleiderCourses } = await getHomepageSections()
-  const pricingData = await getPricing()
-  const pricing = pricingData.intro
-  const tiers = pricingData.tiers
+  const pricingCatalog = await getPricingCatalog()
 
   return (
     <>
@@ -99,7 +108,7 @@ export default async function HomePage() {
               </h1>
               <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 18, lineHeight: 1.7, color: 'var(--text-body)', margin: '22px 0 0' }}>
                 {hero.subtitle ||
-                  'Vind erkende, professionele opleidingen in massage, nagelstyliste, reflexologie, yoga, voeding en beauty, zorgvuldig samengebracht door Blissify.'}
+                  'Vind professionele opleidingen in massage, nagelstyliste, reflexologie, yoga, voeding en beauty, overzichtelijk samengebracht door Blissify.'}
               </p>
               <div style={{ display: 'flex', gap: 12, marginTop: 30, flexWrap: 'wrap' }}>
                 <ButtonLink href={hero.primaryCtaUrl || '/opleidingen'} variant="primary">
@@ -241,42 +250,10 @@ export default async function HomePage() {
       <section>
         <div className="bl-container" style={{ paddingTop: 104, paddingBottom: 88 }}>
         <div style={{ textAlign: 'center', maxWidth: 560, margin: '0 auto 48px' }}>
-          <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 44, lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: 0 }}>{pricing.title || 'Eenvoudige, eerlijke prijzen.'}</h2>
-          <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 16, color: 'var(--text-body)', margin: '14px 0 0' }}>{pricing.subtitle || 'Eén jaarlijks abonnement. Directe leads. Geen commissie.'}</p>
+          <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 44, lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: 0 }}>Een formule voor iedere aanbieder.</h2>
+          <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 16, color: 'var(--text-body)', margin: '14px 0 0' }}>Vergelijk abonnementen voor opleiders, merken en leveranciers.</p>
         </div>
-        <div className="bl-cat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, alignItems: 'start' }}>
-          {tiers.map((t: { key: string; name: string; price: string; period: string; desc: string; recommended: boolean; features: string[] }) => (
-            <div key={t.key} style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: 32 }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 14, color: 'var(--text-strong)' }}>{t.name}</span>
-                {t.recommended ? (
-                  <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 'var(--type-micro)', textTransform: 'uppercase', letterSpacing: '0.08em', color: '#fff', background: 'var(--blissify-terracotta)', borderRadius: 'var(--radius-pill)', padding: '3px 10px' }}>
-                    Aanbevolen
-                  </span>
-                ) : null}
-              </div>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '14px 0 4px' }}>
-                <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 52, lineHeight: 1, letterSpacing: '-0.01em', color: 'var(--text-brand)' }}>{t.price}</span>
-                <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 14, color: 'var(--text-meta)' }}>{t.period || '/jaar'}</span>
-              </div>
-              <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 14, lineHeight: 1.6, color: 'var(--text-body)', margin: '0 0 24px', minHeight: 42 }}>{t.desc}</p>
-              <ButtonLink href="/prijzen" variant={t.recommended ? 'accent' : 'primary'} fullWidth>
-                Kies {t.name}
-              </ButtonLink>
-              <div style={{ height: '0.5px', background: 'var(--border-hairline)', margin: '24px 0' }} />
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {t.features.slice(0, 3).map((f) => (
-                  <div key={f} style={{ display: 'flex', gap: 10, alignItems: 'center', fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 14, color: 'var(--text-body)' }}>
-                    <span style={{ width: 20, height: 20, borderRadius: '50%', background: 'var(--blissify-forest)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flex: 'none' }}>
-                      <i className="ti ti-check" style={{ fontSize: 13, color: 'var(--blissify-chalk)' }} />
-                    </span>
-                    {f}
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
+        <PricingPlans catalog={{ opleiders: pricingCatalog.opleiders, brands: pricingCatalog.brands }} billing={pricingCatalog.billing} allowAudienceSwitch compact />
         </div>
       </section>
 

@@ -165,6 +165,22 @@ export interface User {
    */
   subscriptionExpiresAt?: string | null;
   /**
+   * Gekozen betalingsfrequentie.
+   */
+  subscriptionBillingCycle?: ('yearly' | 'monthly') | null;
+  /**
+   * Voorwaarden die golden bij het afsluiten.
+   */
+  subscriptionCommitment?: ('annual' | 'cancel_anytime') | null;
+  /**
+   * Einde van de proefperiode.
+   */
+  subscriptionTrialEndsAt?: string | null;
+  /**
+   * Vroegste opzegdatum bij een jaarverbintenis.
+   */
+  subscriptionMinimumEndsAt?: string | null;
+  /**
    * Mollie Customer ID (auto-ingevuld)
    */
   mollieCustomerId?: string | null;
@@ -344,10 +360,6 @@ export interface Brand {
         | 'luxe'
       )[]
     | null;
-  /**
-   * Interne markering (niet publiek zichtbaar)
-   */
-  verified?: boolean | null;
   featured?: boolean | null;
   /**
    * Zoekmachine-optimalisatie instellingen
@@ -440,10 +452,6 @@ export interface Trainer {
    * Hex-kleur voor je profielaccent (bijv. #1A2E25). Beschikbaar vanaf Medium; automatisch genegeerd op Basis.
    */
   profileAccentColor?: string | null;
-  /**
-   * Interne markering (niet publiek zichtbaar)
-   */
-  verified?: boolean | null;
   featured?: boolean | null;
   /**
    * Zoekmachine-optimalisatie instellingen
@@ -874,6 +882,10 @@ export interface UsersSelect<T extends boolean = true> {
   brandTier?: T;
   subscriptionStatus?: T;
   subscriptionExpiresAt?: T;
+  subscriptionBillingCycle?: T;
+  subscriptionCommitment?: T;
+  subscriptionTrialEndsAt?: T;
+  subscriptionMinimumEndsAt?: T;
   mollieCustomerId?: T;
   mollieSubscriptionId?: T;
   updatedAt?: T;
@@ -996,7 +1008,6 @@ export interface BrandsSelect<T extends boolean = true> {
   productType?: T;
   positionering?: T;
   tags?: T;
-  verified?: T;
   featured?: T;
   seo?:
     | T
@@ -1040,7 +1051,6 @@ export interface TrainersSelect<T extends boolean = true> {
         linkedin?: T;
       };
   profileAccentColor?: T;
-  verified?: T;
   featured?: T;
   seo?:
     | T
@@ -1537,6 +1547,107 @@ export interface SeoSetting {
  */
 export interface Pricing {
   id: number;
+  billing?: {
+    trialEnabled?: boolean | null;
+    trialDays?: number | null;
+    monthlyEnabled?: boolean | null;
+    monthlyMarkupPercent?: number | null;
+    monthlyCommitment?: ('annual' | 'cancel_anytime') | null;
+  };
+  opleiders?: {
+    intro?: {
+      eyebrow?: string | null;
+      title?: string | null;
+      subtitle?: string | null;
+    };
+    tiers?:
+      | {
+          key: string;
+          name: string;
+          tagline?: string | null;
+          /**
+           * Jaarprijs in euro, exclusief de maandelijkse toeslag.
+           */
+          annualPrice: number;
+          desc?: string | null;
+          recommended?: boolean | null;
+          features?:
+            | {
+                feature: string;
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+    comparison?: {
+      col1?: string | null;
+      col2?: string | null;
+      col3?: string | null;
+      rows?:
+        | {
+            feature: string;
+            v1?: string | null;
+            v2?: string | null;
+            v3?: string | null;
+            id?: string | null;
+          }[]
+        | null;
+    };
+    bottomCta?: {
+      title?: string | null;
+      body?: string | null;
+      buttonLabel?: string | null;
+      buttonUrl?: string | null;
+    };
+  };
+  brands?: {
+    intro?: {
+      eyebrow?: string | null;
+      title?: string | null;
+      subtitle?: string | null;
+    };
+    tiers?:
+      | {
+          key: string;
+          name: string;
+          tagline?: string | null;
+          /**
+           * Jaarprijs in euro, exclusief de maandelijkse toeslag.
+           */
+          annualPrice: number;
+          desc?: string | null;
+          recommended?: boolean | null;
+          features?:
+            | {
+                feature: string;
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+    comparison?: {
+      col1?: string | null;
+      col2?: string | null;
+      col3?: string | null;
+      rows?:
+        | {
+            feature: string;
+            v1?: string | null;
+            v2?: string | null;
+            v3?: string | null;
+            id?: string | null;
+          }[]
+        | null;
+    };
+    bottomCta?: {
+      title?: string | null;
+      body?: string | null;
+      buttonLabel?: string | null;
+      buttonUrl?: string | null;
+    };
+  };
   intro?: {
     eyebrow?: string | null;
     title?: string | null;
@@ -1780,6 +1891,119 @@ export interface SeoSettingsSelect<T extends boolean = true> {
  * via the `definition` "pricing_select".
  */
 export interface PricingSelect<T extends boolean = true> {
+  billing?:
+    | T
+    | {
+        trialEnabled?: T;
+        trialDays?: T;
+        monthlyEnabled?: T;
+        monthlyMarkupPercent?: T;
+        monthlyCommitment?: T;
+      };
+  opleiders?:
+    | T
+    | {
+        intro?:
+          | T
+          | {
+              eyebrow?: T;
+              title?: T;
+              subtitle?: T;
+            };
+        tiers?:
+          | T
+          | {
+              key?: T;
+              name?: T;
+              tagline?: T;
+              annualPrice?: T;
+              desc?: T;
+              recommended?: T;
+              features?:
+                | T
+                | {
+                    feature?: T;
+                    id?: T;
+                  };
+              id?: T;
+            };
+        comparison?:
+          | T
+          | {
+              col1?: T;
+              col2?: T;
+              col3?: T;
+              rows?:
+                | T
+                | {
+                    feature?: T;
+                    v1?: T;
+                    v2?: T;
+                    v3?: T;
+                    id?: T;
+                  };
+            };
+        bottomCta?:
+          | T
+          | {
+              title?: T;
+              body?: T;
+              buttonLabel?: T;
+              buttonUrl?: T;
+            };
+      };
+  brands?:
+    | T
+    | {
+        intro?:
+          | T
+          | {
+              eyebrow?: T;
+              title?: T;
+              subtitle?: T;
+            };
+        tiers?:
+          | T
+          | {
+              key?: T;
+              name?: T;
+              tagline?: T;
+              annualPrice?: T;
+              desc?: T;
+              recommended?: T;
+              features?:
+                | T
+                | {
+                    feature?: T;
+                    id?: T;
+                  };
+              id?: T;
+            };
+        comparison?:
+          | T
+          | {
+              col1?: T;
+              col2?: T;
+              col3?: T;
+              rows?:
+                | T
+                | {
+                    feature?: T;
+                    v1?: T;
+                    v2?: T;
+                    v3?: T;
+                    id?: T;
+                  };
+            };
+        bottomCta?:
+          | T
+          | {
+              title?: T;
+              body?: T;
+              buttonLabel?: T;
+              buttonUrl?: T;
+            };
+      };
   intro?:
     | T
     | {

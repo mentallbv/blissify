@@ -27,6 +27,29 @@ const slugify = (s: string) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
 
+const sanitizeTrustCopy = (value: unknown): unknown => {
+  if (typeof value === 'string') {
+    return value
+      .replace(/elke opleider wordt handmatig geverifieerd/gi, 'de profielinformatie wordt door de aanbieder aangeleverd')
+      .replace(/handmatig gecontroleerde academies/gi, 'opleiders met heldere profielinformatie')
+      .replace(/geverifieerde opleiders/gi, 'professionele opleiders')
+      .replace(/geverifieerde, professionele/gi, 'professionele')
+      .replace(/gecertificeerde Blissify-opleiders/gi, 'opleiders')
+      .replace(/gecertificeerde opleiders/gi, 'opleiders')
+      .replace(/erkende opleidingen/gi, 'professionele opleidingen')
+      .replace(/geaccrediteerde cursussen/gi, 'cursussen met certificaatinformatie')
+      .replace(/een gecureerd overzicht/gi, 'een helder overzicht')
+      .replace(/gecureerde opleidingen/gi, 'opleidingen')
+  }
+  if (Array.isArray(value)) return value.map(sanitizeTrustCopy)
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>).map(([key, child]) => [key, sanitizeTrustCopy(child)]),
+    )
+  }
+  return value
+}
+
 const PASSWORD = 'Test1234!'
 const TEST_NOTIFY = 'test-inschrijvingen@blissify.be'
 
@@ -66,6 +89,14 @@ const courseImg = (categorySlug: string, idx: number): string => {
 }
 // Salon / product-shelf style cover photos for brand pages.
 const BRAND_COVER_IDS = ['1560066984-138dadb4c035', '1596462502278-27bfdc403348', '1522337660859-02fbefca4702', '1600334089648-b0d9d3028eb2', '1556760544-74068565f05c', '1470259078422-826894b933aa']
+const STATIC_CONTENT_IMAGES = {
+  search: unsplash('1570172619644-dfd03ed5d881'),
+  compare: unsplash('1512290923902-8a9f81dc236c'),
+  connect: unsplash('1544161515-4ab6ce6db874'),
+  about: unsplash('1521737711867-e3b97375f902'),
+  providers: unsplash('1556761175-b413da4baf72'),
+  information: unsplash('1450101499163-c8848c66ca85'),
+} as const
 // Portrait headshots per opleider (reliable, diverse).
 const HEADSHOT: Record<string, string> = {
   sara: 'women/44', tom: 'men/32', jana: 'women/68', kevin: 'men/75',
@@ -388,7 +419,7 @@ async function seed() {
       language: ['nl'],
       level: c.price > 600 ? 'gevorderd' : 'beginner',
       certificate: c.erkend,
-      accreditation: c.erkend ? 'Erkend door de sector' : null,
+      accreditation: c.erkend ? 'Certificaat verstrekt door de aanbieder' : null,
       startDates: [{ date: futureDate(startMonths), spotsAvailable: 8 + Math.floor(Math.random() * 13) }],
     }
     const owned =
@@ -402,6 +433,96 @@ async function seed() {
   for (let i = 0; i < BRAND_COURSES.length; i++) await createCourse(BRAND_COURSES[i], 'brand', i)
   for (let i = 0; i < OPLEIDER_COURSES.length; i++) await createCourse(OPLEIDER_COURSES[i], 'opleider', i)
   console.log(`  ✓ ${BRAND_COURSES.length} brand courses + ${OPLEIDER_COURSES.length} opleider courses`)
+
+  // ── STATIC CONTENT IMAGERY ───────────────────────────────────────────────
+  // These fields already exist in Payload. The seed only supplies placeholders;
+  // administrators can replace every image from the Homepage or Pages editors.
+  console.log('\n🖼️  Adding editable static-content images...')
+  const staticMedia = {
+    search: await uploadImage(payload, STATIC_CONTENT_IMAGES.search, 'Een wellnessopleiding zoeken', 'static-search'),
+    compare: await uploadImage(payload, STATIC_CONTENT_IMAGES.compare, 'Opleidingen vergelijken', 'static-compare'),
+    connect: await uploadImage(payload, STATIC_CONTENT_IMAGES.connect, 'Contact met een opleider', 'static-connect'),
+    about: await uploadImage(payload, STATIC_CONTENT_IMAGES.about, 'Over Blissify', 'static-about'),
+    providers: await uploadImage(payload, STATIC_CONTENT_IMAGES.providers, 'Voor aanbieders', 'static-providers'),
+    information: await uploadImage(payload, STATIC_CONTENT_IMAGES.information, 'Blissify informatiepagina', 'static-information'),
+  }
+
+  const homepage = (await payload.findGlobal({
+    slug: 'homepage' as never,
+    depth: 0,
+  })) as unknown as {
+    hero?: Record<string, unknown>
+    trustText?: string
+    why?: Record<string, unknown>
+    photoSection?: {
+      title?: string
+      subtitle?: string
+      tiles?: { title?: string; body?: string; image?: number | null }[]
+    }
+    stats?: unknown[]
+    faq?: unknown[]
+  }
+  const existingPhoto = homepage.photoSection || {}
+  const tileDefaults = [
+    { title: 'Zoek & vergelijk', body: 'Filter op categorie, locatie, lesmoment en certificaatinformatie.', image: staticMedia.search },
+    { title: 'Ontdek opleiders', body: 'Een helder overzicht van opleiders en merken.', image: staticMedia.compare },
+    { title: 'Schrijf je in', body: 'Vraag rechtstreeks informatie aan.', image: staticMedia.connect },
+  ]
+  await payload.updateGlobal({
+    slug: 'homepage' as never,
+    data: {
+      ...(homepage.hero ? { hero: sanitizeTrustCopy(homepage.hero) } : {}),
+      ...(homepage.trustText ? { trustText: sanitizeTrustCopy(homepage.trustText) } : {}),
+      ...(homepage.why ? { why: sanitizeTrustCopy(homepage.why) } : {}),
+      ...(homepage.stats ? { stats: homepage.stats } : {}),
+      ...(homepage.faq ? { faq: sanitizeTrustCopy(homepage.faq) } : {}),
+      photoSection: {
+        ...sanitizeTrustCopy(existingPhoto) as typeof existingPhoto,
+        title: existingPhoto.title || 'Ontdek hoe Blissify werkt',
+        subtitle: existingPhoto.subtitle || 'Van zoeken tot inschrijven: een helder, professioneel traject.',
+        tiles: tileDefaults.map((fallback, index) => ({
+          ...fallback,
+          ...(existingPhoto.tiles?.[index] || {}),
+          image: existingPhoto.tiles?.[index]?.image || fallback.image,
+        })),
+      },
+    } as never,
+  })
+
+  const pageResults = await payload.find({
+    collection: 'pages' as never,
+    depth: 0,
+    limit: 100,
+  })
+  let populatedPageHeroes = 0
+  for (const rawPage of pageResults.docs as unknown as {
+    id: number
+    slug?: string
+    hero?: Record<string, unknown> & { image?: number | null }
+    blocks?: unknown[]
+    seo?: Record<string, unknown>
+  }[]) {
+    const cleanedHero = sanitizeTrustCopy(rawPage.hero) as typeof rawPage.hero
+    const cleanedBlocks = sanitizeTrustCopy(rawPage.blocks) as unknown[]
+    const cleanedSeo = sanitizeTrustCopy(rawPage.seo) as Record<string, unknown>
+    const image =
+      rawPage.slug === 'over-ons'
+        ? staticMedia.about
+        : rawPage.slug === 'voor-aanbieders'
+          ? staticMedia.providers
+          : staticMedia.information
+    await payload.update({
+      collection: 'pages' as never,
+      id: rawPage.id,
+      data: {
+        ...(cleanedHero ? { hero: { ...cleanedHero, image: cleanedHero.image || image } } : {}),
+        ...(cleanedBlocks ? { blocks: cleanedBlocks } : {}),
+        ...(cleanedSeo ? { seo: cleanedSeo } : {}),
+      } as never,
+    })
+    if (rawPage.hero && !rawPage.hero.image && image) populatedPageHeroes += 1
+  }
+  console.log(`  ✓ Homepage photo tiles + ${populatedPageHeroes} CMS page heroes populated`)
 
   // ── SUMMARY ──────────────────────────────────────────────────────────────
   console.log('\n📋 Test account summary (password: ' + PASSWORD + ')\n')

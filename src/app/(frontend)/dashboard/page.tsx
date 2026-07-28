@@ -13,7 +13,13 @@ export default async function DashboardOverviewPage() {
   const user = await getCurrentUser()
   const profile = await getCurrentProfile(user)
   const name = profileName(profile)
-  const sub = user as { subscriptionStatus?: string; subscriptionTier?: string } | null
+  const sub = user as {
+    role?: string
+    subscriptionStatus?: string
+    subscriptionTier?: string
+    brandTier?: string
+  } | null
+  const canAddCourse = !(sub?.role === 'brand' && (sub.brandTier || 'partner_listing') === 'partner_listing')
 
   const [courses, counts] = await Promise.all([getMyCourses(profile), getMyCourseCounts(profile)])
   const courseIds = courses.map((c) => c.id)
@@ -40,13 +46,18 @@ export default async function DashboardOverviewPage() {
 
   return (
     <>
-      <SubscriptionBanner status={sub?.subscriptionStatus || 'inactive'} tier={sub?.subscriptionTier || 'basis'} />
+      <SubscriptionBanner
+        status={sub?.subscriptionStatus || 'inactive'}
+        tier={sub?.role === 'brand' ? sub.brandTier || 'partner_listing' : sub?.subscriptionTier || 'basis'}
+      />
 
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
         <PageTitle>Goedemorgen, {name}.</PageTitle>
-        <ButtonLink href="/dashboard/opleidingen/nieuw" variant="accent" size="sm" icon={<i className="ti ti-plus" />}>
-          Opleiding toevoegen
-        </ButtonLink>
+        {canAddCourse ? (
+          <ButtonLink href="/dashboard/opleidingen/nieuw" variant="accent" size="sm" icon={<i className="ti ti-plus" />}>
+            Opleiding toevoegen
+          </ButtonLink>
+        ) : null}
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 40 }}>
@@ -67,7 +78,15 @@ export default async function DashboardOverviewPage() {
       {rows.length ? (
         <CourseTable rows={rows} limit={4} />
       ) : (
-        <EmptyCard text="Je hebt nog geen opleidingen. Voeg je eerste opleiding toe om aanvragen te ontvangen." href="/dashboard/opleidingen/nieuw" cta="Opleiding toevoegen" />
+        <EmptyCard
+          text={
+            canAddCourse
+              ? 'Je hebt nog geen opleidingen. Voeg je eerste opleiding toe om aanvragen te ontvangen.'
+              : 'Met Partner Listing kun je je merk presenteren, maar geen opleidingen publiceren. Upgrade naar Partner Professional of Premium om opleidingen toe te voegen.'
+          }
+          href={canAddCourse ? '/dashboard/opleidingen/nieuw' : undefined}
+          cta={canAddCourse ? 'Opleiding toevoegen' : undefined}
+        />
       )}
 
       <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 24, color: 'var(--text-brand)', margin: '40px 0 16px' }}>

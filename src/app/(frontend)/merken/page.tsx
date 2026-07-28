@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   title: 'Merken en Leveranciers in de wellnesssector | Blissify',
   description:
-    'Ontdek merken en leveranciers die samenwerken met professionele opleiders in de Belgische wellness- en beautysector. Vind erkende opleidingen per merk via Blissify.',
+    'Ontdek merken en leveranciers die samenwerken met opleiders in de Belgische wellness- en beautysector. Vergelijk opleidingen en partners via Blissify.',
 }
 
 const one = (v: string | string[] | undefined): string => (Array.isArray(v) ? v[0] : v || '')

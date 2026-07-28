@@ -1,16 +1,19 @@
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
-import { getPayment, createSubscription, TIER_LABEL, type Tier } from '@/lib/mollie'
+import { createSubscription, getPayment, isBrandTier, planLabel, type BillingCycle, type PlanTier } from '@/lib/mollie'
 import { brevoAddContact } from '@/lib/brevo'
 import { sendEmail, emailHtml, ADMIN_EMAIL, SITE_URL } from '@/lib/email'
 
-type AnyUser = { id: number; email: string; subscriptionTier?: string; mollieCustomerId?: string; mollieSubscriptionId?: string }
-
-function oneYearFromNow(): string {
-  const d = new Date()
-  d.setFullYear(d.getFullYear() + 1)
-  return d.toISOString()
+type AnyUser = {
+  id: number
+  email: string
+  role?: string
+  subscriptionTier?: string
+  brandTier?: string
+  subscriptionBillingCycle?: BillingCycle
+  mollieCustomerId?: string
+  mollieSubscriptionId?: string
 }
 
 /**
@@ -46,19 +49,43 @@ export async function POST(req: Request) {
     }
     if (!user) return NextResponse.json({ received: true })
 
-    const tier = ((payment.metadata as { tier?: Tier } | undefined)?.tier || (user.subscriptionTier as Tier) || 'basis') as Tier
+    const metadata = payment.metadata as {
+      tier?: PlanTier
+      role?: string
+      billingCycle?: BillingCycle
+      amount?: string
+      trialEndsAt?: string
+      nextChargeAt?: string
+      commitment?: 'annual' | 'cancel_anytime'
+    } | undefined
+    const tier = (metadata?.tier || (user.role === 'brand' ? user.brandTier : user.subscriptionTier) || 'basis') as PlanTier
+    const billingCycle = metadata?.billingCycle || user.subscriptionBillingCycle || 'yearly'
+    const trialEndsAt = metadata?.trialEndsAt ? new Date(metadata.trialEndsAt) : new Date()
+    const nextChargeAt = metadata?.nextChargeAt ? new Date(metadata.nextChargeAt) : trialEndsAt
+    const expiresAt = new Date(trialEndsAt)
+    expiresAt.setFullYear(expiresAt.getFullYear() + 1)
 
     if (payment.status === 'paid') {
       const data: Record<string, unknown> = {
-        subscriptionTier: tier,
+        ...(isBrandTier(tier) ? { brandTier: tier } : { subscriptionTier: tier }),
         subscriptionStatus: 'active',
-        subscriptionExpiresAt: oneYearFromNow(),
+        subscriptionBillingCycle: billingCycle,
+        subscriptionCommitment: metadata?.commitment || 'annual',
+        subscriptionTrialEndsAt: trialEndsAt.toISOString(),
+        subscriptionExpiresAt: expiresAt.toISOString(),
       }
 
       // First (mandate-creating) payment succeeded -> create the recurring subscription.
       if (payment.sequenceType === 'first' && payment.customerId && !user.mollieSubscriptionId) {
         try {
-          const sub = await createSubscription({ customerId: payment.customerId, tier, description: `Blissify abonnement - ${TIER_LABEL[tier]}` })
+          const sub = await createSubscription({
+            customerId: payment.customerId,
+            tier,
+            amount: metadata?.amount || '0.00',
+            billingCycle,
+            startDate: nextChargeAt.toISOString().slice(0, 10),
+            description: `Blissify abonnement - ${planLabel(tier)}`,
+          })
           data.mollieSubscriptionId = sub.id
         } catch (err) {
           console.error('[mollie] subscription creation failed', err)
@@ -76,7 +103,7 @@ export async function POST(req: Request) {
         html: emailHtml([
           `Een abonnementsbetaling is ${payment.status}.`,
           `Gebruiker: ${user.email}`,
-          `Formule: ${TIER_LABEL[tier]}`,
+          `Formule: ${planLabel(tier)}`,
           `Beheer: ${SITE_URL}/admin`,
         ]),
       })

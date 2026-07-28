@@ -7,7 +7,6 @@ const LINKS = [
   { slug: 'opleidingen', label: 'Opleidingen', href: '/opleidingen' },
   { slug: 'opleiders', label: 'Opleiders', href: '/opleiders' },
   { slug: 'merken', label: 'Merken en Leveranciers', href: '/merken' },
-  { slug: 'prijzen', label: 'Prijzen', href: '/prijzen' },
 ]
 
 export function SiteNav() {
@@ -35,6 +34,15 @@ export function SiteNav() {
               {l.label}
             </a>
           ))}
+          <div className={'blnav-dropdown' + (isActive('/prijzen') ? ' active' : '')}>
+            <a href="/prijzen/opleiders" className={isActive('/prijzen') ? 'active' : ''}>
+              Prijzen <i className="ti ti-chevron-down" aria-hidden="true" />
+            </a>
+            <div className="blnav-dropdown-menu">
+              <a href="/prijzen/opleiders" className={isActive('/prijzen/opleiders') ? 'active' : ''}>Voor opleiders</a>
+              <a href="/prijzen/merken-leveranciers" className={isActive('/prijzen/merken-leveranciers') ? 'active' : ''}>Voor merken &amp; leveranciers</a>
+            </div>
+          </div>
         </nav>
         <div className="blnav-right">
           <a className="blnav-login" href="/inloggen">

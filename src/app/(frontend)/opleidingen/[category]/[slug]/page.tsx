@@ -68,8 +68,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     const cat = CATEGORY_CONTENT[category]
     const catName = cat?.name || category
     return {
-      title: `Opleiding ${catName.toLowerCase()} in ${cName} - Erkende cursussen | Blissify`,
-      description: `Ontdek erkende ${catName.toLowerCase()} opleidingen in ${cName}. Dag, avond of weekend - filter op lesmoment en erkenning. Schrijf in via de aanbieder.`,
+      title: `Opleiding ${catName.toLowerCase()} in ${cName} - Cursussen vergelijken | Blissify`,
+      description: `Ontdek ${catName.toLowerCase()} opleidingen in ${cName}. Dag, avond of weekend - vergelijk lesmomenten en certificaatinformatie. Schrijf in via de aanbieder.`,
     }
   }
   const { course } = await getCourseBySlug(slug)
@@ -95,7 +95,7 @@ export default async function CourseDetailPage({ params }: Params) {
         cityName={cName}
         cards={cards}
         total={total}
-        intro={`Professionele ${catName.toLowerCase()} opleidingen in ${cName} en omgeving. Filter op jouw lesmoment en erkend certificaat, en vraag rechtstreeks informatie aan bij de opleider.`}
+        intro={`Professionele ${catName.toLowerCase()} opleidingen in ${cName} en omgeving. Filter op jouw lesmoment en certificaatinformatie, en vraag rechtstreeks informatie aan bij de opleider.`}
       />
     )
   }
@@ -123,7 +123,7 @@ export default async function CourseDetailPage({ params }: Params) {
   const aboutParas = v.about.length
     ? v.about
     : [
-        `Deze professionele opleiding ontwikkelt de competentie die nodig is om ${v.category.toLowerCase()} te beoefenen volgens een erkende Belgische en Europese standaard. ${v.provider} combineert begeleide praktijk met de theoretische onderbouwing die werkgevers en klanten verwachten.`,
+        `Deze professionele opleiding behandelt de competenties die nodig zijn om ${v.category.toLowerCase()} in de praktijk toe te passen. ${v.provider} combineert begeleide praktijk met theoretische onderbouwing.`,
         `Elke groep blijft bewust klein, zodat elke deelnemer directe feedback krijgt van praktiserende professionals gedurende de volledige opleiding.`,
       ]
 
@@ -244,8 +244,8 @@ export default async function CourseDetailPage({ params }: Params) {
 
             <Section title="Voor wie is deze opleiding bedoeld?">
               <Para>
-                Beginnende professionals die een erkende route naar de praktijk zoeken, en ervaren beoefenaars die hun
-                opleiding formaliseren met een geaccrediteerd certificaat.
+                Beginnende en ervaren professionals die hun praktijkkennis willen uitbreiden. Bekijk het programma,
+                de aanbieder en eventuele certificaatinformatie om te bepalen of deze opleiding bij je past.
               </Para>
             </Section>
 

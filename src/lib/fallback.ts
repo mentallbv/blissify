@@ -126,7 +126,7 @@ export const FALLBACK_BRANDS: FallbackBrand[] = [
     providerCount: 8,
     courseCount: 14,
     about:
-      'NSI Nails is een internationaal merk voor professionele nagelproducten. De productlijn - van gelnagelsystemen tot acryl - wordt gebruikt door nagelstylisten wereldwijd. In België werkt NSI samen met een netwerk van gecertificeerde opleiders die de techniek en producten doorgeven aan professionele nagelstylisten in opleiding.',
+      'NSI Nails is een internationaal merk voor professionele nagelproducten. De productlijn - van gelnagelsystemen tot acryl - wordt gebruikt door nagelstylisten wereldwijd. In België werkt NSI samen met opleiders die de technieken en producten behandelen in hun opleidingen.',
     website: 'https://nsinails.com',
   },
   {
@@ -148,7 +148,7 @@ export const FALLBACK_BRANDS: FallbackBrand[] = [
     providerCount: 4,
     courseCount: 7,
     about:
-      'Rituals Pro biedt professionele massage- en lichaamsverzorgingsproducten voor de wellnesssector. Gecertificeerde opleiders in België verzorgen trainingen in de bijbehorende behandeltechnieken.',
+      'Rituals Pro biedt professionele massage- en lichaamsverzorgingsproducten voor de wellnesssector. Opleiders in België verzorgen trainingen in de bijbehorende behandeltechnieken.',
   },
   {
     slug: 'yogamatters',
@@ -158,7 +158,7 @@ export const FALLBACK_BRANDS: FallbackBrand[] = [
     providerCount: 5,
     courseCount: 9,
     about:
-      'Yogamatters levert materiaal en opleidingsondersteuning voor yogascholen. In België werken erkende yogascholen samen met het merk voor teacher trainings en bijscholing.',
+      'Yogamatters levert materiaal en opleidingsondersteuning voor yogascholen. In België werken verschillende yogascholen samen met het merk voor teacher trainings en bijscholing.',
   },
 ]
 

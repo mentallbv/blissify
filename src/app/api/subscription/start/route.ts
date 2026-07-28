@@ -2,10 +2,10 @@ import { NextResponse } from 'next/server'
 import { headers as getHeaders } from 'next/headers'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
-import { createCustomer, createFirstPayment, mollieConfigured, TIER_LABEL, type Tier } from '@/lib/mollie'
+import { createCustomer, createFirstPayment, isBrandTier, isTrainerTier, mollieConfigured, planLabel, type BillingCycle, type PlanTier } from '@/lib/mollie'
 import { SITE_URL } from '@/lib/email'
-
-const TIERS: Tier[] = ['basis', 'medium', 'premium']
+import { getPricingCatalog } from '@/lib/data'
+import { monthlyPrice } from '@/lib/pricing'
 
 /** POST /api/subscription/start { tier } - create/reuse Mollie customer + first payment. */
 export async function POST(req: Request) {
@@ -23,8 +23,31 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json()
-    const tier = body.tier as Tier
-    if (!TIERS.includes(tier)) return NextResponse.json({ error: 'Ongeldige formule.' }, { status: 400 })
+    const tier = body.tier as PlanTier
+    const billingCycle: BillingCycle = body.billingCycle === 'monthly' ? 'monthly' : 'yearly'
+    if ((!isTrainerTier(tier) && !isBrandTier(tier)) || (u.role === 'brand' ? !isBrandTier(tier) : !isTrainerTier(tier))) {
+      return NextResponse.json({ error: 'Ongeldige formule.' }, { status: 400 })
+    }
+    const catalog = await getPricingCatalog()
+    if (billingCycle === 'monthly' && !catalog.billing.monthlyEnabled) {
+      return NextResponse.json({ error: 'Maandelijkse betaling is niet beschikbaar.' }, { status: 400 })
+    }
+    const audience = u.role === 'brand' ? catalog.brands : catalog.opleiders
+    const selected = audience.tiers.find((item) => item.key === tier)
+    if (!selected) return NextResponse.json({ error: 'Ongeldige formule.' }, { status: 400 })
+    const annualPrice = selected.annualPrice || Number(selected.price.replace(/[^\d]/g, ''))
+    const amount = (billingCycle === 'monthly' ? monthlyPrice(annualPrice, catalog.billing.monthlyMarkupPercent) : annualPrice).toFixed(2)
+    const now = new Date()
+    const trialEndsAt = catalog.billing.trialEnabled
+      ? new Date(now.getTime() + catalog.billing.trialDays * 86400000)
+      : now
+    const nextChargeAt = new Date(trialEndsAt)
+    if (!catalog.billing.trialEnabled) {
+      if (billingCycle === 'monthly') nextChargeAt.setMonth(nextChargeAt.getMonth() + 1)
+      else nextChargeAt.setFullYear(nextChargeAt.getFullYear() + 1)
+    }
+    const minimumEndsAt = new Date(now)
+    minimumEndsAt.setFullYear(minimumEndsAt.getFullYear() + 1)
 
     // Reuse the customer if we already created one for this user.
     let customerId = u.mollieCustomerId
@@ -41,8 +64,12 @@ export async function POST(req: Request) {
       id: u.id,
       data: {
         mollieCustomerId: customerId,
-        subscriptionTier: tier,
+        ...(u.role === 'brand' ? { brandTier: tier } : { subscriptionTier: tier }),
         subscriptionStatus: 'pending_payment',
+        subscriptionBillingCycle: billingCycle,
+        subscriptionCommitment: catalog.billing.monthlyCommitment,
+        subscriptionTrialEndsAt: trialEndsAt.toISOString(),
+        subscriptionMinimumEndsAt: catalog.billing.monthlyCommitment === 'annual' ? minimumEndsAt.toISOString() : null,
       } as never,
       overrideAccess: true,
     })
@@ -50,9 +77,20 @@ export async function POST(req: Request) {
     const payment = await createFirstPayment({
       customerId,
       tier,
-      description: `Blissify abonnement - ${TIER_LABEL[tier]}`,
+      trialEnabled: catalog.billing.trialEnabled,
+      amount,
+      description: catalog.billing.trialEnabled ? `Blissify proefperiode - ${planLabel(tier)}` : `Blissify abonnement - ${planLabel(tier)}`,
       redirectUrl: `${SITE_URL}/dashboard/abonnement?betaling=verwerkt`,
-      metadata: { userId: u.id, tier },
+      metadata: {
+        userId: u.id,
+        tier,
+        role: u.role,
+        billingCycle,
+        amount,
+        trialEndsAt: trialEndsAt.toISOString(),
+        nextChargeAt: nextChargeAt.toISOString(),
+        commitment: catalog.billing.monthlyCommitment,
+      },
     })
 
     const checkoutUrl = payment._links?.checkout?.href

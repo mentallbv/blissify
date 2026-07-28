@@ -3,7 +3,14 @@ import config from '@/payload.config'
 import type { Course, Brand, Category, Media, Trainer } from '@/payload-types'
 import { formatPrice, formatCardMeta, courseLocation } from './format'
 import { CATEGORY_CONTENT } from './categories'
-import { PRICING_FALLBACK, type PricingData } from './pricing'
+import {
+  BRAND_PRICING_FALLBACK,
+  PRICING_CATALOG_FALLBACK,
+  PRICING_FALLBACK,
+  type BillingSettings,
+  type PricingCatalog,
+  type PricingData,
+} from './pricing'
 import {
   FALLBACK_COURSES,
   FALLBACK_PROVIDERS,
@@ -122,7 +129,7 @@ export type CourseFilters = {
   categorySlug?: string
   city?: string
   format?: string // online | fysiek | hybride
-  certificate?: boolean // "Erkend" -> certificate uitgereikt
+  certificate?: boolean // Certificaat wordt door de aanbieder uitgereikt
   priceMin?: number
   priceMax?: number
   keyword?: string
@@ -696,38 +703,76 @@ export async function getCategoryLanding(slug: string): Promise<CategoryLanding 
   }
 }
 
-/** Single source of truth for pricing: the Pricing global, with fallback. */
-export async function getPricing(): Promise<PricingData> {
-  try {
-    const payload = await client()
-    const g = (await payload.findGlobal({ slug: 'pricing' as never })) as Record<string, any>
-    const tiers = Array.isArray(g?.tiers) && g.tiers.length
-      ? g.tiers.map((t: Record<string, any>) => ({
+function mapPricingAudience(raw: Record<string, any> | undefined, fallback: PricingData): PricingData {
+  const cleanTrustCopy = (value: string) =>
+    value
+      .replace(/geverifieerde opleiders/gi, 'professionele opleiders')
+      .replace(/geverifieerde aanbieders/gi, 'professionele aanbieders')
+  const source = raw || {}
+  const withDefined = <T extends Record<string, unknown>>(base: T, values?: Record<string, unknown>): T =>
+    ({ ...base, ...Object.fromEntries(Object.entries(values || {}).filter(([, value]) => value != null && value !== '')) }) as T
+  const tiers = Array.isArray(source.tiers) && source.tiers.length
+    ? source.tiers.map((t: Record<string, any>) => {
+        const annualPrice = Number(t.annualPrice || String(t.price || '').replace(/[^\d]/g, ''))
+        return {
           key: String(t.key || t.name || ''),
           name: t.name,
           tagline: t.tagline || '',
-          price: t.price,
-          period: t.period || '/jaar',
+          annualPrice,
+          price: `€ ${annualPrice.toLocaleString('nl-BE')}`,
+          period: '/jaar',
           desc: t.desc || '',
           recommended: Boolean(t.recommended),
           features: Array.isArray(t.features)
             ? t.features.map((f: { feature?: string }) => f.feature).filter((f: unknown): f is string => Boolean(f))
             : [],
-        }))
-      : PRICING_FALLBACK.tiers
-    const cmp = g?.comparison || {}
-    const comparison = Array.isArray(cmp.rows) && cmp.rows.length
-      ? { col1: cmp.col1 || 'Basis', col2: cmp.col2 || 'Medium', col3: cmp.col3 || 'Premium', rows: cmp.rows }
-      : PRICING_FALLBACK.comparison
+        }
+      })
+    : fallback.tiers
+  const cmp = source.comparison || {}
+  return {
+    audience: fallback.audience,
+    intro: withDefined(fallback.intro, source.intro),
+    tiers,
+    comparison: Array.isArray(cmp.rows) && cmp.rows.length
+      ? { col1: cmp.col1 || fallback.comparison.col1, col2: cmp.col2 || fallback.comparison.col2, col3: cmp.col3 || fallback.comparison.col3, rows: cmp.rows }
+      : fallback.comparison,
+    bottomCta: withDefined(fallback.bottomCta, {
+      ...source.bottomCta,
+      body: cleanTrustCopy(source.bottomCta?.body || fallback.bottomCta.body),
+    }),
+  }
+}
+
+/** Both pricing ladders plus the shared billing/trial rules. */
+export async function getPricingCatalog(): Promise<PricingCatalog> {
+  try {
+    const payload = await client()
+    const g = (await payload.findGlobal({ slug: 'pricing' as never })) as Record<string, any>
+    const billingRaw = g?.billing || {}
+    const billing: BillingSettings = {
+      trialEnabled: billingRaw.trialEnabled ?? PRICING_CATALOG_FALLBACK.billing.trialEnabled,
+      trialDays: Number(billingRaw.trialDays ?? PRICING_CATALOG_FALLBACK.billing.trialDays),
+      monthlyEnabled: billingRaw.monthlyEnabled ?? PRICING_CATALOG_FALLBACK.billing.monthlyEnabled,
+      monthlyMarkupPercent: Number(billingRaw.monthlyMarkupPercent ?? PRICING_CATALOG_FALLBACK.billing.monthlyMarkupPercent),
+      monthlyCommitment: billingRaw.monthlyCommitment === 'cancel_anytime' ? 'cancel_anytime' : 'annual',
+    }
+    const legacyOpleiders = g?.opleiders?.tiers?.length
+      ? g.opleiders
+      : { intro: g?.intro, tiers: g?.tiers, comparison: g?.comparison, bottomCta: g?.bottomCta }
     return {
-      intro: { ...PRICING_FALLBACK.intro, ...(g?.intro || {}) },
-      tiers,
-      comparison,
-      bottomCta: { ...PRICING_FALLBACK.bottomCta, ...(g?.bottomCta || {}) },
+      billing,
+      opleiders: mapPricingAudience(legacyOpleiders, PRICING_FALLBACK),
+      brands: mapPricingAudience(g?.brands, BRAND_PRICING_FALLBACK),
     }
   } catch {
-    return PRICING_FALLBACK
+    return PRICING_CATALOG_FALLBACK
   }
+}
+
+/** Backward-compatible trainer pricing accessor. */
+export async function getPricing(): Promise<PricingData> {
+  return (await getPricingCatalog()).opleiders
 }
 
 /** Distinct specialisaties + cities across trainers, for the /opleiders filters. */

@@ -124,6 +124,40 @@ export const Users: CollectionConfig = {
       },
     },
     {
+      name: 'subscriptionBillingCycle',
+      type: 'select',
+      defaultValue: 'yearly',
+      options: [
+        { label: 'Jaarlijks', value: 'yearly' },
+        { label: 'Maandelijks', value: 'monthly' },
+      ],
+      access: { update: adminOnlyField },
+      admin: { position: 'sidebar', description: 'Gekozen betalingsfrequentie.' },
+    },
+    {
+      name: 'subscriptionCommitment',
+      type: 'select',
+      defaultValue: 'annual',
+      options: [
+        { label: 'Jaarverbintenis', value: 'annual' },
+        { label: 'Maandelijks opzegbaar', value: 'cancel_anytime' },
+      ],
+      access: { update: adminOnlyField },
+      admin: { position: 'sidebar', description: 'Voorwaarden die golden bij het afsluiten.' },
+    },
+    {
+      name: 'subscriptionTrialEndsAt',
+      type: 'date',
+      access: { update: adminOnlyField },
+      admin: { position: 'sidebar', readOnly: true, description: 'Einde van de proefperiode.' },
+    },
+    {
+      name: 'subscriptionMinimumEndsAt',
+      type: 'date',
+      access: { update: adminOnlyField },
+      admin: { position: 'sidebar', readOnly: true, description: 'Vroegste opzegdatum bij een jaarverbintenis.' },
+    },
+    {
       name: 'mollieCustomerId',
       type: 'text',
       access: { read: adminOnlyField, update: adminOnlyField },

@@ -52,7 +52,7 @@ export function BrandTabs({
       {active === 'providers' ? (
         <>
           <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 24, color: 'var(--text-brand)', margin: '0 0 24px' }}>
-            Gecertificeerde {brand.name} opleiders
+            {brand.name} opleiders
           </h2>
           {providers.length ? (
             <div className="bl-grid-3">
@@ -61,7 +61,7 @@ export function BrandTabs({
               ))}
             </div>
           ) : (
-            <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, color: 'var(--text-meta)' }}>Nog geen gecertificeerde opleiders.</p>
+            <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, color: 'var(--text-meta)' }}>Nog geen opleiders beschikbaar.</p>
           )}
         </>
       ) : null}
@@ -85,7 +85,7 @@ export function BrandTabs({
           </h2>
           <p style={{ fontFamily: 'var(--font-ui)', fontSize: 16, lineHeight: 1.7, color: 'var(--text-body)' }}>
             {brand.about ||
-              `${brand.name} werkt samen met een netwerk van gecertificeerde Blissify-opleiders in de sector ${brand.sector.toLowerCase()}.`}
+              `${brand.name} werkt samen met opleiders in de sector ${brand.sector.toLowerCase()}. Bekijk hun profielen en opleidingen om zelf te bepalen welke aanbieder bij je past.`}
           </p>
         </div>
       ) : null}

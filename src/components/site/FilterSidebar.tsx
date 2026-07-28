@@ -115,7 +115,7 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
       </div>
 
       <div>
-        <div style={labelStyle}>Erkenning</div>
+        <div style={labelStyle}>Certificaat</div>
         <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
           <button
             type="button"
@@ -126,7 +126,7 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
           >
             <span style={{ position: 'absolute', top: 2, left: current.erkend ? 16 : 2, width: 16, height: 16, borderRadius: '50%', background: 'var(--blissify-chalk)', transition: 'left .15s ease' }} />
           </button>
-          <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 13, color: 'var(--text-body)' }}>Alleen met certificaat</span>
+          <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 13, color: 'var(--text-body)' }}>Certificaat verstrekt</span>
         </label>
       </div>
     </aside>
