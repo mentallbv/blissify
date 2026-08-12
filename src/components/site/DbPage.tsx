@@ -3,13 +3,14 @@ import { SiteChrome } from '@/components/site/SiteChrome'
 import { PageBlocks } from '@/components/site/PageBlocks'
 import { ButtonLink } from '@/components/ui'
 import type { PageDoc } from '@/lib/pages'
+import { publicMediaUrl } from '@/lib/media'
 
 /** Renders a Pages-collection document (hero + blocks) inside the site chrome. */
 export function DbPage({ page }: { page: PageDoc }) {
   const hero = page.hero
   const heroImage =
     hero?.image && typeof hero.image === 'object' && 'url' in hero.image
-      ? hero.image.url
+      ? publicMediaUrl(hero.image)
       : null
 
   return (

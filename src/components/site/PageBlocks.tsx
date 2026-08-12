@@ -1,5 +1,6 @@
 import React from 'react'
 import { ButtonLink } from '@/components/ui'
+import { publicMediaUrl } from '@/lib/media'
 
 /* Loose block types - the Pages collection is admin-defined; payload-types
    gains the exact shape after `payload generate:types` runs against the DB. */
@@ -175,10 +176,10 @@ export function PageBlocks({ blocks }: { blocks: Block[] }) {
             return (
               <section key={i} className="bl-container bl-content-section" style={{ paddingTop: 48, paddingBottom: 48 }}>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 32, alignItems: 'center', justifyContent: 'center', opacity: 0.7 }}>
-                  {arr<{ logo?: { url?: string } }>(b.items).map((l, j) =>
-                    l.logo?.url ? (
+                  {arr<{ logo?: { filename?: string | null; url?: string | null } }>(b.items).map((l, j) =>
+                    publicMediaUrl(l.logo) ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img key={j} src={l.logo.url} alt="" style={{ height: 36, width: 'auto' }} />
+                      <img key={j} src={publicMediaUrl(l.logo) as string} alt="" style={{ height: 36, width: 'auto' }} />
                     ) : null,
                   )}
                 </div>

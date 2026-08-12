@@ -11,6 +11,7 @@ import { Eyebrow, ButtonLink, CourseCard } from '@/components/ui'
 import { getPricingCatalog, getCourseFilterOptions, getHomepageSections } from '@/lib/data'
 import { FAQ_HOME } from '@/lib/pricing'
 import { getCurrentUser } from '@/lib/session'
+import { publicMediaUrl } from '@/lib/media'
 
 export const dynamic = 'force-dynamic'
 
@@ -39,7 +40,7 @@ const DEFAULT_TILES = [
   { title: 'Ontdek opleiders', body: 'Een helder overzicht van opleiders en merken.', image: null as string | null },
   { title: 'Schrijf je in', body: 'Vraag rechtstreeks informatie aan.', image: null as string | null },
 ]
-const mediaUrl = (m: unknown): string | null => (m && typeof m === 'object' && (m as { url?: string }).url ? (m as { url: string }).url : null)
+const mediaUrl = (m: unknown): string | null => (m && typeof m === 'object' ? publicMediaUrl(m as { filename?: string | null; url?: string | null }) : null)
 const cleanTrustCopy = (value: string) =>
   value
     .replace(/geverifieerde, professionele/gi, 'professionele')

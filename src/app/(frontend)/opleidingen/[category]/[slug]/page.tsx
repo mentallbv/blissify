@@ -14,6 +14,7 @@ import { formatPrice, formatDuration, formatFormat, courseLocation } from '@/lib
 import { isCitySlug, cityName } from '@/lib/cities'
 import { CATEGORY_CONTENT } from '@/lib/categories'
 import { CityLanding } from '@/components/site/CityLanding'
+import { publicMediaUrl } from '@/lib/media'
 import type { Course, Category, Brand, Trainer } from '@/payload-types'
 
 export const dynamic = 'force-dynamic'
@@ -184,7 +185,7 @@ export default async function CourseDetailPage({ params }: Params) {
   const bookable = Boolean(course && (course as { isBookable?: boolean }).isBookable)
   const coverImg =
     course && typeof (course as { coverImage?: unknown }).coverImage === 'object'
-      ? ((course as { coverImage?: { url?: string } }).coverImage?.url ?? null)
+      ? publicMediaUrl((course as { coverImage?: { filename?: string | null; url?: string | null } }).coverImage)
       : null
 
   return (

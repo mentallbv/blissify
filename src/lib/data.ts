@@ -2,6 +2,7 @@ import { getPayload } from 'payload'
 import config from '@/payload.config'
 import type { Course, Brand, Category, Media, Trainer } from '@/payload-types'
 import { formatPrice, formatCardMeta, courseLocation } from './format'
+import { publicMediaUrl } from './media'
 import { CATEGORY_CONTENT } from './categories'
 import {
   BRAND_PRICING_FALLBACK,
@@ -69,7 +70,7 @@ const SPEC_LABELS: Record<string, string> = {
 const specLabel = (v?: string | null): string => (v ? SPEC_LABELS[v] || v : 'Wellnessopleiding')
 
 const mediaUrl = (m: number | Media | null | undefined): string | null =>
-  m && typeof m === 'object' && m.url ? m.url : null
+  m && typeof m === 'object' ? publicMediaUrl(m) : null
 
 async function client() {
   return getPayload({ config: await config })
