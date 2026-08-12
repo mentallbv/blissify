@@ -1,5 +1,5 @@
 {
   "installCommand": "npm install --include=optional",
-  "buildCommand": "npm run build",
+  "buildCommand": "npm run build && cross-env NODE_ENV=production NODE_OPTIONS=--no-deprecation tsx src/seed.ts",
   "framework": "nextjs"
 }
