@@ -44,7 +44,7 @@ export default async function DashboardAnalyticsPage() {
     <>
       <PageTitle>Analytics</PageTitle>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
+      <div className="bl-dashboard-metrics" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
         <MetricCard label="Profielweergaven" value={views.length.toLocaleString('nl-BE')} />
         <MetricCard label="Aanvragen" value={leads.length.toLocaleString('nl-BE')} />
         <MetricCard label="Actieve opleidingen" value={String(courses.filter((c) => c.status === 'active').length)} />

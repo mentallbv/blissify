@@ -79,7 +79,7 @@ export default async function HomePage() {
   const faqItems = Array.isArray(hp.faq) && hp.faq.length ? hp.faq.map((f: { question: string; answer: string }) => ({ q: f.question, a: f.answer })) : FAQ_HOME
 
   const searchOptions = await getCourseFilterOptions()
-  const { featured, brandCourses, opleiderCourses } = await getHomepageSections()
+  const { brandCourses, opleiderCourses } = await getHomepageSections()
   const pricingCatalog = await getPricingCatalog()
 
   return (
@@ -95,12 +95,12 @@ export default async function HomePage() {
             'radial-gradient(120% 90% at 15% 0%, rgba(196,121,90,0.10), rgba(245,240,234,0) 55%), radial-gradient(120% 90% at 85% 5%, rgba(26,46,37,0.08), rgba(245,240,234,0) 55%), #F5F0EA',
         }}
       >
-        <div className="bl-container" style={{ paddingTop: 88, paddingBottom: 80 }}>
+        <div className="bl-container bl-home-hero-inner" style={{ paddingTop: 88, paddingBottom: 80 }}>
           <div className="bl-hero-split">
             {/* Left column */}
             <div style={{ maxWidth: 600 }}>
               <Eyebrow>Professionele wellnessopleiding · België</Eyebrow>
-              <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 64, lineHeight: 1.04, letterSpacing: '-0.02em', color: 'var(--text-brand)', margin: '20px 0 0', textWrap: 'balance' }}>
+              <h1 className="bl-home-hero-title" style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 64, lineHeight: 1.04, letterSpacing: '-0.02em', color: 'var(--text-brand)', margin: '20px 0 0', textWrap: 'balance' }}>
                 {hero.title || 'De Europese standaard voor'}{' '}
                 <span style={{ color: 'var(--blissify-terracotta)' }}>
                   {hero.highlight || 'wellnessopleiding.'}
@@ -129,9 +129,28 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* FEATURED COURSES FROM MERKEN & LEVERANCIERS */}
+      {brandCourses.length ? (
+        <section style={{ background: 'var(--surface-card)', borderTop: '0.5px solid var(--border-hairline)' }}>
+          <div className="bl-container bl-home-section" style={{ paddingTop: 96, paddingBottom: 96 }}>
+            <div style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto 48px' }}>
+              <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 44, lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: 0, textWrap: 'balance' }}>
+                Uitgelicht van Merken & Leveranciers
+              </h2>
+              <a href="/merken" className="bl-textlink" style={{ display: 'inline-block', marginTop: 16 }}>Bekijk alle merken</a>
+            </div>
+            <div className="bl-grid-3">
+              {brandCourses.slice(0, 6).map((c) => (
+                <CourseCard key={c.slug} {...c} />
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
       {/* DARK "WAAROM" */}
       <section style={{ background: 'var(--surface-dark)' }}>
-        <div className="bl-container" style={{ paddingTop: 120, paddingBottom: 128 }}>
+        <div className="bl-container bl-home-section" style={{ paddingTop: 120, paddingBottom: 128 }}>
           <div style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto 56px' }}>
             <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 48, lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--blissify-chalk)', margin: 0, textWrap: 'balance' }}>
               {why.title || 'Gebouwd voor de professional, niet voor de hype.'}
@@ -148,9 +167,28 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* FEATURED COURSES FROM INDIVIDUAL OPLEIDERS */}
+      {opleiderCourses.length ? (
+        <section>
+          <div className="bl-container bl-home-section" style={{ paddingTop: 96, paddingBottom: 96 }}>
+            <div style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto 48px' }}>
+              <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 44, lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: 0, textWrap: 'balance' }}>
+                Uitgelichte opleidingen van opleiders
+              </h2>
+              <a href="/opleiders" className="bl-textlink" style={{ display: 'inline-block', marginTop: 16 }}>Bekijk alle opleiders</a>
+            </div>
+            <div className="bl-grid-3">
+              {opleiderCourses.slice(0, 6).map((c) => (
+                <CourseCard key={c.slug} {...c} />
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
       {/* PHOTO FEATURE TILES */}
       <section>
-        <div className="bl-container" style={{ paddingTop: 96, paddingBottom: 112 }}>
+        <div className="bl-container bl-home-section" style={{ paddingTop: 96, paddingBottom: 112 }}>
         <div style={{ textAlign: 'center', maxWidth: 620, margin: '0 auto 48px' }}>
           <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 44, lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: 0, textWrap: 'balance' }}>
             {photo.title || 'Ontdek hoe Blissify werkt'}
@@ -162,6 +200,7 @@ export default async function HomePage() {
         <div className="bl-photo-grid" style={{ display: 'grid', gridTemplateColumns: '1.6fr 1fr 1fr', gap: 16 }}>
           {tiles.map((t: { title: string; body?: string; image?: string | null }) => (
             <div
+              className="bl-home-photo-tile"
               key={t.title}
               style={{
                 position: 'relative',
@@ -184,71 +223,24 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* SECTION 1 - UITGELICHT OP BLISSIFY (mixed: Merken + Opleiders) */}
-      {featured.length ? (
-        <section>
-          <div className="bl-container" style={{ paddingTop: 96, paddingBottom: 96 }}>
-            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, marginBottom: 32 }}>
-              <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 40, lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: 0 }}>
-                Uitgelicht op Blissify
-              </h2>
-              <a href="/opleidingen" className="bl-textlink">Bekijk alle opleidingen</a>
-            </div>
-            <div className="bl-grid-3">
-              {featured.slice(0, 6).map((c) => (
-                <CourseCard key={c.slug} {...c} />
-              ))}
-            </div>
-          </div>
-        </section>
-      ) : null}
-
-      {/* SECTION 2 - MERKEN & LEVERANCIERS ONLY */}
-      {brandCourses.length ? (
-        <section style={{ background: 'var(--surface-card)', borderTop: '0.5px solid var(--border-hairline)' }}>
-          <div className="bl-container" style={{ paddingTop: 96, paddingBottom: 96 }}>
-            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, marginBottom: 32 }}>
-              <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 40, lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: 0 }}>
-                Uitgelicht van Merken & Leveranciers
-              </h2>
-              <a href="/merken" className="bl-textlink">Bekijk alle merken</a>
-            </div>
-            <div className="bl-grid-3">
-              {brandCourses.slice(0, 6).map((c) => (
-                <CourseCard key={c.slug} {...c} />
-              ))}
-            </div>
-          </div>
-        </section>
-      ) : null}
-
-      {/* SECTION 3 - INDIVIDUAL OPLEIDERS ONLY (eligibility admin-configurable) */}
-      {opleiderCourses.length ? (
-        <section>
-          <div className="bl-container" style={{ paddingTop: 96, paddingBottom: 96 }}>
-            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, marginBottom: 32 }}>
-              <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 40, lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: 0 }}>
-                Uitgelichte opleidingen van opleiders
-              </h2>
-              <a href="/opleiders" className="bl-textlink">Bekijk alle opleiders</a>
-            </div>
-            <div className="bl-grid-3">
-              {opleiderCourses.slice(0, 6).map((c) => (
-                <CourseCard key={c.slug} {...c} />
-              ))}
-            </div>
-          </div>
-        </section>
-      ) : null}
-
       {/* STATS */}
       <section style={{ background: 'var(--surface-card)', borderTop: '0.5px solid var(--border-hairline)', borderBottom: '0.5px solid var(--border-hairline)' }}>
+        <div className="bl-container bl-home-stats-heading" style={{ paddingTop: 88 }}>
+          <div style={{ textAlign: 'center', maxWidth: 620, margin: '0 auto' }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 44, lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: 0 }}>
+              Blissify in cijfers
+            </h2>
+            <p style={{ fontFamily: 'var(--font-ui)', fontSize: 16, lineHeight: 1.7, color: 'var(--text-body)', margin: '14px 0 0' }}>
+              Een groeiend overzicht van opleidingen, opleiders, merken en leveranciers.
+            </p>
+          </div>
+        </div>
         <StatCounters stats={stats} />
       </section>
 
       {/* PRICING */}
       <section>
-        <div className="bl-container" style={{ paddingTop: 104, paddingBottom: 88 }}>
+        <div className="bl-container bl-home-section" style={{ paddingTop: 104, paddingBottom: 88 }}>
         <div style={{ textAlign: 'center', maxWidth: 560, margin: '0 auto 48px' }}>
           <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 44, lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: 0 }}>Een formule voor iedere aanbieder.</h2>
           <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 16, color: 'var(--text-body)', margin: '14px 0 0' }}>Vergelijk abonnementen voor opleiders, merken en leveranciers.</p>
@@ -259,7 +251,7 @@ export default async function HomePage() {
 
       {/* FAQ */}
       <section style={{ background: 'var(--surface-card)', borderTop: '0.5px solid var(--border-hairline)' }}>
-        <div className="bl-container" style={{ paddingTop: 96, paddingBottom: 96 }}>
+        <div className="bl-container bl-home-section" style={{ paddingTop: 96, paddingBottom: 96 }}>
         <div className="bl-faq-split" style={{ display: 'grid', gridTemplateColumns: '0.8fr 1.2fr', gap: 56, alignItems: 'start' }}>
           <div>
             <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 44, lineHeight: 1.05, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: 0, textWrap: 'balance' }}>

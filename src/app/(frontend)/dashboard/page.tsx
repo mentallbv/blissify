@@ -51,7 +51,7 @@ export default async function DashboardOverviewPage() {
         tier={sub?.role === 'brand' ? sub.brandTier || 'partner_listing' : sub?.subscriptionTier || 'basis'}
       />
 
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
+      <div className="bl-dashboard-heading-row" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
         <PageTitle>Goedemorgen, {name}.</PageTitle>
         {canAddCourse ? (
           <ButtonLink href="/dashboard/opleidingen/nieuw" variant="accent" size="sm" icon={<i className="ti ti-plus" />}>
@@ -60,7 +60,7 @@ export default async function DashboardOverviewPage() {
         ) : null}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 40 }}>
+      <div className="bl-dashboard-metrics" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 40 }}>
         <MetricCard label="Profielweergaven" value={viewCount.toLocaleString('nl-BE')} change="0% t.o.v. vorige maand" />
         <MetricCard label="Aanvragen" value={leadCount.toLocaleString('nl-BE')} change={`${leadCount} totaal`} />
         <MetricCard label="Actieve opleidingen" value={String(counts.active)} change={`${counts.total} totaal`} />

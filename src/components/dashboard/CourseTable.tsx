@@ -43,8 +43,8 @@ export function CourseTable({ rows, limit }: { rows: DashCourse[]; limit?: numbe
     verticalAlign: 'middle',
   }
   return (
-    <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+    <div className="bl-dashboard-table-scroll" style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', overflow: 'auto' }}>
+      <table style={{ width: '100%', minWidth: 760, borderCollapse: 'collapse' }}>
         <thead>
           <tr>
             <th style={th}>Opleiding</th>

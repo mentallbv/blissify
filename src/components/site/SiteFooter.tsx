@@ -115,24 +115,18 @@ export function SiteFooter() {
 
 /** Forest marquee wordmark band - infinite horizontal scroll. */
 export function Marquee() {
+  const words = Array.from({ length: 8 })
   return (
-    <div style={{ background: 'var(--surface-dark)', overflow: 'hidden', padding: '36px 0', borderBottom: '0.5px solid rgba(245,240,234,0.12)' }}>
-      <div style={{ display: 'flex', width: 'max-content', animation: 'bl-marquee 26s linear infinite' }}>
-        {Array.from({ length: 8 }).map((_, i) => (
-          <span
-            key={i}
-            style={{
-              fontFamily: 'var(--font-display)',
-              fontWeight: 'var(--fw-display-light)',
-              fontSize: 56,
-              letterSpacing: '-0.01em',
-              color: 'rgba(245,240,234,0.16)',
-              padding: '0 28px',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            Blissify <span style={{ color: 'var(--blissify-terracotta)' }}>·</span>
-          </span>
+    <div className="bl-marquee" style={{ background: 'var(--surface-dark)', overflow: 'hidden', padding: '36px 0', borderBottom: '0.5px solid rgba(245,240,234,0.12)' }}>
+      <div className="bl-marquee-track">
+        {[0, 1].map((group) => (
+          <div key={group} className="bl-marquee-group" aria-hidden={group === 1}>
+            {words.map((_, i) => (
+              <span key={i} className="bl-marquee-word">
+                Blissify <span style={{ color: 'var(--blissify-terracotta)' }}>·</span>
+              </span>
+            ))}
+          </div>
         ))}
       </div>
     </div>

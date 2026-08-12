@@ -12,6 +12,7 @@ const LINKS = [
 export function SiteNav() {
   const pathname = usePathname() || '/'
   const [scrolled, setScrolled] = React.useState(false)
+  const [mobileOpen, setMobileOpen] = React.useState(false)
 
   React.useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 48)
@@ -19,6 +20,8 @@ export function SiteNav() {
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+  React.useEffect(() => setMobileOpen(false), [pathname])
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/')
 
@@ -51,8 +54,28 @@ export function SiteNav() {
           <a className="blnav-cta" href="/voor-aanbieders">
             Publiceer
           </a>
+          <button
+            type="button"
+            className="blnav-menu-toggle"
+            aria-expanded={mobileOpen}
+            aria-controls="blnav-mobile-menu"
+            aria-label={mobileOpen ? 'Menu sluiten' : 'Menu openen'}
+            onClick={() => setMobileOpen((open) => !open)}
+          >
+            <i className={mobileOpen ? 'ti ti-x' : 'ti ti-menu-2'} aria-hidden="true" />
+          </button>
         </div>
       </div>
+      <nav id="blnav-mobile-menu" className={'blnav-mobile-menu' + (mobileOpen ? ' is-open' : '')} aria-hidden={!mobileOpen}>
+        {LINKS.map((link) => (
+          <a key={link.slug} href={link.href} className={isActive(link.href) ? 'active' : ''}>{link.label}</a>
+        ))}
+        <div className="blnav-mobile-pricing">
+          <span>Prijzen</span>
+          <a href="/prijzen/opleiders" className={isActive('/prijzen/opleiders') ? 'active' : ''}>Voor opleiders</a>
+          <a href="/prijzen/merken-leveranciers" className={isActive('/prijzen/merken-leveranciers') ? 'active' : ''}>Voor merken &amp; leveranciers</a>
+        </div>
+      </nav>
     </div>
   )
 }

@@ -25,15 +25,12 @@ export default async function ProviderProfilePage({ params }: Params) {
   const { provider: p, courses } = await getProviderBySlug(slug)
   if (!p) notFound()
 
-  // Opleider branding perk (Medium+). Bounded: a header accent strip + CTA tint.
-  const accent = p.accentColor || null
-
   return (
     <SiteChrome>
       {p.id != null ? <TrackPageView kind="trainer" id={p.id} /> : null}
       {/* Dark header */}
-      <header style={{ background: 'var(--surface-dark)', borderTop: accent ? `3px solid ${accent}` : undefined }}>
-        <div className="bl-container" style={{ paddingTop: 48, paddingBottom: 48, display: 'flex', gap: 24, alignItems: 'center' }}>
+      <header style={{ background: 'var(--surface-dark)', borderTop: '3px solid var(--blissify-forest)' }}>
+        <div className="bl-container bl-provider-hero" style={{ paddingTop: 48, paddingBottom: 48, display: 'flex', gap: 24, alignItems: 'center' }}>
           <div style={{ width: 80, height: 80, borderRadius: 'var(--radius-md)', background: 'var(--surface-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: '0 0 80px', overflow: 'hidden' }}>
             {p.logo ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -51,9 +48,11 @@ export default async function ProviderProfilePage({ params }: Params) {
             <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'rgba(245,240,234,0.7)', margin: '8px 0 12px' }}>
               {p.location}, België · {p.speciality} · Opgericht 2014
             </p>
-            <TypeBadge type="trainer" />
+            <TypeBadge type="trainer" style={{ background: 'transparent', border: '1px solid rgba(245,240,234,0.45)' }} />
           </div>
-          <Button variant="accent" style={accent ? { background: accent, borderColor: accent } : undefined}>Contacteer opleider</Button>
+          <div className="bl-provider-hero-cta">
+            <Button variant="accent">Contacteer opleider</Button>
+          </div>
         </div>
       </header>
 

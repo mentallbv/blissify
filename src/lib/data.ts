@@ -394,11 +394,10 @@ const DEFAULT_OPLEIDER_TIERS = ['premium']
 const DEFAULT_BRAND_TIERS = ['partner_professional', 'partner_premium']
 
 export async function getHomepageSections(): Promise<{
-  featured: CourseCardData[]
   brandCourses: CourseCardData[]
   opleiderCourses: CourseCardData[]
 }> {
-  const empty = { featured: [], brandCourses: [], opleiderCourses: [] }
+  const empty = { brandCourses: [], opleiderCourses: [] }
   try {
     const payload = await client()
 
@@ -468,31 +467,7 @@ export async function getHomepageSections(): Promise<{
       opleiderCourses = docs.slice(0, 6).map(toCard)
     }
 
-    // Section 1 - "Uitgelicht op Blissify": mixed pool (Merken + Opleiders), top-tier first
-    let featured: CourseCardData[] = []
-    if (eligibleBrandIds.length || eligibleTrainerIds.length) {
-      const res = await payload.find({
-        collection: 'courses',
-        where: {
-          and: [
-            { status: { equals: 'published' } },
-            { featured: { equals: true } },
-            {
-              or: [
-                { brand: { in: eligibleBrandIds.length ? eligibleBrandIds : [-1] } },
-                { trainer: { in: eligibleTrainerIds.length ? eligibleTrainerIds : [-1] } },
-              ],
-            },
-          ],
-        } as never,
-        depth: 2,
-        limit: 100,
-      })
-      const docs = [...(res.docs as Course[])].sort((a, b) => (isTop(b) ? 1 : 0) - (isTop(a) ? 1 : 0))
-      featured = docs.slice(0, 6).map(toCard)
-    }
-
-    return { featured, brandCourses, opleiderCourses }
+    return { brandCourses, opleiderCourses }
   } catch {
     return empty
   }

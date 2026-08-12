@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function ContactPage() {
   return (
     <SiteChrome>
-      <section className="bl-container" style={{ paddingTop: 88, paddingBottom: 96 }}>
+      <section className="bl-container bl-page-hero" style={{ paddingTop: 88, paddingBottom: 96 }}>
         <div className="bl-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 56, alignItems: 'start' }}>
           <div>
             <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 'var(--type-label)', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-accent)' }}>Contact</span>

@@ -1,7 +1,6 @@
 'use client'
 
 import React from 'react'
-import { useRouter } from 'next/navigation'
 import { Input, Select, Button } from '@/components/ui'
 
 const PLACEHOLDERS = ['massage...', 'nagelstyliste...', 'yoga...', 'aromatherapie...', 'reflexologie...']
@@ -19,7 +18,6 @@ export function SearchCard({
   cities: string[]
   counts: { courses: number; opleiders: number; merken: number }
 }) {
-  const router = useRouter()
   const [idx, setIdx] = React.useState(0)
   React.useEffect(() => {
     const t = setInterval(() => setIdx((i) => (i + 1) % PLACEHOLDERS.length), 2200)
@@ -37,7 +35,7 @@ export function SearchCard({
     if (keyword) params.set('keyword', keyword)
     if (locatie) params.set('locatie', locatie)
     const qs = params.toString()
-    router.push(qs ? `${path}?${qs}` : path)
+    window.location.assign(qs ? `${path}?${qs}` : path)
   }
 
   const nf = (n: number) => n.toLocaleString('nl-BE')
@@ -45,6 +43,8 @@ export function SearchCard({
   return (
     <form
       onSubmit={onSubmit}
+      action="/opleidingen"
+      method="get"
       style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-lg)', padding: 24 }}
     >
       <div style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 22, color: 'var(--text-brand)', marginBottom: 18 }}>

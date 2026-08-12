@@ -25,7 +25,7 @@ export function PageBlocks({ blocks }: { blocks: Block[] }) {
         switch (b.blockType) {
           case 'richText':
             return (
-              <section key={i} className="bl-container" style={{ paddingTop: 48, paddingBottom: 48 }}>
+              <section key={i} className="bl-container bl-content-section" style={{ paddingTop: 48, paddingBottom: 48 }}>
                 <div style={{ maxWidth: 720, margin: '0 auto' }}>
                   {lexToParagraphs(b.content).map((p, j) => (
                     <p key={j} style={{ fontFamily: 'var(--font-ui)', fontSize: 16, lineHeight: 1.7, color: 'var(--text-body)', margin: '0 0 14px' }}>
@@ -38,7 +38,7 @@ export function PageBlocks({ blocks }: { blocks: Block[] }) {
           case 'stats':
             return (
               <section key={i} style={{ background: 'var(--surface-card)', borderTop: '0.5px solid var(--border-hairline)', borderBottom: '0.5px solid var(--border-hairline)' }}>
-                <div className="bl-container" style={{ paddingTop: 72, paddingBottom: 72, display: 'grid', gridTemplateColumns: `repeat(${Math.min(arr(b.items).length || 1, 4)}, 1fr)`, gap: 32, textAlign: 'center' }}>
+                <div className="bl-container bl-content-section bl-stats-grid" style={{ paddingTop: 72, paddingBottom: 72, display: 'grid', gridTemplateColumns: `repeat(${Math.min(arr(b.items).length || 1, 4)}, 1fr)`, gap: 32, textAlign: 'center' }}>
                   {arr<{ value: string; label: string }>(b.items).map((s, j) => (
                     <div key={j}>
                       <div style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 64, lineHeight: 1, letterSpacing: '-0.01em', color: 'var(--text-brand)' }}>{s.value}</div>
@@ -50,7 +50,7 @@ export function PageBlocks({ blocks }: { blocks: Block[] }) {
             )
           case 'features':
             return (
-              <section key={i} className="bl-container" style={{ paddingTop: 64, paddingBottom: 64 }}>
+              <section key={i} className="bl-container bl-content-section" style={{ paddingTop: 64, paddingBottom: 64 }}>
                 <div className="bl-grid-3">
                   {arr<{ icon?: string; title: string; body?: string }>(b.items).map((f, j) => (
                     <div key={j} style={{ border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: 28, background: 'var(--surface-card)', display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -64,7 +64,7 @@ export function PageBlocks({ blocks }: { blocks: Block[] }) {
             )
           case 'testimonial':
             return (
-              <section key={i} className="bl-container" style={{ paddingTop: 88, paddingBottom: 88, textAlign: 'center' }}>
+              <section key={i} className="bl-container bl-content-section" style={{ paddingTop: 88, paddingBottom: 88, textAlign: 'center' }}>
                 <div style={{ maxWidth: 920, margin: '0 auto' }}>
                   <blockquote style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 32, lineHeight: 1.35, color: 'var(--text-brand)', margin: 0, textWrap: 'balance' }}>
                     “{String(b.quote || '')}”
@@ -82,7 +82,7 @@ export function PageBlocks({ blocks }: { blocks: Block[] }) {
             const dark = b.background !== 'chalk'
             return (
               <section key={i} style={{ background: dark ? 'var(--surface-dark)' : 'var(--surface-page)' }}>
-                <div className="bl-container" style={{ paddingTop: 80, paddingBottom: 80, textAlign: 'center' }}>
+                <div className="bl-container bl-content-section" style={{ paddingTop: 80, paddingBottom: 80, textAlign: 'center' }}>
                   <div style={{ maxWidth: 920, margin: '0 auto' }}>
                   <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 44, letterSpacing: '-0.01em', lineHeight: 1.1, margin: 0, color: dark ? 'var(--blissify-chalk)' : 'var(--text-brand)' }}>
                     {String(b.title || '')}
@@ -104,7 +104,7 @@ export function PageBlocks({ blocks }: { blocks: Block[] }) {
           }
           case 'pricingTiers':
             return (
-              <section key={i} className="bl-container" style={{ paddingTop: 64, paddingBottom: 64 }}>
+              <section key={i} className="bl-container bl-content-section" style={{ paddingTop: 64, paddingBottom: 64 }}>
                 <div className="bl-grid-3" style={{ alignItems: 'start' }}>
                   {arr<{ name: string; price: string; period?: string; recommended?: boolean; features?: { feature?: string }[]; ctaLabel?: string; ctaUrl?: string }>(b.items).map((t, j) => (
                     <div key={j} style={{ border: '0.5px solid ' + (t.recommended ? 'var(--blissify-forest)' : 'var(--border-hairline)'), borderRadius: 'var(--radius-md)', background: 'var(--surface-card)', padding: 28 }}>
@@ -135,8 +135,9 @@ export function PageBlocks({ blocks }: { blocks: Block[] }) {
             const rows = arr<{ feature: string; v1?: string; v2?: string; v3?: string }>(b.rows)
             const cell: React.CSSProperties = { padding: '14px 20px', fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-body)', textAlign: 'center', borderTop: '0.5px solid var(--border-hairline)' }
             return (
-              <section key={i} className="bl-container" style={{ paddingTop: 48, paddingBottom: 48 }}>
-                <div style={{ border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', overflow: 'hidden', background: 'var(--surface-card)' }}>
+              <section key={i} className="bl-container bl-content-section" style={{ paddingTop: 48, paddingBottom: 48 }}>
+                <div className="bl-comparison-scroll" style={{ overflowX: 'auto' }}>
+                <div style={{ minWidth: 680, border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', overflow: 'hidden', background: 'var(--surface-card)' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', background: 'var(--surface-page)' }}>
                     {['Functie', String(b.col1 || 'Basis'), String(b.col2 || 'Medium'), String(b.col3 || 'Premium')].map((h, k) => (
                       <div key={k} style={{ padding: '14px 20px', fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: k === 0 ? 11 : 13, textTransform: k === 0 ? 'uppercase' : 'none', letterSpacing: k === 0 ? '0.1em' : '0', color: k === 0 ? 'var(--text-meta)' : 'var(--text-strong)', textAlign: k === 0 ? 'left' : 'center' }}>
@@ -153,12 +154,13 @@ export function PageBlocks({ blocks }: { blocks: Block[] }) {
                     </div>
                   ))}
                 </div>
+                </div>
               </section>
             )
           }
           case 'faq':
             return (
-              <section key={i} className="bl-container" style={{ paddingTop: 64, paddingBottom: 64 }}>
+              <section key={i} className="bl-container bl-content-section" style={{ paddingTop: 64, paddingBottom: 64 }}>
                 <div style={{ maxWidth: 820, margin: '0 auto', borderTop: '0.5px solid var(--border-hairline)' }}>
                   {arr<{ question: string; answer: string }>(b.items).map((f, j) => (
                     <div key={j} style={{ borderBottom: '0.5px solid var(--border-hairline)', padding: '22px 0' }}>
@@ -171,7 +173,7 @@ export function PageBlocks({ blocks }: { blocks: Block[] }) {
             )
           case 'logos':
             return (
-              <section key={i} className="bl-container" style={{ paddingTop: 48, paddingBottom: 48 }}>
+              <section key={i} className="bl-container bl-content-section" style={{ paddingTop: 48, paddingBottom: 48 }}>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 32, alignItems: 'center', justifyContent: 'center', opacity: 0.7 }}>
                   {arr<{ logo?: { url?: string } }>(b.items).map((l, j) =>
                     l.logo?.url ? (

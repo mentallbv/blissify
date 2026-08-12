@@ -18,11 +18,13 @@ export function BrandTabs({
     { id: 'courses', label: `Opleidingen (${brand.courseCount})` },
     { id: 'about', label: `Over ${brand.name}` },
   ] as const
-  const [active, setActive] = React.useState<(typeof tabs)[number]['id']>('providers')
+  const [active, setActive] = React.useState<(typeof tabs)[number]['id']>(
+    providers.length ? 'providers' : courses.length ? 'courses' : 'about',
+  )
 
   return (
     <>
-      <div style={{ borderBottom: '0.5px solid var(--border-hairline)', display: 'flex', gap: 28, marginBottom: 32 }}>
+      <div className="bl-profile-tabs" style={{ borderBottom: '0.5px solid var(--border-hairline)', display: 'flex', gap: 28, marginBottom: 32 }}>
         {tabs.map((t) => {
           const on = active === t.id
           return (

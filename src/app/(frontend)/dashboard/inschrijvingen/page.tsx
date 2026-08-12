@@ -51,7 +51,7 @@ export default async function DashboardRegistrationsPage() {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
           {[...byCourse.entries()].map(([courseId, regs]) => (
-            <div key={courseId} style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
+            <div className="bl-dashboard-registration-card" key={courseId} style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', overflow: 'auto' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, padding: '16px 20px', borderBottom: '0.5px solid var(--border-hairline)' }}>
                 <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 18, color: 'var(--text-brand)' }}>
                   {titleById.get(courseId) || 'Opleiding'}
@@ -60,7 +60,7 @@ export default async function DashboardRegistrationsPage() {
                   {regs.length} {regs.length === 1 ? 'inschrijving' : 'inschrijvingen'}
                 </span>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1.4fr 1fr auto auto', gap: 0 }}>
+              <div className="bl-dashboard-registration-grid" style={{ display: 'grid', gridTemplateColumns: '1.4fr 1.4fr 1fr auto auto', gap: 0 }}>
                 {['Naam', 'E-mail', 'Telefoon', 'Deelnemers', 'Datum'].map((h) => (
                   <div key={h} style={{ ...meta, fontWeight: 'var(--fw-ui-medium)', textTransform: 'uppercase', letterSpacing: '0.08em', fontSize: 11, padding: '12px 20px', background: 'var(--surface-page)' }}>{h}</div>
                 ))}

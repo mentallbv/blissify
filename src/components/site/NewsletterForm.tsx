@@ -44,7 +44,7 @@ export function NewsletterForm() {
 
   return (
     <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-      <div style={{ display: 'flex', gap: 0, maxWidth: 420 }}>
+      <div className="bl-newsletter-row" style={{ display: 'flex', gap: 0, maxWidth: 420 }}>
         <input
           className="bl-newsletter-input"
           type="email"
@@ -75,6 +75,7 @@ export function NewsletterForm() {
           }}
         />
         <button
+          className="bl-newsletter-button"
           type="submit"
           disabled={status === 'loading'}
           style={{

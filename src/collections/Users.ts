@@ -15,7 +15,13 @@ const premiumTemplateField: FieldAccess = ({ req }) => {
 export const Users: CollectionConfig = {
   slug: 'users',
   auth: {
-    tokenExpiration: 7200,
+    // Persistent login for seven days. Payload stores the JWT in an HTTP-only
+    // cookie with the same expiry; explicit logout invalidates it immediately.
+    tokenExpiration: 60 * 60 * 24 * 7,
+    cookies: {
+      sameSite: 'Lax',
+      secure: process.env.NODE_ENV === 'production',
+    },
     maxLoginAttempts: 5,
     lockTime: 600000,
   },

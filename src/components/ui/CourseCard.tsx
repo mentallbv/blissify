@@ -33,6 +33,7 @@ export function CourseCard({
   return (
     <a href={href} className="bl-coursecard" style={{ display: 'block', overflow: 'hidden' }}>
       <div
+        className="bl-coursecard-image"
         style={{
           position: 'relative',
           height: 200,
@@ -63,7 +64,7 @@ export function CourseCard({
           {premium ? <span style={{ borderRadius: 999, padding: '4px 8px', background: 'var(--blissify-terracotta)', color: '#fff', fontFamily: 'var(--font-ui)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Premium</span> : null}
         </div>
       </div>
-      <div style={{ padding: 16 }}>
+      <div className="bl-coursecard-body" style={{ padding: 16 }}>
         <h3
           style={{
             margin: '0 0 6px',
@@ -86,7 +87,7 @@ export function CourseCard({
             lineHeight: 1.4,
           }}
         >
-          <span style={{ color: providerType === 'brand' ? 'var(--badge-brand-fg)' : 'var(--badge-trainer-fg)', fontWeight: 500 }}>
+          <span style={{ color: providerType === 'brand' ? 'var(--blissify-terracotta)' : 'var(--blissify-forest)', fontWeight: 500 }}>
             {providerType === 'brand' ? 'Merk & Leverancier' : 'Opleider'}
           </span>
           {' · '}{provider} · {location}

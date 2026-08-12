@@ -22,9 +22,9 @@ export default async function DashboardLayout({ children }: { children: React.Re
   const showRegistrations = features.hasInPlatformRegistration
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: 'var(--surface-page)' }}>
+    <div className="bl-dashboard-shell" style={{ display: 'flex', minHeight: '100vh', background: 'var(--surface-page)' }}>
       <DashSidebar providerName={name} showRegistrations={showRegistrations} showAnalytics={features.hasAnalytics} />
-      <main style={{ flex: 1, minWidth: 0, padding: '40px 48px' }}>{children}</main>
+      <main className="bl-dashboard-main" style={{ flex: 1, minWidth: 0, padding: '40px 48px' }}>{children}</main>
     </div>
   )
 }

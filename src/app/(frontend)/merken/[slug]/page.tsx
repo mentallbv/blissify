@@ -90,9 +90,9 @@ export default async function MerkPage({ params }: Params) {
         {brand.gallery?.length ? (
           <div style={{ marginBottom: 56 }}>
             <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 26, color: 'var(--text-brand)', margin: '0 0 20px' }}>Sfeer &amp; producten</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: brand.gallery.length === 1 ? '1fr' : 'repeat(2, minmax(0, 1fr))', gap: 14 }}>
+            <div className="bl-brand-gallery" style={{ display: 'grid', gridTemplateColumns: brand.gallery.length === 1 ? '1fr' : 'repeat(2, minmax(0, 1fr))', gap: 14 }}>
               {brand.gallery.map((item, index) => (
-                <figure key={`${item.image}-${index}`} style={{ margin: 0, minHeight: index === 0 ? 360 : 240, borderRadius: 'var(--radius-md)', overflow: 'hidden', position: 'relative', background: 'var(--surface-dark)' }}>
+                <figure key={`${item.image}-${index}`} style={{ margin: 0, height: 300, borderRadius: 'var(--radius-md)', overflow: 'hidden', position: 'relative', background: 'var(--surface-dark)' }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={item.image} alt={item.caption || `${brand.name} sfeerfoto ${index + 1}`} style={{ width: '100%', height: '100%', position: 'absolute', inset: 0, objectFit: 'cover' }} />
                   {item.caption ? <figcaption style={{ position: 'absolute', left: 14, bottom: 12, right: 14, color: '#fff', fontFamily: 'var(--font-ui)', fontSize: 12, textShadow: '0 1px 8px rgba(0,0,0,.65)' }}>{item.caption}</figcaption> : null}

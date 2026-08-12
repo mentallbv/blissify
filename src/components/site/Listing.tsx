@@ -49,7 +49,7 @@ export function Listing({
       ) : null}
 
       {/* Sidebar + results */}
-      <div className="bl-container" style={{ paddingTop: 40, paddingBottom: 96 }}>
+      <div className="bl-container bl-listing-section" style={{ paddingTop: 40, paddingBottom: 96 }}>
         <div className="bl-listing-grid" style={{ display: 'grid', gridTemplateColumns: '264px 1fr', alignItems: 'start', gap: 40 }}>
           <FilterSidebar options={options} lockCategory={lockCategory} />
 

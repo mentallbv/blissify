@@ -219,17 +219,18 @@ export function Avatar({
   )
 }
 
-/* Account-type badge. Color-coded by account type:
-   - brand (Merken & Leveranciers): goud/zwart
-   - trainer (Opleiders): blauw */
+/* Account-type badges use the core Blissify palette:
+   terracotta for brands and forest for trainers. */
 export function TypeBadge({
   type,
   label,
   children,
+  style,
 }: {
   type: 'brand' | 'trainer'
   label?: string
   children?: React.ReactNode
+  style?: React.CSSProperties
 }) {
   const isBrand = type === 'brand'
   const text = children ?? label ?? (isBrand ? 'Merk & Leverancier' : 'Opleider')
@@ -248,6 +249,7 @@ export function TypeBadge({
         borderRadius: 'var(--radius-pill)',
         background: isBrand ? 'var(--badge-brand-bg)' : 'var(--badge-trainer-bg)',
         color: isBrand ? 'var(--badge-brand-fg)' : 'var(--badge-trainer-fg)',
+        ...style,
       }}
     >
       {text}

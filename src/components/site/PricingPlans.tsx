@@ -68,13 +68,13 @@ export function PricingPlans({
         </div>
       ) : null}
 
-      <div className="bl-cat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, alignItems: 'start' }}>
+      <div className="bl-cat-grid bl-pricing-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, alignItems: 'stretch' }}>
         {data.tiers.map((tier) => {
           const annual = tier.annualPrice || Number(tier.price.replace(/[^\d]/g, ''))
           const amount = cycle === 'monthly' ? monthlyPrice(annual, billing.monthlyMarkupPercent) : annual
           const formatted = amount.toLocaleString('nl-BE', { minimumFractionDigits: cycle === 'monthly' ? 2 : 0, maximumFractionDigits: 2 })
           return (
-            <div key={tier.key} style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: 32 }}>
+            <div key={tier.key} className="bl-pricing-card" style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: 32 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
                 <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 14, color: 'var(--text-strong)' }}>{tier.name}</span>
                 {tier.recommended ? <span style={{ fontFamily: 'var(--font-ui)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#fff', background: 'var(--blissify-terracotta)', borderRadius: 999, padding: '3px 9px' }}>Aanbevolen</span> : null}

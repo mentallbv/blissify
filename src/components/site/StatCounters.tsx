@@ -5,7 +5,8 @@ import React from 'react'
 type Stat = { target: number; suffix?: string; label: string }
 
 export function StatCounters({ stats }: { stats: Stat[] }) {
-  const [vals, setVals] = React.useState<number[]>(stats.map(() => 0))
+  // Render real values in the server HTML as a resilient no-JS fallback.
+  const [vals, setVals] = React.useState<number[]>(stats.map((stat) => stat.target))
   const ref = React.useRef<HTMLDivElement>(null)
   const ran = React.useRef(false)
 
@@ -15,6 +16,7 @@ export function StatCounters({ stats }: { stats: Stat[] }) {
     const run = () => {
       if (ran.current) return
       ran.current = true
+      setVals(stats.map(() => 0))
       const dur = 1300
       const start = performance.now()
       const tick = (now: number) => {

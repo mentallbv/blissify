@@ -41,6 +41,7 @@ export function DashSidebar({
 
   return (
     <aside
+      className="bl-dashboard-sidebar"
       style={{
         position: 'sticky',
         top: 0,
@@ -130,7 +131,7 @@ export function DashSidebar({
 
 export function PageTitle({ children }: { children: React.ReactNode }) {
   return (
-    <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 40, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: '0 0 32px', lineHeight: 1.1 }}>
+    <h1 className="bl-dashboard-title" style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 40, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: '0 0 32px', lineHeight: 1.1 }}>
       {children}
     </h1>
   )

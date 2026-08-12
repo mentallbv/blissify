@@ -15,7 +15,7 @@ export function DbPage({ page }: { page: PageDoc }) {
   return (
     <SiteChrome>
       {hero && (hero.title || hero.eyebrow) ? (
-        <section className="bl-container" style={{ paddingTop: 96, paddingBottom: 48 }}>
+        <section className="bl-container bl-page-hero" style={{ paddingTop: 96, paddingBottom: 48 }}>
           <div
             className={heroImage ? 'bl-2col' : undefined}
             style={{
@@ -32,7 +32,7 @@ export function DbPage({ page }: { page: PageDoc }) {
                 </span>
               ) : null}
               {hero.title ? (
-                <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 56, lineHeight: 1.05, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: '18px 0 0', textWrap: 'balance' }}>
+                <h1 className="bl-page-title" style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 56, lineHeight: 1.05, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: '18px 0 0', textWrap: 'balance' }}>
                   {hero.title}
                 </h1>
               ) : null}
@@ -51,6 +51,7 @@ export function DbPage({ page }: { page: PageDoc }) {
             </div>
             {heroImage ? (
               <div
+                className="bl-db-hero-image"
                 role="img"
                 aria-label=""
                 style={{
