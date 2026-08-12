@@ -1,5 +1,6 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { BILLING_FALLBACK, BRAND_PRICING_FALLBACK, FAQ_HOME, PRICING_FALLBACK } from '@/lib/pricing'
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 const rt = (text: string) => ({
@@ -31,6 +32,7 @@ const sanitizeTrustCopy = (value: unknown): unknown => {
   if (typeof value === 'string') {
     return value
       .replace(/elke opleider wordt handmatig geverifieerd/gi, 'de profielinformatie wordt door de aanbieder aangeleverd')
+      .replace(/elke opleider wordt handmatig gecontroleerd[^.]*\./gi, 'Blissify controleert of verifieert opleiders niet. Vergelijk de informatie die aanbieders zelf publiceren.')
       .replace(/handmatig gecontroleerde academies/gi, 'opleiders met heldere profielinformatie')
       .replace(/geverifieerde opleiders/gi, 'professionele opleiders')
       .replace(/geverifieerde, professionele/gi, 'professionele')
@@ -49,6 +51,21 @@ const sanitizeTrustCopy = (value: unknown): unknown => {
   }
   return value
 }
+
+const pricingAudienceForGlobal = (source: typeof PRICING_FALLBACK) => ({
+  intro: source.intro,
+  tiers: source.tiers.map((tier) => ({
+    key: tier.key,
+    name: tier.name,
+    tagline: tier.tagline,
+    annualPrice: tier.annualPrice || Number(tier.price.replace(/[^\d]/g, '')),
+    desc: tier.desc,
+    recommended: tier.recommended,
+    features: tier.features.map((feature) => ({ feature })),
+  })),
+  comparison: source.comparison,
+  bottomCta: source.bottomCta,
+})
 
 const PASSWORD = 'Test1234!'
 const TEST_NOTIFY = 'test-inschrijvingen@blissify.be'
@@ -257,6 +274,24 @@ const OPLEIDER_COURSES: CourseSeed[] = [
 async function seed() {
   const payload = await getPayload({ config })
   console.log('🌱 Seeding Blissify (tier + registration test dataset)...\n')
+
+  // Keep the global configuration aligned with the seeded tier logic.
+  await payload.updateGlobal({
+    slug: 'subscription-settings' as never,
+    data: {
+      homepageOpleiderTiers: ['premium'],
+      homepageBrandTiers: ['partner_professional', 'partner_premium'],
+    } as never,
+  })
+  await payload.updateGlobal({
+    slug: 'pricing' as never,
+    data: {
+      billing: BILLING_FALLBACK,
+      opleiders: pricingAudienceForGlobal(PRICING_FALLBACK),
+      brands: pricingAudienceForGlobal(BRAND_PRICING_FALLBACK),
+    } as never,
+  })
+  console.log('⚙️  Subscription Settings + Pricing globals configured')
 
   // ── CLEANUP ────────────────────────────────────────────────────────────────
   console.log('🧹 Clearing existing data...')
@@ -486,7 +521,7 @@ async function seed() {
       ...(homepage.trustText ? { trustText: sanitizeTrustCopy(homepage.trustText) } : {}),
       ...(homepage.why ? { why: sanitizeTrustCopy(homepage.why) } : {}),
       ...(homepage.stats ? { stats: homepage.stats } : {}),
-      ...(homepage.faq ? { faq: sanitizeTrustCopy(homepage.faq) } : {}),
+      faq: FAQ_HOME.map((item) => ({ question: item.q, answer: item.a })),
       photoSection: {
         ...sanitizeTrustCopy(existingPhoto) as typeof existingPhoto,
         title: existingPhoto.title || 'Ontdek hoe Blissify werkt',

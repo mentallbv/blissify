@@ -9,7 +9,7 @@ const LINKS = [
   { slug: 'merken', label: 'Merken en Leveranciers', href: '/merken' },
 ]
 
-export function SiteNav() {
+export function SiteNav({ user = null }: { user?: { name?: string | null; role?: string | null } | null }) {
   const pathname = usePathname() || '/'
   const [scrolled, setScrolled] = React.useState(false)
   const [mobileOpen, setMobileOpen] = React.useState(false)
@@ -24,6 +24,13 @@ export function SiteNav() {
   React.useEffect(() => setMobileOpen(false), [pathname])
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + '/')
+  const accountHref = user?.role === 'admin' ? '/admin' : '/dashboard'
+  const accountLabel = user?.name?.trim() || 'Mijn dashboard'
+
+  async function logout() {
+    await fetch('/api/users/logout', { method: 'POST', credentials: 'include' }).catch(() => {})
+    window.location.assign('/')
+  }
 
   return (
     <div className={'blnav-wrap' + (scrolled ? ' is-scrolled' : '')}>
@@ -48,9 +55,16 @@ export function SiteNav() {
           </div>
         </nav>
         <div className="blnav-right">
-          <a className="blnav-login" href="/inloggen">
-            Inloggen
-          </a>
+          {user ? (
+            <>
+              <a className="blnav-login" href={accountHref}>
+                {accountLabel}
+              </a>
+              <button type="button" className="blnav-logout" onClick={logout}>Uitloggen</button>
+            </>
+          ) : (
+            <a className="blnav-login" href="/inloggen">Inloggen</a>
+          )}
           <a className="blnav-cta" href="/voor-aanbieders">
             Publiceer
           </a>
@@ -75,6 +89,12 @@ export function SiteNav() {
           <a href="/prijzen/opleiders" className={isActive('/prijzen/opleiders') ? 'active' : ''}>Voor opleiders</a>
           <a href="/prijzen/merken-leveranciers" className={isActive('/prijzen/merken-leveranciers') ? 'active' : ''}>Voor merken &amp; leveranciers</a>
         </div>
+        {user ? (
+          <div className="blnav-mobile-account">
+            <a href={accountHref}>{accountLabel}</a>
+            <button type="button" onClick={logout}>Uitloggen</button>
+          </div>
+        ) : <a href="/inloggen">Inloggen</a>}
       </nav>
     </div>
   )

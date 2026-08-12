@@ -1,12 +1,14 @@
 import React from 'react'
 import { SiteNav } from './SiteNav'
 import { SiteFooter } from './SiteFooter'
+import { getCurrentUser } from '@/lib/session'
 
 /** Wraps marketing/marketplace pages with the sticky nav and forest footer. */
-export function SiteChrome({ children }: { children: React.ReactNode }) {
+export async function SiteChrome({ children }: { children: React.ReactNode }) {
+  const user = await getCurrentUser()
   return (
     <>
-      <SiteNav />
+      <SiteNav user={user ? { name: user.name, role: user.role } : null} />
       <main>{children}</main>
       <SiteFooter />
     </>

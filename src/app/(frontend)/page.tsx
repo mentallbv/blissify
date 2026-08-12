@@ -10,6 +10,7 @@ import { PricingPlans } from '@/components/site/PricingPlans'
 import { Eyebrow, ButtonLink, CourseCard } from '@/components/ui'
 import { getPricingCatalog, getCourseFilterOptions, getHomepageSections } from '@/lib/data'
 import { FAQ_HOME } from '@/lib/pricing'
+import { getCurrentUser } from '@/lib/session'
 
 export const dynamic = 'force-dynamic'
 
@@ -41,6 +42,7 @@ const DEFAULT_TILES = [
 const mediaUrl = (m: unknown): string | null => (m && typeof m === 'object' && (m as { url?: string }).url ? (m as { url: string }).url : null)
 const cleanTrustCopy = (value: string) =>
   value
+    .replace(/geverifieerde, professionele/gi, 'professionele')
     .replace(/geverifieerde opleiders/gi, 'Professionele opleiders')
     .replace(/geverifieerde aanbieders/gi, 'Professionele aanbieders')
 
@@ -54,6 +56,7 @@ async function getHomepage(): Promise<Record<string, any> | null> {
 }
 
 export default async function HomePage() {
+  const currentUser = await getCurrentUser()
   const hp = (await getHomepage()) || {}
   const hero = hp.hero || {}
   const why = hp.why || {}
@@ -76,7 +79,9 @@ export default async function HomePage() {
     { target: counts.opleiders, suffix: '', label: 'Opleiders' },
     { target: counts.merken, suffix: '', label: 'Merken' },
   ]
-  const faqItems = Array.isArray(hp.faq) && hp.faq.length ? hp.faq.map((f: { question: string; answer: string }) => ({ q: f.question, a: f.answer })) : FAQ_HOME
+  const faqItems = Array.isArray(hp.faq) && hp.faq.length
+    ? hp.faq.map((f: { question: string; answer: string }) => ({ q: cleanTrustCopy(f.question), a: cleanTrustCopy(f.answer) }))
+    : FAQ_HOME
 
   const searchOptions = await getCourseFilterOptions()
   const { brandCourses, opleiderCourses } = await getHomepageSections()
@@ -84,7 +89,7 @@ export default async function HomePage() {
 
   return (
     <>
-      <SiteNav />
+      <SiteNav user={currentUser ? { name: currentUser.name, role: currentUser.role } : null} />
 
       {/* HERO */}
       <section
