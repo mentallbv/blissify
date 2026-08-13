@@ -2,12 +2,11 @@ import { NextResponse } from 'next/server'
 import { headers as getHeaders } from 'next/headers'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
-import { createCustomer, createFirstPayment, isBrandTier, isTrainerTier, mollieConfigured, planLabel, type BillingCycle, type PlanTier } from '@/lib/mollie'
+import { createCustomer, createFirstPayment, mollieConfigured, planLabel, type BillingCycle, type PlanTier } from '@/lib/mollie'
 import { SITE_URL } from '@/lib/email'
-import { getPricingCatalog } from '@/lib/data'
-import { monthlyPrice } from '@/lib/pricing'
+import { resolvePlan } from '@/lib/subscription-plan'
 
-/** POST /api/subscription/start { tier } - create/reuse Mollie customer + first payment. */
+/** POST /api/subscription/start { tier, billingCycle, method } - create/reuse Mollie customer + first payment. */
 export async function POST(req: Request) {
   try {
     if (!mollieConfigured()) {
@@ -25,18 +24,11 @@ export async function POST(req: Request) {
     const body = await req.json()
     const tier = body.tier as PlanTier
     const billingCycle: BillingCycle = body.billingCycle === 'monthly' ? 'monthly' : 'yearly'
-    if ((!isTrainerTier(tier) && !isBrandTier(tier)) || (u.role === 'brand' ? !isBrandTier(tier) : !isTrainerTier(tier))) {
-      return NextResponse.json({ error: 'Ongeldige formule.' }, { status: 400 })
-    }
-    const catalog = await getPricingCatalog()
-    if (billingCycle === 'monthly' && !catalog.billing.monthlyEnabled) {
-      return NextResponse.json({ error: 'Maandelijkse betaling is niet beschikbaar.' }, { status: 400 })
-    }
-    const audience = u.role === 'brand' ? catalog.brands : catalog.opleiders
-    const selected = audience.tiers.find((item) => item.key === tier)
-    if (!selected) return NextResponse.json({ error: 'Ongeldige formule.' }, { status: 400 })
-    const annualPrice = selected.annualPrice || Number(selected.price.replace(/[^\d]/g, ''))
-    const amount = (billingCycle === 'monthly' ? monthlyPrice(annualPrice, catalog.billing.monthlyMarkupPercent) : annualPrice).toFixed(2)
+    const method = typeof body.method === 'string' && body.method ? body.method : undefined
+
+    const plan = await resolvePlan(u.role, tier, billingCycle)
+    if (!plan.ok) return NextResponse.json({ error: plan.error }, { status: plan.status })
+    const { amount, catalog } = plan
     const now = new Date()
     const trialEndsAt = catalog.billing.trialEnabled
       ? new Date(now.getTime() + catalog.billing.trialDays * 86400000)
@@ -63,6 +55,7 @@ export async function POST(req: Request) {
       tier,
       trialEnabled: catalog.billing.trialEnabled,
       amount,
+      method,
       description: catalog.billing.trialEnabled ? `Blissify proefperiode - ${planLabel(tier)}` : `Blissify abonnement - ${planLabel(tier)}`,
       redirectUrl: `${SITE_URL}/dashboard/abonnement?betaling=verwerkt`,
       metadata: {
@@ -103,7 +96,15 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ checkoutUrl })
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Er ging iets mis.'
-    return NextResponse.json({ error: message }, { status: 500 })
+    // Mollie errors carry internal ids and are never safe to show to a user.
+    console.error('[mollie] checkout start failed', err)
+    const raw = err instanceof Error ? err.message : ''
+    if (raw.includes('No suitable payment methods found')) {
+      return NextResponse.json(
+        { error: 'Er is momenteel geen betaalmethode beschikbaar voor een abonnement. Neem contact op met Blissify.' },
+        { status: 503 },
+      )
+    }
+    return NextResponse.json({ error: 'We konden de betaling niet starten. Probeer het later opnieuw.' }, { status: 500 })
   }
 }

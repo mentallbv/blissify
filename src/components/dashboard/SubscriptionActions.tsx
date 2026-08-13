@@ -3,6 +3,7 @@
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui'
+import { PaymentMethodPicker, usePaymentMethods } from '@/components/dashboard/PaymentMethodPicker'
 
 /**
  * Dashboard banner shown whenever the subscription is not active. Re-triggers
@@ -82,6 +83,18 @@ export function CheckoutButton({
 }) {
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
+  const [method, setMethod] = React.useState<string | null>(null)
+  // Methods are only fetched once this tier is chosen, so a page full of tier
+  // cards does not fire a request per card.
+  const [armed, setArmed] = React.useState(false)
+  const methods = usePaymentMethods(tier, billingCycle, armed)
+  const choosing = armed && methods !== null && methods.length > 1
+
+  // Nothing to choose between -> let Mollie's hosted checkout handle it.
+  React.useEffect(() => {
+    if (armed && methods !== null && methods.length < 2) void start()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [armed, methods])
 
   async function start() {
     setLoading(true)
@@ -91,7 +104,7 @@ export function CheckoutButton({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ tier, billingCycle }),
+        body: JSON.stringify({ tier, billingCycle, method }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok || !data?.checkoutUrl) throw new Error(data?.error || 'Kon de betaling niet starten.')
@@ -104,8 +117,15 @@ export function CheckoutButton({
 
   return (
     <>
-      <Button variant={variant} size="sm" fullWidth onClick={start} disabled={loading}>
-        {loading ? 'Bezig…' : label}
+      {choosing ? <PaymentMethodPicker methods={methods} value={method} onChange={setMethod} /> : null}
+      <Button
+        variant={variant}
+        size="sm"
+        fullWidth
+        onClick={choosing ? start : () => setArmed(true)}
+        disabled={loading || (armed && !choosing) || (choosing && !method)}
+      >
+        {loading || (armed && !choosing) ? 'Bezig…' : choosing ? 'Doorgaan naar betaling' : label}
       </Button>
       {error ? <span style={{ display: 'block', marginTop: 8, fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--status-error)' }}>{error}</span> : null}
     </>

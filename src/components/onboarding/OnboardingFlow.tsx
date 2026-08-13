@@ -4,6 +4,7 @@ import React from 'react'
 import { Input, Select, Button, Tag } from '@/components/ui'
 import { PricingCard, type PricingCardTier } from '@/components/site/PricingCard'
 import { FormErrorCard } from '@/components/site/FormErrorCard'
+import { PaymentMethodPicker, usePaymentMethods } from '@/components/dashboard/PaymentMethodPicker'
 
 const STEPS = [
   { n: 1, label: 'Account' },
@@ -74,6 +75,13 @@ export function OnboardingFlow({
   const [error, setError] = React.useState<string | null>(null)
   const [loading, setLoading] = React.useState(false)
   const lastTier = React.useRef<OnboardingTier['key'] | null>(null)
+  // Picking a tier loads its payment methods; the user only sees a choice when
+  // more than one is available, otherwise checkout starts straight away.
+  const [chosenTier, setChosenTier] = React.useState<OnboardingTier['key'] | null>(null)
+  const [method, setMethod] = React.useState<string | null>(null)
+  const methods = usePaymentMethods(chosenTier || '', billingCycle, Boolean(chosenTier))
+  const choosing = Boolean(chosenTier) && methods !== null && methods.length > 1
+  const autoStarted = React.useRef(false)
   const toggleSpec = (s: string) => setSpecs((cur) => (cur.includes(s) ? cur.filter((x) => x !== s) : [...cur, s]))
 
   async function saveAndContinue() {
@@ -104,7 +112,7 @@ export function OnboardingFlow({
     }
   }
 
-  async function startCheckout(tier: OnboardingTier['key']) {
+  async function startCheckout(tier: OnboardingTier['key'], chosenMethod: string | null = null) {
     lastTier.current = tier
     setError(null)
     setLoading(true)
@@ -113,17 +121,31 @@ export function OnboardingFlow({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ tier, billingCycle }),
+        body: JSON.stringify({ tier, billingCycle, method: chosenMethod }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok || !data?.checkoutUrl) throw new Error(data?.error || 'checkout_failed')
       window.location.href = data.checkoutUrl
     } catch (err) {
       console.error('[onboarding] checkout start failed', err)
-      setError('Er ging iets mis bij het starten van de betaling. Probeer het opnieuw of neem contact op als het probleem aanhoudt.')
+      setError(
+        err instanceof Error && err.message && err.message !== 'checkout_failed'
+          ? err.message
+          : 'Er ging iets mis bij het starten van de betaling. Probeer het opnieuw of neem contact op als het probleem aanhoudt.',
+      )
+      setChosenTier(null)
+      autoStarted.current = false
       setLoading(false)
     }
   }
+
+  // Only one method available -> skip the picker entirely.
+  React.useEffect(() => {
+    if (!chosenTier || methods === null || methods.length > 1 || autoStarted.current) return
+    autoStarted.current = true
+    void startCheckout(chosenTier)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chosenTier, methods])
 
   return (
     <>
@@ -241,17 +263,39 @@ export function OnboardingFlow({
                     key={t.key}
                     tier={{ ...t, recommended: t.key === initialTier || t.recommended }}
                     cta={
-                      <Button variant={t.recommended ? 'accent' : 'primary'} fullWidth onClick={() => startCheckout(t.key)} disabled={loading}>
-                        {loading ? 'Bezig...' : `Kies ${t.name}`}
+                      <Button
+                        variant={t.recommended ? 'accent' : 'primary'}
+                        fullWidth
+                        onClick={() => {
+                          setMethod(null)
+                          autoStarted.current = false
+                          setChosenTier(t.key)
+                        }}
+                        disabled={loading || Boolean(chosenTier)}
+                      >
+                        {chosenTier === t.key ? 'Gekozen' : loading ? 'Bezig...' : `Kies ${t.name}`}
                       </Button>
                     }
                   />
                 ))}
               </div>
 
+              {choosing ? (
+                <div style={{ marginTop: 32, maxWidth: 520 }}>
+                  <PaymentMethodPicker methods={methods} value={method} onChange={setMethod} />
+                  <Button
+                    variant="accent"
+                    onClick={() => startCheckout(chosenTier as OnboardingTier['key'], method)}
+                    disabled={loading || !method}
+                  >
+                    {loading ? 'Bezig...' : 'Doorgaan naar betaling'}
+                  </Button>
+                </div>
+              ) : null}
+
               {error ? (
                 <div style={{ marginTop: 32 }}>
-                  <FormErrorCard message={error} onRetry={lastTier.current ? () => startCheckout(lastTier.current as OnboardingTier['key']) : undefined} />
+                  <FormErrorCard message={error} onRetry={lastTier.current ? () => startCheckout(lastTier.current as OnboardingTier['key'], method) : undefined} />
                 </div>
               ) : null}
             </>

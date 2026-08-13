@@ -80,6 +80,25 @@ export function createCustomer(name: string, email: string): Promise<MollieCusto
   return mollie<MollieCustomer>('/customers', { method: 'POST', body: JSON.stringify({ name, email }) })
 }
 
+export type MollieMethod = { id: string; description: string; image?: { size2x?: string; svg?: string } }
+
+/**
+ * Payment methods the account can actually use for the given amount. Filtered by
+ * `sequenceType: 'first'` because a subscription needs a mandate-capable method -
+ * the list is narrower than what a one-off payment would offer, and is empty
+ * unless a mandate-capable method (credit card, SEPA Direct Debit) is enabled.
+ */
+export async function listFirstPaymentMethods(amount: string): Promise<MollieMethod[]> {
+  const query = new URLSearchParams({
+    sequenceType: 'first',
+    'amount[value]': amount,
+    'amount[currency]': 'EUR',
+    locale: 'nl_BE',
+  })
+  const res = await mollie<{ _embedded?: { methods?: MollieMethod[] } }>(`/methods?${query}`)
+  return res._embedded?.methods || []
+}
+
 /** First (mandate-creating) payment. Returns the hosted checkout URL via _links.checkout. */
 export function createFirstPayment(opts: {
   customerId: string
@@ -88,6 +107,7 @@ export function createFirstPayment(opts: {
   amount: string
   description: string
   redirectUrl: string
+  method?: string
   metadata: Record<string, unknown>
 }): Promise<MolliePayment> {
   return mollie<MolliePayment>(`/customers/${opts.customerId}/payments`, {
@@ -98,6 +118,8 @@ export function createFirstPayment(opts: {
       amount: { currency: 'EUR', value: opts.trialEnabled ? '0.02' : opts.amount },
       description: opts.description,
       sequenceType: 'first',
+      // Omitted -> Mollie's hosted checkout shows the method picker itself.
+      method: opts.method || undefined,
       redirectUrl: opts.redirectUrl,
       webhookUrl: MOLLIE_WEBHOOK_URL || undefined,
       metadata: opts.metadata,
