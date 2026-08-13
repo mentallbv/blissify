@@ -57,6 +57,7 @@ export async function POST(req: Request) {
       trialEndsAt?: string
       nextChargeAt?: string
       commitment?: 'annual' | 'cancel_anytime'
+      minimumEndsAt?: string | null
     } | undefined
     const tier = (metadata?.tier || (user.role === 'brand' ? user.brandTier : user.subscriptionTier) || 'basis') as PlanTier
     const billingCycle = metadata?.billingCycle || user.subscriptionBillingCycle || 'yearly'
@@ -73,6 +74,7 @@ export async function POST(req: Request) {
         subscriptionCommitment: metadata?.commitment || 'annual',
         subscriptionTrialEndsAt: trialEndsAt.toISOString(),
         subscriptionExpiresAt: expiresAt.toISOString(),
+        subscriptionMinimumEndsAt: metadata?.minimumEndsAt ?? null,
       }
 
       // First (mandate-creating) payment succeeded -> create the recurring subscription.

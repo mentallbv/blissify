@@ -18,11 +18,17 @@ export async function POST() {
       subscriptionTier?: string
       subscriptionCommitment?: string
       subscriptionMinimumEndsAt?: string
+      subscriptionTrialEndsAt?: string
       mollieCustomerId?: string
       mollieSubscriptionId?: string
     }
 
+    // During the trial the subscription has not charged yet, so the annual
+    // commitment has not started either - cancelling must always be possible.
+    const inTrial = Boolean(u.subscriptionTrialEndsAt && new Date(u.subscriptionTrialEndsAt).getTime() > Date.now())
+
     if (
+      !inTrial &&
       u.subscriptionCommitment === 'annual' &&
       u.subscriptionMinimumEndsAt &&
       new Date(u.subscriptionMinimumEndsAt).getTime() > Date.now()
@@ -39,7 +45,16 @@ export async function POST() {
       await cancelSubscription(u.mollieCustomerId, u.mollieSubscriptionId).catch((err) => console.error('[mollie] cancel failed', err))
     }
 
-    await payload.update({ collection: 'users', id: u.id, data: { subscriptionStatus: 'canceled' } as never, overrideAccess: true })
+    await payload.update({
+      collection: 'users',
+      id: u.id,
+      data: {
+        subscriptionStatus: 'canceled',
+        // Cancelling inside the trial voids the commitment that never started.
+        ...(inTrial ? { subscriptionMinimumEndsAt: null } : {}),
+      } as never,
+      overrideAccess: true,
+    })
 
     if (u.subscriptionTier === 'medium' || u.subscriptionTier === 'premium') {
       await brevoRemoveFromList(u.email)

@@ -17,7 +17,7 @@ export async function POST(req: Request) {
     const { user } = await payload.auth({ headers: await getHeaders() })
     if (!user) return NextResponse.json({ error: 'Niet ingelogd.' }, { status: 401 })
 
-    const u = user as { id: number; email: string; name?: string; role?: string; mollieCustomerId?: string }
+    const u = user as { id: number; email: string; name?: string; role?: string; mollieCustomerId?: string; subscriptionStatus?: string }
     if (u.role !== 'trainer' && u.role !== 'brand') {
       return NextResponse.json({ error: 'Alleen opleiders kunnen een abonnement starten.' }, { status: 400 })
     }
@@ -49,30 +49,14 @@ export async function POST(req: Request) {
     const minimumEndsAt = new Date(now)
     minimumEndsAt.setFullYear(minimumEndsAt.getFullYear() + 1)
 
-    // Reuse the customer if we already created one for this user.
+    // Reuse the customer if we already created one for this user. The id is safe
+    // to persist immediately - it says nothing about the subscription state.
     let customerId = u.mollieCustomerId
     if (!customerId) {
       const customer = await createCustomer(u.name || u.email, u.email)
       customerId = customer.id
+      await payload.update({ collection: 'users', id: u.id, data: { mollieCustomerId: customerId } as never, overrideAccess: true })
     }
-
-    // Persist the chosen tier + mark pending_payment before redirecting to Mollie.
-    // This stores the selection so the dashboard banner can re-trigger checkout,
-    // and keeps status non-active until the webhook confirms payment.paid.
-    await payload.update({
-      collection: 'users',
-      id: u.id,
-      data: {
-        mollieCustomerId: customerId,
-        ...(u.role === 'brand' ? { brandTier: tier } : { subscriptionTier: tier }),
-        subscriptionStatus: 'pending_payment',
-        subscriptionBillingCycle: billingCycle,
-        subscriptionCommitment: catalog.billing.monthlyCommitment,
-        subscriptionTrialEndsAt: trialEndsAt.toISOString(),
-        subscriptionMinimumEndsAt: catalog.billing.monthlyCommitment === 'annual' ? minimumEndsAt.toISOString() : null,
-      } as never,
-      overrideAccess: true,
-    })
 
     const payment = await createFirstPayment({
       customerId,
@@ -90,11 +74,33 @@ export async function POST(req: Request) {
         trialEndsAt: trialEndsAt.toISOString(),
         nextChargeAt: nextChargeAt.toISOString(),
         commitment: catalog.billing.monthlyCommitment,
+        minimumEndsAt: catalog.billing.monthlyCommitment === 'annual' ? minimumEndsAt.toISOString() : null,
       },
     })
 
     const checkoutUrl = payment._links?.checkout?.href
     if (!checkoutUrl) return NextResponse.json({ error: 'Kon de betaling niet starten.' }, { status: 502 })
+
+    // Only touch the subscription state once Mollie has accepted the payment, so
+    // a failed checkout can never downgrade the account. An already-active
+    // subscription (tier change) is left untouched: the webhook applies the new
+    // tier on payment.paid, and the current one keeps working until then.
+    if (u.subscriptionStatus !== 'active') {
+      await payload.update({
+        collection: 'users',
+        id: u.id,
+        data: {
+          ...(u.role === 'brand' ? { brandTier: tier } : { subscriptionTier: tier }),
+          subscriptionStatus: 'pending_payment',
+          subscriptionBillingCycle: billingCycle,
+          subscriptionCommitment: catalog.billing.monthlyCommitment,
+          subscriptionTrialEndsAt: trialEndsAt.toISOString(),
+          subscriptionMinimumEndsAt: catalog.billing.monthlyCommitment === 'annual' ? minimumEndsAt.toISOString() : null,
+        } as never,
+        overrideAccess: true,
+      })
+    }
+
     return NextResponse.json({ checkoutUrl })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Er ging iets mis.'

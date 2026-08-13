@@ -26,6 +26,9 @@ export default async function DashboardSubscriptionPage() {
   const limit = isBrand ? ({ partner_listing: 0, partner_professional: 10, partner_premium: Infinity }[tier] ?? 0) : TIER_LIMITS[tier] ?? 1
   const limitLabel = limit === Infinity ? 'onbeperkt' : String(limit)
   const expires = u?.subscriptionExpiresAt ? new Date(u.subscriptionExpiresAt).toLocaleDateString('nl-BE') : null
+  const trialEndsAt = u?.subscriptionTrialEndsAt ? new Date(u.subscriptionTrialEndsAt) : null
+  const inTrial = Boolean(trialEndsAt && trialEndsAt.getTime() > Date.now())
+  const trialEnds = trialEndsAt ? trialEndsAt.toLocaleDateString('nl-BE') : null
 
   return (
     <>
@@ -48,6 +51,11 @@ export default async function DashboardSubscriptionPage() {
           <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'rgba(245,240,234,0.7)', margin: '16px 0 0' }}>
             {counts.total} van {limitLabel} opleidingen gebruikt
           </p>
+          {inTrial ? (
+            <p style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'rgba(245,240,234,0.85)', margin: '12px 0 0' }}>
+              Proefperiode loopt tot {trialEnds}. Je kan kosteloos stoppen tot die datum.
+            </p>
+          ) : null}
           {u?.subscriptionBillingCycle ? (
             <p style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'rgba(245,240,234,0.6)', margin: '8px 0 0' }}>
               {u.subscriptionBillingCycle === 'monthly' ? 'Maandelijks betaald' : 'Jaarlijks betaald'}
@@ -56,7 +64,7 @@ export default async function DashboardSubscriptionPage() {
         </div>
         {status === 'active' ? (
           <div style={{ marginTop: 16 }}>
-            <CancelButton />
+            <CancelButton inTrial={inTrial} />
           </div>
         ) : null}
       </div>

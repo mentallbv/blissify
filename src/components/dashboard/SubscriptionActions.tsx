@@ -113,13 +113,16 @@ export function CheckoutButton({
 }
 
 /** Cancels the active Mollie subscription. */
-export function CancelButton() {
+export function CancelButton({ inTrial = false }: { inTrial?: boolean }) {
   const router = useRouter()
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
 
   async function cancel() {
-    if (!confirm('Weet je zeker dat je je abonnement wil opzeggen?')) return
+    const question = inTrial
+      ? 'Je proefperiode stopt meteen en er wordt niets afgerekend. Wil je doorgaan?'
+      : 'Weet je zeker dat je je abonnement wil opzeggen?'
+    if (!confirm(question)) return
     setLoading(true)
     setError(null)
     const response = await fetch('/api/subscription/cancel', { method: 'POST', credentials: 'include' }).catch(() => null)
@@ -132,7 +135,7 @@ export function CancelButton() {
   return (
     <>
       <Button variant="ghost" onClick={cancel} disabled={loading}>
-        {loading ? 'Bezig…' : 'Abonnement opzeggen'}
+        {loading ? 'Bezig…' : inTrial ? 'Proefperiode stoppen' : 'Abonnement opzeggen'}
       </Button>
       {error ? <span style={{ display: 'block', marginTop: 8, fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--status-error)' }}>{error}</span> : null}
     </>
