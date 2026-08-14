@@ -4,7 +4,8 @@ import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { createCustomer, createFirstPayment, mollieConfigured, planLabel, type BillingCycle, type PlanTier } from '@/lib/mollie'
 import { SITE_URL } from '@/lib/email'
-import { resolvePlan } from '@/lib/subscription-plan'
+import { publishedCoursesOverLimit, resolvePlan } from '@/lib/subscription-plan'
+import { tierFeatures } from '@/lib/tier-features'
 
 /** POST /api/subscription/start { tier, billingCycle, method } - create/reuse Mollie customer + first payment. */
 export async function POST(req: Request) {
@@ -29,6 +30,22 @@ export async function POST(req: Request) {
     const plan = await resolvePlan(u.role, tier, billingCycle)
     if (!plan.ok) return NextResponse.json({ error: plan.error }, { status: plan.status })
     const { amount, catalog } = plan
+
+    // A downgrade must not silently take courses offline - the user decides
+    // which ones to keep, by unpublishing the surplus before switching.
+    const surplus = await publishedCoursesOverLimit(payload, u.id, u.role, tier)
+    if (surplus > 0) {
+      const noun = surplus === 1 ? 'opleiding' : 'opleidingen'
+      const limit = tierFeatures(u.role === 'brand' ? 'brand' : 'trainer', tier).courseLimit
+      return NextResponse.json(
+        {
+          error:
+            `Deze formule laat maximaal ${limit} actieve ${limit === 1 ? 'opleiding' : 'opleidingen'} toe. ` +
+            `Zet eerst ${surplus} ${noun} op concept via je dashboard en kies daarna deze formule.`,
+        },
+        { status: 409 },
+      )
+    }
     const now = new Date()
     const trialEndsAt = catalog.billing.trialEnabled
       ? new Date(now.getTime() + catalog.billing.trialDays * 86400000)

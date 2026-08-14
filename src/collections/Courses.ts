@@ -2,6 +2,7 @@ import type { CollectionConfig, Access } from 'payload'
 import { seoFields } from '@/fields/seo'
 import { getBrandIdForUser, getTrainerIdForUser } from '@/access'
 import { tierForUser, type TierFeatures } from '@/lib/tier-features'
+import { isEntitled } from '@/lib/entitlement'
 
 /** Active-course limit for a user, based on account type + tier. */
 function courseLimitFor(user: { role?: string; subscriptionTier?: string; brandTier?: string }): number {
@@ -112,6 +113,39 @@ export const Courses: CollectionConfig = {
       async ({ data, operation, req, originalDoc }) => {
         const user = req.user as any
 
+        // ── Ownership ────────────────────────────────────────────────────────
+        // A course is always filed under the caller's own profile. This must run
+        // before anything derives from data.brand/data.trainer, and cannot live
+        // in the API route alone: Payload's REST API is mounted at
+        // /api/courses, so a client can POST to the collection directly.
+        if (user && user.role !== 'admin') {
+          const isTrainer = user.role === 'trainer'
+          if (!isTrainer && user.role !== 'brand') {
+            throw new Error('Je hebt geen toegang om opleidingen te beheren.')
+          }
+
+          const ownProfileId = isTrainer ? await getTrainerIdForUser(req) : await getBrandIdForUser(req)
+          if (!ownProfileId) {
+            throw new Error(
+              isTrainer
+                ? 'Je hebt nog geen opleiderprofiel. Vul eerst je profiel aan.'
+                : 'Je hebt nog geen merkprofiel. Vul eerst je profiel aan.',
+            )
+          }
+
+          if (operation === 'update' && originalDoc) {
+            const existing = isTrainer ? originalDoc.trainer : originalDoc.brand
+            const existingId = typeof existing === 'object' ? existing?.id : existing
+            if (existingId && String(existingId) !== String(ownProfileId)) {
+              throw new Error('Je hebt geen toegang om deze cursus te bewerken.')
+            }
+          }
+
+          // Overwrite rather than validate: whatever the client sent is ignored.
+          data.trainer = isTrainer ? ownProfileId : null
+          data.brand = isTrainer ? null : ownProfileId
+        }
+
         // Registration mode is always resolved server-side from the owning brand
         // tier, for every writer (incl. admin), and never trusted from the client.
         const brandRel = (data as { brand?: unknown }).brand ?? originalDoc?.brand
@@ -127,39 +161,16 @@ export const Courses: CollectionConfig = {
 
         if (!user || user.role === 'admin') return data
 
-        // ── Ownership guard on update ────────────────────────────────────────
-        if (operation === 'update' && originalDoc) {
-          if (user.role === 'trainer') {
-            const trainerId = await getTrainerIdForUser(req)
-            const courseTrainerId =
-              typeof originalDoc.trainer === 'object'
-                ? originalDoc.trainer?.id
-                : originalDoc.trainer
-            if (trainerId && courseTrainerId && String(courseTrainerId) !== String(trainerId)) {
-              throw new Error('Je hebt geen toegang om deze cursus te bewerken.')
-            }
-          }
-          if (user.role === 'brand') {
-            const brandId = await getBrandIdForUser(req)
-            const courseBrandId =
-              typeof originalDoc.brand === 'object'
-                ? originalDoc.brand?.id
-                : originalDoc.brand
-            if (brandId && courseBrandId && String(courseBrandId) !== String(brandId)) {
-              throw new Error('Je hebt geen toegang om deze cursus te bewerken.')
-            }
-          }
-        }
-
         // ── Subscription tier limit ──────────────────────────────────────────
         const isPublishing =
           data.status === 'published' &&
           (operation === 'create' || originalDoc?.status !== 'published')
 
         if (isPublishing) {
-          // Publishing requires an active (paid) subscription. Drafts are always
-          // allowed; only the transition to 'published' is gated.
-          if (user.subscriptionStatus !== 'active') {
+          // Publishing requires a paid-up subscription. Drafts are always
+          // allowed; only the transition to 'published' is gated. A cancelled
+          // account keeps this right until the period it paid for ends.
+          if (!isEntitled(user)) {
             throw new Error(
               'Je kunt pas opleidingen publiceren zodra je abonnement actief is. ' +
               'Rond je betaling af via je dashboard om te publiceren.'

@@ -9,17 +9,28 @@ import { PaymentMethodPicker, usePaymentMethods } from '@/components/dashboard/P
  * Dashboard banner shown whenever the subscription is not active. Re-triggers
  * Mollie checkout for the user's already-selected tier (stored on the user).
  */
-export function SubscriptionBanner({ status, tier }: { status: string; tier: string }) {
+export function SubscriptionBanner({
+  status,
+  tier,
+  entitledUntil = null,
+}: {
+  status: string
+  tier: string
+  /** Set when a cancelled subscription is still inside its paid period. */
+  entitledUntil?: string | null
+}) {
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
 
   if (status === 'active') return null
 
   const pending = status === 'pending_payment'
-  const message = pending
-    ? 'Je profiel is nog niet actief. Rond je betaling af om opleidingen te publiceren.'
-    : 'Je abonnement is niet actief. Activeer een formule om opleidingen te publiceren.'
-  const cta = pending ? 'Rond je betaling af' : 'Abonnement activeren'
+  const message = entitledUntil
+    ? `Je abonnement is opgezegd. Je opleidingen blijven online tot ${new Date(entitledUntil).toLocaleDateString('nl-BE')}; daarna gaan ze offline.`
+    : pending
+      ? 'Je profiel is nog niet actief. Rond je betaling af om opleidingen te publiceren.'
+      : 'Je abonnement is niet actief. Activeer een formule om opleidingen te publiceren.'
+  const cta = entitledUntil ? 'Opnieuw abonneren' : pending ? 'Rond je betaling af' : 'Abonnement activeren'
 
   async function start() {
     setLoading(true)
@@ -133,7 +144,7 @@ export function CheckoutButton({
 }
 
 /** Cancels the active Mollie subscription. */
-export function CancelButton({ inTrial = false }: { inTrial?: boolean }) {
+export function CancelButton({ inTrial = false, entitledUntil = null }: { inTrial?: boolean; entitledUntil?: string | null }) {
   const router = useRouter()
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
@@ -141,7 +152,9 @@ export function CancelButton({ inTrial = false }: { inTrial?: boolean }) {
   async function cancel() {
     const question = inTrial
       ? 'Je proefperiode stopt meteen en er wordt niets afgerekend. Wil je doorgaan?'
-      : 'Weet je zeker dat je je abonnement wil opzeggen?'
+      : entitledUntil
+        ? `Je abonnement wordt niet verlengd. Je opleidingen blijven online tot ${new Date(entitledUntil).toLocaleDateString('nl-BE')}. Wil je doorgaan?`
+        : 'Weet je zeker dat je je abonnement wil opzeggen?'
     if (!confirm(question)) return
     setLoading(true)
     setError(null)

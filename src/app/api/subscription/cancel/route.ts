@@ -51,7 +51,9 @@ export async function POST() {
       data: {
         subscriptionStatus: 'canceled',
         // Cancelling inside the trial voids the commitment that never started.
-        ...(inTrial ? { subscriptionMinimumEndsAt: null } : {}),
+        // The paid period ends now too: nothing was paid for, so entitlement
+        // must not run to the expiry date the webhook wrote a year out.
+        ...(inTrial ? { subscriptionMinimumEndsAt: null, subscriptionExpiresAt: new Date().toISOString() } : {}),
       } as never,
       overrideAccess: true,
     })

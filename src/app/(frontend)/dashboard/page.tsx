@@ -6,6 +6,7 @@ import { SubscriptionBanner } from '@/components/dashboard/SubscriptionActions'
 import { getCurrentUser, getCurrentProfile, profileName } from '@/lib/session'
 import { getMyCourses, getMyCourseCounts } from '@/lib/dashboard-data'
 import { getLeadsForCourses, getProfileViewEvents } from '@/lib/supabase'
+import { isEntitled } from '@/lib/entitlement'
 
 export const dynamic = 'force-dynamic'
 
@@ -16,6 +17,7 @@ export default async function DashboardOverviewPage() {
   const sub = user as {
     role?: string
     subscriptionStatus?: string
+    subscriptionExpiresAt?: string
     subscriptionTier?: string
     brandTier?: string
   } | null
@@ -48,6 +50,7 @@ export default async function DashboardOverviewPage() {
     <>
       <SubscriptionBanner
         status={sub?.subscriptionStatus || 'inactive'}
+        entitledUntil={isEntitled(sub) ? sub?.subscriptionExpiresAt || null : null}
         tier={sub?.role === 'brand' ? sub.brandTier || 'partner_listing' : sub?.subscriptionTier || 'basis'}
       />
 

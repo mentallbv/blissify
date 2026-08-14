@@ -64,7 +64,7 @@ export default async function DashboardSubscriptionPage() {
         </div>
         {status === 'active' ? (
           <div style={{ marginTop: 16 }}>
-            <CancelButton inTrial={inTrial} />
+            <CancelButton inTrial={inTrial} entitledUntil={inTrial ? null : u?.subscriptionExpiresAt || null} />
           </div>
         ) : null}
       </div>
