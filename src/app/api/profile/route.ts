@@ -51,9 +51,9 @@ export async function PATCH(req: Request) {
       else data.bio = rich
     }
 
-    // Medium+ perk. Accepted from any trainer: the Trainers beforeChange hook
-    // clears it server-side when the account's tier does not include branding.
-    if (role === 'trainer' && typeof body.accentColor === 'string') {
+    // Branding perk. Accepted from any provider: the Trainers/Brands
+    // beforeChange hooks clear it server-side when the tier excludes branding.
+    if (typeof body.accentColor === 'string') {
       const value = body.accentColor.trim()
       if (!value) data.profileAccentColor = null
       else if (/^#[0-9a-f]{6}$/i.test(value)) data.profileAccentColor = value

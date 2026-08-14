@@ -1,6 +1,7 @@
 import type { CollectionConfig } from 'payload'
 import { isAdmin } from '@/access'
 import { seoFields } from '@/fields/seo'
+import { tierForUser } from '@/lib/tier-features'
 export const Brands: CollectionConfig = {
   slug: 'brands',
   admin: {
@@ -23,6 +24,32 @@ export const Brands: CollectionConfig = {
     },
     // Admin only
     delete: isAdmin,
+  },
+  hooks: {
+    beforeChange: [
+      async ({ data, originalDoc, req }) => {
+        // profileAccentColor is a branding perk. Enforce server-side: clear it
+        // when the owning brand account's tier has no branding rights,
+        // regardless of any value submitted by the client.
+        if (data.profileAccentColor) {
+          const ownerRel = (data as { owner?: unknown }).owner ?? originalDoc?.owner
+          const ownerId = typeof ownerRel === 'object' ? (ownerRel as { id?: number | string })?.id : ownerRel
+          let tier: string | undefined
+          if (ownerId) {
+            try {
+              const owner = await req.payload.findByID({ collection: 'users', id: ownerId as never, depth: 0, overrideAccess: true })
+              tier = (owner as { brandTier?: string })?.brandTier
+            } catch {
+              tier = undefined
+            }
+          }
+          if (!tierForUser({ role: 'brand', brandTier: tier }).features.hasProfileBranding) {
+            ;(data as { profileAccentColor?: string | null }).profileAccentColor = null
+          }
+        }
+        return data
+      },
+    ],
   },
   fields: [
     {
@@ -175,6 +202,16 @@ export const Brands: CollectionConfig = {
         { label: 'Biologisch', value: 'biologisch' },
         { label: 'Luxe', value: 'luxe' },
       ],
+    },
+    {
+      name: 'profileAccentColor',
+      type: 'text',
+      label: 'Profiel accentkleur',
+      admin: {
+        position: 'sidebar',
+        placeholder: '#8B6B2E',
+        description: 'Hex-kleur voor je merkaccent (bijv. #8B6B2E). Wordt automatisch genegeerd zonder brandingrechten.',
+      },
     },
     {
       name: 'featured',

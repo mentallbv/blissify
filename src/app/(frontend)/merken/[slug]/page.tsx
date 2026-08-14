@@ -42,6 +42,9 @@ export default async function MerkPage({ params }: Params) {
   return (
     <SiteChrome>
       {brand.id != null ? <TrackPageView kind="brand" id={brand.id} /> : null}
+      {/* Branding perk: the brand's own accent replaces the site accent.
+          Already tier-gated in getBrandBySlug. */}
+      <div style={brand.accentColor ? ({ '--text-accent': brand.accentColor } as React.CSSProperties) : undefined}>
       {/* Dark forest header (brand cover as backdrop when present) */}
       <header
         style={{
@@ -70,7 +73,14 @@ export default async function MerkPage({ params }: Params) {
               <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'rgba(245,240,234,0.7)', margin: '8px 0 12px' }}>
                 {partnerType} · {origin}
               </p>
-              <TypeBadge type="brand" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                <TypeBadge type="brand" />
+                {brand.hasPremiumBadge ? (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, borderRadius: 'var(--radius-pill)', padding: '5px 11px', background: 'var(--blissify-chalk)', color: 'var(--text-brand)', fontFamily: 'var(--font-ui)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.09em' }}>
+                    <i className="ti ti-crown" /> Premium
+                  </span>
+                ) : null}
+              </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
               {brand.email ? (
@@ -126,6 +136,7 @@ export default async function MerkPage({ params }: Params) {
           </section>
         ) : null}
       </section>
+      </div>
     </SiteChrome>
   )
 }

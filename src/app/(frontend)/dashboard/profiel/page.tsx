@@ -32,7 +32,7 @@ export default async function DashboardProfilePage() {
     email: (doc as { email?: string } | undefined)?.email || '',
     phone: (doc as { phone?: string } | undefined)?.phone || '',
     about: profile ? lexicalToHtml(profile.kind === 'brand' ? profile.doc.description : profile.doc.bio) : '',
-    accentColor: profile?.kind === 'trainer' ? (profile.doc as { profileAccentColor?: string | null }).profileAccentColor || '' : '',
+    accentColor: (doc as { profileAccentColor?: string | null } | undefined)?.profileAccentColor || '',
     // Medium+ perk; hidden rather than shown-and-ignored on Basis.
     canBrand: tierForUser((user || {}) as never).features.hasProfileBranding,
     photo: toUploadedImage(profile?.kind === 'brand' ? profile.doc.logo : profile?.doc.photo),

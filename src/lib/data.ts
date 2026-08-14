@@ -524,6 +524,9 @@ export type BrandCardData = {
   about?: string
   /** Raw Lexical for the detail page; `about` is the flattened card version. */
   description?: unknown
+  /** Paid perks, resolved from the owning account's tier. */
+  accentColor?: string | null
+  hasPremiumBadge?: boolean
   website?: string | null
   email?: string | null
   partnerType?: string | null
@@ -692,6 +695,17 @@ export async function getBrandBySlug(
       limit: 12,
     })
     const trainers = await payload.find({ collection: 'trainers', where: { brand: { equals: b.id } } as never, depth: 1, limit: 12 })
+
+    // Branding and the Premium badge are paid perks, resolved from the owning
+    // account's tier rather than from the brand document alone.
+    const brandOwnerRel = (b as { owner?: unknown }).owner
+    const brandOwnerId = brandOwnerRel && typeof brandOwnerRel === 'object' ? (brandOwnerRel as { id?: number | string }).id : brandOwnerRel
+    const brandOwner = brandOwnerId
+      ? await payload.findByID({ collection: 'users', id: brandOwnerId as never, depth: 0, overrideAccess: true }).catch(() => null)
+      : null
+    const brandFeatures = tierForUser((brandOwner || { role: 'brand' }) as never).features
+    const brandAccent = (b as { profileAccentColor?: string | null }).profileAccentColor || ''
+
     return {
       brand: {
         id: b.id,
@@ -707,6 +721,8 @@ export async function getBrandBySlug(
         about: richTextToPlainText(b.description),
         // Raw Lexical, so the detail page can render the brand's own formatting.
         description: b.description,
+        accentColor: brandFeatures.hasProfileBranding && /^#[0-9a-f]{6}$/i.test(brandAccent) ? brandAccent : null,
+        hasPremiumBadge: brandFeatures.hasPremiumBadge,
         website: b.website,
         email: b.email,
         partnerType: b.typePartner,
@@ -930,13 +946,11 @@ export async function getCourseTierContext(course: Course): Promise<CourseTierCo
     if (!ownerId) return { ...fallback, accentColor: null }
     const user = await payload.findByID({ collection: 'users', id: ownerId as never, depth: 0, overrideAccess: true })
     const resolved = tierForUser(user)
-    const rawAccent = role === 'trainer' ? (profile as { profileAccentColor?: string | null }).profileAccentColor : null
+    // Both ladders now store their own colour; brands previously got a
+    // hardcoded gold that came from no field and no client request.
+    const rawAccent = (profile as { profileAccentColor?: string | null }).profileAccentColor
     const accentColor =
-      role === 'brand' && resolved.features.hasProfileBranding
-        ? '#8B6B2E'
-        : resolved.features.hasProfileBranding && rawAccent && /^#[0-9a-f]{6}$/i.test(rawAccent)
-          ? rawAccent
-          : null
+      resolved.features.hasProfileBranding && rawAccent && /^#[0-9a-f]{6}$/i.test(rawAccent) ? rawAccent : null
     return { ...resolved, accentColor }
   } catch {
     return { ...fallback, accentColor: null }

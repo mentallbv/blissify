@@ -98,7 +98,7 @@ export function ProfileForm({
             minHeight={160}
           />
         </div>
-        {v.role === 'trainer' && v.canBrand ? (
+        {v.canBrand ? (
           <div style={{ borderTop: '0.5px solid var(--border-hairline)', paddingTop: 18 }}>
             <FieldLabel>Accentkleur</FieldLabel>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -117,7 +117,7 @@ export function ProfileForm({
               ) : null}
             </div>
             <p style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--text-meta)', margin: '8px 0 0' }}>
-              Gebruikt als accent op je publieke opleiderprofiel.
+              Gebruikt als accent op je publieke profiel.
             </p>
           </div>
         ) : null}
