@@ -51,6 +51,15 @@ export async function PATCH(req: Request) {
       else data.bio = rich
     }
 
+    // Medium+ perk. Accepted from any trainer: the Trainers beforeChange hook
+    // clears it server-side when the account's tier does not include branding.
+    if (role === 'trainer' && typeof body.accentColor === 'string') {
+      const value = body.accentColor.trim()
+      if (!value) data.profileAccentColor = null
+      else if (/^#[0-9a-f]{6}$/i.test(value)) data.profileAccentColor = value
+      else return NextResponse.json({ error: 'Gebruik een geldige hexkleur, bijvoorbeeld #1A2E25.' }, { status: 400 })
+    }
+
     // Trainers have `photo`; brands use `logo` plus a wide `coverImage`.
     const photo = mediaId(body.photo)
     if (photo !== undefined) data[role === 'brand' ? 'logo' : 'photo'] = photo

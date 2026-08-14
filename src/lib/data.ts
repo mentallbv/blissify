@@ -59,6 +59,8 @@ export type ProviderCardData = {
   email?: string
   phone?: string
   social?: { instagram?: string; facebook?: string; linkedin?: string }
+  /** Premium perk: badge on the public profile. */
+  hasPremiumBadge?: boolean
 }
 
 const rel = <T extends { slug?: string; name?: string }>(v: number | T | null | undefined): T | null =>
@@ -368,6 +370,16 @@ export async function getProviderBySlug(
       depth: 1,
       limit: 12,
     })
+
+    const ownerRel = (t as { owner?: unknown }).owner
+    const ownerId = ownerRel && typeof ownerRel === 'object' ? (ownerRel as { id?: number | string }).id : ownerRel
+    const owner = ownerId
+      ? await payload.findByID({ collection: 'users', id: ownerId as never, depth: 0, overrideAccess: true }).catch(() => null)
+      : null
+    const ownerFeatures = tierForUser((owner || { role: 'trainer' }) as never).features
+    const rawAccent = (t as { profileAccentColor?: string | null }).profileAccentColor || ''
+    const accentColor = /^#[0-9a-f]{6}$/i.test(rawAccent) ? rawAccent : null
+
     return {
       provider: {
         id: t.id,
@@ -379,7 +391,10 @@ export async function getProviderBySlug(
         speciality: specLabel(t.specializations?.[0]),
         courseCount: courses.totalDocs,
         logo: mediaUrl(t.photo),
-        accentColor: (t as { profileAccentColor?: string | null }).profileAccentColor || null,
+        // Both are paid perks (Medium: branding, Premium: badge), so they are
+        // resolved from the owning account's tier rather than the profile alone.
+        accentColor: ownerFeatures.hasProfileBranding ? accentColor : null,
+        hasPremiumBadge: ownerFeatures.hasPremiumBadge,
         bio: t.bio,
         specializations: (t.specializations || []).map((spec) => specLabel(spec)),
         province: t.location?.province || '',

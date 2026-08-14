@@ -29,12 +29,16 @@ export default async function ProviderProfilePage({ params }: Params) {
   // Several Belgian cities share their province's name (Antwerpen, Luik...);
   // showing both would read as "Antwerpen, Antwerpen".
   const place = [p.location, p.province && p.province !== p.location ? p.province : ''].filter(Boolean).join(', ')
+  // Medium+ perk: the provider's own accent colour replaces the site accent
+  // across their profile. Already tier-gated in getProviderBySlug.
+  const branding = p.accentColor ? ({ '--text-accent': p.accentColor } as React.CSSProperties) : undefined
 
   return (
     <SiteChrome>
       {p.id != null ? <TrackPageView kind="trainer" id={p.id} /> : null}
       {/* Dark header */}
-      <header style={{ background: 'var(--surface-dark)', borderTop: '3px solid var(--blissify-forest)' }}>
+      <div style={branding}>
+      <header style={{ background: 'var(--surface-dark)', borderTop: `3px solid ${p.accentColor || 'var(--blissify-forest)'}` }}>
         <div className="bl-container bl-provider-hero" style={{ paddingTop: 48, paddingBottom: 48, display: 'flex', gap: 24, alignItems: 'center' }}>
           <div style={{ width: 80, height: 80, borderRadius: 'var(--radius-md)', background: 'var(--surface-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: '0 0 80px', overflow: 'hidden' }}>
             {p.logo ? (
@@ -55,7 +59,14 @@ export default async function ProviderProfilePage({ params }: Params) {
                 .filter(Boolean)
                 .join(' · ')}
             </p>
-            <TypeBadge type="trainer" style={{ background: 'transparent', border: '1px solid rgba(245,240,234,0.45)' }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+              <TypeBadge type="trainer" style={{ background: 'transparent', border: '1px solid rgba(245,240,234,0.45)' }} />
+              {p.hasPremiumBadge ? (
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, borderRadius: 'var(--radius-pill)', padding: '5px 11px', background: 'var(--blissify-chalk)', color: 'var(--text-brand)', fontFamily: 'var(--font-ui)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.09em' }}>
+                  <i className="ti ti-crown" /> Premium
+                </span>
+              ) : null}
+            </div>
           </div>
           {p.email ? (
             <div className="bl-provider-hero-cta">
@@ -155,6 +166,7 @@ export default async function ProviderProfilePage({ params }: Params) {
           </p>
         )}
       </section>
+      </div>
     </SiteChrome>
   )
 }

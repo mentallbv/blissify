@@ -3,6 +3,7 @@ import { PageTitle } from '@/components/dashboard/DashSidebar'
 import { ProfileForm } from '@/components/dashboard/ProfileForm'
 import { getCurrentUser, getCurrentProfile } from '@/lib/session'
 import { lexicalToHtml } from '@/lib/richtext'
+import { tierForUser } from '@/lib/tier-features'
 import type { UploadedImage } from '@/components/dashboard/ImageUploadField'
 
 export const dynamic = 'force-dynamic'
@@ -31,6 +32,9 @@ export default async function DashboardProfilePage() {
     email: (doc as { email?: string } | undefined)?.email || '',
     phone: (doc as { phone?: string } | undefined)?.phone || '',
     about: profile ? lexicalToHtml(profile.kind === 'brand' ? profile.doc.description : profile.doc.bio) : '',
+    accentColor: profile?.kind === 'trainer' ? (profile.doc as { profileAccentColor?: string | null }).profileAccentColor || '' : '',
+    // Medium+ perk; hidden rather than shown-and-ignored on Basis.
+    canBrand: tierForUser((user || {}) as never).features.hasProfileBranding,
     photo: toUploadedImage(profile?.kind === 'brand' ? profile.doc.logo : profile?.doc.photo),
     coverImage: toUploadedImage(profile?.kind === 'brand' ? profile.doc.coverImage : null),
     partnerType: profile?.kind === 'brand' ? profile.doc.typePartner || '' : '',
