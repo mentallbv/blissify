@@ -2,7 +2,8 @@ import React from 'react'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { SiteChrome, SectionHead } from '@/components/site/SiteChrome'
-import { TypeBadge, CourseCard, Button, Tag } from '@/components/ui'
+import { TypeBadge, CourseCard, ButtonLink, Tag } from '@/components/ui'
+import { RichTextContent } from '@/components/site/RichTextContent'
 import { TrackPageView } from '@/components/site/TrackPageView'
 import { getProviderBySlug } from '@/lib/data'
 
@@ -25,6 +26,10 @@ export default async function ProviderProfilePage({ params }: Params) {
   const { provider: p, courses } = await getProviderBySlug(slug)
   if (!p) notFound()
 
+  // Several Belgian cities share their province's name (Antwerpen, Luik...);
+  // showing both would read as "Antwerpen, Antwerpen".
+  const place = [p.location, p.province && p.province !== p.location ? p.province : ''].filter(Boolean).join(', ')
+
   return (
     <SiteChrome>
       {p.id != null ? <TrackPageView kind="trainer" id={p.id} /> : null}
@@ -46,13 +51,17 @@ export default async function ProviderProfilePage({ params }: Params) {
               {p.name}
             </h1>
             <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'rgba(245,240,234,0.7)', margin: '8px 0 12px' }}>
-              {p.location}, België · {p.speciality} · Opgericht 2014
+              {[place, p.speciality, p.online ? 'Ook online' : '']
+                .filter(Boolean)
+                .join(' · ')}
             </p>
             <TypeBadge type="trainer" style={{ background: 'transparent', border: '1px solid rgba(245,240,234,0.45)' }} />
           </div>
-          <div className="bl-provider-hero-cta">
-            <Button variant="accent">Contacteer opleider</Button>
-          </div>
+          {p.email ? (
+            <div className="bl-provider-hero-cta">
+              <ButtonLink href={`mailto:${p.email}`} variant="accent">Contacteer opleider</ButtonLink>
+            </div>
+          ) : null}
         </div>
       </header>
 
@@ -63,27 +72,27 @@ export default async function ProviderProfilePage({ params }: Params) {
             <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 28, color: 'var(--text-brand)', margin: '0 0 16px' }}>
               Over {p.name}
             </h2>
-            <p style={{ fontFamily: 'var(--font-ui)', fontSize: 16, lineHeight: 1.7, color: 'var(--text-body)', maxWidth: 620, margin: '0 0 14px' }}>
-              {p.name} is een opleider op Blissify gespecialiseerd in {p.speciality.toLowerCase()}, gevestigd in{' '}
-              {p.location}. De programma’s worden gegeven door praktiserende professionals in de Belgische
-              wellnesssector.
-            </p>
-
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 36 }}>
-              {['Sportsmassage', 'Deep tissue', 'Klassieke massage', 'Blessurepreventie', 'Prenatale massage'].map((s) => (
-                <Tag key={s} as="span">
-                  {s}
-                </Tag>
-              ))}
+            <div style={{ marginBottom: 24 }}>
+              <RichTextContent data={p.bio} />
             </div>
 
+            {p.specializations?.length ? (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 36 }}>
+                {p.specializations.map((s) => (
+                  <Tag key={s} as="span">
+                    {s}
+                  </Tag>
+                ))}
+              </div>
+            ) : null}
+
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16, borderTop: '0.5px solid var(--border-hairline)', paddingTop: 28, maxWidth: 560 }}>
-              {[
-                ['Locatie', `${p.location}, België`],
-                ['Opgericht', '2014'],
-                ['Opleidingen op Blissify', `${p.courseCount} opleidingen`],
-                ['Talen', 'NL / FR / EN'],
-              ].map(([label, value]) => (
+              {([
+                ['Locatie', place],
+                ['Opleidingen op Blissify', `${p.courseCount} ${p.courseCount === 1 ? 'opleiding' : 'opleidingen'}`],
+                ['Online lesgeven', p.online ? 'Ja' : ''],
+                ['Website', p.website || ''],
+              ] as [string, string][]).filter(([, value]) => Boolean(value)).map(([label, value]) => (
                 <div key={label}>
                   <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 'var(--type-label)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-meta)', marginBottom: 4 }}>{label}</div>
                   <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 15, color: 'var(--text-strong)' }}>{value}</div>
@@ -96,20 +105,35 @@ export default async function ProviderProfilePage({ params }: Params) {
               Contacteer opleider
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
-              {[
-                ['ti-map-pin', `${p.location}, België`],
-                ['ti-stack-2', `${p.courseCount} actieve opleidingen`],
-                ['ti-calendar', 'Op Blissify sinds 2023'],
-              ].map(([ic, t]) => (
-                <div key={t} style={{ display: 'flex', gap: 10, alignItems: 'center', fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-body)' }}>
-                  <i className={'ti ' + ic} style={{ fontSize: 17, color: 'var(--text-meta)' }} />
-                  {t}
-                </div>
-              ))}
+              {([
+                ['ti-map-pin', place, ''],
+                ['ti-stack-2', `${p.courseCount} actieve ${p.courseCount === 1 ? 'opleiding' : 'opleidingen'}`, ''],
+                ['ti-world', p.website, p.website ? (p.website.startsWith('http') ? p.website : `https://${p.website}`) : ''],
+                ['ti-mail', p.email, p.email ? `mailto:${p.email}` : ''],
+                ['ti-phone', p.phone, p.phone ? `tel:${p.phone.replace(/\s/g, '')}` : ''],
+                ['ti-brand-instagram', p.social?.instagram, p.social?.instagram ? `https://instagram.com/${p.social.instagram.replace(/^@/, '')}` : ''],
+                ['ti-brand-facebook', p.social?.facebook, p.social?.facebook || ''],
+                ['ti-brand-linkedin', p.social?.linkedin, p.social?.linkedin || ''],
+              ] as [string, string, string][])
+                .filter(([, text]) => Boolean(text))
+                .map(([ic, text, href]) => (
+                  <div key={text} style={{ display: 'flex', gap: 10, alignItems: 'center', fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-body)' }}>
+                    <i className={'ti ' + ic} style={{ fontSize: 17, color: 'var(--text-meta)', flex: 'none' }} />
+                    {href ? (
+                      <a href={href} target={href.startsWith('http') ? '_blank' : undefined} rel="noreferrer" style={{ color: 'var(--text-accent)', wordBreak: 'break-word' }}>
+                        {text}
+                      </a>
+                    ) : (
+                      text
+                    )}
+                  </div>
+                ))}
             </div>
-            <Button variant="primary" fullWidth>
-              Vraag informatie aan
-            </Button>
+            {p.email ? (
+              <ButtonLink href={`mailto:${p.email}?subject=${encodeURIComponent(`Vraag via Blissify - ${p.name}`)}`} variant="primary" fullWidth>
+                Vraag informatie aan
+              </ButtonLink>
+            ) : null}
           </div>
         </div>
       </section>

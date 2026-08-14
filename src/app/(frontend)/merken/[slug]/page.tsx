@@ -6,6 +6,7 @@ import { ButtonLink, TypeBadge } from '@/components/ui'
 import { BrandTabs } from '@/components/site/BrandTabs'
 import { getBrandBySlug } from '@/lib/data'
 import { TrackPageView } from '@/components/site/TrackPageView'
+import { RichTextContent } from '@/components/site/RichTextContent'
 
 export const dynamic = 'force-dynamic'
 
@@ -87,6 +88,13 @@ export default async function MerkPage({ params }: Params) {
       </header>
 
       <section className="bl-container" style={{ paddingTop: 48, paddingBottom: 96 }}>
+        {brand.description ? (
+          <div style={{ marginBottom: 56 }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 26, color: 'var(--text-brand)', margin: '0 0 20px' }}>Over {brand.name}</h2>
+            <RichTextContent data={brand.description} />
+          </div>
+        ) : null}
+
         {brand.gallery?.length ? (
           <div style={{ marginBottom: 56 }}>
             <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 26, color: 'var(--text-brand)', margin: '0 0 20px' }}>Sfeer &amp; producten</h2>

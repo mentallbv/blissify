@@ -1035,3 +1035,36 @@ a.bl-providercard:hover,
     grid-template-columns: 1fr !important;
   }
 }
+
+/* Rich text rendered from Lexical (provider bios, course descriptions).
+   Payload's converter emits bare tags plus list-* classes; these rules give
+   them the same rhythm as the surrounding editorial prose. */
+.bl-richtext > *:first-child { margin-top: 0; }
+.bl-richtext > *:last-child { margin-bottom: 0; }
+.bl-richtext p { margin: 0 0 14px; }
+.bl-richtext h2 {
+  font-family: var(--font-display);
+  font-weight: var(--fw-display-regular);
+  font-size: 24px;
+  line-height: 1.25;
+  color: var(--text-brand);
+  margin: 28px 0 12px;
+}
+.bl-richtext h3 {
+  font-family: var(--font-ui);
+  font-weight: var(--fw-ui-medium);
+  font-size: 17px;
+  color: var(--text-strong);
+  margin: 22px 0 8px;
+}
+.bl-richtext ul,
+.bl-richtext ol { margin: 0 0 14px; padding-left: 22px; }
+.bl-richtext li { margin-bottom: 6px; }
+.bl-richtext a { color: var(--text-accent); text-decoration: underline; text-underline-offset: 3px; }
+.bl-richtext strong { font-weight: var(--fw-ui-medium); color: var(--text-strong); }
+.bl-richtext blockquote {
+  margin: 18px 0;
+  padding-left: 16px;
+  border-left: 2px solid var(--border-hairline);
+  color: var(--text-meta);
+}

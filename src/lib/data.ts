@@ -50,6 +50,15 @@ export type ProviderCardData = {
   courseCount: number
   logo: string | null
   accentColor?: string | null
+  /** Detail-page fields. Absent on card listings, which do not query them. */
+  bio?: unknown
+  specializations?: string[]
+  province?: string
+  online?: boolean
+  website?: string
+  email?: string
+  phone?: string
+  social?: { instagram?: string; facebook?: string; linkedin?: string }
 }
 
 const rel = <T extends { slug?: string; name?: string }>(v: number | T | null | undefined): T | null =>
@@ -371,6 +380,18 @@ export async function getProviderBySlug(
         courseCount: courses.totalDocs,
         logo: mediaUrl(t.photo),
         accentColor: (t as { profileAccentColor?: string | null }).profileAccentColor || null,
+        bio: t.bio,
+        specializations: (t.specializations || []).map((spec) => specLabel(spec)),
+        province: t.location?.province || '',
+        online: Boolean(t.location?.online),
+        website: t.website || '',
+        email: t.email || '',
+        phone: t.phone || '',
+        social: {
+          instagram: t.social?.instagram || '',
+          facebook: t.social?.facebook || '',
+          linkedin: t.social?.linkedin || '',
+        },
       },
       courses: courses.docs.map(toCard),
       isFallback: false,
@@ -486,6 +507,8 @@ export type BrandCardData = {
   logo: string | null
   cover?: string | null
   about?: string
+  /** Raw Lexical for the detail page; `about` is the flattened card version. */
+  description?: unknown
   website?: string | null
   email?: string | null
   partnerType?: string | null
@@ -667,6 +690,8 @@ export async function getBrandBySlug(
         logo: mediaUrl(b.logo),
         cover: mediaUrl((b as { coverImage?: number | Media | null }).coverImage),
         about: richTextToPlainText(b.description),
+        // Raw Lexical, so the detail page can render the brand's own formatting.
+        description: b.description,
         website: b.website,
         email: b.email,
         partnerType: b.typePartner,

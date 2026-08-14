@@ -15,6 +15,7 @@ import { isCitySlug, cityName } from '@/lib/cities'
 import { CATEGORY_CONTENT } from '@/lib/categories'
 import { CityLanding } from '@/components/site/CityLanding'
 import { publicMediaUrl } from '@/lib/media'
+import { RichTextContent } from '@/components/site/RichTextContent'
 import type { Course, Category, Brand, Trainer } from '@/payload-types'
 
 export const dynamic = 'force-dynamic'
@@ -45,7 +46,42 @@ type DetailView = {
   lunchProvided: string
   startDates: { date: string; endDate?: string; startTime?: string; endTime?: string; spotsAvailable?: number }[]
   contact: { email?: string; website?: string; instagram?: string; facebook?: string; tiktok?: string }
+  description: unknown
+  targetAudience: string[]
+  practical: string[]
+  focus: string[]
+  accreditation: string
 }
+
+const TARGET_AUDIENCE_LABEL: Record<string, string> = {
+  'beginner-friendly': 'Beginner friendly',
+  intermediate: 'Intermediate',
+  'expert-advanced': 'Expert / Advanced',
+  'professional-only': 'Professional only',
+  'startende-ondernemer': 'Startende ondernemer',
+}
+
+const PRACTICAL_LABEL: Record<string, string> = {
+  online: 'Online',
+  praktijkopleiding: 'Praktijkopleiding',
+  'een-dag': '1-daagse opleiding',
+  'meerdere-dagen': 'Meerdere dagen',
+  'op-locatie': 'Op locatie',
+  'kleine-groepen': 'Kleine groepen (<12)',
+}
+
+const FOCUS_LABEL: Record<string, string> = {
+  huidverbeterend: 'Huidverbeterend',
+  'medisch-esthetisch': 'Medisch-esthetisch',
+  holistisch: 'Holistisch',
+  ontspannend: 'Ontspannend',
+  cosmetisch: 'Cosmetisch',
+  therapeutisch: 'Therapeutisch',
+  energetisch: 'Energetisch',
+}
+
+const labelsFor = (values: string[] | null | undefined, map: Record<string, string>): string[] =>
+  (values || []).map((value) => map[value] || value)
 
 function viewFromCourse(c: Course): DetailView {
   const details = c as Course & {
@@ -89,6 +125,11 @@ function viewFromCourse(c: Course): DetailView {
     lunchProvided: details.lunchProvided || 'not_applicable',
     startDates: details.startDates || [],
     contact: details.contact || {},
+    description: c.description,
+    targetAudience: labelsFor(c.targetAudience, TARGET_AUDIENCE_LABEL),
+    practical: labelsFor(c.practical, PRACTICAL_LABEL),
+    focus: labelsFor(c.focus, FOCUS_LABEL),
+    accreditation: c.accreditation || '',
   }
 }
 
@@ -157,23 +198,19 @@ export default async function CourseDetailPage({ params }: Params) {
         privateOneToOne: false,
         modelRequired: 'not_applicable',
         lunchProvided: 'not_applicable',
+        description: null,
+        targetAudience: [],
+        practical: [],
+        focus: [],
+        accreditation: '',
         startDates: [],
         contact: {},
       }
 
-  const aboutParas = v.about.length
-    ? v.about
-    : [
-        `Deze professionele opleiding behandelt de competenties die nodig zijn om ${v.category.toLowerCase()} in de praktijk toe te passen. ${v.provider} combineert begeleide praktijk met theoretische onderbouwing.`,
-        `Elke groep blijft bewust klein, zodat elke deelnemer directe feedback krijgt van praktiserende professionals gedurende de volledige opleiding.`,
-      ]
-
-  const learn = [
-    'Toegepaste anatomie en fysiologie relevant voor de praktijk',
-    'Beoordeling, techniek en kennis van contra-indicaties',
-    'Professionele ethiek, toestemming en klantenzorg',
-    'Een conforme zelfstandige praktijk opbouwen en runnen',
-  ]
+  const aboutParas = v.about
+  // The provider's own description. No invented fallback: an empty description
+  // means the section is simply not rendered.
+  const descriptionContent = <RichTextContent data={v.description} />
 
   const courseRef = course ? String(course.id) : slug
   const reviews = course ? await getApprovedCourseReviews(course.id) : []
@@ -268,40 +305,34 @@ export default async function CourseDetailPage({ params }: Params) {
               </div>
             ) : null}
 
-            <Section title="Over deze opleiding">
-              {aboutParas.map((p, i) => (
-                <Para key={i}>{p}</Para>
-              ))}
-            </Section>
-
-            <Section title="Wat leer je in deze opleiding?">
-              <ul style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-                {learn.map((l) => (
-                  <li
-                    key={l}
-                    style={{
-                      display: 'flex',
-                      gap: 12,
-                      fontFamily: 'var(--font-ui)',
-                      fontSize: 16,
-                      lineHeight: 1.7,
-                      color: 'var(--text-body)',
-                      marginBottom: 8,
-                    }}
-                  >
-                    <i className="ti ti-check" style={{ fontSize: 18, color: 'var(--text-accent)', marginTop: 4 }} />
-                    <span>{l}</span>
-                  </li>
+            {descriptionContent || aboutParas.length ? (
+              <Section title="Over deze opleiding">
+                {aboutParas.map((p, i) => (
+                  <Para key={i}>{p}</Para>
                 ))}
-              </ul>
-            </Section>
+                {descriptionContent}
+              </Section>
+            ) : null}
 
-            <Section title="Voor wie is deze opleiding bedoeld?">
-              <Para>
-                Beginnende en ervaren professionals die hun praktijkkennis willen uitbreiden. Bekijk het programma,
-                de aanbieder en eventuele certificaatinformatie om te bepalen of deze opleiding bij je past.
-              </Para>
-            </Section>
+            {v.focus.length ? (
+              <Section title="Waar ligt de focus?">
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {v.focus.map((item) => (
+                    <Tag key={item} as="span">{item}</Tag>
+                  ))}
+                </div>
+              </Section>
+            ) : null}
+
+            {v.targetAudience.length ? (
+              <Section title="Voor wie is deze opleiding bedoeld?">
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {v.targetAudience.map((item) => (
+                    <Tag key={item} as="span">{item}</Tag>
+                  ))}
+                </div>
+              </Section>
+            ) : null}
 
             <Section title="Praktische informatie">
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12, maxWidth: 620 }}>
@@ -312,6 +343,7 @@ export default async function CourseDetailPage({ params }: Params) {
                   ['Deelnemers', v.privateOneToOne ? 'Privé / één-op-één' : v.maximumParticipants ? `Maximaal ${v.maximumParticipants}` : 'Niet vermeld'],
                   ['Model meenemen', v.modelRequired === 'yes' ? 'Ja' : v.modelRequired === 'no' ? 'Nee' : 'Niet van toepassing'],
                   ['Lunch voorzien', v.lunchProvided === 'yes' ? 'Ja' : v.lunchProvided === 'no' ? 'Nee' : 'Niet van toepassing'],
+                  ['Accreditatie / erkenning', v.accreditation],
                 ].filter(([, value]) => Boolean(value)).map(([label, value]) => (
                   <div key={label} style={{ border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-sm)', background: 'var(--surface-card)', padding: 14 }}>
                     <div style={{ fontFamily: 'var(--font-ui)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-meta)', marginBottom: 5 }}>{label}</div>
@@ -319,6 +351,13 @@ export default async function CourseDetailPage({ params }: Params) {
                   </div>
                 ))}
               </div>
+              {v.practical.length ? (
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 14 }}>
+                  {v.practical.map((item) => (
+                    <Tag key={item} as="span">{item}</Tag>
+                  ))}
+                </div>
+              ) : null}
             </Section>
 
             {v.startDates.length ? <Section title="Volgende data">
