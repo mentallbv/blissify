@@ -3,27 +3,14 @@ import { headers as getHeaders } from 'next/headers'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 
-/** Minimal Lexical rich-text document from a plain string. */
-function lexical(text: string) {
-  return {
-    root: {
-      type: 'root',
-      format: '',
-      indent: 0,
-      version: 1,
-      direction: 'ltr',
-      children: [
-        {
-          type: 'paragraph',
-          format: '',
-          indent: 0,
-          version: 1,
-          direction: 'ltr',
-          children: text ? [{ type: 'text', text, format: 0, detail: 0, mode: 'normal', style: '', version: 1 }] : [],
-        },
-      ],
-    },
-  }
+import { htmlToLexical } from '@/lib/richtext'
+
+/** Media id from the dashboard, or null to clear the field. */
+function mediaId(value: unknown): number | null | undefined {
+  if (value === null) return null
+  if (typeof value === 'number') return value
+  if (typeof value === 'string' && value.trim() && !Number.isNaN(Number(value))) return Number(value)
+  return undefined
 }
 
 /** PATCH /api/profile - updates the trainer/brand profile owned by the current user. */
@@ -59,8 +46,17 @@ export async function PATCH(req: Request) {
     if (typeof body.email === 'string') data.email = body.email
     if (typeof body.phone === 'string') data.phone = body.phone
     if (typeof body.about === 'string' && body.about.trim()) {
-      if (role === 'brand') data.description = lexical(body.about)
-      else data.bio = lexical(body.about)
+      const rich = await htmlToLexical(body.about)
+      if (role === 'brand') data.description = rich
+      else data.bio = rich
+    }
+
+    // Trainers have `photo`; brands use `logo` plus a wide `coverImage`.
+    const photo = mediaId(body.photo)
+    if (photo !== undefined) data[role === 'brand' ? 'logo' : 'photo'] = photo
+    if (role === 'brand') {
+      const cover = mediaId(body.coverImage)
+      if (cover !== undefined) data.coverImage = cover
     }
     if (role === 'brand') {
       const partnerTypes = ['productmerken', 'apparatuurmerken', 'groothandels_distributeurs', 'leveranciers']

@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     if (!owner) return NextResponse.json({ error: 'Geen opleiderprofiel gevonden.' }, { status: 400 })
 
     const body = await req.json()
-    const data = { ...buildCourseData(body), ...owner }
+    const data = { ...(await buildCourseData(body)), ...owner }
 
     // Run as the user so access control + the tier-limit hook apply.
     const created = await payload.create({ collection: 'courses', data: data as never, user, overrideAccess: false })

@@ -3,6 +3,8 @@
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import { Input, Select, Button, FieldLabel } from '@/components/ui'
+import { ImageUploadField, type UploadedImage } from '@/components/dashboard/ImageUploadField'
+import { RichTextEditor } from '@/components/dashboard/RichTextEditor'
 
 export function ProfileForm({
   initial,
@@ -15,6 +17,8 @@ export function ProfileForm({
     email: string
     phone: string
     about: string
+    photo: UploadedImage
+    coverImage: UploadedImage
     partnerType: string
     origin: string
     instagram: string
@@ -44,7 +48,8 @@ export function ProfileForm({
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(v),
+        // Images travel as relationship ids; they were uploaded on selection.
+        body: JSON.stringify({ ...v, photo: v.photo?.id ?? null, coverImage: v.coverImage?.id ?? null }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data?.error || 'Opslaan mislukt.')
@@ -65,12 +70,30 @@ export function ProfileForm({
         <Input label="Website" value={v.website} onChange={(e) => set('website', e.target.value)} />
         <Input label="E-mail" type="email" value={v.email} onChange={(e) => set('email', e.target.value)} />
         <Input label="Telefoon" value={v.phone} onChange={(e) => set('phone', e.target.value)} />
+        <ImageUploadField
+          label={v.role === 'brand' ? 'Logo' : 'Profielfoto'}
+          hint="JPG, PNG, WebP of AVIF · max 5 MB"
+          value={v.photo}
+          onChange={(image) => set('photo', image)}
+          aspect={v.role === 'brand' ? '16 / 9' : '1 / 1'}
+        />
+
+        {v.role === 'brand' ? (
+          <ImageUploadField
+            label="Coverafbeelding"
+            hint="Breed beeld bovenaan je merkpagina · max 5 MB"
+            value={v.coverImage}
+            onChange={(image) => set('coverImage', image)}
+          />
+        ) : null}
+
         <div>
           <FieldLabel>Over {v.role === 'brand' ? 'het merk / de leverancier' : 'de opleider'}</FieldLabel>
-          <textarea
+          <RichTextEditor
             value={v.about}
-            onChange={(e) => set('about', e.target.value)}
-            style={{ width: '100%', minHeight: 120, border: '0.5px solid var(--neutral-200)', borderRadius: 'var(--radius-sm)', background: 'var(--surface-card)', padding: '12px 16px', fontFamily: 'var(--font-ui)', fontWeight: 400, fontSize: 14, color: 'var(--text-strong)', lineHeight: 1.6, resize: 'vertical', outline: 'none' }}
+            onChange={(html) => set('about', html)}
+            placeholder="Beschrijf je organisatie, specialisatie en aanpak."
+            minHeight={160}
           />
         </div>
         {v.role === 'brand' ? (

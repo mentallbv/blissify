@@ -20,7 +20,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     if (!ownsCourse(existing as never, owner)) return NextResponse.json({ error: 'Geen toegang tot deze opleiding.' }, { status: 403 })
 
     const body = await req.json()
-    const data = buildCourseData(body)
+    const data = await buildCourseData(body)
     const updated = await payload.update({ collection: 'courses', id, data: data as never, user, overrideAccess: false })
     return NextResponse.json({ ok: true, id: updated.id })
   } catch (err) {

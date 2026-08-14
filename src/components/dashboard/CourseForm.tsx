@@ -3,6 +3,8 @@
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import { Input, Select, Button, FieldLabel, Tag } from '@/components/ui'
+import { ImageUploadField, type UploadedImage } from '@/components/dashboard/ImageUploadField'
+import { RichTextEditor } from '@/components/dashboard/RichTextEditor'
 
 export type CourseFormValues = {
   title: string
@@ -11,6 +13,7 @@ export type CourseFormValues = {
   category: string
   shortDescription: string
   description: string
+  coverImage: UploadedImage
   externalUrl: string
   city: string
   level: string
@@ -46,6 +49,7 @@ const EMPTY: CourseFormValues = {
   category: '',
   shortDescription: '',
   description: '',
+  coverImage: null,
   externalUrl: '',
   city: '',
   level: '',
@@ -113,7 +117,7 @@ export function CourseForm({
         method: courseId ? 'PATCH' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(v),
+        body: JSON.stringify({ ...v, coverImage: v.coverImage?.id ?? null }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data?.error || 'Opslaan mislukt.')
@@ -163,8 +167,18 @@ export function CourseForm({
         </div>
         <div>
           <FieldLabel>Volledige omschrijving</FieldLabel>
-          <textarea value={v.description} onChange={(e) => set('description', e.target.value)} style={{ ...ta, minHeight: 140 }} />
+          <RichTextEditor
+            value={v.description}
+            onChange={(html) => set('description', html)}
+            placeholder="Wat leert de deelnemer, voor wie is het bedoeld, hoe verloopt de dag?"
+          />
         </div>
+        <ImageUploadField
+          label="Coverafbeelding"
+          hint="Wordt getoond bovenaan de opleidingspagina en in de directory · max 5 MB"
+          value={v.coverImage}
+          onChange={(image) => set('coverImage', image)}
+        />
       </div>
 
       <div style={card}>

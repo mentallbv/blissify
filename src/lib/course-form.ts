@@ -1,4 +1,5 @@
 import type { Payload } from 'payload'
+import { htmlToLexical } from '@/lib/richtext'
 
 type AnyUser = { id: number | string; role?: string | null }
 
@@ -69,7 +70,7 @@ export function ownsCourse(course: { trainer?: unknown; brand?: unknown }, owner
 }
 
 /** Maps the form body to a Courses collection data object. */
-export function buildCourseData(body: Record<string, unknown>): Record<string, unknown> {
+export async function buildCourseData(body: Record<string, unknown>): Promise<Record<string, unknown>> {
   const str = (v: unknown) => (typeof v === 'string' ? v.trim() : '')
   const num = (v: unknown) => {
     const n = Number(v)
@@ -81,7 +82,7 @@ export function buildCourseData(body: Record<string, unknown>): Record<string, u
     slug: str(body.slug) || slugify(title),
     status: ['draft', 'published', 'archived'].includes(str(body.status)) ? str(body.status) : 'draft',
     shortDescription: str(body.shortDescription),
-    description: lexical(str(body.description)),
+    description: await htmlToLexical(str(body.description)),
     externalUrl: str(body.externalUrl),
     certificate: Boolean(body.certificate),
     courseType: str(body.courseType),
@@ -108,6 +109,9 @@ export function buildCourseData(body: Record<string, unknown>): Record<string, u
   if (str(body.level)) data.level = str(body.level)
   if (str(body.accreditation)) data.accreditation = str(body.accreditation)
   if (str(body.city)) data.location = { city: str(body.city) }
+  // null clears the image, undefined leaves it untouched on a partial update.
+  if (body.coverImage === null) data.coverImage = null
+  else if (num(body.coverImage) !== undefined) data.coverImage = num(body.coverImage)
 
   const amount = num(body.priceAmount)
   if (amount !== undefined || body.priceOnRequest) {

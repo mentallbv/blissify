@@ -2,26 +2,20 @@ import React from 'react'
 import { PageTitle } from '@/components/dashboard/DashSidebar'
 import { ProfileForm } from '@/components/dashboard/ProfileForm'
 import { getCurrentUser, getCurrentProfile } from '@/lib/session'
+import { lexicalToHtml } from '@/lib/richtext'
+import type { UploadedImage } from '@/components/dashboard/ImageUploadField'
 
 export const dynamic = 'force-dynamic'
 
-function lexicalToText(rt: unknown): string {
-  try {
-    const root = (rt as { root?: { children?: unknown[] } })?.root
-    if (!root?.children) return ''
-    const parts: string[] = []
-    const walk = (nodes: unknown[]) => {
-      for (const n of nodes) {
-        const node = n as { text?: string; children?: unknown[] }
-        if (node.text) parts.push(node.text)
-        if (node.children) walk(node.children)
-      }
-    }
-    walk(root.children)
-    return parts.join(' ').trim()
-  } catch {
-    return ''
+/** Upload relationships arrive populated at depth 1, or as a bare id at depth 0. */
+function toUploadedImage(value: unknown): UploadedImage {
+  if (!value) return null
+  if (typeof value === 'object') {
+    const media = value as { id?: number | string; url?: string; sizes?: { thumbnail?: { url?: string } } }
+    if (!media.id) return null
+    return { id: media.id, url: media.sizes?.thumbnail?.url || media.url || '' }
   }
+  return { id: value as number | string, url: '' }
 }
 
 export default async function DashboardProfilePage() {
@@ -36,7 +30,9 @@ export default async function DashboardProfilePage() {
     website: (doc as { website?: string } | undefined)?.website || '',
     email: (doc as { email?: string } | undefined)?.email || '',
     phone: (doc as { phone?: string } | undefined)?.phone || '',
-    about: profile ? lexicalToText(profile.kind === 'brand' ? profile.doc.description : profile.doc.bio) : '',
+    about: profile ? lexicalToHtml(profile.kind === 'brand' ? profile.doc.description : profile.doc.bio) : '',
+    photo: toUploadedImage(profile?.kind === 'brand' ? profile.doc.logo : profile?.doc.photo),
+    coverImage: toUploadedImage(profile?.kind === 'brand' ? profile.doc.coverImage : null),
     partnerType: profile?.kind === 'brand' ? profile.doc.typePartner || '' : '',
     origin: profile?.kind === 'brand' ? profile.doc.herkomst || '' : '',
     instagram: (doc as { social?: { instagram?: string } } | undefined)?.social?.instagram || '',

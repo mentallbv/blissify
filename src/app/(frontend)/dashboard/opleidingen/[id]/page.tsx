@@ -6,28 +6,22 @@ import { PageTitle } from '@/components/dashboard/DashSidebar'
 import { CourseForm, type CourseFormValues } from '@/components/dashboard/CourseForm'
 import { getCurrentUser } from '@/lib/session'
 import { resolveOwner, ownsCourse } from '@/lib/course-form'
+import { lexicalToHtml } from '@/lib/richtext'
+import type { UploadedImage } from '@/components/dashboard/ImageUploadField'
+
+/** Upload relationships arrive populated at depth 1, or as a bare id at depth 0. */
+function toUploadedImage(value: unknown): UploadedImage {
+  if (!value) return null
+  if (typeof value === 'object') {
+    const media = value as { id?: number | string; url?: string; sizes?: { thumbnail?: { url?: string } } }
+    if (!media.id) return null
+    return { id: media.id, url: media.sizes?.thumbnail?.url || media.url || '' }
+  }
+  return { id: value as number | string, url: '' }
+}
 import type { Course, Category } from '@/payload-types'
 
 export const dynamic = 'force-dynamic'
-
-function lexicalToText(rt: unknown): string {
-  try {
-    const root = (rt as { root?: { children?: unknown[] } })?.root
-    if (!root?.children) return ''
-    const parts: string[] = []
-    const walk = (nodes: unknown[]) => {
-      for (const n of nodes) {
-        const node = n as { type?: string; text?: string; children?: unknown[] }
-        if (node.text) parts.push(node.text)
-        if (node.children) walk(node.children)
-      }
-    }
-    walk(root.children)
-    return parts.join(' ').trim()
-  } catch {
-    return ''
-  }
-}
 
 async function getCategories() {
   const payload = await getPayload({ config: await config })
@@ -63,7 +57,8 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
     status: course.status,
     category: cat ? String(cat.id) : '',
     shortDescription: course.shortDescription || '',
-    description: lexicalToText(course.description),
+    description: lexicalToHtml(course.description),
+    coverImage: toUploadedImage(course.coverImage),
     externalUrl: course.externalUrl || '',
     city: course.location?.city || '',
     level: course.level || '',
