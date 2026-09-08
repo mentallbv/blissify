@@ -4,15 +4,18 @@ import { CoursesManager } from '@/components/dashboard/CoursesManager'
 import { ButtonLink } from '@/components/ui'
 import { getCurrentUser, getCurrentProfile } from '@/lib/session'
 import { getMyCourses } from '@/lib/dashboard-data'
+import { tierForUser } from '@/lib/tier-features'
 
 export const dynamic = 'force-dynamic'
 
 export default async function DashboardCoursesPage() {
   const user = await getCurrentUser()
-  const account = user as { role?: string; brandTier?: string } | null
-  const canAddCourse = !(account?.role === 'brand' && (account.brandTier || 'partner_listing') === 'partner_listing')
+  const account = user as { role?: string; brandTier?: string; subscriptionTier?: string } | null
   const profile = await getCurrentProfile(user)
   const courses = await getMyCourses(profile)
+  const entitlement = tierForUser(account || {})
+  const canAddCourse = entitlement.features.canPublishCourses && courses.length < entitlement.features.courseLimit
+  const limitReached = entitlement.features.canPublishCourses && !canAddCourse
   const rows = courses.map((c) => ({
     ...c,
     editHref: `/dashboard/opleidingen/${c.id}`,
@@ -47,9 +50,11 @@ export default async function DashboardCoursesPage() {
           }}
         >
           <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.7, color: 'var(--text-meta)', margin: canAddCourse ? '0 0 20px' : 0, maxWidth: 460 }}>
-            {canAddCourse
+            {limitReached
+              ? `Je abonnement laat maximaal ${entitlement.features.courseLimit} actieve opleiding${entitlement.features.courseLimit === 1 ? '' : 'en'} toe. Upgrade je abonnement om meer opleidingen toe te voegen.`
+              : canAddCourse
               ? 'Je hebt nog geen opleidingen aangemaakt.'
-              : 'Met Partner Listing kun je je merk presenteren, maar geen opleidingen publiceren. Upgrade naar Partner Professional of Premium om opleidingen toe te voegen.'}
+              : 'Met Partner Lite kun je je merk presenteren, maar geen opleidingen publiceren. Upgrade naar Partner Premium of Ultimate om opleidingen toe te voegen.'}
           </p>
           {canAddCourse ? (
             <ButtonLink href="/dashboard/opleidingen/nieuw" variant="primary" size="sm">

@@ -92,6 +92,7 @@ export function CheckoutButton({
   billingCycle?: 'yearly' | 'monthly'
   variant?: 'primary' | 'accent' | 'ghost'
 }) {
+  const router = useRouter()
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [method, setMethod] = React.useState<string | null>(null)
@@ -118,7 +119,15 @@ export function CheckoutButton({
         body: JSON.stringify({ tier, billingCycle, method }),
       })
       const data = await res.json().catch(() => ({}))
-      if (!res.ok || !data?.checkoutUrl) throw new Error(data?.error || 'Kon de betaling niet starten.')
+      if (!res.ok) throw new Error(data?.error || 'Kon de wijziging niet verwerken.')
+      if (data?.scheduled) {
+        alert(`Je wijziging is gepland voor ${new Date(data.effectiveAt).toLocaleDateString('nl-BE')}.`)
+        setLoading(false)
+        setArmed(false)
+        router.refresh()
+        return
+      }
+      if (!data?.checkoutUrl) throw new Error('Kon de betaling niet starten.')
       window.location.href = data.checkoutUrl
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Er ging iets mis.')
@@ -144,17 +153,15 @@ export function CheckoutButton({
 }
 
 /** Cancels the active Mollie subscription. */
-export function CancelButton({ inTrial = false, entitledUntil = null }: { inTrial?: boolean; entitledUntil?: string | null }) {
+export function CancelButton({ entitledUntil = null }: { entitledUntil?: string | null }) {
   const router = useRouter()
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
 
   async function cancel() {
-    const question = inTrial
-      ? 'Je proefperiode stopt meteen en er wordt niets afgerekend. Wil je doorgaan?'
-      : entitledUntil
+    const question = entitledUntil
         ? `Je abonnement wordt niet verlengd. Je opleidingen blijven online tot ${new Date(entitledUntil).toLocaleDateString('nl-BE')}. Wil je doorgaan?`
-        : 'Weet je zeker dat je je abonnement wil opzeggen?'
+        : 'Je stopt alleen de volgende verlenging; de betaalde periode wordt niet terugbetaald. Wil je doorgaan?'
     if (!confirm(question)) return
     setLoading(true)
     setError(null)
@@ -168,7 +175,7 @@ export function CancelButton({ inTrial = false, entitledUntil = null }: { inTria
   return (
     <>
       <Button variant="ghost" onClick={cancel} disabled={loading}>
-        {loading ? 'Bezig…' : inTrial ? 'Proefperiode stoppen' : 'Abonnement opzeggen'}
+        {loading ? 'Bezig…' : 'Automatische verlenging stopzetten'}
       </Button>
       {error ? <span style={{ display: 'block', marginTop: 8, fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--status-error)' }}>{error}</span> : null}
     </>

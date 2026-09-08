@@ -152,6 +152,23 @@ export interface UserAuthOperations {
 export interface User {
   id: number;
   name: string;
+  /**
+   * Professioneel btw-identificatienummer van de abonnee.
+   */
+  vatNumber?: string | null;
+  /**
+   * Nederlands KvK-nummer of ander nationaal ondernemingsnummer.
+   */
+  chamberOfCommerceNumber?: string | null;
+  billingCountry?: ('BE' | 'NL' | 'EU' | 'OTHER') | null;
+  /**
+   * Bevestigt dat de abonnee in het kader van een beroeps- of bedrijfsactiviteit handelt.
+   */
+  professionalBuyerConfirmed?: boolean | null;
+  /**
+   * Datum waarop de B2B-verklaring werd bevestigd.
+   */
+  professionalBuyerConfirmedAt?: string | null;
   role?: ('admin' | 'trainer' | 'brand') | null;
   /**
    * Opleider-abonnement (individuele trainer).
@@ -175,13 +192,34 @@ export interface User {
    */
   subscriptionCommitment?: ('annual' | 'cancel_anytime') | null;
   /**
-   * Einde van de proefperiode.
+   * Verouderd veld; Blissify 2.0 heeft geen proefperiode.
    */
   subscriptionTrialEndsAt?: string | null;
   /**
    * Vroegste opzegdatum bij een jaarverbintenis.
    */
   subscriptionMinimumEndsAt?: string | null;
+  /**
+   * Start van de huidige abonnementsperiode.
+   */
+  subscriptionStartedAt?: string | null;
+  /**
+   * Automatische verlenging werd stopgezet.
+   */
+  subscriptionCancelAtPeriodEnd?: boolean | null;
+  subscriptionCanceledAt?: string | null;
+  /**
+   * Downgrade die bij de volgende verlenging ingaat.
+   */
+  pendingSubscriptionTier?:
+    | ('basis' | 'medium' | 'premium' | 'partner_listing' | 'partner_professional' | 'partner_premium')
+    | null;
+  pendingSubscriptionBillingCycle?: ('yearly' | 'monthly') | null;
+  pendingSubscriptionEffectiveAt?: string | null;
+  /**
+   * Start van de bewaartermijn van twaalf maanden.
+   */
+  subscriptionInactiveSince?: string | null;
   /**
    * Mollie Customer ID (auto-ingevuld)
    */
@@ -374,11 +412,17 @@ export interface Brand {
         | 'esthetische-technologie'
         | 'make-up-pmu'
         | 'wenkbrauwen-wimpers'
-        | 'nagels-hand-voet'
+        | 'manicure'
+        | 'pedicure'
         | 'haarverzorging-scalp'
         | 'massage-body'
         | 'waxing-ontharing'
         | 'wellness-holistisch'
+        | 'aromatherapie'
+        | 'praktijkinrichting-meubilair'
+        | 'praktijkbenodigdheden-instrumenten'
+        | 'hygiene-desinfectie'
+        | 'textiel-accessoires'
         | 'business-salon'
       )[]
     | null;
@@ -396,7 +440,15 @@ export interface Brand {
         | 'luxe'
       )[]
     | null;
+  /**
+   * Hex-kleur voor je merkaccent (bijv. #8B6B2E). Wordt automatisch genegeerd zonder brandingrechten.
+   */
+  profileAccentColor?: string | null;
   featured?: boolean | null;
+  /**
+   * Handmatig door Blissify beheerd op basis van beschikbare beoordelingen.
+   */
+  topRated?: boolean | null;
   /**
    * Zoekmachine-optimalisatie instellingen
    */
@@ -485,7 +537,7 @@ export interface Trainer {
     linkedin?: string | null;
   };
   /**
-   * Hex-kleur voor je profielaccent (bijv. #1A2E25). Beschikbaar vanaf Medium; automatisch genegeerd op Basis.
+   * Hex-kleur voor je profielaccent (bijv. #1A2E25). Alleen beschikbaar met Opleider Ultimate.
    */
   profileAccentColor?: string | null;
   featured?: boolean | null;
@@ -530,6 +582,14 @@ export interface Course {
    * Uitgelicht in de directory
    */
   featured?: boolean | null;
+  /**
+   * Productlancering extra uitlichten (alleen Partner Ultimate).
+   */
+  productLaunchHighlighted?: boolean | null;
+  /**
+   * Naam van het co-brandingmerk (alleen Partner Ultimate).
+   */
+  coBrandPartner?: string | null;
   featuredPosition?: ('top' | 'permanent_top') | null;
   /**
    * Automatische zoekprioriteit op basis van het abonnement.
@@ -608,6 +668,15 @@ export interface Course {
    */
   popular?: boolean | null;
   certificate?: boolean | null;
+  certificationTypes?:
+    | (
+        | 'certificate-included'
+        | 'diploma-possible'
+        | 'accredited-recognized'
+        | 'industry-recognized'
+        | 'mbo-recognized'
+      )[]
+    | null;
   accreditation?: string | null;
   /**
    * URL naar de externe inschrijvingspagina (voor opleidingen zonder in-platform inschrijving).
@@ -682,7 +751,7 @@ export interface Course {
   createdAt: string;
 }
 /**
- * Geverifieerde beoordelingen. Alleen goedgekeurde reviews verschijnen op de website.
+ * Beoordelingen met bevestigd e-mailadres. Alleen goedgekeurde reviews verschijnen op de website.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "reviews".
@@ -984,6 +1053,11 @@ export interface PayloadMigration {
  */
 export interface UsersSelect<T extends boolean = true> {
   name?: T;
+  vatNumber?: T;
+  chamberOfCommerceNumber?: T;
+  billingCountry?: T;
+  professionalBuyerConfirmed?: T;
+  professionalBuyerConfirmedAt?: T;
   role?: T;
   subscriptionTier?: T;
   brandTier?: T;
@@ -993,6 +1067,13 @@ export interface UsersSelect<T extends boolean = true> {
   subscriptionCommitment?: T;
   subscriptionTrialEndsAt?: T;
   subscriptionMinimumEndsAt?: T;
+  subscriptionStartedAt?: T;
+  subscriptionCancelAtPeriodEnd?: T;
+  subscriptionCanceledAt?: T;
+  pendingSubscriptionTier?: T;
+  pendingSubscriptionBillingCycle?: T;
+  pendingSubscriptionEffectiveAt?: T;
+  subscriptionInactiveSince?: T;
   mollieCustomerId?: T;
   mollieSubscriptionId?: T;
   responseTemplates?:
@@ -1145,7 +1226,9 @@ export interface BrandsSelect<T extends boolean = true> {
   productType?: T;
   positionering?: T;
   tags?: T;
+  profileAccentColor?: T;
   featured?: T;
+  topRated?: T;
   seo?:
     | T
     | {
@@ -1210,6 +1293,8 @@ export interface CoursesSelect<T extends boolean = true> {
   slug?: T;
   status?: T;
   featured?: T;
+  productLaunchHighlighted?: T;
+  coBrandPartner?: T;
   featuredPosition?: T;
   tierPriority?: T;
   trainer?: T;
@@ -1249,6 +1334,7 @@ export interface CoursesSelect<T extends boolean = true> {
   focus?: T;
   popular?: T;
   certificate?: T;
+  certificationTypes?: T;
   accreditation?: T;
   externalUrl?: T;
   isBookable?: T;
@@ -1749,7 +1835,11 @@ export interface Pricing {
           name: string;
           tagline?: string | null;
           /**
-           * Jaarprijs in euro, exclusief de maandelijkse toeslag.
+           * Maandprijs in euro, exclusief btw. Alleen gebruikt voor Opleiders.
+           */
+          monthlyPrice?: number | null;
+          /**
+           * Jaarprijs in euro, exclusief btw.
            */
           annualPrice: number;
           desc?: string | null;
@@ -1796,7 +1886,11 @@ export interface Pricing {
           name: string;
           tagline?: string | null;
           /**
-           * Jaarprijs in euro, exclusief de maandelijkse toeslag.
+           * Maandprijs in euro, exclusief btw. Alleen gebruikt voor Opleiders.
+           */
+          monthlyPrice?: number | null;
+          /**
+           * Jaarprijs in euro, exclusief btw.
            */
           annualPrice: number;
           desc?: string | null;
@@ -2099,6 +2193,7 @@ export interface PricingSelect<T extends boolean = true> {
               key?: T;
               name?: T;
               tagline?: T;
+              monthlyPrice?: T;
               annualPrice?: T;
               desc?: T;
               recommended?: T;
@@ -2151,6 +2246,7 @@ export interface PricingSelect<T extends boolean = true> {
               key?: T;
               name?: T;
               tagline?: T;
+              monthlyPrice?: T;
               annualPrice?: T;
               desc?: T;
               recommended?: T;

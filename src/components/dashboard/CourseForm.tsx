@@ -19,6 +19,8 @@ export type CourseFormValues = {
   level: string
   accreditation: string
   certificate: boolean
+  productLaunchHighlighted: boolean
+  coBrandPartner: string
   priceAmount: string
   priceOnRequest: boolean
   durationValue: string
@@ -55,6 +57,8 @@ const EMPTY: CourseFormValues = {
   level: '',
   accreditation: '',
   certificate: false,
+  productLaunchHighlighted: false,
+  coBrandPartner: '',
   priceAmount: '',
   priceOnRequest: false,
   durationValue: '',
@@ -88,10 +92,12 @@ export function CourseForm({
   categories,
   initial,
   courseId,
+  showPartnerUltimateFeatures = false,
 }: {
   categories: { id: number; name: string }[]
   initial?: Partial<CourseFormValues>
   courseId?: number
+  showPartnerUltimateFeatures?: boolean
 }) {
   const router = useRouter()
   const [v, setV] = React.useState<CourseFormValues>({ ...EMPTY, ...initial })
@@ -292,6 +298,16 @@ export function CourseForm({
           Certificaat inbegrepen
         </label>
         <Input label="Trefwoorden (komma-gescheiden)" value={v.tags} onChange={(e) => set('tags', e.target.value)} />
+        {showPartnerUltimateFeatures ? (
+          <div style={{ borderTop: '1px solid var(--border-hairline)', paddingTop: 18, display: 'grid', gap: 14 }}>
+            <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, color: 'var(--text-brand)' }}>Partner Ultimate</div>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 10, fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-body)' }}>
+              <input type="checkbox" checked={v.productLaunchHighlighted} onChange={(e) => set('productLaunchHighlighted', e.target.checked)} />
+              Productlancering extra uitlichten
+            </label>
+            <Input label="Co-branding partner" placeholder="Naam van het samenwerkende merk" value={v.coBrandPartner} onChange={(e) => set('coBrandPartner', e.target.value)} />
+          </div>
+        ) : null}
       </div>
 
       <div style={card}>

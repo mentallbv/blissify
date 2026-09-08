@@ -37,7 +37,7 @@ export async function GET(req: Request) {
     const courseTitle = typeof review.course === 'object' ? review.course.title : `opleiding ${review.course}`
     await sendEmail({
       to: ADMIN_EMAIL,
-      subject: `Nieuwe geverifieerde review voor ${courseTitle}`,
+      subject: `Nieuwe review met bevestigd e-mailadres voor ${courseTitle}`,
       html: emailHtml([
         `${review.reviewerName} heeft het e-mailadres bevestigd.`,
         `Beoordeling: ${review.rating}/5`,

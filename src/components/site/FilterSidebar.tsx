@@ -33,6 +33,13 @@ const FOCUS = [
   { value: 'therapeutisch', label: 'Therapeutisch' },
   { value: 'energetisch', label: 'Energetisch' },
 ]
+const CERTIFICATIONS = [
+  { value: 'certificate-included', label: 'Certificaat inbegrepen' },
+  { value: 'diploma-possible', label: 'Diploma mogelijk' },
+  { value: 'accredited-recognized', label: 'Geaccrediteerd / Erkend' },
+  { value: 'industry-recognized', label: 'Branche-erkend (ANBOS / ProBeauty)' },
+  { value: 'mbo-recognized', label: 'MBO-erkend (Nederland)' },
+]
 
 /**
  * Course filter rail. All state lives in the URL query string, so results are
@@ -52,6 +59,7 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
     doelgroep: params.get('doelgroep') || '',
     praktisch: params.get('praktisch') || '',
     focus: params.get('focus') || '',
+    certificering: params.get('certificering') || '',
     erkend: params.get('erkend') === 'true',
     nieuw: params.get('nieuw') === 'true',
     populair: params.get('populair') === 'true',
@@ -66,7 +74,7 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
     next.delete('page')
     router.push(`${pathname}?${next.toString()}`, { scroll: false })
   }
-  const toggleCsv = (key: 'doelgroep' | 'praktisch' | 'focus', value: string) => {
+  const toggleCsv = (key: 'doelgroep' | 'praktisch' | 'focus' | 'certificering', value: string) => {
     const selected = current[key].split(',').filter(Boolean)
     const next = selected.includes(value) ? selected.filter((item) => item !== value) : [...selected, value]
     update(key, next.length ? next.join(',') : null)
@@ -85,7 +93,7 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
     priceTimer.current = setTimeout(() => update('prijsMax', Number(v) >= options.priceMax ? null : v), 350)
   }
 
-  const hasAdvanced = Boolean(current.praktisch || current.focus || current.erkend || current.nieuw || current.populair || current.gratis || current.prijsMax)
+  const hasAdvanced = Boolean(current.praktisch || current.focus || current.certificering || current.erkend || current.nieuw || current.populair || current.gratis || current.prijsMax)
   const [moreOpen, setMoreOpen] = React.useState(hasAdvanced)
   const hasActive = Boolean(current.categorie || current.locatie || current.format || current.aanbieder || current.doelgroep || hasAdvanced)
   const mainCategories = options.categories.filter((category) => !category.parentSlug)
@@ -194,6 +202,7 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
 
       <div>
         <div style={labelStyle}>Certificaat</div>
+        <CheckOptions options={CERTIFICATIONS} selected={current.certificering} onToggle={(value) => toggleCsv('certificering', value)} />
         <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
           <button
             type="button"

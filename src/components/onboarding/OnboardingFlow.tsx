@@ -254,7 +254,8 @@ export function OnboardingFlow({
               <h1 style={headingStyle}>Kies je abonnement</h1>
               <p style={subheadStyle}>
                 Kies een formule om je profiel te activeren. Je wordt doorgestuurd naar onze betaalpartner Mollie.
-                Je betaalt {billingCycle === 'monthly' ? 'maandelijks' : 'jaarlijks'}; publiceren kan zodra je betaling is bevestigd.
+                Je betaalt {billingCycle === 'monthly' ? 'maandelijks vooraf en kunt per maand opzeggen' : 'het volledige jaar vooraf'}; publiceren kan zodra je betaling is bevestigd.
+                Alle prijzen zijn exclusief btw. Het abonnement wordt automatisch verlengd totdat je de verlenging stopzet; reeds betaalde periodes worden niet terugbetaald.
               </p>
 
               <div className="bl-cat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, alignItems: 'start' }}>

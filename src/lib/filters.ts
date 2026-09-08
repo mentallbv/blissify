@@ -18,6 +18,7 @@ export function parseCourseFilters(sp: SearchParams): CourseFilters {
     city: one(sp.locatie) || undefined,
     format: one(sp.format) || undefined,
     certificate: one(sp.erkend) === 'true' || undefined,
+    certificationTypes: many(sp.certificering),
     keyword: one(sp.keyword) || undefined,
     providerType: one(sp.aanbieder) === 'brand' ? 'brand' : one(sp.aanbieder) === 'trainer' ? 'trainer' : undefined,
     targetAudiences: many(sp.doelgroep),

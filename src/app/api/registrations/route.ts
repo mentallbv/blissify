@@ -6,7 +6,8 @@ import { sendEmail, emailHtml, SITE_URL } from '@/lib/email'
 
 /**
  * POST /api/registrations - in-platform course registration (Brand accounts on
- * Partner Professional/Premium only). Signup only, no content hosting.
+ * Legacy endpoint retained for existing records. Blissify 2.0 directs visitors
+ * to the provider's external enrolment link instead.
  *
  * The registration mode is authoritative on the server: we load the course and
  * require course.isBookable === true (set from the owning brand tier). A client

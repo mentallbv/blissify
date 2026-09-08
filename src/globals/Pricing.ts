@@ -19,7 +19,8 @@ const audienceFields: Field[] = [
       { name: 'key', type: 'text', required: true },
       { name: 'name', type: 'text', required: true },
       { name: 'tagline', type: 'text' },
-      { name: 'annualPrice', type: 'number', required: true, min: 0, admin: { description: 'Jaarprijs in euro, exclusief de maandelijkse toeslag.' } },
+      { name: 'monthlyPrice', type: 'number', min: 0, admin: { description: 'Maandprijs in euro, exclusief btw. Alleen gebruikt voor Opleiders.' } },
+      { name: 'annualPrice', type: 'number', required: true, min: 0, admin: { description: 'Jaarprijs in euro, exclusief btw.' } },
       { name: 'desc', type: 'textarea' },
       { name: 'recommended', type: 'checkbox', defaultValue: false },
       { name: 'features', type: 'array', fields: [{ name: 'feature', type: 'text', required: true }] },
@@ -59,8 +60,8 @@ const audienceFields: Field[] = [
 ]
 
 /**
- * Single source of truth for both subscription ladders, billing cadence and
- * trial rules. Legacy trainer fields remain hidden temporarily so existing
+ * Single source of truth for both subscription ladders and billing cadence.
+ * Legacy fields remain hidden temporarily so existing
  * content can be migrated without destructive schema changes.
  */
 export const Pricing: GlobalConfig = {
@@ -77,17 +78,17 @@ export const Pricing: GlobalConfig = {
     {
       name: 'billing',
       type: 'group',
-      label: 'Facturatie en proefperiode',
+      label: 'Facturatie',
       fields: [
-        { name: 'trialEnabled', type: 'checkbox', defaultValue: true, label: 'Gratis proefperiode inschakelen' },
-        { name: 'trialDays', type: 'number', defaultValue: 7, min: 0, max: 90, label: 'Aantal proefdagen' },
-        { name: 'monthlyEnabled', type: 'checkbox', defaultValue: true, label: 'Maandelijks betalen toestaan' },
-        { name: 'monthlyMarkupPercent', type: 'number', defaultValue: 10, min: 0, max: 100, label: 'Toeslag bij maandbetaling (%)' },
+        { name: 'trialEnabled', type: 'checkbox', defaultValue: false, admin: { hidden: true } },
+        { name: 'trialDays', type: 'number', defaultValue: 0, admin: { hidden: true } },
+        { name: 'monthlyEnabled', type: 'checkbox', defaultValue: true, label: 'Maandabonnementen voor Opleiders inschakelen' },
+        { name: 'monthlyMarkupPercent', type: 'number', defaultValue: 20, admin: { hidden: true } },
         {
           name: 'monthlyCommitment',
           type: 'select',
-          defaultValue: 'annual',
-          label: 'Looptijd bij maandbetaling',
+          defaultValue: 'cancel_anytime',
+          admin: { hidden: true },
           options: [
             { label: '12 maanden verplicht, maandelijks betaald', value: 'annual' },
             { label: 'Maandelijks opzegbaar', value: 'cancel_anytime' },
@@ -139,9 +140,9 @@ export const Pricing: GlobalConfig = {
       label: 'Vergelijkingstabel',
       admin: { hidden: true },
       fields: [
-        { name: 'col1', type: 'text', defaultValue: 'Basis' },
-        { name: 'col2', type: 'text', defaultValue: 'Medium' },
-        { name: 'col3', type: 'text', defaultValue: 'Premium' },
+        { name: 'col1', type: 'text', defaultValue: 'Opleider Lite' },
+        { name: 'col2', type: 'text', defaultValue: 'Opleider Premium' },
+        { name: 'col3', type: 'text', defaultValue: 'Opleider Ultimate' },
         {
           name: 'rows',
           type: 'array',

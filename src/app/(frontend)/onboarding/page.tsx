@@ -18,8 +18,8 @@ export default async function OnboardingPage({
     key: t.key,
     name: t.name,
     tagline: t.tagline,
-    price: t.price,
-    period: t.period,
+    price: role === 'trainer' && params.billing === 'monthly' ? `€ ${Number(t.monthlyPrice || (t.annualPrice || 0) / 10).toLocaleString('nl-BE')}` : t.price,
+    period: role === 'trainer' && params.billing === 'monthly' ? '/maand' : '/jaar',
     features: t.features,
     recommended: t.recommended,
   }))
@@ -29,7 +29,7 @@ export default async function OnboardingPage({
       tiers={onboardingTiers}
       role={role}
       initialTier={tiers.some((tier) => tier.key === params.tier) ? params.tier : undefined}
-      billingCycle={params.billing === 'monthly' && catalog.billing.monthlyEnabled ? 'monthly' : 'yearly'}
+      billingCycle={role === 'trainer' && params.billing === 'monthly' && catalog.billing.monthlyEnabled ? 'monthly' : 'yearly'}
     />
   )
 }

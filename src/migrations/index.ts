@@ -9,6 +9,8 @@ import * as migration_20260728_123112 from './20260728_123112';
 import * as migration_20260728_124953 from './20260728_124953';
 import * as migration_20260812_091846 from './20260812_091846';
 import * as migration_20260814_brand_accent_color from './20260814_brand_accent_color';
+import * as migration_20260824_124554_blissify_2 from './20260824_124554_blissify_2';
+import * as migration_20260826_partner_ultimate_course_features from './20260826_partner_ultimate_course_features';
 
 export const migrations = [
   {
@@ -59,11 +61,21 @@ export const migrations = [
   {
     up: migration_20260812_091846.up,
     down: migration_20260812_091846.down,
-    name: '20260812_091846'
+    name: '20260812_091846',
   },
   {
     up: migration_20260814_brand_accent_color.up,
     down: migration_20260814_brand_accent_color.down,
-    name: '20260814_brand_accent_color'
+    name: '20260814_brand_accent_color',
+  },
+  {
+    up: migration_20260824_124554_blissify_2.up,
+    down: migration_20260824_124554_blissify_2.down,
+    name: '20260824_124554_blissify_2'
+  },
+  {
+    up: migration_20260826_partner_ultimate_course_features.up,
+    down: migration_20260826_partner_ultimate_course_features.down,
+    name: '20260826_partner_ultimate_course_features',
   },
 ];

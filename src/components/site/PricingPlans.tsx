@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { ButtonLink } from '@/components/ui'
-import { monthlyPrice, type BillingSettings, type PricingData } from '@/lib/pricing'
+import { type BillingSettings, type PricingData } from '@/lib/pricing'
 
 type Audience = 'opleiders' | 'brands'
 
@@ -22,6 +22,7 @@ export function PricingPlans({
   const [audience, setAudience] = React.useState<Audience>(initialAudience)
   const [cycle, setCycle] = React.useState<'yearly' | 'monthly'>('yearly')
   const data = catalog[audience]
+  const monthlyAvailable = audience === 'opleiders' && billing.monthlyEnabled
   const detailHref = audience === 'brands' ? '/prijzen/merken-leveranciers' : '/prijzen/opleiders'
 
   return (
@@ -54,7 +55,7 @@ export function PricingPlans({
         </div>
       ) : null}
 
-      {billing.monthlyEnabled ? (
+      {monthlyAvailable ? (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12, marginBottom: 32 }}>
           <button type="button" onClick={() => setCycle('yearly')} className={cycle === 'yearly' ? 'bl-textlink' : undefined} style={{ border: 0, background: 'none', cursor: 'pointer', fontFamily: 'var(--font-ui)', color: cycle === 'yearly' ? 'var(--text-brand)' : 'var(--text-meta)' }}>
             Jaarlijks
@@ -62,17 +63,16 @@ export function PricingPlans({
           <button type="button" onClick={() => setCycle('monthly')} className={cycle === 'monthly' ? 'bl-textlink' : undefined} style={{ border: 0, background: 'none', cursor: 'pointer', fontFamily: 'var(--font-ui)', color: cycle === 'monthly' ? 'var(--text-brand)' : 'var(--text-meta)' }}>
             Maandelijks
           </button>
-          {cycle === 'monthly' ? (
-            <span style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--text-accent)' }}>+{billing.monthlyMarkupPercent}%</span>
-          ) : null}
+          {cycle === 'yearly' ? <span style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--text-accent)' }}>2 maanden gratis</span> : null}
         </div>
       ) : null}
 
       <div className="bl-cat-grid bl-pricing-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, alignItems: 'stretch' }}>
         {data.tiers.map((tier) => {
           const annual = tier.annualPrice || Number(tier.price.replace(/[^\d]/g, ''))
-          const amount = cycle === 'monthly' ? monthlyPrice(annual, billing.monthlyMarkupPercent) : annual
-          const formatted = amount.toLocaleString('nl-BE', { minimumFractionDigits: cycle === 'monthly' ? 2 : 0, maximumFractionDigits: 2 })
+          const effectiveCycle = monthlyAvailable ? cycle : 'yearly'
+          const amount = effectiveCycle === 'monthly' ? tier.monthlyPrice || annual / 10 : annual
+          const formatted = amount.toLocaleString('nl-BE', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
           return (
             <div key={tier.key} className="bl-pricing-card" style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: 32 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
@@ -81,16 +81,16 @@ export function PricingPlans({
               </div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '14px 0 6px' }}>
                 <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 48, color: 'var(--text-brand)' }}>€ {formatted}</span>
-                <span style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-meta)' }}>{cycle === 'monthly' ? '/maand' : '/jaar'}</span>
+                <span style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-meta)' }}>{effectiveCycle === 'monthly' ? '/maand' : '/jaar'}</span>
               </div>
-              {cycle === 'monthly' ? (
+              <p style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--text-meta)', margin: '0 0 12px' }}>excl. btw</p>
+              {effectiveCycle === 'monthly' ? (
                 <p style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--text-meta)', margin: '0 0 12px' }}>
-                  {billing.monthlyCommitment === 'annual' ? '12 maanden commitment, maandelijks betaald' : 'Maandelijks opzegbaar'}
+                  Maandelijks vooraf betaald en maandelijks opzegbaar
                 </p>
-              ) : null}
-              {billing.trialEnabled ? <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 12, color: 'var(--text-accent)', margin: '0 0 12px' }}>{billing.trialDays} dagen gratis proberen</p> : null}
+              ) : <p style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--text-meta)', margin: '0 0 12px' }}>Vooraf betaald; automatische jaarlijkse verlenging</p>}
               <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, lineHeight: 1.6, color: 'var(--text-body)', minHeight: 44 }}>{tier.desc}</p>
-              <ButtonLink href={compact ? detailHref : `/registreren?type=${audience === 'brands' ? 'brand' : 'trainer'}&tier=${tier.key}&billing=${cycle}`} variant={tier.recommended ? 'accent' : 'primary'} fullWidth>
+              <ButtonLink href={compact ? detailHref : `/registreren?type=${audience === 'brands' ? 'brand' : 'trainer'}&tier=${tier.key}&billing=${effectiveCycle}`} variant={tier.recommended ? 'accent' : 'primary'} fullWidth>
                 {compact ? 'Bekijk alle details' : `Kies ${tier.name}`}
               </ButtonLink>
               <div style={{ height: 1, background: 'var(--border-hairline)', margin: '22px 0' }} />

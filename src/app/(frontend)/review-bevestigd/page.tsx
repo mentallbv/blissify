@@ -5,7 +5,7 @@ export default async function ReviewConfirmedPage({ searchParams }: { searchPara
   const { status } = await searchParams
   const content =
     status === 'success'
-      ? ['Bedankt, je e-mailadres is bevestigd.', 'Je review wordt nu door Blissify gecontroleerd en verschijnt na goedkeuring.']
+      ? ['Bedankt, je e-mailadres is bevestigd.', 'Je review wordt nu door Blissify beoordeeld en verschijnt na goedkeuring.']
       : status === 'already'
         ? ['Deze review is al bevestigd.', 'De review staat klaar voor controle of is al gepubliceerd.']
         : status === 'expired'

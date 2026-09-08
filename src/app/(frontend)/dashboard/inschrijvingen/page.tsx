@@ -25,7 +25,7 @@ export default async function DashboardRegistrationsPage() {
     return (
       <>
         <PageTitle>Inschrijvingen</PageTitle>
-        <EmptyNotice text="In-platform inschrijvingen zijn beschikbaar voor Merken & Leveranciers met een Partner Professional- of Partner Premium-abonnement." />
+        <EmptyNotice text="Inschrijvingen verlopen via de externe inschrijvingslink die je aan iedere opleiding toevoegt." />
       </>
     )
   }

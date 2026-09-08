@@ -1,5 +1,4 @@
 import { getPricingCatalog } from '@/lib/data'
-import { monthlyPrice } from '@/lib/pricing'
 import { isBrandTier, isTrainerTier, type BillingCycle, type PlanTier } from '@/lib/mollie'
 import { tierFeatures } from '@/lib/tier-features'
 
@@ -20,12 +19,15 @@ export async function resolvePlan(role: string, tier: PlanTier, billingCycle: Bi
   if (billingCycle === 'monthly' && !catalog.billing.monthlyEnabled) {
     return { ok: false, error: 'Maandelijkse betaling is niet beschikbaar.', status: 400 }
   }
+  if (role === 'brand' && billingCycle === 'monthly') {
+    return { ok: false, error: 'Partner-abonnementen zijn uitsluitend jaarlijks beschikbaar.', status: 400 }
+  }
   const audience = role === 'brand' ? catalog.brands : catalog.opleiders
   const selected = audience.tiers.find((item) => item.key === tier)
   if (!selected) return { ok: false, error: 'Ongeldige formule.', status: 400 }
 
   const annualPrice = selected.annualPrice || Number(selected.price.replace(/[^\d]/g, ''))
-  const amount = (billingCycle === 'monthly' ? monthlyPrice(annualPrice, catalog.billing.monthlyMarkupPercent) : annualPrice).toFixed(2)
+  const amount = (billingCycle === 'monthly' ? selected.monthlyPrice || annualPrice / 10 : annualPrice).toFixed(2)
   return { ok: true, amount, catalog }
 }
 
@@ -58,7 +60,7 @@ export async function publishedCoursesOverLimit(
   return Math.max(0, published.totalDocs - limit)
 }
 
-/** Mollie charges a small authorisation instead of the plan price during a trial. */
-export function chargeAmount(amount: string, trialEnabled: boolean): string {
-  return trialEnabled ? '0.02' : amount
+/** Blissify 2.0 has no free trial, so the selected period is charged immediately. */
+export function chargeAmount(amount: string, _trialEnabled = false): string {
+  return amount
 }

@@ -132,9 +132,9 @@ export const Pages: CollectionConfig = {
           slug: 'comparison',
           labels: { singular: 'Vergelijkingstabel', plural: 'Vergelijkingstabellen' },
           fields: [
-            { name: 'col1', type: 'text', defaultValue: 'Basis' },
-            { name: 'col2', type: 'text', defaultValue: 'Medium' },
-            { name: 'col3', type: 'text', defaultValue: 'Premium' },
+            { name: 'col1', type: 'text', defaultValue: 'Lite' },
+            { name: 'col2', type: 'text', defaultValue: 'Premium' },
+            { name: 'col3', type: 'text', defaultValue: 'Ultimate' },
             {
               name: 'rows',
               type: 'array',

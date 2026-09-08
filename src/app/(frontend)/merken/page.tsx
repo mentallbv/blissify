@@ -24,7 +24,7 @@ export default async function MerkenPage({ searchParams }: { searchParams: Promi
     typePartner: one(sp.typePartner) || undefined,
     herkomst: one(sp.herkomst) || undefined,
     positionering: one(sp.positionering) || undefined,
-    filosofie: one(sp.filosofie) || undefined,
+    filosofie: list(sp.filosofie),
     extra: list(sp.extra),
   }
   const [{ cards }, facets] = await Promise.all([getBrandCards(filters), getMerkenFacets()])

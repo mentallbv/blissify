@@ -3,6 +3,8 @@ export type Tier = {
   key: 'basis' | 'medium' | 'premium'
   name: string
   tagline: string
+  monthlyPrice: number
+  annualPrice: number
   price: string
   desc: string
   features: string[]
@@ -12,41 +14,46 @@ export type Tier = {
 export const TIERS: Tier[] = [
   {
     key: 'basis',
-    name: 'Basis',
-    tagline: 'Voor wie start',
-    price: '€ 99',
-    desc: 'Voor wie start: één opleiding en een professioneel profiel.',
-    features: ['1 opleiding', 'Opleider profiel', 'Aanvraagbeheer', 'Geen analytics'],
+    name: 'Opleider Lite',
+    tagline: 'Voor starters en kleine opleiders',
+    monthlyPrice: 15,
+    annualPrice: 150,
+    price: '€ 150',
+    desc: 'Een professionele basis voor zichtbaarheid met één actieve opleiding.',
+    features: ['Professioneel opleiderprofiel', '1 actieve opleiding', 'Eigen opleidingspagina', 'Vindbaar via zoeken en filters', 'Website-, inschrijf- en socialmedia-links'],
   },
   {
     key: 'medium',
-    name: 'Medium',
-    tagline: 'Voor groeiende opleiders',
-    price: '€ 249',
-    desc: 'Voor groeiende opleiders die meer bereik en inzicht willen.',
-    features: ['Tot 5 opleidingen', 'Professioneel opleiderprofiel', 'Uitgebreide statistieken', 'Prioriteit in zoekresultaten', 'Eigen branding (logo + kleuren)'],
+    name: 'Opleider Premium',
+    tagline: 'Voor actieve opleiders met meerdere opleidingen',
+    monthlyPrice: 49,
+    annualPrice: 490,
+    price: '€ 490',
+    desc: 'Presenteer meerdere opleidingen en volg hun bereik met basisstatistieken.',
+    features: ['Alles uit Opleider Lite', 'Tot 5 actieve opleidingen', 'Basisstatistieken', 'Profiel- en opleidingsweergaven', 'Websiteklikken en populairste opleidingen'],
     recommended: true,
   },
   {
     key: 'premium',
-    name: 'Premium',
-    tagline: 'Voor maximale zichtbaarheid',
-    price: '€ 549',
-    desc: 'Voor maximale zichtbaarheid met toppositie en support.',
-    features: ['Onbeperkte opleidingen', 'Toppositie in zoekresultaten', 'Premium badge', 'Homepage exposure (rotatie)', 'Prioriteitssupport', 'Geavanceerde analytics + leadrapportage'],
+    name: 'Opleider Ultimate',
+    tagline: 'Voor gevestigde opleiders en academies',
+    monthlyPrice: 97,
+    annualPrice: 970,
+    price: '€ 970',
+    desc: 'Onbeperkt publiceren met eigen branding, diepe inzichten en exclusieve zichtbaarheid.',
+    features: ['Alles uit Opleider Premium', 'Onbeperkt actieve opleidingen', 'Geavanceerde statistieken per opleiding', 'Vergelijking, evolutie en CTR', 'Prioritaire ranking en homepage-rotatie', 'Eigen branding en Ultimate badge'],
   },
 ]
 
 export const COMPARE_ROWS: { feature: string; basis: string; medium: string; premium: string }[] = [
   { feature: 'Aantal opleidingen', basis: '1', medium: 'Tot 5', premium: 'Onbeperkt' },
-  { feature: 'Opleider profiel', basis: 'Ja', medium: 'Ja', premium: 'Ja' },
-  { feature: 'Aanvraagbeheer', basis: 'Ja', medium: 'Ja', premium: 'Ja' },
-  { feature: 'Uitgebreide statistieken', basis: '–', medium: 'Ja', premium: 'Ja' },
-  { feature: 'Prioriteit in zoekresultaten', basis: '–', medium: 'Ja', premium: 'Toppositie' },
-  { feature: 'Eigen branding', basis: '–', medium: 'Ja', premium: 'Ja' },
+  { feature: 'Professioneel opleiderprofiel', basis: 'Ja', medium: 'Ja', premium: 'Ja' },
+  { feature: 'Basisstatistieken', basis: '–', medium: 'Ja', premium: 'Ja' },
+  { feature: 'Geavanceerde statistieken', basis: '–', medium: '–', premium: 'Ja' },
+  { feature: 'Prioriteit in zoekresultaten', basis: '–', medium: '–', premium: 'Ja' },
+  { feature: 'Eigen branding', basis: '–', medium: '–', premium: 'Ja' },
   { feature: 'Homepage exposure', basis: '–', medium: '–', premium: 'Rotatie' },
-  { feature: 'Premium badge', basis: '–', medium: '–', premium: 'Ja' },
-  { feature: 'Prioriteitssupport', basis: '–', medium: '–', premium: 'Ja' },
+  { feature: 'Ultimate badge', basis: '–', medium: '–', premium: 'Ja' },
 ]
 
 export type PricingData = {
@@ -57,6 +64,7 @@ export type PricingData = {
     name: string
     tagline: string
     annualPrice?: number
+    monthlyPrice?: number
     price: string
     period: string
     desc: string
@@ -82,11 +90,11 @@ export type PricingCatalog = {
 }
 
 export const BILLING_FALLBACK: BillingSettings = {
-  trialEnabled: true,
-  trialDays: 7,
+  trialEnabled: false,
+  trialDays: 0,
   monthlyEnabled: true,
-  monthlyMarkupPercent: 10,
-  monthlyCommitment: 'annual',
+  monthlyMarkupPercent: 20,
+  monthlyCommitment: 'cancel_anytime',
 }
 
 /** Fallback used when the Pricing global is empty or the DB is unreachable. */
@@ -95,13 +103,14 @@ export const PRICING_FALLBACK: PricingData = {
   intro: {
     eyebrow: 'Prijzen voor opleiders',
     title: 'Eenvoudige, eerlijke prijzen.',
-    subtitle: 'Eén jaarlijks abonnement. Directe leads. Geen commissie per aanvraag.',
+    subtitle: 'Maandelijks opzegbaar of twee maanden voordeel bij jaarlijkse betaling. Prijzen exclusief btw.',
   },
   tiers: TIERS.map((t) => ({
     key: t.key,
     name: t.name,
     tagline: t.tagline,
-    annualPrice: Number(t.price.replace(/[^\d]/g, '')),
+    annualPrice: t.annualPrice,
+    monthlyPrice: t.monthlyPrice,
     price: t.price,
     period: '/jaar',
     desc: t.desc,
@@ -109,9 +118,9 @@ export const PRICING_FALLBACK: PricingData = {
     features: t.features,
   })),
   comparison: {
-    col1: 'Basis',
-    col2: 'Medium',
-    col3: 'Premium',
+    col1: 'Opleider Lite',
+    col2: 'Opleider Premium',
+    col3: 'Opleider Ultimate',
     rows: COMPARE_ROWS.map((r) => ({ feature: r.feature, v1: r.basis, v2: r.medium, v3: r.premium })),
   },
   bottomCta: {
@@ -132,51 +141,52 @@ export const BRAND_PRICING_FALLBACK: PricingData = {
   tiers: [
     {
       key: 'partner_listing',
-      name: 'Partner Listing',
-      tagline: 'Voor een professionele aanwezigheid',
+      name: 'Partner Lite',
+      tagline: 'Voor professionele merkzichtbaarheid',
       annualPrice: 490,
       price: '€ 490',
       period: '/jaar',
       desc: 'Presenteer je merk of aanbod aan professionals op Blissify.',
       recommended: false,
-      features: ['Featured badge op het merkprofiel', 'Eigen brandpagina', 'Logo, coverfoto en bedrijfsomschrijving', 'Website en sociale kanalen', 'Uitgebreide merkfilters', 'Basisstatistieken', 'Geen opleidingen publiceren'],
+      features: ['Professionele merkpagina', 'Logo, cover en bedrijfsomschrijving', 'Website- en socialmedia-links', 'Vindbaar via uitgebreide filters', '1 categorie of specialisatie', 'Geen opleidingen of statistieken'],
     },
     {
       key: 'partner_professional',
-      name: 'Partner Professional',
-      tagline: 'Voor merken die opleidingen aanbieden',
+      name: 'Partner Premium',
+      tagline: 'Voor merken met een breder aanbod',
       annualPrice: 890,
       price: '€ 890',
       period: '/jaar',
       desc: 'Combineer je merkprofiel met opleidingen en directe inschrijvingen.',
       recommended: true,
-      features: ['Alles uit Partner Listing', 'Tot 10 opleidingen per jaar', 'In-platform inschrijvingen', 'Topranking binnen de categorie', 'Maandelijkse homepage exposure', 'Uitgebreide analytics'],
+      features: ['Alles uit Partner Lite', 'Tot 3 categorieën of specialisaties', 'Tot 5 actieve opleidingen', 'Eigen opleidingspagina’s', 'Basisstatistieken', 'Inzicht in views en website-/socialklikken'],
     },
     {
       key: 'partner_premium',
-      name: 'Partner Premium',
-      tagline: 'Voor maximale zichtbaarheid',
+      name: 'Partner Ultimate',
+      tagline: 'Voor maximale zichtbaarheid en merkbeleving',
       annualPrice: 1490,
       price: '€ 1.490',
       period: '/jaar',
       desc: 'Maximale zichtbaarheid, onbeperkt publiceren en prioritaire ondersteuning.',
       recommended: false,
-      features: ['Alles uit Partner Professional', 'Onbeperkte opleidingen, workshops en events', 'Premium badge', 'Prioriteit ranking en extra homepage exposure', 'Co-branded opleidingen', 'Geavanceerde analytics en lead-export'],
+      features: ['Alles uit Partner Premium', 'Onbeperkte categorieën en opleidingen', 'Geavanceerde statistieken', 'Prioritaire ranking en homepage-rotatie', 'Productlanceringen extra uitlichten', 'Eigen branding en Ultimate badge', 'Co-branded opleidingen'],
     },
   ],
   comparison: {
-    col1: 'Partner Listing',
-    col2: 'Partner Professional',
-    col3: 'Partner Premium',
+    col1: 'Partner Lite',
+    col2: 'Partner Premium',
+    col3: 'Partner Ultimate',
     rows: [
       { feature: 'Merk- of leveranciersprofiel', v1: 'Ja', v2: 'Ja', v3: 'Ja' },
-      { feature: 'Aantal opleidingen', v1: '–', v2: 'Tot 10', v3: 'Onbeperkt' },
-      { feature: 'In-platform inschrijvingen', v1: '–', v2: 'Ja', v3: 'Ja' },
-      { feature: 'Analytisch dashboard', v1: 'Basis', v2: 'Uitgebreid', v3: 'Geavanceerd + export' },
-      { feature: 'Ranking', v1: 'Standaard', v2: 'Topranking', v3: 'Prioriteit' },
-      { feature: 'Homepage-uitlichting', v1: '–', v2: 'Maandelijkse rotatie', v3: 'Extra exposure' },
-      { feature: 'Premium badge', v1: '–', v2: '–', v3: 'Ja' },
-      { feature: 'Prioriteitssupport', v1: '–', v2: '–', v3: 'Ja' },
+      { feature: 'Categorieën of specialisaties', v1: '1', v2: 'Tot 3', v3: 'Onbeperkt' },
+      { feature: 'Aantal opleidingen', v1: '–', v2: 'Tot 5', v3: 'Onbeperkt' },
+      { feature: 'Basisstatistieken', v1: '–', v2: 'Ja', v3: 'Ja' },
+      { feature: 'Geavanceerde statistieken', v1: '–', v2: '–', v3: 'Ja' },
+      { feature: 'Prioritaire ranking', v1: '–', v2: '–', v3: 'Ja' },
+      { feature: 'Homepage-uitlichting', v1: '–', v2: '–', v3: 'Rotatie' },
+      { feature: 'Eigen branding en Ultimate badge', v1: '–', v2: '–', v3: 'Ja' },
+      { feature: 'Co-branded opleidingen', v1: '–', v2: '–', v3: 'Ja' },
     ],
   },
   bottomCta: {

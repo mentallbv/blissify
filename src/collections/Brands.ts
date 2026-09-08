@@ -28,22 +28,29 @@ export const Brands: CollectionConfig = {
   hooks: {
     beforeChange: [
       async ({ data, originalDoc, req }) => {
+        const ownerRel = (data as { owner?: unknown }).owner ?? originalDoc?.owner
+        const ownerId = typeof ownerRel === 'object' ? (ownerRel as { id?: number | string })?.id : ownerRel
+        let tier: string | undefined
+        if (ownerId) {
+          try {
+            const owner = await req.payload.findByID({ collection: 'users', id: ownerId as never, depth: 0, overrideAccess: true })
+            tier = (owner as { brandTier?: string })?.brandTier
+          } catch {
+            tier = undefined
+          }
+        }
+        const features = tierForUser({ role: 'brand', brandTier: tier }).features
+
+        const categories = Array.isArray(data.productType) ? data.productType : Array.isArray(originalDoc?.productType) ? originalDoc.productType : []
+        if (features.categoryLimit !== Infinity && categories.length > features.categoryLimit) {
+          throw new Error(`Je abonnement laat maximaal ${features.categoryLimit} ${features.categoryLimit === 1 ? 'categorie' : 'categorieën'} of specialisaties toe.`)
+        }
+
         // profileAccentColor is a branding perk. Enforce server-side: clear it
         // when the owning brand account's tier has no branding rights,
         // regardless of any value submitted by the client.
         if (data.profileAccentColor) {
-          const ownerRel = (data as { owner?: unknown }).owner ?? originalDoc?.owner
-          const ownerId = typeof ownerRel === 'object' ? (ownerRel as { id?: number | string })?.id : ownerRel
-          let tier: string | undefined
-          if (ownerId) {
-            try {
-              const owner = await req.payload.findByID({ collection: 'users', id: ownerId as never, depth: 0, overrideAccess: true })
-              tier = (owner as { brandTier?: string })?.brandTier
-            } catch {
-              tier = undefined
-            }
-          }
-          if (!tierForUser({ role: 'brand', brandTier: tier }).features.hasProfileBranding) {
+          if (!features.hasProfileBranding) {
             ;(data as { profileAccentColor?: string | null }).profileAccentColor = null
           }
         }
@@ -167,11 +174,17 @@ export const Brands: CollectionConfig = {
         { label: 'Esthetische Technologie & Apparatuur', value: 'esthetische-technologie' },
         { label: 'Make-up & PMU', value: 'make-up-pmu' },
         { label: 'Wenkbrauwen & Wimpers', value: 'wenkbrauwen-wimpers' },
-        { label: 'Nagels & Hand/Voetverzorging', value: 'nagels-hand-voet' },
+        { label: 'Manicure', value: 'manicure' },
+        { label: 'Pedicure', value: 'pedicure' },
         { label: 'Haarverzorging & Scalp', value: 'haarverzorging-scalp' },
         { label: 'Massage & Body', value: 'massage-body' },
         { label: 'Waxing & Ontharing', value: 'waxing-ontharing' },
         { label: 'Wellness & Holistisch', value: 'wellness-holistisch' },
+        { label: 'Aromatherapie', value: 'aromatherapie' },
+        { label: 'Praktijkinrichting & Meubilair', value: 'praktijkinrichting-meubilair' },
+        { label: 'Praktijkbenodigdheden & Instrumenten', value: 'praktijkbenodigdheden-instrumenten' },
+        { label: 'Hygiëne & Desinfectie', value: 'hygiene-desinfectie' },
+        { label: 'Textiel & Accessoires', value: 'textiel-accessoires' },
         { label: 'Business & Salon Benodigdheden', value: 'business-salon' },
       ],
     },
@@ -218,6 +231,14 @@ export const Brands: CollectionConfig = {
       type: 'checkbox',
       defaultValue: false,
       admin: { position: 'sidebar' },
+    },
+    {
+      name: 'topRated',
+      type: 'checkbox',
+      defaultValue: false,
+      label: 'Top beoordeeld',
+      access: { update: ({ req }) => (req.user as { role?: string } | null)?.role === 'admin' },
+      admin: { position: 'sidebar', description: 'Handmatig door Blissify beheerd op basis van beschikbare beoordelingen.' },
     },
     ...seoFields,
   ],

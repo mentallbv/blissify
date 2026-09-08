@@ -9,7 +9,7 @@ export const Reviews: CollectionConfig = {
     useAsTitle: 'reviewerName',
     defaultColumns: ['reviewerName', 'course', 'rating', 'status', 'createdAt'],
     group: 'Inhoud',
-    description: 'Geverifieerde beoordelingen. Alleen goedgekeurde reviews verschijnen op de website.',
+    description: 'Beoordelingen met bevestigd e-mailadres. Alleen goedgekeurde reviews verschijnen op de website.',
   },
   access: {
     read: ({ req }) => ((req.user as { role?: string } | null)?.role === 'admin' ? true : { status: { equals: 'approved' } }),

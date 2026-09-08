@@ -10,10 +10,8 @@ function courseLimitFor(user: { role?: string; subscriptionTier?: string; brandT
 }
 
 /**
- * Registration mode ("in-platform inschrijving") is on only for courses owned by
- * a Brand account on Partner Professional or Partner Premium. Resolved from the
- * owning brand's user tier, so it is authoritative regardless of who saves and
- * cannot be set by the client. Opleider-owned courses are never bookable.
+ * Registration mode is retained as a legacy field but disabled for Blissify
+ * 2.0: the PDF specifies an external website/enrolment link for all plans.
  */
 async function resolveIsBookable(brandRel: unknown, req: { payload: any }): Promise<boolean> {
   if (!brandRel) return false
@@ -100,7 +98,7 @@ export const Courses: CollectionConfig = {
       const user = req.user as any
       if (!user) return false
       if (user.role === 'admin' || user.role === 'trainer') return true
-      // Brand accounts: Partner Listing cannot create any course (hard gate).
+      // Brand accounts: Partner Lite cannot create any course (hard gate).
       if (user.role === 'brand') return tierForUser(user).features.canPublishCourses
       return false
     },
@@ -152,6 +150,8 @@ export const Courses: CollectionConfig = {
         ;(data as { isBookable?: boolean }).isBookable = await resolveIsBookable(brandRel, req)
         const ownerFeatures = await resolveOwnerFeatures(data as Record<string, unknown>, originalDoc, req)
         data.tierPriority = ownerFeatures.searchPriority
+        if (!ownerFeatures.hasProductLaunchHighlighting) data.productLaunchHighlighted = false
+        if (!ownerFeatures.hasCoBrandedCourses) data.coBrandPartner = null
         if ((data.featured ?? originalDoc?.featured) && !ownerFeatures.hasHomepageExposure) {
           data.featured = false
           data.featuredPosition = null
@@ -249,12 +249,23 @@ export const Courses: CollectionConfig = {
       admin: { position: 'sidebar', description: 'Uitgelicht in de directory' },
     },
     {
+      name: 'productLaunchHighlighted',
+      type: 'checkbox',
+      defaultValue: false,
+      admin: { description: 'Productlancering extra uitlichten (alleen Partner Ultimate).' },
+    },
+    {
+      name: 'coBrandPartner',
+      type: 'text',
+      admin: { description: 'Naam van het co-brandingmerk (alleen Partner Ultimate).' },
+    },
+    {
       name: 'featuredPosition',
       type: 'select',
       access: { update: adminField },
       options: [
         { label: 'Bovenaan directory', value: 'top' },
-        { label: 'Permanent bovenaan (Premium)', value: 'permanent_top' },
+        { label: 'Permanent bovenaan (Ultimate)', value: 'permanent_top' },
       ],
       admin: { position: 'sidebar', condition: (data) => data.featured },
     },
@@ -439,6 +450,19 @@ export const Courses: CollectionConfig = {
       admin: { position: 'sidebar', description: 'Handmatig beheerd door Blissify.' },
     },
     { name: 'certificate', type: 'checkbox', defaultValue: false, label: 'Certificaat uitgereikt' },
+    {
+      name: 'certificationTypes',
+      type: 'select',
+      hasMany: true,
+      label: 'Certificering en erkenning',
+      options: [
+        { label: 'Certificaat inbegrepen', value: 'certificate-included' },
+        { label: 'Diploma mogelijk', value: 'diploma-possible' },
+        { label: 'Geaccrediteerd / Erkend', value: 'accredited-recognized' },
+        { label: 'Branche-erkend (ANBOS / ProBeauty)', value: 'industry-recognized' },
+        { label: 'MBO-erkend (Nederland)', value: 'mbo-recognized' },
+      ],
+    },
     { name: 'accreditation', type: 'text', label: 'Accreditatie / erkenning' },
     {
       name: 'externalUrl',

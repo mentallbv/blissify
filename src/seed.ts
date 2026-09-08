@@ -58,6 +58,7 @@ const pricingAudienceForGlobal = (source: typeof PRICING_FALLBACK) => ({
     key: tier.key,
     name: tier.name,
     tagline: tier.tagline,
+    monthlyPrice: tier.monthlyPrice,
     annualPrice: tier.annualPrice || Number(tier.price.replace(/[^\d]/g, '')),
     desc: tier.desc,
     recommended: tier.recommended,
@@ -180,16 +181,16 @@ const BRANDS: {
   tags: string[]
   featured?: boolean
 }[] = [
-  // Partner Listing (cannot create/publish any course)
+  // Partner Lite (one category; cannot publish courses)
   { key: 'skinlab', name: 'Skinlab Belgium', email: 'info@skinlab.be', tier: 'partner_listing', typePartner: 'productmerken', herkomst: 'belgisch', positionering: 'professioneel-salon', productType: ['skincare-huidverbetering'], tags: ['belgisch', 'professioneel'] },
-  { key: 'districos', name: 'Districos Groothandel', email: 'info@districos.be', tier: 'partner_listing', typePartner: 'groothandels_distributeurs', herkomst: 'belgisch', positionering: 'starter-friendly', productType: ['business-salon', 'skincare-huidverbetering'], tags: ['belgisch'] },
+  { key: 'districos', name: 'Districos Groothandel', email: 'info@districos.be', tier: 'partner_listing', typePartner: 'groothandels_distributeurs', herkomst: 'belgisch', positionering: 'starter-friendly', productType: ['business-salon'], tags: ['belgisch'] },
   { key: 'pureaesthetics', name: 'Pure Aesthetics NV', email: 'info@pureaesthetics.be', tier: 'partner_listing', typePartner: 'leveranciers', herkomst: 'belgisch', positionering: 'medisch-esthetisch', productType: ['esthetische-technologie'], tags: ['professioneel', 'luxe'] },
-  { key: 'bellanails', name: 'Bella Nails Supply', email: 'info@bellanails.be', tier: 'partner_listing', typePartner: 'leveranciers', herkomst: 'nederlands', positionering: 'starter-friendly', productType: ['nagels-hand-voet'], tags: ['professioneel'] },
-  // Partner Professional (up to 10 courses, isBookable)
+  { key: 'bellanails', name: 'Bella Nails Supply', email: 'info@bellanails.be', tier: 'partner_listing', typePartner: 'leveranciers', herkomst: 'nederlands', positionering: 'starter-friendly', productType: ['manicure'], tags: ['professioneel'] },
+  // Partner Premium (up to 3 categories and 5 courses)
   { key: 'lumiere', name: 'Lumière Cosmetics', email: 'info@lumierecosmetics.be', tier: 'partner_professional', typePartner: 'productmerken', herkomst: 'europees', positionering: 'premium-luxe', productType: ['skincare-huidverbetering', 'make-up-pmu'], tags: ['luxe', 'professioneel'], featured: true },
   { key: 'dermatech', name: 'DermaTech Solutions', email: 'info@dermatech.be', tier: 'partner_professional', typePartner: 'apparatuurmerken', herkomst: 'belgisch', positionering: 'medisch-esthetisch', productType: ['esthetische-technologie', 'waxing-ontharing'], tags: ['professioneel'] },
   { key: 'naturi', name: 'Naturi Skincare', email: 'info@naturi.be', tier: 'partner_professional', typePartner: 'productmerken', herkomst: 'belgisch', positionering: 'professioneel-salon', productType: ['skincare-huidverbetering', 'wellness-holistisch'], tags: ['natuurlijk', 'vegan', 'duurzaam', 'holistisch'] },
-  // Partner Premium (unlimited, isBookable)
+  // Partner Ultimate (unlimited categories and courses)
   { key: 'comfort', name: 'Comfort Zone Belgium', email: 'info@comfortzone.be', tier: 'partner_premium', typePartner: 'productmerken', herkomst: 'europees', positionering: 'premium-luxe', productType: ['skincare-huidverbetering', 'massage-body'], tags: ['luxe', 'professioneel'], featured: true },
   { key: 'estheticpro', name: 'EstheticPro Group', email: 'info@estheticpro.be', tier: 'partner_premium', typePartner: 'apparatuurmerken', herkomst: 'internationaal', positionering: 'medisch-esthetisch', productType: ['esthetische-technologie', 'waxing-ontharing'], tags: ['professioneel', 'luxe'] },
   { key: 'biobeaute', name: 'Bio Beauté Belgium', email: 'info@biobeaute.be', tier: 'partner_premium', typePartner: 'productmerken', herkomst: 'belgisch', positionering: 'professioneel-salon', productType: ['skincare-huidverbetering', 'wellness-holistisch'], tags: ['natuurlijk', 'biologisch', 'vegan', 'holistisch'] },
@@ -280,7 +281,7 @@ async function seed() {
     slug: 'subscription-settings' as never,
     data: {
       homepageOpleiderTiers: ['premium'],
-      homepageBrandTiers: ['partner_professional', 'partner_premium'],
+      homepageBrandTiers: ['partner_premium'],
     } as never,
   })
   await payload.updateGlobal({
@@ -307,52 +308,75 @@ async function seed() {
   // ── CATEGORIES ─────────────────────────────────────────────────────────────
   console.log('📂 Creating categories...')
   const categoryData = [
-    { name: 'Schoonheid & Verzorging', slug: 'schoonheid-verzorging', children: [
-      { name: 'Schoonheidszorg', slug: 'schoonheidszorg' },
-      { name: 'Gezichtsbehandelingen', slug: 'gezichtsbehandelingen' },
-      { name: 'Lichaamsverzorging', slug: 'lichaamsverzorging' },
-      { name: 'Nagelstyliste', slug: 'nagelstyliste' },
-      { name: 'Make-up', slug: 'make-up' },
-      { name: 'Haarverzorging', slug: 'haarverzorging' },
-      { name: 'Epilatie & Ontharing', slug: 'epilatie-ontharing' },
+    { name: 'Gelaatsverzorging & Skincare', slug: 'gelaatsverzorging-skincare', children: [
+      { name: 'Klassieke facials', slug: 'klassieke-facials' }, { name: 'Deep cleansing', slug: 'deep-cleansing' },
+      { name: 'Huidanalyse', slug: 'huidanalyse' }, { name: 'Skin expert', slug: 'skin-expert' },
+      { name: 'Acne expert', slug: 'acne-expert' }, { name: 'Producttrainingen', slug: 'producttrainingen' },
+      { name: 'Gezichtsmassages', slug: 'gezichtsmassages' },
     ]},
-    { name: 'Massage & Lichaamswerk', slug: 'massage-lichaamswerk', children: [
-      { name: 'Massage', slug: 'massage' },
-      { name: 'Klassieke massage', slug: 'klassieke-massage' },
-      { name: 'Sportmassage', slug: 'sportmassage' },
-      { name: 'Hot stone massage', slug: 'hot-stone-massage' },
-      { name: 'Voetreflexologie', slug: 'voetreflexologie' },
-      { name: 'Lymfedrainage', slug: 'lymfedrainage' },
-      { name: 'Ayurvedische massage', slug: 'ayurvedische-massage' },
+    { name: 'Esthetische huidtechnieken', slug: 'esthetische-huidtechnieken', children: [
+      { name: 'Microneedling', slug: 'microneedling' }, { name: 'Dermaplaning', slug: 'dermaplaning' },
+      { name: 'Chemische peelings', slug: 'chemische-peelings' }, { name: 'Huidverbetering', slug: 'huidverbetering' },
+      { name: 'Anti-aging technieken', slug: 'anti-aging-technieken' }, { name: 'Mesotherapie', slug: 'mesotherapie' },
+      { name: 'LED-therapie', slug: 'led-therapie' },
     ]},
-    { name: 'Wellness & Holistische therapie', slug: 'wellness-holistische-therapie', children: [
-      { name: 'Reiki', slug: 'reiki' },
-      { name: 'Aromatherapie', slug: 'aromatherapie' },
-      { name: 'Kristaltherapie', slug: 'kristaltherapie' },
-      { name: 'Energetische healing', slug: 'energetische-healing' },
-      { name: 'Ayurveda', slug: 'ayurveda' },
+    { name: 'Ontharing & Laserbehandelingen', slug: 'ontharing-laserbehandelingen', children: [
+      { name: 'Laser ontharing', slug: 'laser-ontharing' }, { name: 'IPL ontharing', slug: 'ipl-ontharing' },
+      { name: 'Diode / Alexandrite / Nd:YAG laser', slug: 'lasertypes' }, { name: 'Ontharingstechnieken', slug: 'ontharingstechnieken' },
+      { name: 'Veilige laserbehandeling', slug: 'veilige-laserbehandeling' }, { name: 'Nazorg & parameters', slug: 'nazorg-parameters' },
     ]},
-    { name: 'Beweging & Yoga', slug: 'beweging-yoga', children: [
-      { name: 'Yoga', slug: 'yoga' },
-      { name: 'Pilates', slug: 'pilates' },
-      { name: 'Meditatie', slug: 'meditatie' },
-      { name: 'Tai Chi & Qi Gong', slug: 'tai-chi-qi-gong' },
-      { name: 'Dans & Beweging', slug: 'dans-beweging' },
+    { name: 'Waxing & Manuele Ontharing', slug: 'waxing-manuele-ontharing', children: [
+      { name: 'Body waxing', slug: 'body-waxing' }, { name: 'Facial waxing', slug: 'facial-waxing' },
+      { name: 'Sugaring', slug: 'sugaring' }, { name: 'Threading', slug: 'threading' },
+      { name: 'Ontharingsproducten & technieken', slug: 'ontharingsproducten-technieken' },
     ]},
-    { name: 'Voeding & Gezondheid', slug: 'voeding-gezondheid', children: [
-      { name: 'Voeding', slug: 'voeding' },
-      { name: 'Voedingsadvies', slug: 'voedingsadvies' },
-      { name: 'Orthomoleculaire therapie', slug: 'orthomoleculaire-therapie' },
-      { name: 'Plantaardige voeding', slug: 'plantaardige-voeding' },
-      { name: 'Darmgezondheid', slug: 'darmgezondheid' },
+    { name: 'Make-up & Visagie', slug: 'make-up-visagie', children: [
+      { name: 'Basis make-up', slug: 'basis-make-up' }, { name: 'Bridal make-up', slug: 'bridal-make-up' },
+      { name: 'Editorial & Fashion', slug: 'editorial-fashion' }, { name: 'Color theory', slug: 'color-theory' },
+      { name: 'Professioneel advies & verkoop', slug: 'professioneel-advies-verkoop' }, { name: 'Airbrush make-up', slug: 'airbrush-make-up' },
     ]},
-    { name: 'Persoonlijke ontwikkeling', slug: 'persoonlijke-ontwikkeling-hoofd', children: [
-      { name: 'Persoonlijke ontwikkeling', slug: 'persoonlijke-ontwikkeling' },
-      { name: 'Mindfulness', slug: 'mindfulness' },
-      { name: 'Coaching', slug: 'coaching' },
-      { name: 'NLP', slug: 'nlp' },
-      { name: 'Stressmanagement', slug: 'stressmanagement' },
-      { name: 'Ademwerk', slug: 'ademwerk' },
+    { name: 'Wenkbrauwen & Wimpers', slug: 'wenkbrauwen-wimpers', children: [
+      { name: 'Brow shaping & design', slug: 'brow-shaping-design' }, { name: 'Brow lamination', slug: 'brow-lamination' },
+      { name: 'Lash lift', slug: 'lash-lift' }, { name: 'Lash extensions', slug: 'lash-extensions' },
+      { name: 'Tinting & kleuring', slug: 'tinting-kleuring' }, { name: 'Henna brows', slug: 'henna-brows' },
+    ]},
+    { name: 'Nagels & Hand/Voetverzorging', slug: 'nagels-hand-voetverzorging', children: [
+      { name: 'Manicure & Pedicure', slug: 'manicure-pedicure' }, { name: 'Nail art', slug: 'nail-art' },
+      { name: 'Gel & Acryl', slug: 'gel-acryl' }, { name: 'Medische pedicure', slug: 'medische-pedicure' },
+      { name: 'Hand- & voetmassages', slug: 'hand-voetmassages' }, { name: 'Nagelprothesen', slug: 'nagelprothesen' },
+    ]},
+    { name: 'Massage & Lichaamsbehandelingen', slug: 'massage-lichaamsbehandelingen', children: [
+      { name: 'Ontspanningsmassage', slug: 'ontspanningsmassage' }, { name: 'Deep tissue', slug: 'deep-tissue' },
+      { name: 'Lymfedrainage', slug: 'lymfedrainage' }, { name: 'Hot stone', slug: 'hot-stone' },
+      { name: 'Kruidenstempels', slug: 'kruidenstempels' }, { name: 'Sportmassage', slug: 'sportmassage' },
+      { name: 'Body rituals & scrubs', slug: 'body-rituals-scrubs' },
+    ]},
+    { name: 'Haar & Scalp Treatments', slug: 'haar-scalp-treatments', children: [
+      { name: 'Scalp care', slug: 'scalp-care' }, { name: 'Headspa', slug: 'headspa' },
+      { name: 'Hoofdhuidmassages', slug: 'hoofdhuidmassages' }, { name: 'Haarrituelen', slug: 'haarrituelen' },
+      { name: 'Hair treatments', slug: 'hair-treatments' },
+    ]},
+    { name: 'Beleving & Klantenervaring', slug: 'beleving-klantenervaring', children: [
+      { name: 'Belevingsfacials', slug: 'belevingsfacials' }, { name: 'Handdoektechnieken & vouwtechnieken', slug: 'handdoek-vouwtechnieken' },
+      { name: 'Sensorische behandelingen', slug: 'sensorische-behandelingen' }, { name: 'Klantenbeleving & hospitality', slug: 'klantenbeleving-hospitality' },
+      { name: 'Salon transformatie & interieur', slug: 'salon-transformatie-interieur' }, { name: 'Ritual & ceremony behandelingen', slug: 'ritual-ceremony' },
+      { name: 'Luxe belevingsconcepten', slug: 'luxe-belevingsconcepten' },
+    ]},
+    { name: 'Holistische & Energetische Therapieën', slug: 'holistische-energetische-therapieen', children: [
+      { name: 'Sound healing', slug: 'sound-healing' }, { name: 'Reiki', slug: 'reiki' },
+      { name: 'Aromatherapie', slug: 'aromatherapie' }, { name: 'Energetische healing', slug: 'energetische-healing' },
+      { name: 'Ademwerk', slug: 'ademwerk' }, { name: 'Meditatie & mindfulness', slug: 'meditatie-mindfulness' },
+    ]},
+    { name: 'Business & Salon Groei', slug: 'business-salon-groei', children: [
+      { name: 'Social media marketing', slug: 'social-media-marketing' }, { name: 'Klantenwerving', slug: 'klantenwerving' },
+      { name: 'Pricing & verkoop', slug: 'pricing-verkoop' }, { name: 'Klantenbeleving', slug: 'klantenbeleving' },
+      { name: 'Branding', slug: 'branding' }, { name: 'Salon management', slug: 'salon-management' },
+      { name: 'Fotografie & content', slug: 'fotografie-content' },
+    ]},
+    { name: 'Product & Merk Opleidingen', slug: 'product-merk-opleidingen', children: [
+      { name: 'Merktrainingen', slug: 'merktrainingen' }, { name: 'Productkennis', slug: 'productkennis' },
+      { name: 'Sales training', slug: 'sales-training' }, { name: 'Distributeurstraining', slug: 'distributeurstraining' },
+      { name: 'Brand academies', slug: 'brand-academies' },
     ]},
   ]
   for (const cat of categoryData) {
@@ -363,6 +387,13 @@ async function seed() {
   }
   const { docs: allCats } = await payload.find({ collection: 'categories' as never, limit: 200 })
   const catBySlug: Record<string, number> = Object.fromEntries((allCats as { slug: string; id: number }[]).map((c) => [c.slug, c.id]))
+  const categoryAliases: Record<string, string> = {
+    schoonheidszorg: 'huidverbetering', gezichtsbehandelingen: 'klassieke-facials', lichaamsverzorging: 'body-rituals-scrubs',
+    nagelstyliste: 'gel-acryl', 'make-up': 'basis-make-up', haarverzorging: 'hair-treatments', 'epilatie-ontharing': 'laser-ontharing',
+    massage: 'ontspanningsmassage', 'klassieke-massage': 'ontspanningsmassage', 'hot-stone-massage': 'hot-stone',
+    voetreflexologie: 'hand-voetmassages', 'ayurvedische-massage': 'body-rituals-scrubs', yoga: 'meditatie-mindfulness',
+    voeding: 'salon-management', darmgezondheid: 'salon-management', mindfulness: 'meditatie-mindfulness',
+  }
   console.log(`  ✓ ${categoryData.length} hoofdcategorieën + subcategorieën`)
 
   // ── ADMIN ────────────────────────────────────────────────────────────────
@@ -379,7 +410,7 @@ async function seed() {
     const b = BRANDS[bi]
     const user = await payload.create({
       collection: 'users' as never,
-      data: { email: b.email, password: PASSWORD, name: b.name, role: 'brand', brandTier: b.tier, subscriptionStatus: 'active' } as never,
+      data: { email: b.email, password: PASSWORD, name: b.name, role: 'brand', brandTier: b.tier, subscriptionStatus: 'active', vatNumber: `BE0${String(10000000 + bi).padStart(9, '0')}`, billingCountry: 'BE', professionalBuyerConfirmed: true, professionalBuyerConfirmedAt: new Date().toISOString() } as never,
     })
     const logo = await uploadImage(payload, logoUrl(b.name), `${b.name} logo`)
     const coverImage = await uploadImage(payload, unsplash(BRAND_COVER_IDS[bi % BRAND_COVER_IDS.length]), `${b.name} sfeerbeeld`, `${b.key}-cover`)
@@ -406,10 +437,11 @@ async function seed() {
   // ── OPLEIDER accounts + profiles ───────────────────────────────────────────
   console.log('\n🧑‍🏫 Creating Opleiders...')
   const trainers: Record<string, { id: number }> = {}
-  for (const o of OPLEIDERS) {
+  for (let oi = 0; oi < OPLEIDERS.length; oi++) {
+    const o = OPLEIDERS[oi]
     const user = await payload.create({
       collection: 'users' as never,
-      data: { email: o.email, password: PASSWORD, name: o.name, role: 'trainer', subscriptionTier: o.tier, subscriptionStatus: 'active' } as never,
+      data: { email: o.email, password: PASSWORD, name: o.name, role: 'trainer', subscriptionTier: o.tier, subscriptionStatus: 'active', vatNumber: `BE0${String(20000000 + oi).padStart(9, '0')}`, billingCountry: 'BE', professionalBuyerConfirmed: true, professionalBuyerConfirmedAt: new Date().toISOString() } as never,
     })
     const photo = await uploadImage(payload, headshotUrl(o.key), o.name, o.key)
     trainers[o.key] = (await payload.create({
@@ -421,7 +453,7 @@ async function seed() {
         photo,
         specializations: o.specs,
         location: { city: o.city, province: o.province, online: false },
-        // profileAccentColor is enforced by the Trainers hook: cleared unless medium/premium.
+        // profileAccentColor is enforced by the Trainers hook: cleared unless Ultimate.
         ...(o.accent ? { profileAccentColor: o.accent } : {}),
         featured: o.tier === 'premium',
       } as never,
@@ -444,7 +476,7 @@ async function seed() {
       title: c.title,
       slug,
       status: 'published',
-      category: catBySlug[c.categorySlug] || catBySlug['massage'],
+      category: catBySlug[c.categorySlug] || catBySlug[categoryAliases[c.categorySlug]] || catBySlug['ontspanningsmassage'],
       coverImage,
       shortDescription: `${c.title} - professionele opleiding via Blissify.`,
       description: rt(`${c.title}. Een praktijkgerichte opleiding voor professionals in de beauty- en wellnesssector.`),

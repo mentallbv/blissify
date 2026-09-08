@@ -46,6 +46,8 @@ const cleanTrustCopy = (value: string) =>
     .replace(/geverifieerde, professionele/gi, 'professionele')
     .replace(/geverifieerde opleiders/gi, 'Professionele opleiders')
     .replace(/geverifieerde aanbieders/gi, 'Professionele aanbieders')
+    .replace(/enkel handmatig gecontroleerde academies\.?/gi, 'Vergelijk de informatie die aanbieders zelf publiceren.')
+    .replace(/handmatig gecontroleerde academies/gi, 'opleiders met heldere profielinformatie')
 
 async function getHomepage(): Promise<Record<string, any> | null> {
   try {
@@ -71,7 +73,11 @@ export default async function HomePage() {
     }),
   )
   const tiles = Array.isArray(photo.tiles) && photo.tiles.length
-    ? photo.tiles.map((t: Record<string, unknown>) => ({ title: t.title, body: t.body, image: mediaUrl(t.image) }))
+    ? photo.tiles.map((t: Record<string, unknown>) => ({
+        title: cleanTrustCopy(String(t.title || '')),
+        body: t.body ? cleanTrustCopy(String(t.body)) : '',
+        image: mediaUrl(t.image),
+      }))
     : DEFAULT_TILES
   // Stat strip is fully dynamic (live counts), never hardcoded. Third stat = brands.
   const counts = await getCounts()

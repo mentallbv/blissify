@@ -85,6 +85,8 @@ export async function buildCourseData(body: Record<string, unknown>): Promise<Re
     description: await htmlToLexical(str(body.description)),
     externalUrl: str(body.externalUrl),
     certificate: Boolean(body.certificate),
+    productLaunchHighlighted: Boolean(body.productLaunchHighlighted),
+    coBrandPartner: str(body.coBrandPartner) || null,
     courseType: str(body.courseType),
     language: Array.isArray(body.language) ? body.language : ['nl'],
     targetAudience: Array.isArray(body.targetAudience) ? body.targetAudience : [],

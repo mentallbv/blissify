@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
-import { createSubscription, getPayment, isBrandTier, planLabel, type BillingCycle, type PlanTier } from '@/lib/mollie'
+import { cancelSubscription, createSubscription, getPayment, isBrandTier, planLabel, type BillingCycle, type PlanTier } from '@/lib/mollie'
 import { brevoAddContact } from '@/lib/brevo'
 import { sendEmail, emailHtml, ADMIN_EMAIL, SITE_URL } from '@/lib/email'
 
@@ -54,36 +54,55 @@ export async function POST(req: Request) {
       role?: string
       billingCycle?: BillingCycle
       amount?: string
-      trialEndsAt?: string
+      fullRenewalAmount?: string
+      proratedCredit?: string
+      action?: 'activate' | 'upgrade'
       nextChargeAt?: string
       commitment?: 'annual' | 'cancel_anytime'
       minimumEndsAt?: string | null
     } | undefined
     const tier = (metadata?.tier || (user.role === 'brand' ? user.brandTier : user.subscriptionTier) || 'basis') as PlanTier
     const billingCycle = metadata?.billingCycle || user.subscriptionBillingCycle || 'yearly'
-    const trialEndsAt = metadata?.trialEndsAt ? new Date(metadata.trialEndsAt) : new Date()
-    const nextChargeAt = metadata?.nextChargeAt ? new Date(metadata.nextChargeAt) : trialEndsAt
-    const expiresAt = new Date(trialEndsAt)
-    expiresAt.setFullYear(expiresAt.getFullYear() + 1)
+    const periodStartedAt = new Date()
+    const nextChargeAt = metadata?.nextChargeAt ? new Date(metadata.nextChargeAt) : new Date(periodStartedAt)
+    if (!metadata?.nextChargeAt) {
+      if (billingCycle === 'monthly') nextChargeAt.setMonth(nextChargeAt.getMonth() + 1)
+      else nextChargeAt.setFullYear(nextChargeAt.getFullYear() + 1)
+    }
 
     if (payment.status === 'paid') {
       const data: Record<string, unknown> = {
         ...(isBrandTier(tier) ? { brandTier: tier } : { subscriptionTier: tier }),
         subscriptionStatus: 'active',
         subscriptionBillingCycle: billingCycle,
-        subscriptionCommitment: metadata?.commitment || 'annual',
-        subscriptionTrialEndsAt: trialEndsAt.toISOString(),
-        subscriptionExpiresAt: expiresAt.toISOString(),
-        subscriptionMinimumEndsAt: metadata?.minimumEndsAt ?? null,
+        subscriptionCommitment: billingCycle === 'monthly' ? 'cancel_anytime' : 'annual',
+        subscriptionTrialEndsAt: null,
+        subscriptionStartedAt: periodStartedAt.toISOString(),
+        subscriptionExpiresAt: nextChargeAt.toISOString(),
+        subscriptionMinimumEndsAt: null,
+        subscriptionCancelAtPeriodEnd: false,
+        subscriptionCanceledAt: null,
+        subscriptionInactiveSince: null,
+        pendingSubscriptionTier: null,
+        pendingSubscriptionBillingCycle: null,
+        pendingSubscriptionEffectiveAt: null,
       }
 
-      // First (mandate-creating) payment succeeded -> create the recurring subscription.
-      if (payment.sequenceType === 'first' && payment.customerId && !user.mollieSubscriptionId) {
+      // A paid upgrade starts a brand-new period. Stop the old renewal before
+      // creating the replacement subscription at the full (not prorated) rate.
+      if (metadata?.action === 'upgrade' && payment.customerId && user.mollieSubscriptionId) {
+        await cancelSubscription(payment.customerId, user.mollieSubscriptionId).catch((err) => console.error('[mollie] old subscription cancel failed', err))
+        data.mollieSubscriptionId = null
+      }
+
+      // First payment succeeded -> create the recurring subscription. Upgrades
+      // replace the old subscription even though the user previously had one.
+      if (payment.sequenceType === 'first' && payment.customerId && (!user.mollieSubscriptionId || metadata?.action === 'upgrade')) {
         try {
           const sub = await createSubscription({
             customerId: payment.customerId,
             tier,
-            amount: metadata?.amount || '0.00',
+            amount: metadata?.fullRenewalAmount || metadata?.amount || '0.00',
             billingCycle,
             startDate: nextChargeAt.toISOString().slice(0, 10),
             description: `Blissify abonnement - ${planLabel(tier)}`,
@@ -96,9 +115,21 @@ export async function POST(req: Request) {
 
       await payload.update({ collection: 'users', id: user.id, data: data as never, overrideAccess: true })
 
+      await sendEmail({
+        to: user.email,
+        subject: `Je Blissify-abonnement is actief - ${planLabel(tier)}`,
+        html: emailHtml([
+          `Je abonnement ${planLabel(tier)} is actief${metadata?.action === 'upgrade' ? ' na je upgrade' : ''}.`,
+          ...(Number(metadata?.proratedCredit || 0) > 0 ? [`Verrekend tegoed van je vorige abonnement: € ${Number(metadata?.proratedCredit).toLocaleString('nl-BE', { minimumFractionDigits: 2 })}.`] : []),
+          `Facturatie: ${billingCycle === 'monthly' ? 'maandelijks' : 'jaarlijks'}.`,
+          `De huidige periode loopt tot ${nextChargeAt.toLocaleDateString('nl-BE')}.`,
+          'Het abonnement wordt automatisch verlengd, tenzij je de verlenging voordien stopzet.',
+        ]),
+      })
+
       if (tier === 'medium' || tier === 'premium') await brevoAddContact(user.email)
     } else if (payment.status === 'failed' || payment.status === 'expired' || payment.status === 'canceled') {
-      await payload.update({ collection: 'users', id: user.id, data: { subscriptionStatus: 'inactive' } as never, overrideAccess: true })
+      await payload.update({ collection: 'users', id: user.id, data: { subscriptionStatus: 'inactive', subscriptionInactiveSince: new Date().toISOString() } as never, overrideAccess: true })
       await sendEmail({
         to: ADMIN_EMAIL,
         subject: `Betaling mislukt - ${user.email}`,

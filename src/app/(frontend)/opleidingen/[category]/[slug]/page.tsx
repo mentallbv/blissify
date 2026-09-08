@@ -22,7 +22,6 @@ export const dynamic = 'force-dynamic'
 
 type Params = { params: Promise<{ category: string; slug: string }> }
 
-const CHIP_ICONS = ['ti-clock', 'ti-device-laptop', 'ti-map-pin', 'ti-certificate', 'ti-users']
 
 type DetailView = {
   title: string
@@ -34,7 +33,7 @@ type DetailView = {
   location: string
   price: string
   format: string
-  chips: string[]
+  chips: { icon: string; label: string }[]
   keywords: string[]
   about: string[]
   courseType: string
@@ -97,12 +96,14 @@ function viewFromCourse(c: Course): DetailView {
   const trainer = typeof c.trainer === 'object' ? (c.trainer as Trainer) : null
   const dur = formatDuration(c.duration)
   const fmt = formatFormat(c.format)
+  // Icon travels with its chip so a missing value (e.g. no duration) can never
+  // shift the icons out of alignment with their labels.
   const chips = [
-    dur,
-    fmt,
-    courseLocation(c),
-    c.certificate ? 'Certificaat inbegrepen' : 'Geen certificaat',
-  ].filter(Boolean) as string[]
+    { icon: 'ti-clock', label: dur },
+    { icon: 'ti-device-laptop', label: fmt },
+    { icon: 'ti-map-pin', label: courseLocation(c) },
+    { icon: 'ti-certificate', label: c.certificate ? 'Certificaat inbegrepen' : 'Geen certificaat' },
+  ].filter((chip): chip is { icon: string; label: string } => Boolean(chip.label))
   return {
     title: c.title,
     category: cat?.name || 'Opleiding',
@@ -189,7 +190,12 @@ export default async function CourseDetailPage({ params }: Params) {
         location: fb!.location,
         price: fb!.price,
         format: fb!.format,
-        chips: [fb!.format, fb!.location, 'Certificaat inbegrepen', 'Max 12 deelnemers'],
+        chips: [
+          { icon: 'ti-device-laptop', label: fb!.format },
+          { icon: 'ti-map-pin', label: fb!.location },
+          { icon: 'ti-certificate', label: 'Certificaat inbegrepen' },
+          { icon: 'ti-users', label: 'Max 12 deelnemers' },
+        ],
         keywords: [],
         about: [],
         courseType: '',
@@ -256,6 +262,13 @@ export default async function CourseDetailPage({ params }: Params) {
                 </span>
               </div>
             ) : null}
+            {tierContext?.features.hasProductLaunchHighlighting && (course as { productLaunchHighlighted?: boolean } | null)?.productLaunchHighlighted ? (
+              <div style={{ marginTop: 8 }}>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, borderRadius: 'var(--radius-pill)', padding: '5px 11px', background: 'var(--text-accent)', color: 'white', fontFamily: 'var(--font-ui)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.09em' }}>
+                  <i className="ti ti-rocket" /> Productlancering
+                </span>
+              </div>
+            ) : null}
             <h1
               style={{
                 fontFamily: 'var(--font-display)',
@@ -272,10 +285,15 @@ export default async function CourseDetailPage({ params }: Params) {
             <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-body)', margin: '0 0 18px' }}>
               {v.provider} · {v.location}
             </p>
+            {tierContext?.features.hasCoBrandedCourses && (course as { coBrandPartner?: string | null } | null)?.coBrandPartner ? (
+              <p style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-accent)', margin: '-8px 0 18px' }}>
+                In samenwerking met {(course as { coBrandPartner?: string }).coBrandPartner}
+              </p>
+            ) : null}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {v.chips.map((c, i) => (
+              {v.chips.map((c) => (
                 <span
-                  key={c}
+                  key={c.label}
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',
@@ -290,8 +308,8 @@ export default async function CourseDetailPage({ params }: Params) {
                     color: 'var(--text-body)',
                   }}
                 >
-                  <i className={`ti ${CHIP_ICONS[i] || 'ti-point'}`} style={{ fontSize: 16, color: 'var(--text-meta)' }} />
-                  {c}
+                  <i className={`ti ${c.icon}`} style={{ fontSize: 16, color: 'var(--text-meta)' }} />
+                  {c.label}
                 </span>
               ))}
             </div>

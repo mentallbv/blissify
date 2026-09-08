@@ -7,6 +7,7 @@ import { CourseForm, type CourseFormValues } from '@/components/dashboard/Course
 import { getCurrentUser } from '@/lib/session'
 import { resolveOwner, ownsCourse } from '@/lib/course-form'
 import { lexicalToHtml } from '@/lib/richtext'
+import { tierForUser } from '@/lib/tier-features'
 import type { UploadedImage } from '@/components/dashboard/ImageUploadField'
 
 /** Upload relationships arrive populated at depth 1, or as a bare id at depth 0. */
@@ -64,6 +65,8 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
     level: course.level || '',
     accreditation: course.accreditation || '',
     certificate: Boolean(course.certificate),
+    productLaunchHighlighted: Boolean((course as any).productLaunchHighlighted),
+    coBrandPartner: String((course as any).coBrandPartner || ''),
     priceAmount: course.price?.amount != null ? String(course.price.amount) : '',
     priceOnRequest: Boolean(course.price?.priceOnRequest),
     durationValue: course.duration?.value != null ? String(course.duration.value) : '',
@@ -96,7 +99,12 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
   return (
     <>
       <PageTitle>Opleiding bewerken</PageTitle>
-      <CourseForm categories={categories} initial={initial} courseId={course.id} />
+      <CourseForm
+        categories={categories}
+        initial={initial}
+        courseId={course.id}
+        showPartnerUltimateFeatures={tierForUser(user).features.hasProductLaunchHighlighting && tierForUser(user).features.hasCoBrandedCourses}
+      />
     </>
   )
 }

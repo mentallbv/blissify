@@ -13,11 +13,11 @@ export type Tier = 'basis' | 'medium' | 'premium'
 
 /** Yearly price per Opleider tier, as Mollie expects amounts: { currency, value:"99.00" }. */
 export const TIER_AMOUNT: Record<Tier, string> = {
-  basis: '99.00',
-  medium: '249.00',
-  premium: '549.00',
+  basis: '150.00',
+  medium: '490.00',
+  premium: '970.00',
 }
-export const TIER_LABEL: Record<Tier, string> = { basis: 'Basis', medium: 'Medium', premium: 'Premium' }
+export const TIER_LABEL: Record<Tier, string> = { basis: 'Opleider Lite', medium: 'Opleider Premium', premium: 'Opleider Ultimate' }
 
 /** Merk & Leverancier (Brand) tiers - separate ladder, annual only. */
 export type BrandTier = 'partner_listing' | 'partner_professional' | 'partner_premium'
@@ -27,9 +27,9 @@ export const BRAND_TIER_AMOUNT: Record<BrandTier, string> = {
   partner_premium: '1490.00',
 }
 export const BRAND_TIER_LABEL: Record<BrandTier, string> = {
-  partner_listing: 'Partner Listing',
-  partner_professional: 'Partner Professional',
-  partner_premium: 'Partner Premium',
+  partner_listing: 'Partner Lite',
+  partner_professional: 'Partner Premium',
+  partner_premium: 'Partner Ultimate',
 }
 export type PlanTier = Tier | BrandTier
 export type BillingCycle = 'yearly' | 'monthly'
@@ -159,4 +159,24 @@ export function getSubscription(customerId: string, subscriptionId: string): Pro
 
 export function cancelSubscription(customerId: string, subscriptionId: string): Promise<MollieSubscription> {
   return mollie<MollieSubscription>(`/customers/${customerId}/subscriptions/${subscriptionId}`, { method: 'DELETE' })
+}
+
+/** Update what Mollie will charge at the next renewal without changing the paid period. */
+export function updateSubscription(opts: {
+  customerId: string
+  subscriptionId: string
+  tier: PlanTier
+  amount: string
+  billingCycle: BillingCycle
+  userId: number
+}): Promise<MollieSubscription> {
+  return mollie<MollieSubscription>(`/customers/${opts.customerId}/subscriptions/${opts.subscriptionId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({
+      amount: { currency: 'EUR', value: opts.amount },
+      interval: opts.billingCycle === 'monthly' ? '1 month' : '12 months',
+      description: `Blissify abonnement - ${planLabel(opts.tier)}`,
+      metadata: { tier: opts.tier, userId: opts.userId, billingCycle: opts.billingCycle },
+    }),
+  })
 }

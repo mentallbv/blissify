@@ -4,7 +4,8 @@ import React from 'react'
 import { Input, Button, FieldLabel } from '@/components/ui'
 
 /**
- * In-platform registration (Brand courses on Partner Professional/Premium).
+ * Legacy in-platform registration component. Blissify 2.0 uses the external
+ * enrolment link configured by the provider.
  * Signup only - naam, email, telefoon, aantal deelnemers + required GDPR consent.
  * Posts to /api/registrations; the server enforces that the course is bookable.
  */

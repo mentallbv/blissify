@@ -156,6 +156,7 @@ export type CourseFilters = {
   city?: string
   format?: string // online | fysiek | hybride
   certificate?: boolean // Certificaat wordt door de aanbieder uitgereikt
+  certificationTypes?: string[]
   priceMin?: number
   priceMax?: number
   keyword?: string
@@ -204,6 +205,7 @@ export async function getCourseCards(opts: CourseFilters = {}): Promise<{
     if (opts.city) and.push({ 'location.city': { equals: opts.city } })
     if (opts.format) and.push({ format: { contains: opts.format } })
     if (opts.certificate) and.push({ certificate: { equals: true } })
+    if (opts.certificationTypes?.length) and.push({ certificationTypes: { in: opts.certificationTypes } })
     if (typeof opts.priceMin === 'number') and.push({ 'price.amount': { greater_than_equal: opts.priceMin } })
     if (typeof opts.priceMax === 'number') and.push({ 'price.amount': { less_than_equal: opts.priceMax } })
     if (opts.keyword) {
@@ -428,7 +430,7 @@ const relId = (v: unknown): string => (v && typeof v === 'object' ? String((v as
 export type HomepageCategorySection = { slug: string; name: string; courses: CourseCardData[] }
 
 const DEFAULT_OPLEIDER_TIERS = ['premium']
-const DEFAULT_BRAND_TIERS = ['partner_professional', 'partner_premium']
+const DEFAULT_BRAND_TIERS = ['partner_premium']
 
 export async function getHomepageSections(): Promise<{
   brandCourses: CourseCardData[]
@@ -557,7 +559,7 @@ export type MerkenFilters = {
   typePartner?: string
   herkomst?: string
   positionering?: string
-  filosofie?: string
+  filosofie?: string[]
   extra?: string[]
 }
 
@@ -570,7 +572,8 @@ export async function getBrandCards(opts: MerkenFilters = {}): Promise<{ cards: 
     if (opts.typePartner) and.push({ typePartner: { equals: opts.typePartner } })
     if (opts.herkomst) and.push({ herkomst: { equals: opts.herkomst } })
     if (opts.positionering) and.push({ positionering: { equals: opts.positionering } })
-    if (opts.filosofie) and.push({ tags: { contains: opts.filosofie } })
+    if (opts.filosofie?.length) and.push({ tags: { in: opts.filosofie } })
+    if (opts.extra?.includes('top-beoordeeld')) and.push({ topRated: { equals: true } })
     const hasFilters = and.length > 0 || Boolean(opts.extra?.length)
     const newest = opts.extra?.includes('nieuw')
 
@@ -641,6 +644,7 @@ export async function getMerkenFacets(): Promise<import('./merken-filters').Merk
       positionering?: string | null
       tags?: string[] | null
       createdAt?: string
+      topRated?: boolean | null
     }[]
 
     const inc = (group: string, value: string) => {
@@ -668,6 +672,7 @@ export async function getMerkenFacets(): Promise<import('./merken-filters').Merk
       ;(b.tags || []).forEach((v) => inc('filosofie', v))
       if (brandsWithCourses.has(String(b.id))) inc('extra', 'met-opleidingen')
       if (b.createdAt && new Date(b.createdAt).getTime() >= thirtyDaysAgo) inc('extra', 'nieuw')
+      if (b.topRated) inc('extra', 'top-beoordeeld')
     }
   } catch {
     // graceful: empty facets -> filter shows options without counts
@@ -823,16 +828,24 @@ function mapPricingAudience(raw: Record<string, any> | undefined, fallback: Pric
       .replace(/geverifieerde opleiders/gi, 'professionele opleiders')
       .replace(/geverifieerde aanbieders/gi, 'professionele aanbieders')
   const source = raw || {}
+  // Ignore the retired pre-2.0 ladder if stale CMS data still exists. Current
+  // plans remain editable in the CMS, but legacy names must never override the
+  // Blissify 2.0 pricing required by the client.
+  const sourceTiers = Array.isArray(source.tiers) ? source.tiers : []
+  const hasLegacyTierNames = sourceTiers.some((tier: Record<string, unknown>) =>
+    ['basis', 'medium', 'premium'].includes(String(tier.name || '').trim().toLowerCase()),
+  )
   const withDefined = <T extends Record<string, unknown>>(base: T, values?: Record<string, unknown>): T =>
     ({ ...base, ...Object.fromEntries(Object.entries(values || {}).filter(([, value]) => value != null && value !== '')) }) as T
-  const tiers = Array.isArray(source.tiers) && source.tiers.length
-    ? source.tiers.map((t: Record<string, any>) => {
+  const tiers = sourceTiers.length && !hasLegacyTierNames
+    ? sourceTiers.map((t: Record<string, any>) => {
         const annualPrice = Number(t.annualPrice || String(t.price || '').replace(/[^\d]/g, ''))
         return {
           key: String(t.key || t.name || ''),
           name: t.name,
           tagline: t.tagline || '',
           annualPrice,
+          monthlyPrice: t.monthlyPrice ? Number(t.monthlyPrice) : fallback.tiers.find((item) => item.key === t.key)?.monthlyPrice,
           price: `€ ${annualPrice.toLocaleString('nl-BE')}`,
           period: '/jaar',
           desc: t.desc || '',
@@ -858,18 +871,20 @@ function mapPricingAudience(raw: Record<string, any> | undefined, fallback: Pric
   }
 }
 
-/** Both pricing ladders plus the shared billing/trial rules. */
+/** Both pricing ladders plus the shared billing rules. */
 export async function getPricingCatalog(): Promise<PricingCatalog> {
   try {
     const payload = await client()
     const g = (await payload.findGlobal({ slug: 'pricing' as never })) as Record<string, any>
     const billingRaw = g?.billing || {}
     const billing: BillingSettings = {
-      trialEnabled: billingRaw.trialEnabled ?? PRICING_CATALOG_FALLBACK.billing.trialEnabled,
-      trialDays: Number(billingRaw.trialDays ?? PRICING_CATALOG_FALLBACK.billing.trialDays),
+      // Blissify 2.0 explicitly has no trial. Legacy CMS fields remain only
+      // for schema compatibility and cannot re-enable it.
+      trialEnabled: false,
+      trialDays: 0,
       monthlyEnabled: billingRaw.monthlyEnabled ?? PRICING_CATALOG_FALLBACK.billing.monthlyEnabled,
       monthlyMarkupPercent: Number(billingRaw.monthlyMarkupPercent ?? PRICING_CATALOG_FALLBACK.billing.monthlyMarkupPercent),
-      monthlyCommitment: billingRaw.monthlyCommitment === 'cancel_anytime' ? 'cancel_anytime' : 'annual',
+      monthlyCommitment: 'cancel_anytime',
     }
     const legacyOpleiders = g?.opleiders?.tiers?.length
       ? g.opleiders

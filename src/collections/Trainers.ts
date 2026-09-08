@@ -29,8 +29,8 @@ export const Trainers: CollectionConfig = {
   hooks: {
     beforeChange: [
       async ({ data, originalDoc, req }) => {
-        // profileAccentColor is a Medium+ perk. Enforce server-side: clear it
-        // when the owning trainer account is not on medium/premium, regardless
+        // profileAccentColor is an Ultimate perk. Enforce server-side: clear it
+        // when the owning trainer account is not on Ultimate, regardless
         // of any value submitted by the client.
         if (data.profileAccentColor) {
           const ownerRel = (data as { owner?: unknown }).owner ?? originalDoc?.owner
@@ -151,7 +151,7 @@ export const Trainers: CollectionConfig = {
       admin: {
         position: 'sidebar',
         placeholder: '#1A2E25',
-        description: 'Hex-kleur voor je profielaccent (bijv. #1A2E25). Beschikbaar vanaf Medium; automatisch genegeerd op Basis.',
+        description: 'Hex-kleur voor je profielaccent (bijv. #1A2E25). Alleen beschikbaar met Opleider Ultimate.',
       },
     },
     {

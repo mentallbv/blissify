@@ -14,7 +14,9 @@ const MONTHS = ['jan', 'feb', 'mrt', 'apr', 'mei', 'jun', 'jul', 'aug', 'sep', '
 
 export default async function DashboardAnalyticsPage() {
   const user = await getCurrentUser()
-  if (!user || !tierForUser(user).features.hasAnalytics) redirect('/dashboard/abonnement')
+  const entitlement = user ? tierForUser(user) : null
+  if (!user || !entitlement?.features.hasAnalytics) redirect('/dashboard/abonnement')
+  const hasAdvancedAnalytics = entitlement.features.hasAdvancedAnalytics
   const profile = await getCurrentProfile(user)
   const courses = await getMyCourses(profile)
 
@@ -66,6 +68,42 @@ export default async function DashboardAnalyticsPage() {
           </div>
         )}
       </div>
+
+      {hasAdvancedAnalytics ? (
+        <div style={{ marginTop: 24, background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: 24 }}>
+          <div style={{ marginBottom: 20 }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 22, color: 'var(--text-brand)', margin: 0 }}>Geavanceerde analytics</h2>
+            <p style={{ fontFamily: 'var(--font-ui)', fontSize: 13, lineHeight: 1.6, color: 'var(--text-meta)', margin: '6px 0 0' }}>
+              Vergelijk prestaties per opleiding en volg evolutie, aanvragen en CTR.
+            </p>
+          </div>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--font-ui)', fontSize: 13 }}>
+              <thead>
+                <tr style={{ textAlign: 'left', color: 'var(--text-meta)' }}>
+                  <th style={{ padding: '10px 12px', borderBottom: '1px solid var(--border-hairline)' }}>Opleiding</th>
+                  <th style={{ padding: '10px 12px', borderBottom: '1px solid var(--border-hairline)' }}>Aanvragen</th>
+                  <th style={{ padding: '10px 12px', borderBottom: '1px solid var(--border-hairline)' }}>CTR</th>
+                  <th style={{ padding: '10px 12px', borderBottom: '1px solid var(--border-hairline)' }}>Trend</th>
+                </tr>
+              </thead>
+              <tbody>
+                {courses.map((course) => {
+                  const courseLeads = leads.filter((lead) => String(lead.payload_course_id) === String(course.id)).length
+                  return (
+                    <tr key={course.id}>
+                      <td style={{ padding: '12px', borderBottom: '1px solid var(--border-hairline)', color: 'var(--text-strong)' }}>{course.name}</td>
+                      <td style={{ padding: '12px', borderBottom: '1px solid var(--border-hairline)' }}>{courseLeads}</td>
+                      <td style={{ padding: '12px', borderBottom: '1px solid var(--border-hairline)' }}>–</td>
+                      <td style={{ padding: '12px', borderBottom: '1px solid var(--border-hairline)' }}>Nog onvoldoende data</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : null}
     </>
   )
 }

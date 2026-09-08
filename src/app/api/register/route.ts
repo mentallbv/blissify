@@ -26,12 +26,22 @@ export async function POST(req: Request) {
     const email = String(body.email || '').trim().toLowerCase()
     const password = String(body.password || '')
     const role = body.role === 'brand' ? 'brand' : 'trainer'
+    const vatNumber = String(body.vatNumber || '').trim()
+    const chamberOfCommerceNumber = String(body.chamberOfCommerceNumber || '').trim()
+    const billingCountry = ['BE', 'NL', 'EU', 'OTHER'].includes(body.billingCountry) ? body.billingCountry : 'BE'
+    const professionalBuyerConfirmed = body.professionalBuyerConfirmed === true
 
     if (!name || !email || !password) {
       return NextResponse.json({ error: 'Vul je naam, e-mailadres en wachtwoord in.' }, { status: 400 })
     }
     if (password.length < 8) {
       return NextResponse.json({ error: 'Het wachtwoord moet minstens 8 tekens bevatten.' }, { status: 400 })
+    }
+    if (!vatNumber && !chamberOfCommerceNumber) {
+      return NextResponse.json({ error: 'Vul een btw-nummer en/of KvK- of ondernemingsnummer in.' }, { status: 400 })
+    }
+    if (!professionalBuyerConfirmed) {
+      return NextResponse.json({ error: 'Bevestig dat je handelt in het kader van je beroeps- of bedrijfsactiviteit.' }, { status: 400 })
     }
 
     const payload = await getPayload({ config: await config })
@@ -53,6 +63,11 @@ export async function POST(req: Request) {
         email,
         password,
         role,
+        vatNumber: vatNumber || null,
+        chamberOfCommerceNumber: chamberOfCommerceNumber || null,
+        billingCountry,
+        professionalBuyerConfirmed: true,
+        professionalBuyerConfirmedAt: new Date().toISOString(),
         ...(role === 'brand' ? { brandTier: 'partner_listing' } : { subscriptionTier: 'basis' }),
         // New aanbieders must pick a tier and pay before they can publish.
         subscriptionStatus: 'pending_payment',

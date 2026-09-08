@@ -4,6 +4,7 @@ import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { cancelSubscription, mollieConfigured } from '@/lib/mollie'
 import { brevoRemoveFromList } from '@/lib/brevo'
+import { sendEmail, emailHtml } from '@/lib/email'
 
 /** POST /api/subscription/cancel - cancel the current user's Mollie subscription. */
 export async function POST() {
@@ -16,29 +17,10 @@ export async function POST() {
       id: number
       email: string
       subscriptionTier?: string
-      subscriptionCommitment?: string
-      subscriptionMinimumEndsAt?: string
-      subscriptionTrialEndsAt?: string
+      brandTier?: string
+      subscriptionExpiresAt?: string
       mollieCustomerId?: string
       mollieSubscriptionId?: string
-    }
-
-    // During the trial the subscription has not charged yet, so the annual
-    // commitment has not started either - cancelling must always be possible.
-    const inTrial = Boolean(u.subscriptionTrialEndsAt && new Date(u.subscriptionTrialEndsAt).getTime() > Date.now())
-
-    if (
-      !inTrial &&
-      u.subscriptionCommitment === 'annual' &&
-      u.subscriptionMinimumEndsAt &&
-      new Date(u.subscriptionMinimumEndsAt).getTime() > Date.now()
-    ) {
-      return NextResponse.json(
-        {
-          error: `Dit abonnement heeft een jaarverbintenis en kan worden opgezegd vanaf ${new Date(u.subscriptionMinimumEndsAt).toLocaleDateString('nl-BE')}.`,
-        },
-        { status: 409 },
-      )
     }
 
     if (mollieConfigured() && u.mollieCustomerId && u.mollieSubscriptionId) {
@@ -50,10 +32,8 @@ export async function POST() {
       id: u.id,
       data: {
         subscriptionStatus: 'canceled',
-        // Cancelling inside the trial voids the commitment that never started.
-        // The paid period ends now too: nothing was paid for, so entitlement
-        // must not run to the expiry date the webhook wrote a year out.
-        ...(inTrial ? { subscriptionMinimumEndsAt: null, subscriptionExpiresAt: new Date().toISOString() } : {}),
+        subscriptionCancelAtPeriodEnd: true,
+        subscriptionCanceledAt: new Date().toISOString(),
       } as never,
       overrideAccess: true,
     })
@@ -62,7 +42,18 @@ export async function POST() {
       await brevoRemoveFromList(u.email)
     }
 
-    return NextResponse.json({ success: true })
+    const endDate = u.subscriptionExpiresAt ? new Date(u.subscriptionExpiresAt) : new Date()
+    await sendEmail({
+      to: u.email,
+      subject: 'Bevestiging stopzetting automatische verlenging',
+      html: emailHtml([
+        'Je hebt de automatische verlenging van je Blissify-abonnement stopgezet.',
+        `Je abonnement en de bijbehorende voordelen blijven actief tot ${endDate.toLocaleDateString('nl-BE')}.`,
+        'Er vindt geen terugbetaling plaats voor de reeds betaalde abonnementsperiode.',
+      ]),
+    })
+
+    return NextResponse.json({ success: true, effectiveAt: endDate.toISOString() })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Annuleren mislukt.'
     return NextResponse.json({ error: message }, { status: 500 })

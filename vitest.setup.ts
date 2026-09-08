@@ -1,4 +1,5 @@
-// Any setup scripts you might need go here
+import { config } from 'dotenv'
 
-// Load .env files
-import 'dotenv/config'
+// Integration tests must use the isolated local database and media store.
+// `override` prevents an inherited production POSTGRES_URL from taking precedence.
+config({ path: '.env.local', override: true })

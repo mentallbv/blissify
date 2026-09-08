@@ -140,7 +140,7 @@ export function PageBlocks({ blocks }: { blocks: Block[] }) {
                 <div className="bl-comparison-scroll" style={{ overflowX: 'auto' }}>
                 <div style={{ minWidth: 680, border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', overflow: 'hidden', background: 'var(--surface-card)' }}>
                   <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', background: 'var(--surface-page)' }}>
-                    {['Functie', String(b.col1 || 'Basis'), String(b.col2 || 'Medium'), String(b.col3 || 'Premium')].map((h, k) => (
+                    {['Functie', String(b.col1 || 'Lite'), String(b.col2 || 'Premium'), String(b.col3 || 'Ultimate')].map((h, k) => (
                       <div key={k} style={{ padding: '14px 20px', fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: k === 0 ? 11 : 13, textTransform: k === 0 ? 'uppercase' : 'none', letterSpacing: k === 0 ? '0.1em' : '0', color: k === 0 ? 'var(--text-meta)' : 'var(--text-strong)', textAlign: k === 0 ? 'left' : 'center' }}>
                         {h}
                       </div>

@@ -85,7 +85,7 @@ export default async function DashboardOverviewPage() {
           text={
             canAddCourse
               ? 'Je hebt nog geen opleidingen. Voeg je eerste opleiding toe om aanvragen te ontvangen.'
-              : 'Met Partner Listing kun je je merk presenteren, maar geen opleidingen publiceren. Upgrade naar Partner Professional of Premium om opleidingen toe te voegen.'
+              : 'Met Partner Lite kun je je merk professioneel presenteren, maar geen opleidingen publiceren. Upgrade naar Partner Premium of Ultimate om opleidingen toe te voegen.'
           }
           href={canAddCourse ? '/dashboard/opleidingen/nieuw' : undefined}
           cta={canAddCourse ? 'Opleiding toevoegen' : undefined}
