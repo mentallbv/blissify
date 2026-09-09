@@ -65,6 +65,15 @@ export async function GET(req: Request) {
             unpublished++
           }
         }
+        // Brands: trim product categories to the new tier's limit (keeping the
+        // first ones), so a downgrade cannot leave a profile over its allowance.
+        if (profile && doc.role === 'brand') {
+          const catLimit = tierForUser({ role: 'brand', brandTier: doc.pendingSubscriptionTier }).features.categoryLimit
+          const current = ((profile as { productType?: string[] }).productType || [])
+          if (catLimit !== Infinity && current.length > catLimit) {
+            await payload.update({ collection: 'brands', id: profile.id, data: { productType: current.slice(0, catLimit) } as never, overrideAccess: true })
+          }
+        }
         await payload.update({
           collection: 'users', id: doc.id, overrideAccess: true,
           data: {

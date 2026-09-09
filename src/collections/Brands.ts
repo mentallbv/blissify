@@ -41,8 +41,11 @@ export const Brands: CollectionConfig = {
         }
         const features = tierForUser({ role: 'brand', brandTier: tier }).features
 
-        const categories = Array.isArray(data.productType) ? data.productType : Array.isArray(originalDoc?.productType) ? originalDoc.productType : []
-        if (features.categoryLimit !== Infinity && categories.length > features.categoryLimit) {
+        // Enforce the category limit only when categories are actually being
+        // submitted. Falling back to originalDoc would block every unrelated
+        // profile edit for an account that is already over its limit (e.g. after
+        // a downgrade) - locking it out of its own dashboard.
+        if (Array.isArray(data.productType) && features.categoryLimit !== Infinity && data.productType.length > features.categoryLimit) {
           throw new Error(`Je abonnement laat maximaal ${features.categoryLimit} ${features.categoryLimit === 1 ? 'categorie' : 'categorieën'} of specialisaties toe.`)
         }
 
