@@ -41,11 +41,16 @@ export const Brands: CollectionConfig = {
         }
         const features = tierForUser({ role: 'brand', brandTier: tier }).features
 
-        // Enforce the category limit only when categories are actually being
-        // submitted. Falling back to originalDoc would block every unrelated
-        // profile edit for an account that is already over its limit (e.g. after
-        // a downgrade) - locking it out of its own dashboard.
-        if (Array.isArray(data.productType) && features.categoryLimit !== Infinity && data.productType.length > features.categoryLimit) {
+        // Block only when the account is trying to ADD a category beyond its
+        // limit. Payload merges the existing document into `data` before this
+        // hook, so an unrelated edit carries the current categories unchanged
+        // (nothing added) and passes - an over-limit account (e.g. after a
+        // downgrade) is never locked out of its own profile, and can always
+        // reduce. Expanding past the limit stays blocked.
+        const incomingCats = Array.isArray(data.productType) ? data.productType : []
+        const existingCats = Array.isArray(originalDoc?.productType) ? originalDoc.productType : []
+        const addedCats = incomingCats.filter((c: string) => !existingCats.includes(c))
+        if (addedCats.length > 0 && features.categoryLimit !== Infinity && incomingCats.length > features.categoryLimit) {
           throw new Error(`Je abonnement laat maximaal ${features.categoryLimit} ${features.categoryLimit === 1 ? 'categorie' : 'categorieën'} of specialisaties toe.`)
         }
 
