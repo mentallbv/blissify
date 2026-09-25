@@ -89,6 +89,18 @@ export const Trainers: CollectionConfig = {
       },
     },
     {
+      // Co-branding (client #12): merken waarmee deze opleider samenwerkt of
+      // door erkend is. Wederzijds zichtbaar: hier op het opleiderprofiel én
+      // (via een omgekeerde query) op de merkpagina.
+      name: 'collaboratingBrands',
+      type: 'relationship',
+      relationTo: 'brands' as any,
+      hasMany: true,
+      admin: {
+        description: 'Merken waarmee deze opleider samenwerkt / door erkend is.',
+      },
+    },
+    {
       name: 'photo',
       type: 'upload',
       relationTo: 'media',

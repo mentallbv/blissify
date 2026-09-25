@@ -13,7 +13,9 @@ const PRODUCTTYPE_OPTIONS = MERKEN_GROUPS.find((g) => g.key === 'producttype')?.
 
 export function ProfileForm({
   initial,
+  brandOptions = [],
 }: {
+  brandOptions?: { value: number; label: string }[]
   initial: {
     role: 'trainer' | 'brand'
     name: string
@@ -35,6 +37,7 @@ export function ProfileForm({
     facebook: string
     tiktok: string
     gallery: { image: UploadedImage; caption: string }[]
+    collaboratingBrands: number[]
     localPartners: { name: string; country: string; website: string }[]
   }
 }) {
@@ -56,6 +59,10 @@ export function ProfileForm({
   const updatePhoto = (index: number, patch: Partial<{ image: UploadedImage; caption: string }>) =>
     set('gallery', v.gallery.map((g, i) => (i === index ? { ...g, ...patch } : g)))
   const removePhoto = (index: number) => set('gallery', v.gallery.filter((_, i) => i !== index))
+
+  // Co-branding (client #12): opleider picks the merken it collaborates with.
+  const toggleBrand = (id: number) =>
+    set('collaboratingBrands', v.collaboratingBrands.includes(id) ? v.collaboratingBrands.filter((x) => x !== id) : [...v.collaboratingBrands, id])
 
   // Category (producttype) selection with the tier limit (Lite 1 / Premium 3 /
   // Ultimate unlimited). Unlimited arrives as a large number (Infinity can't be
@@ -248,8 +255,37 @@ export function ProfileForm({
                   </div>
                 ))}
               </div>
-              <p style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--text-meta)', margin: '12px 0 0' }}>Logo, banner en maximaal vijf sfeerfoto’s kun je beheren via de inhoudsbeheeromgeving.</p>
             </div>
+          </>
+        ) : null}
+
+        {v.role === 'trainer' ? (
+          <>
+            <div style={{ borderTop: '0.5px solid var(--border-hairline)', paddingTop: 18 }}>
+              <FieldLabel>Sociale kanalen</FieldLabel>
+              <div className="bl-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginTop: 4 }}>
+                <Input label="Instagram" value={v.instagram} onChange={(e) => set('instagram', e.target.value)} />
+                <Input label="Facebook" value={v.facebook} onChange={(e) => set('facebook', e.target.value)} />
+                <Input label="TikTok" value={v.tiktok} onChange={(e) => set('tiktok', e.target.value)} />
+              </div>
+            </div>
+
+            {brandOptions.length ? (
+              <div style={{ borderTop: '0.5px solid var(--border-hairline)', paddingTop: 18 }}>
+                <FieldLabel>Samenwerkende merken</FieldLabel>
+                <p style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-meta)', margin: '2px 0 12px' }}>
+                  Merken waarmee je samenwerkt of door erkend bent. Ze verschijnen op jouw profiel, en jij verschijnt op hun merkpagina.
+                </p>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, maxHeight: 220, overflowY: 'auto' }}>
+                  {brandOptions.map((b) => (
+                    <label key={b.value} style={{ display: 'flex', alignItems: 'center', gap: 9, cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-body)' }}>
+                      <input type="checkbox" checked={v.collaboratingBrands.includes(b.value)} onChange={() => toggleBrand(b.value)} style={{ accentColor: 'var(--blissify-forest)' }} />
+                      {b.label}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            ) : null}
           </>
         ) : null}
       </div>

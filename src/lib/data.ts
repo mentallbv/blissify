@@ -62,6 +62,10 @@ export type ProviderCardData = {
   email?: string
   phone?: string
   social?: { instagram?: string; facebook?: string; tiktok?: string; linkedin?: string }
+  /** Co-branding (client #12): merken this opleider collaborates with. */
+  collaboratingBrands?: { slug: string; name: string; logo: string | null }[]
+  /** On a brand page: opleiders that collaborate with this merk. */
+  collaboratingProviders?: { slug: string; name: string }[]
   /** Premium perk: badge on the public profile. */
   hasPremiumBadge?: boolean
 }
@@ -436,6 +440,17 @@ async function getTrainerCategoryIndex(): Promise<TrainerCategoryIndex> {
 /** Opleiders = trainers. Maps a trainer doc to the shared provider-card shape. */
 const HERKOMST_TO_LAND: Record<string, string> = { belgisch: 'be', nederlands: 'nl' }
 
+/** All brands as {value,label} options — for the co-branding picker (client #12). */
+export async function getBrandOptions(): Promise<{ value: number; label: string }[]> {
+  try {
+    const payload = await client()
+    const res = await payload.find({ collection: 'brands', limit: 500, depth: 0, sort: 'name' })
+    return res.docs.map((b) => ({ value: b.id as number, label: b.name }))
+  } catch {
+    return []
+  }
+}
+
 export async function getProviderCards(
   opts: { limit?: number; specialisatie?: string; specialisaties?: string[]; city?: string; land?: string } | number = {},
 ): Promise<{ cards: ProviderCardData[]; isFallback: boolean }> {
@@ -590,6 +605,9 @@ export async function getProviderBySlug(
           tiktok: (t.social as { tiktok?: string } | undefined)?.tiktok || '',
           linkedin: t.social?.linkedin || '',
         },
+        collaboratingBrands: (((t as { collaboratingBrands?: unknown[] }).collaboratingBrands || [])
+          .map((b) => (b && typeof b === 'object' ? { slug: (b as { slug?: string }).slug || '', name: (b as { name?: string }).name || '', logo: mediaUrl((b as { logo?: number | Media | null }).logo) } : null))
+          .filter((b): b is { slug: string; name: string; logo: string | null } => Boolean(b && b.slug))),
       },
       courses: courses.docs.map(toCard),
       isFallback: false,
@@ -863,7 +881,7 @@ export async function getMerkenFacets(): Promise<import('./merken-filters').Merk
 
 export async function getBrandBySlug(
   slug: string,
-): Promise<{ brand: BrandCardData | null; providers: ProviderCardData[]; courses: CourseCardData[]; isFallback: boolean }> {
+): Promise<{ brand: BrandCardData | null; providers: ProviderCardData[]; collaboratingProviders: { slug: string; name: string }[]; courses: CourseCardData[]; isFallback: boolean }> {
   try {
     const payload = await client()
     const res = await payload.find({ collection: 'brands', where: { slug: { equals: slug } }, limit: 1, depth: 1 })
@@ -881,6 +899,10 @@ export async function getBrandBySlug(
       limit: 12,
     })
     const trainers = await payload.find({ collection: 'trainers', where: { brand: { equals: b.id } } as never, depth: 1, limit: 12 })
+    // Co-branding (client #12): opleiders that declared they collaborate with
+    // this merk. Reverse of trainer.collaboratingBrands.
+    const collaborators = await payload.find({ collection: 'trainers', where: { collaboratingBrands: { in: [b.id] } } as never, depth: 0, limit: 24 })
+    const collaboratingProviders = collaborators.docs.map((t) => ({ slug: t.slug, name: t.displayName }))
 
     // Branding and the Premium badge are paid perks, resolved from the owning
     // account's tier rather than from the brand document alone.
@@ -930,12 +952,13 @@ export async function getBrandBySlug(
         courseCount: 0,
         logo: mediaUrl(t.photo),
       })),
+      collaboratingProviders,
       courses: courses.docs.map(toCard),
       isFallback: false,
     }
   } catch {
     const fb = FALLBACK_BRANDS.find((b) => b.slug === slug)
-    if (!fb) return { brand: null, providers: [], courses: [], isFallback: true }
+    if (!fb) return { brand: null, providers: [], collaboratingProviders: [], courses: [], isFallback: true }
     return {
       brand: {
         slug: fb.slug,
@@ -950,6 +973,7 @@ export async function getBrandBySlug(
         website: fb.website || null,
       },
       providers: FALLBACK_PROVIDERS.slice(0, 3).map(fallbackProvider),
+      collaboratingProviders: [],
       courses: FALLBACK_COURSES.slice(0, 3).map(fallbackCard),
       isFallback: true,
     }

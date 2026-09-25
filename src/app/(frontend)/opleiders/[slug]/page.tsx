@@ -150,6 +150,22 @@ export default async function ProviderProfilePage({ params }: Params) {
               </ButtonLink>
             ) : null}
           </div>
+
+          {p.collaboratingBrands && p.collaboratingBrands.length ? (
+            <div style={{ marginTop: 20, background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: 24 }}>
+              <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 'var(--type-label)', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-meta)', marginBottom: 14 }}>
+                Werkt samen met
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {p.collaboratingBrands.map((b) => (
+                  <a key={b.slug} href={`/merken/${b.slug}`} style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'var(--text-accent)', fontFamily: 'var(--font-ui)', fontSize: 14 }}>
+                    {b.logo ? <img src={b.logo} alt="" style={{ width: 28, height: 28, borderRadius: 6, objectFit: 'cover', flex: 'none' }} /> : null}
+                    <span className="bl-textlink">{b.name}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          ) : null}
         </div>
       </section>
 

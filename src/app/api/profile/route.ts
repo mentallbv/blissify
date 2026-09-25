@@ -82,6 +82,12 @@ export async function PATCH(req: Request) {
         facebook: typeof body.facebook === 'string' ? body.facebook.trim() : '',
         tiktok: typeof body.tiktok === 'string' ? body.tiktok.trim() : '',
       }
+      // Co-branding (client #12): merken this opleider collaborates with.
+      if (Array.isArray(body.collaboratingBrands)) {
+        data.collaboratingBrands = (body.collaboratingBrands as unknown[])
+          .map((x) => Number(x))
+          .filter((n) => Number.isFinite(n))
+      }
     }
     if (role === 'brand') {
       const cover = mediaId(body.coverImage)

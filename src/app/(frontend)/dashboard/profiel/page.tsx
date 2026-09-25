@@ -2,6 +2,7 @@ import React from 'react'
 import { PageTitle } from '@/components/dashboard/DashSidebar'
 import { ProfileForm } from '@/components/dashboard/ProfileForm'
 import { getCurrentUser, getCurrentProfile } from '@/lib/session'
+import { getBrandOptions } from '@/lib/data'
 import { lexicalToHtml } from '@/lib/richtext'
 import { tierForUser } from '@/lib/tier-features'
 import type { UploadedImage } from '@/components/dashboard/ImageUploadField'
@@ -22,6 +23,8 @@ function toUploadedImage(value: unknown): UploadedImage {
 export default async function DashboardProfilePage() {
   const user = await getCurrentUser()
   const profile = await getCurrentProfile(user)
+  // Brand options for the opleider co-branding picker (client #12).
+  const brandOptions = profile?.kind === 'trainer' ? await getBrandOptions() : []
 
   const doc = profile?.doc
   const initial = {
@@ -53,6 +56,9 @@ export default async function DashboardProfilePage() {
     gallery: profile?.kind === 'brand'
       ? ((profile.doc as { gallery?: { image?: unknown; caption?: string }[] }).gallery || []).map((g) => ({ image: toUploadedImage(g.image), caption: g.caption || '' }))
       : [],
+    collaboratingBrands: profile?.kind === 'trainer'
+      ? (((profile.doc as { collaboratingBrands?: unknown[] }).collaboratingBrands || []).map((b) => (typeof b === 'object' && b ? (b as { id?: number }).id : b)).filter((n): n is number => typeof n === 'number'))
+      : [],
     localPartners: profile?.kind === 'brand'
       ? ((profile.doc as typeof profile.doc & { localPartners?: { name: string; country: string; website?: string }[] }).localPartners || []).map((partner) => ({
           name: partner.name,
@@ -65,7 +71,7 @@ export default async function DashboardProfilePage() {
   return (
     <>
       <PageTitle>Profiel</PageTitle>
-      <ProfileForm initial={initial} />
+      <ProfileForm initial={initial} brandOptions={brandOptions} />
     </>
   )
 }

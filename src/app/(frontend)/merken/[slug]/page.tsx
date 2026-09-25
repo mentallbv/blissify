@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
 export default async function MerkPage({ params }: Params) {
   const { slug } = await params
-  const { brand, providers, courses } = await getBrandBySlug(slug)
+  const { brand, providers, collaboratingProviders, courses } = await getBrandBySlug(slug)
   if (!brand) notFound()
   const partnerType = ({
     productmerken: 'Productmerk',
@@ -118,6 +118,23 @@ export default async function MerkPage({ params }: Params) {
           </div>
         ) : null}
         <BrandTabs brand={brand} providers={providers} courses={courses} />
+
+        {collaboratingProviders.length ? (
+          <section style={{ borderTop: '0.5px solid var(--border-hairline)', marginTop: 56, paddingTop: 40 }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 26, color: 'var(--text-brand)', margin: '0 0 6px' }}>Opleiders die met dit merk samenwerken</h2>
+            <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-body)', margin: '0 0 20px', maxWidth: 620 }}>
+              Deze opleiders geven opleidingen in samenwerking met of erkend door {brand.name}.
+            </p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+              {collaboratingProviders.map((op) => (
+                <a key={op.slug} href={`/opleiders/${op.slug}`} className="bl-textlink" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-pill)', padding: '8px 16px', fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-accent)' }}>
+                  <i className="ti ti-user" style={{ fontSize: 15 }} />
+                  {op.name}
+                </a>
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         {brand.localPartners?.length ? (
           <section style={{ borderTop: '0.5px solid var(--border-hairline)', marginTop: 56, paddingTop: 40 }}>

@@ -493,6 +493,10 @@ export interface Trainer {
    * Gekoppeld aan brand (optioneel)
    */
   brand?: (number | null) | Brand;
+  /**
+   * Merken waarmee deze opleider samenwerkt / door erkend is.
+   */
+  collaboratingBrands?: (number | Brand)[] | null;
   photo?: (number | null) | Media;
   bio?: {
     root: {
@@ -1252,6 +1256,7 @@ export interface TrainersSelect<T extends boolean = true> {
   slug?: T;
   owner?: T;
   brand?: T;
+  collaboratingBrands?: T;
   photo?: T;
   bio?: T;
   specializations?: T;
