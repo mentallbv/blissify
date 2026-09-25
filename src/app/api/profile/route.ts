@@ -63,6 +63,18 @@ export async function PATCH(req: Request) {
     // Trainers have `photo`; brands use `logo` plus a wide `coverImage`.
     const photo = mediaId(body.photo)
     if (photo !== undefined) data[role === 'brand' ? 'logo' : 'photo'] = photo
+    // Social channels (Instagram / Facebook / TikTok) on the OPLEIDER profile
+    // (client #4). Previously only brands saved socials, so a trainer's channels
+    // were silently dropped. Spread the existing group so a linkedin set via the
+    // admin is preserved (the dashboard form only edits ig/fb/tiktok).
+    if (role === 'trainer') {
+      data.social = {
+        ...((doc as { social?: Record<string, unknown> }).social || {}),
+        instagram: typeof body.instagram === 'string' ? body.instagram.trim() : '',
+        facebook: typeof body.facebook === 'string' ? body.facebook.trim() : '',
+        tiktok: typeof body.tiktok === 'string' ? body.tiktok.trim() : '',
+      }
+    }
     if (role === 'brand') {
       const cover = mediaId(body.coverImage)
       if (cover !== undefined) data.coverImage = cover

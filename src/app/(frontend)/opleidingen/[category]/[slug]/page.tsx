@@ -5,6 +5,7 @@ import { SiteChrome } from '@/components/site/SiteChrome'
 import { Eyebrow, Avatar, TypeBadge, Button, Tag } from '@/components/ui'
 import { RequestInfoButton } from '@/components/site/RequestInfoButton'
 import { RegisterCourseButton } from '@/components/site/RegisterCourseButton'
+import { TrackedLink } from '@/components/site/TrackedLink'
 import { ReviewForm } from '@/components/site/ReviewForm'
 import { CourseCard } from '@/components/ui/CourseCard'
 import { TrackPageView } from '@/components/site/TrackPageView'
@@ -233,7 +234,7 @@ export default async function CourseDetailPage({ params }: Params) {
 
   return (
     <SiteChrome>
-      <div style={tierContext?.accentColor ? ({ '--text-accent': tierContext.accentColor } as React.CSSProperties) : undefined}>
+      <div>
       <TrackPageView kind="course" id={courseRef} />
       {/* Hero image band */}
       <div
@@ -475,10 +476,10 @@ export default async function CourseDetailPage({ params }: Params) {
               {Object.values(v.contact).some(Boolean) ? (
                 <div style={{ borderTop: '0.5px solid var(--border-hairline)', marginTop: 18, paddingTop: 16, display: 'flex', flexWrap: 'wrap', gap: 10 }}>
                   {v.contact.email ? <a href={`mailto:${v.contact.email}`} aria-label="E-mail"><i className="ti ti-mail" /></a> : null}
-                  {v.contact.website ? <a href={v.contact.website} target="_blank" rel="noreferrer" aria-label="Website"><i className="ti ti-world" /></a> : null}
-                  {v.contact.instagram ? <a href={v.contact.instagram} target="_blank" rel="noreferrer" aria-label="Instagram"><i className="ti ti-brand-instagram" /></a> : null}
-                  {v.contact.facebook ? <a href={v.contact.facebook} target="_blank" rel="noreferrer" aria-label="Facebook"><i className="ti ti-brand-facebook" /></a> : null}
-                  {v.contact.tiktok ? <a href={v.contact.tiktok} target="_blank" rel="noreferrer" aria-label="TikTok"><i className="ti ti-brand-tiktok" /></a> : null}
+                  {v.contact.website ? <TrackedLink kind="course" entityId={courseRef} type="website_click" href={v.contact.website} target="_blank" rel="noreferrer" aria-label="Website"><i className="ti ti-world" /></TrackedLink> : null}
+                  {v.contact.instagram ? <TrackedLink kind="course" entityId={courseRef} type="social_click" href={v.contact.instagram} target="_blank" rel="noreferrer" aria-label="Instagram"><i className="ti ti-brand-instagram" /></TrackedLink> : null}
+                  {v.contact.facebook ? <TrackedLink kind="course" entityId={courseRef} type="social_click" href={v.contact.facebook} target="_blank" rel="noreferrer" aria-label="Facebook"><i className="ti ti-brand-facebook" /></TrackedLink> : null}
+                  {v.contact.tiktok ? <TrackedLink kind="course" entityId={courseRef} type="social_click" href={v.contact.tiktok} target="_blank" rel="noreferrer" aria-label="TikTok"><i className="ti ti-brand-tiktok" /></TrackedLink> : null}
                 </div>
               ) : null}
             </div>

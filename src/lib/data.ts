@@ -4,6 +4,8 @@ import type { Course, Brand, Category, Media, Trainer } from '@/payload-types'
 import { formatPrice, formatCardMeta, courseLocation } from './format'
 import { publicMediaUrl } from './media'
 import { CATEGORY_CONTENT } from './categories'
+import { mergeLocations } from './cities'
+import type { MerkenGroup, MerkenFacets } from './merken-filters'
 import {
   BRAND_PRICING_FALLBACK,
   PRICING_CATALOG_FALLBACK,
@@ -58,7 +60,7 @@ export type ProviderCardData = {
   website?: string
   email?: string
   phone?: string
-  social?: { instagram?: string; facebook?: string; linkedin?: string }
+  social?: { instagram?: string; facebook?: string; tiktok?: string; linkedin?: string }
   /** Premium perk: badge on the public profile. */
   hasPremiumBadge?: boolean
 }
@@ -253,6 +255,8 @@ export async function getCourseCards(opts: CourseFilters = {}): Promise<{
 
 export type CourseFilterOptions = {
   categories: { slug: string; name: string; parentSlug: string | null }[]
+  /** Published-course counts per category slug (a main rolls up its subs). */
+  categoryCounts: Record<string, number>
   cities: string[]
   priceMin: number
   priceMax: number
@@ -263,9 +267,22 @@ export async function getCourseFilterOptions(): Promise<CourseFilterOptions> {
   try {
     const payload = await client()
     const [cats, courses] = await Promise.all([
-      payload.find({ collection: 'categories', limit: 200, depth: 0, sort: 'name' }),
+      // depth 1 so `parent` resolves to the full category (with its slug); at
+      // depth 0 parent is only an id and parentSlug collapses to null, which
+      // flattens the hierarchical (hoofd -> sub) course filter into one long
+      // alphabetical list.
+      payload.find({ collection: 'categories', limit: 200, depth: 1, sort: 'name' }),
       payload.find({ collection: 'courses', where: { status: { equals: 'published' } } as never, limit: 500, depth: 0 }),
     ])
+    // Maps for rolling course counts up to the main category.
+    const idToSlug = new Map<number, string>()
+    const idToMainSlug = new Map<number, string>()
+    for (const c of cats.docs) idToSlug.set(c.id as number, c.slug)
+    for (const c of cats.docs) {
+      const parent = (c as { parent?: { slug?: string } | number }).parent
+      idToMainSlug.set(c.id as number, !parent ? c.slug : typeof parent === 'object' ? parent.slug || c.slug : idToSlug.get(parent) || c.slug)
+    }
+    const categoryCounts: Record<string, number> = {}
     const cities = new Set<string>()
     let min = Infinity
     let max = 0
@@ -277,6 +294,14 @@ export async function getCourseFilterOptions(): Promise<CourseFilterOptions> {
         if (amt < min) min = amt
         if (amt > max) max = amt
       }
+      const catRel = (c as { category?: number | { id: number } }).category
+      const catId = typeof catRel === 'object' ? catRel?.id : catRel
+      if (catId) {
+        const exact = idToSlug.get(catId as number)
+        const main = idToMainSlug.get(catId as number)
+        if (exact) categoryCounts[exact] = (categoryCounts[exact] || 0) + 1
+        if (main && main !== exact) categoryCounts[main] = (categoryCounts[main] || 0) + 1
+      }
     })
     return {
       categories: cats.docs.map((c) => ({
@@ -284,14 +309,16 @@ export async function getCourseFilterOptions(): Promise<CourseFilterOptions> {
         name: c.name,
         parentSlug: c.parent && typeof c.parent === 'object' ? c.parent.slug : null,
       })),
-      cities: Array.from(cities).sort((a, b) => a.localeCompare(b, 'nl-BE')),
+      categoryCounts,
+      cities: mergeLocations(Array.from(cities)),
       priceMin: Number.isFinite(min) ? Math.floor(min) : 0,
       priceMax: max > 0 ? Math.ceil(max) : 2000,
     }
   } catch {
     return {
       categories: CATEGORY_TILES.map((c) => ({ slug: c.slug, name: c.name, parentSlug: null })),
-      cities: ['Antwerpen', 'Gent', 'Brussel', 'Brugge', 'Leuven', 'Online'],
+      categoryCounts: {},
+      cities: mergeLocations(),
       priceMin: 0,
       priceMax: 2000,
     }
@@ -314,38 +341,135 @@ export async function getCourseBySlug(slug: string): Promise<{ course: Course | 
   }
 }
 
+/**
+ * Index that ties opleiders (trainers) to the course category taxonomy so the
+ * /opleiders "Specialisatie" filter can use the SAME category list as the
+ * courses (client feedback #3). A trainer "specialises" in a main category when
+ * they have at least one published course in that category or one of its
+ * subcategories.
+ *
+ * Returns the 13 main categories (for the filter options), a map of
+ * trainerId -> set of main-category slugs, and the reverse counts per main
+ * category (for the facet numbers in the filter bar).
+ */
+type TrainerCategoryIndex = {
+  mainCategories: { value: string; label: string }[]
+  /** Full taxonomy (mains + subs) as picker options; subs carry their main as `group`. */
+  allCategories: { value: string; label: string; group?: string }[]
+  /** trainerId -> every category slug it covers (the exact course category AND its main). */
+  trainerSlugs: Map<number, Set<string>>
+  /** unique-trainer counts per slug (main and sub). */
+  counts: Record<string, number>
+}
+
+async function getTrainerCategoryIndex(): Promise<TrainerCategoryIndex> {
+  const payload = await client()
+  const [cats, courses] = await Promise.all([
+    payload.find({ collection: 'categories', limit: 300, depth: 1 }),
+    payload.find({ collection: 'courses', where: { status: { equals: 'published' } } as never, limit: 1000, depth: 0 }),
+  ])
+
+  // id -> slug, and id -> MAIN (root) slug. A root maps to itself; a subcategory
+  // maps to its parent's slug.
+  const idToSlug = new Map<number, string>()
+  const idToMainSlug = new Map<number, string>()
+  const mainLabelBySlug = new Map<string, string>()
+  const mainCategories: { value: string; label: string }[] = []
+  for (const c of cats.docs) {
+    idToSlug.set(c.id as number, c.slug)
+    const parent = (c as { parent?: unknown }).parent
+    if (!parent) {
+      idToMainSlug.set(c.id as number, c.slug)
+      mainLabelBySlug.set(c.slug, c.name)
+      mainCategories.push({ value: c.slug, label: c.name })
+    }
+  }
+  const allCategories: { value: string; label: string; group?: string }[] = []
+  for (const c of cats.docs) {
+    const parent = (c as { parent?: { id?: number; slug?: string; name?: string } | number }).parent
+    if (parent) {
+      const parentSlug = typeof parent === 'object' ? parent.slug : idToMainSlug.get(parent)
+      if (parentSlug) idToMainSlug.set(c.id as number, parentSlug)
+      allCategories.push({ value: c.slug, label: c.name, group: parentSlug ? mainLabelBySlug.get(parentSlug) : undefined })
+    } else {
+      allCategories.push({ value: c.slug, label: c.name })
+    }
+  }
+  mainCategories.sort((a, b) => a.label.localeCompare(b.label, 'nl-BE'))
+  allCategories.sort((a, b) => a.label.localeCompare(b.label, 'nl-BE'))
+
+  const trainerSlugs = new Map<number, Set<string>>()
+  const counted = new Map<string, Set<number>>() // slug -> unique trainerIds
+  const addCount = (slug: string, tid: number) => {
+    if (!counted.has(slug)) counted.set(slug, new Set())
+    counted.get(slug)!.add(tid)
+  }
+  for (const course of courses.docs as unknown as { trainer?: number | { id: number } | null; category?: number | { id: number } | null }[]) {
+    const trainerId = typeof course.trainer === 'object' ? course.trainer?.id : course.trainer
+    const categoryId = typeof course.category === 'object' ? course.category?.id : course.category
+    if (!trainerId || !categoryId) continue
+    const exactSlug = idToSlug.get(categoryId as number)
+    const mainSlug = idToMainSlug.get(categoryId as number)
+    if (!trainerSlugs.has(trainerId as number)) trainerSlugs.set(trainerId as number, new Set())
+    const set = trainerSlugs.get(trainerId as number)!
+    if (exactSlug) { set.add(exactSlug); addCount(exactSlug, trainerId as number) }
+    if (mainSlug && mainSlug !== exactSlug) { set.add(mainSlug); addCount(mainSlug, trainerId as number) }
+  }
+
+  const counts: Record<string, number> = {}
+  for (const [slug, ids] of counted) counts[slug] = ids.size
+
+  return { mainCategories, allCategories, trainerSlugs, counts }
+}
+
 /** Opleiders = trainers. Maps a trainer doc to the shared provider-card shape. */
 export async function getProviderCards(
-  opts: { limit?: number; specialisatie?: string; city?: string } | number = {},
+  opts: { limit?: number; specialisatie?: string; specialisaties?: string[]; city?: string } | number = {},
 ): Promise<{ cards: ProviderCardData[]; isFallback: boolean }> {
   // Back-compat: a number used to mean `limit`.
   const o = typeof opts === 'number' ? { limit: opts } : opts
   const limit = o.limit
+  // Specialisatie now maps to the course category taxonomy (client #3): accept a
+  // multi list, falling back to the legacy single param.
+  const specSlugs = (o.specialisaties && o.specialisaties.length ? o.specialisaties : o.specialisatie ? [o.specialisatie] : []).filter(Boolean)
   try {
     const payload = await client()
     const and: Record<string, unknown>[] = []
-    if (o.specialisatie) and.push({ specializations: { contains: o.specialisatie } })
     if (o.city) and.push({ 'location.city': { equals: o.city } })
-    const res = await payload.find({
-      collection: 'trainers',
-      where: (and.length ? { and } : undefined) as never,
-      limit: limit || 24,
-      depth: 1,
-    })
-    if (res.docs.length === 0 && and.length === 0) throw new Error('empty')
+    const [res, index] = await Promise.all([
+      payload.find({
+        collection: 'trainers',
+        where: (and.length ? { and } : undefined) as never,
+        limit: limit || 24,
+        depth: 1,
+      }),
+      getTrainerCategoryIndex(),
+    ])
+    // Filter by specialisatie in memory: a trainer matches when any selected
+    // main category is among the categories it teaches (derived from courses).
+    const filtered = specSlugs.length
+      ? res.docs.filter((t) => {
+          const slugs = index.trainerSlugs.get(t.id as number)
+          return slugs ? specSlugs.some((s) => slugs.has(s)) : false
+        })
+      : res.docs
+    if (filtered.length === 0 && and.length === 0 && specSlugs.length === 0) throw new Error('empty')
+    const mainLabel = new Map(index.mainCategories.map((m) => [m.value, m.label]))
     const cards = await Promise.all(
-      res.docs.map(async (t) => {
+      filtered.map(async (t) => {
         const courses = await payload.count({
           collection: 'courses',
           where: { trainer: { equals: t.id }, status: { equals: 'published' } } as never,
         })
+        const slugs = index.trainerSlugs.get(t.id as number)
+        const firstMain = slugs ? [...slugs].map((s) => mainLabel.get(s)).find(Boolean) : undefined
         return {
           slug: t.slug,
           href: `/opleiders/${t.slug}`,
           name: t.displayName,
           initial: t.displayName[0],
           location: t.location?.city || 'België',
-          speciality: specLabel(t.specializations?.[0]),
+          speciality: firstMain || specLabel(t.specializations?.[0]),
           courseCount: courses.totalDocs,
           logo: mediaUrl(t.photo),
         }
@@ -407,6 +531,7 @@ export async function getProviderBySlug(
         social: {
           instagram: t.social?.instagram || '',
           facebook: t.social?.facebook || '',
+          tiktok: (t.social as { tiktok?: string } | undefined)?.tiktok || '',
           linkedin: t.social?.linkedin || '',
         },
       },
@@ -972,23 +1097,54 @@ export async function getCourseTierContext(course: Course): Promise<CourseTierCo
   }
 }
 
-/** Distinct specialisaties + cities across trainers, for the /opleiders filters. */
-export async function getTrainerFilterOptions(): Promise<{ specialisaties: { value: string; label: string }[]; cities: string[] }> {
+/**
+ * Filter config for /opleiders, built in the same shape the MerkenFilterBar
+ * uses (client #3: same filter style as merken). "Specialisatie" is the course
+ * category taxonomy (main categories) as a multi-select mega menu; "Locatie" is
+ * a single-select dropdown of the merged Belgian city list. Facets carry the
+ * per-option counts shown in the bar.
+ */
+export async function getTrainerFilterOptions(): Promise<{ groups: MerkenGroup[]; facets: MerkenFacets }> {
   try {
     const payload = await client()
-    const res = await payload.find({ collection: 'trainers', limit: 200, depth: 0 })
-    const specs = new Set<string>()
-    const cities = new Set<string>()
+    const [res, index] = await Promise.all([
+      payload.find({ collection: 'trainers', limit: 300, depth: 0 }),
+      getTrainerCategoryIndex(),
+    ])
+    const cityCounts: Record<string, number> = {}
     res.docs.forEach((t) => {
-      ;(t.specializations || []).forEach((s) => s && specs.add(s))
-      if (t.location?.city) cities.add(t.location.city)
+      const city = t.location?.city
+      if (city) cityCounts[city] = (cityCounts[city] || 0) + 1
     })
-    return {
-      specialisaties: Array.from(specs).map((v) => ({ value: v, label: specLabel(v) })),
-      cities: Array.from(cities).sort((a, b) => a.localeCompare(b, 'nl-BE')),
-    }
+    const cities = mergeLocations(Object.keys(cityCounts))
+    const groups: MerkenGroup[] = [
+      {
+        key: 'specialisatie',
+        name: 'Specialisatie',
+        ui: 'mega',
+        multi: true,
+        // Full category taxonomy (mains + subs), so Specialisatie corresponds
+        // with the complete list used for courses (client #3). The picker's
+        // search + A-Z index keep it usable at this size.
+        options: index.allCategories,
+      },
+      {
+        key: 'locatie',
+        name: 'Locatie',
+        ui: 'dropdown',
+        multi: false,
+        options: cities.map((c) => ({ value: c, label: c })),
+      },
+    ]
+    return { groups, facets: { specialisatie: index.counts, locatie: cityCounts } }
   } catch {
-    return { specialisaties: Object.entries(SPEC_LABELS).map(([value, label]) => ({ value, label })), cities: [] }
+    return {
+      groups: [
+        { key: 'specialisatie', name: 'Specialisatie', ui: 'mega', multi: true, options: Object.entries(SPEC_LABELS).map(([value, label]) => ({ value, label })) },
+        { key: 'locatie', name: 'Locatie', ui: 'dropdown', multi: false, options: mergeLocations().map((c) => ({ value: c, label: c })) },
+      ],
+      facets: {},
+    }
   }
 }
 

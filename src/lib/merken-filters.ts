@@ -4,7 +4,7 @@
  * MerkenFilterBar UI so options and URL keys never drift.
  */
 
-export type MerkenOption = { value: string; label: string }
+export type MerkenOption = { value: string; label: string; group?: string }
 export type MerkenGroup = {
   key: string // URL param key
   name: string // pill label

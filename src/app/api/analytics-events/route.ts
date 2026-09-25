@@ -7,6 +7,10 @@ const KIND_FIELD: Record<string, string> = {
   brand: 'payload_brand_id',
 }
 
+// Click event types (view is the default). event_type is a free-form column,
+// so no schema change is needed to add these.
+const CLICK_TYPES = new Set(['website_click', 'social_click', 'register_click'])
+
 /** POST /api/analytics-events - record a lightweight analytics event. Public. */
 export async function POST(req: Request) {
   try {
@@ -16,7 +20,9 @@ export async function POST(req: Request) {
     const field = KIND_FIELD[kind]
     if (!field || !id) return NextResponse.json({ ok: false }, { status: 400 })
 
-    const eventType = kind === 'course' ? 'course_view' : 'profile_view'
+    // `type` selects a click event; otherwise it's a page view.
+    const type = String(body.type || '')
+    const eventType = CLICK_TYPES.has(type) ? type : kind === 'course' ? 'course_view' : 'profile_view'
     if (!supabaseConfigured()) return NextResponse.json({ ok: true, stored: false })
 
     await sbInsert('analytics_events', { event_type: eventType, [field]: id })

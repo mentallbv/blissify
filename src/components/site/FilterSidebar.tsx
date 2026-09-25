@@ -3,6 +3,7 @@
 import React from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import type { CourseFilterOptions } from '@/lib/data'
+import { CategoryPickerMenu } from './CategoryPickerMenu'
 
 const FORMATS = [
   { value: 'fysiek', label: 'In-persoon' },
@@ -96,16 +97,33 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
   const hasAdvanced = Boolean(current.praktisch || current.focus || current.certificering || current.erkend || current.nieuw || current.populair || current.gratis || current.prijsMax)
   const [moreOpen, setMoreOpen] = React.useState(hasAdvanced)
   const hasActive = Boolean(current.categorie || current.locatie || current.format || current.aanbieder || current.doelgroep || hasAdvanced)
-  const mainCategories = options.categories.filter((category) => !category.parentSlug)
-  const selectedCategory = options.categories.find((category) => category.slug === current.categorie)
-  const activeParent = selectedCategory?.parentSlug || selectedCategory?.slug || ''
-  const subcategories = options.categories.filter((category) => category.parentSlug === activeParent)
+
+  // Category picker (search + A-Z), shared with /opleiders and /merken. Single-
+  // select here: the course `categorie` param is one slug (a main includes its
+  // subs via the query layer). Options carry the full taxonomy with each sub's
+  // main as `group`.
+  const catNameBySlug = React.useMemo(() => new Map(options.categories.map((c) => [c.slug, c.name])), [options.categories])
+  const pickerOptions = React.useMemo(
+    () => options.categories.map((c) => ({ value: c.slug, label: c.name, group: c.parentSlug ? catNameBySlug.get(c.parentSlug) : undefined })),
+    [options.categories, catNameBySlug],
+  )
+  const selectedCatLabel = current.categorie ? catNameBySlug.get(current.categorie) || 'Categorie' : 'Alle categorieën'
+  const [catOpen, setCatOpen] = React.useState(false)
+  const catRef = React.useRef<HTMLDivElement>(null)
+  React.useEffect(() => {
+    if (!catOpen) return
+    const onDoc = (e: MouseEvent) => {
+      if (catRef.current && !catRef.current.contains(e.target as Node)) setCatOpen(false)
+    }
+    document.addEventListener('mousedown', onDoc)
+    return () => document.removeEventListener('mousedown', onDoc)
+  }, [catOpen])
 
   const labelStyle: React.CSSProperties = { fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-strong)', marginBottom: 12 }
   const selectStyle: React.CSSProperties = { height: 40, fontSize: 13 }
 
   return (
-    <aside style={{ position: 'sticky', top: 68, alignSelf: 'start', background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: '28px 24px' }}>
+    <aside style={{ position: 'sticky', top: 68, alignSelf: 'start', zIndex: catOpen ? 40 : 1, background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: '28px 24px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
         <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 20, color: 'var(--text-brand)' }}>Filters</span>
         {hasActive ? (
@@ -116,19 +134,30 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
       </div>
 
       {!lockCategory ? (
-        <div style={{ marginBottom: 26 }}>
+        <div style={{ marginBottom: 26, position: 'relative' }} ref={catRef}>
           <div style={labelStyle}>Categorie</div>
-          <select className="bl-select" value={activeParent} onChange={(e) => update('categorie', e.target.value)} style={selectStyle}>
-            <option value="">Alle hoofdcategorieën</option>
-            {mainCategories.map((c) => (
-              <option key={c.slug} value={c.slug}>{c.name}</option>
-            ))}
-          </select>
-          {activeParent && subcategories.length ? (
-            <select className="bl-select" value={selectedCategory?.parentSlug ? current.categorie : ''} onChange={(e) => update('categorie', e.target.value || activeParent)} style={{ ...selectStyle, marginTop: 8 }}>
-              <option value="">Alle subcategorieën</option>
-              {subcategories.map((c) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
-            </select>
+          <button
+            type="button"
+            onClick={() => setCatOpen((o) => !o)}
+            className="bl-select"
+            style={{ ...selectStyle, display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', textAlign: 'left', cursor: 'pointer', background: 'var(--surface-card)' }}
+          >
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: current.categorie ? 'var(--text-strong)' : 'var(--text-meta)' }}>{selectedCatLabel}</span>
+            <i className={`ti ti-chevron-${catOpen ? 'up' : 'down'}`} style={{ fontSize: 15, flex: 'none', color: 'var(--text-meta)' }} />
+          </button>
+          {catOpen ? (
+            <div style={{ position: 'absolute', top: 72, left: 0, zIndex: 50, background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', boxShadow: '0 12px 34px rgba(26,46,37,0.12)', padding: 16 }}>
+              <CategoryPickerMenu
+                options={pickerOptions}
+                selected={current.categorie ? [current.categorie] : []}
+                multi={false}
+                counts={options.categoryCounts}
+                onToggle={(v) => {
+                  update('categorie', v === current.categorie ? null : v)
+                  setCatOpen(false)
+                }}
+              />
+            </div>
           ) : null}
         </div>
       ) : null}

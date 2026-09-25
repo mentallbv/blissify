@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { Input, Select, Button, FieldLabel, Tag } from '@/components/ui'
 import { ImageUploadField, type UploadedImage } from '@/components/dashboard/ImageUploadField'
 import { RichTextEditor } from '@/components/dashboard/RichTextEditor'
+import { CategoryPickerMenu } from '@/components/site/CategoryPickerMenu'
 
 export type CourseFormValues = {
   title: string
@@ -94,7 +95,7 @@ export function CourseForm({
   courseId,
   showPartnerUltimateFeatures = false,
 }: {
-  categories: { id: number; name: string }[]
+  categories: { id: number; name: string; parentName?: string }[]
   initial?: Partial<CourseFormValues>
   courseId?: number
   showPartnerUltimateFeatures?: boolean
@@ -102,7 +103,25 @@ export function CourseForm({
   const router = useRouter()
   const [v, setV] = React.useState<CourseFormValues>({ ...EMPTY, ...initial })
   const [error, setError] = React.useState<string | null>(null)
+  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({})
   const [loading, setLoading] = React.useState(false)
+
+  // Category picker (search + A-Z), single-select, shared with the public filters.
+  const [catOpen, setCatOpen] = React.useState(false)
+  const catRef = React.useRef<HTMLDivElement>(null)
+  React.useEffect(() => {
+    if (!catOpen) return
+    const onDoc = (e: MouseEvent) => {
+      if (catRef.current && !catRef.current.contains(e.target as Node)) setCatOpen(false)
+    }
+    document.addEventListener('mousedown', onDoc)
+    return () => document.removeEventListener('mousedown', onDoc)
+  }, [catOpen])
+  const catOptions = React.useMemo(
+    () => categories.map((c) => ({ value: String(c.id), label: c.name, group: c.parentName })),
+    [categories],
+  )
+  const selectedCatName = v.category ? categories.find((c) => String(c.id) === v.category)?.name || 'Categorie' : ''
   const set = <K extends keyof CourseFormValues>(k: K, val: CourseFormValues[K]) => setV((s) => ({ ...s, [k]: val }))
   const toggleFormat = (f: string) => set('format', v.format.includes(f) ? v.format.filter((x) => x !== f) : [...v.format, f])
   const toggleLanguage = (language: string) => set('language', v.language.includes(language) ? v.language.filter((item) => item !== language) : [...v.language, language])
@@ -113,9 +132,29 @@ export function CourseForm({
     set('startDates', v.startDates.map((item, itemIndex) => itemIndex === index ? { ...item, [key]: value } : item))
   const removeDate = (index: number) => set('startDates', v.startDates.filter((_, itemIndex) => itemIndex !== index))
 
+  // Client-side validation in Dutch. Flags the specific missing fields so the
+  // form can draw a red border and show one clear message (client #5).
+  function validate(): boolean {
+    const errs: Record<string, string> = {}
+    if (!v.title.trim()) errs.title = 'Vul een titel in.'
+    if (!v.category) errs.category = 'Kies een categorie.'
+    if (!v.shortDescription.trim()) errs.shortDescription = 'Vul een korte omschrijving in.'
+    const plainDescription = v.description.replace(/<[^>]*>/g, '').trim()
+    if (!plainDescription) errs.description = 'Vul een volledige omschrijving in.'
+    setFieldErrors(errs)
+    if (Object.keys(errs).length) {
+      setError('Enkele verplichte velden ontbreken nog. Ze zijn hieronder rood aangeduid.')
+      const first = document.querySelector('[data-field-error="true"]')
+      if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      return false
+    }
+    return true
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
+    if (!validate()) return
     setLoading(true)
     try {
       const url = courseId ? `/api/dashboard/courses/${courseId}` : '/api/dashboard/courses'
@@ -136,6 +175,11 @@ export function CourseForm({
   }
 
   const card: React.CSSProperties = { background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: 28, display: 'flex', flexDirection: 'column', gap: 18, marginBottom: 20 }
+  const errBorder = (k: string): React.CSSProperties | undefined => (fieldErrors[k] ? { border: '1px solid var(--status-warning)' } : undefined)
+  const clearErr = (k: string) => { if (fieldErrors[k]) setFieldErrors((s) => { const n = { ...s }; delete n[k]; return n }) }
+  const FieldError = ({ k }: { k: string }) => (fieldErrors[k] ? (
+    <div data-field-error="true" style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--status-warning)', marginTop: 6 }}>{fieldErrors[k]}</div>
+  ) : null)
 
   return (
     <form onSubmit={onSubmit} style={{ maxWidth: 720 }}>
@@ -146,16 +190,43 @@ export function CourseForm({
       ) : null}
 
       <div style={card}>
-        <Input label="Titel" value={v.title} onChange={(e) => set('title', e.target.value)} required />
-        <Input label="Slug (optioneel)" placeholder="wordt automatisch gegenereerd" value={v.slug} onChange={(e) => set('slug', e.target.value)} />
-        <div className="bl-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-          <Select
-            label="Categorie"
-            placeholder="Kies een categorie"
-            value={v.category}
-            onChange={(e) => set('category', e.target.value)}
-            options={categories.map((c) => ({ value: String(c.id), label: c.name }))}
-          />
+        <div>
+          <Input label="Titel" value={v.title} onChange={(e) => { set('title', e.target.value); clearErr('title') }} style={errBorder('title')} aria-invalid={Boolean(fieldErrors.title)} />
+          <FieldError k="title" />
+        </div>
+        <div>
+          <Input label="Link-naam (optioneel)" placeholder="wordt automatisch gegenereerd uit de titel" value={v.slug} onChange={(e) => set('slug', e.target.value)} />
+          <div style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-meta)', marginTop: 6 }}>
+            Dit is het adres van de opleidingspagina. Laat leeg om het automatisch te laten genereren.
+          </div>
+        </div>
+        <div className="bl-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, alignItems: 'start' }}>
+          <div style={{ position: 'relative' }} ref={catRef}>
+            <FieldLabel>Categorie</FieldLabel>
+            <button
+              type="button"
+              onClick={() => setCatOpen((o) => !o)}
+              className="bl-select"
+              style={{ height: 44, display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', textAlign: 'left', cursor: 'pointer', background: 'var(--surface-card)', ...errBorder('category') }}
+              aria-invalid={Boolean(fieldErrors.category)}
+            >
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: selectedCatName ? 'var(--text-strong)' : 'var(--text-meta)' }}>
+                {selectedCatName || 'Kies een categorie'}
+              </span>
+              <i className={`ti ti-chevron-${catOpen ? 'up' : 'down'}`} style={{ fontSize: 15, flex: 'none', color: 'var(--text-meta)' }} />
+            </button>
+            {catOpen ? (
+              <div style={{ position: 'absolute', top: 74, left: 0, zIndex: 50, background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', boxShadow: '0 12px 34px rgba(26,46,37,0.12)', padding: 16 }}>
+                <CategoryPickerMenu
+                  options={catOptions}
+                  selected={v.category ? [v.category] : []}
+                  multi={false}
+                  onToggle={(val) => { set('category', val === v.category ? '' : val); clearErr('category'); setCatOpen(false) }}
+                />
+              </div>
+            ) : null}
+            <FieldError k="category" />
+          </div>
           <Select
             label="Status"
             value={v.status}
@@ -169,15 +240,19 @@ export function CourseForm({
         </div>
         <div>
           <FieldLabel>Korte omschrijving</FieldLabel>
-          <textarea value={v.shortDescription} onChange={(e) => set('shortDescription', e.target.value)} maxLength={200} style={ta} />
+          <textarea value={v.shortDescription} onChange={(e) => { set('shortDescription', e.target.value); clearErr('shortDescription') }} maxLength={200} style={{ ...ta, ...errBorder('shortDescription') }} aria-invalid={Boolean(fieldErrors.shortDescription)} />
+          <FieldError k="shortDescription" />
         </div>
         <div>
           <FieldLabel>Volledige omschrijving</FieldLabel>
-          <RichTextEditor
-            value={v.description}
-            onChange={(html) => set('description', html)}
-            placeholder="Wat leert de deelnemer, voor wie is het bedoeld, hoe verloopt de dag?"
-          />
+          <div style={fieldErrors.description ? { border: '1px solid var(--status-warning)', borderRadius: 'var(--radius-sm)' } : undefined}>
+            <RichTextEditor
+              value={v.description}
+              onChange={(html) => { set('description', html); clearErr('description') }}
+              placeholder="Wat leert de deelnemer, voor wie is het bedoeld, hoe verloopt de dag?"
+            />
+          </div>
+          <FieldError k="description" />
         </div>
         <ImageUploadField
           label="Coverafbeelding"
@@ -261,9 +336,22 @@ export function CourseForm({
           />
         </div>
         <div className="bl-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, alignItems: 'end' }}>
-          <Input label="Maximum deelnemers" type="number" value={v.maximumParticipants} onChange={(e) => set('maximumParticipants', e.target.value)} />
+          {v.privateOneToOne ? (
+            <div style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-meta)', height: 44, display: 'flex', alignItems: 'center' }}>
+              Eén-op-één: geen maximumaantal deelnemers nodig.
+            </div>
+          ) : (
+            <Input label="Maximum deelnemers (optioneel)" type="number" value={v.maximumParticipants} onChange={(e) => set('maximumParticipants', e.target.value)} />
+          )}
           <label style={{ display: 'flex', alignItems: 'center', gap: 10, height: 44, fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-body)' }}>
-            <input type="checkbox" checked={v.privateOneToOne} onChange={(e) => set('privateOneToOne', e.target.checked)} />
+            <input
+              type="checkbox"
+              checked={v.privateOneToOne}
+              onChange={(e) => {
+                set('privateOneToOne', e.target.checked)
+                if (e.target.checked) set('maximumParticipants', '')
+              }}
+            />
             Privé / één-op-één
           </label>
         </div>
@@ -292,7 +380,12 @@ export function CourseForm({
             Prijs op aanvraag
           </label>
         </div>
-        <Input label="Inschrijf-URL (extern)" placeholder="https://..." value={v.externalUrl} onChange={(e) => set('externalUrl', e.target.value)} required />
+        <div>
+          <Input label="Inschrijf-URL (optioneel)" placeholder="https://..." value={v.externalUrl} onChange={(e) => set('externalUrl', e.target.value)} />
+          <div style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-meta)', marginTop: 6 }}>
+            Laat leeg als je geen aparte inschrijvingspagina hebt; bezoekers kunnen dan via e-mail contact opnemen.
+          </div>
+        </div>
         <label style={{ display: 'flex', alignItems: 'center', gap: 10, fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-body)' }}>
           <input type="checkbox" checked={v.certificate} onChange={(e) => set('certificate', e.target.checked)} />
           Certificaat inbegrepen
@@ -314,7 +407,7 @@ export function CourseForm({
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
           <div>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, color: 'var(--text-brand)' }}>Data en tijdstippen</div>
-            <div style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-meta)', marginTop: 4 }}>Voeg alle geplande lesmomenten toe.</div>
+            <div style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-meta)', marginTop: 4 }}>Voeg alle geplande lesmomenten toe. &ldquo;Beschikbare plaatsen&rdquo; is optioneel; houd dit zelf actueel.</div>
           </div>
           <Button type="button" variant="ghost" size="sm" onClick={addDate}>Datum toevoegen</Button>
         </div>

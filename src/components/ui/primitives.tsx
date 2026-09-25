@@ -80,8 +80,12 @@ export function Tag({
     transition: 'background-color .18s ease, color .18s ease',
   }
   const Comp = as as React.ElementType
+  // A bare <button> inside a <form> defaults to type="submit"; clicking a Tag
+  // (e.g. a lesvorm toggle) would submit the form and the browser would jump to
+  // the first invalid required field. Default to type="button" (overridable).
+  const compProps = as === 'button' ? { type: 'button' as const, ...rest } : rest
   return (
-    <Comp style={style} {...rest}>
+    <Comp style={style} {...compProps}>
       {children}
     </Comp>
   )

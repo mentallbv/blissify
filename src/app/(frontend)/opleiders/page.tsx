@@ -2,7 +2,7 @@ import React from 'react'
 import type { Metadata } from 'next'
 import { SiteChrome } from '@/components/site/SiteChrome'
 import { ProviderCard, Eyebrow } from '@/components/ui'
-import { FilterPills } from '@/components/site/FilterPills'
+import { MerkenFilterBar } from '@/components/site/MerkenFilterBar'
 import { getProviderCards, getTrainerFilterOptions } from '@/lib/data'
 
 export const dynamic = 'force-dynamic'
@@ -14,16 +14,17 @@ export const metadata: Metadata = {
 }
 
 const one = (v: string | string[] | undefined): string => (Array.isArray(v) ? v[0] : v || '')
+const many = (v: string | string[] | undefined): string[] => one(v).split(',').map((s) => s.trim()).filter(Boolean)
 
 type SP = Promise<Record<string, string | string[] | undefined>>
 
 export default async function OpleidersPage({ searchParams }: { searchParams: SP }) {
   const sp = await searchParams
-  const specialisatie = one(sp.specialisatie) || undefined
+  const specialisaties = many(sp.specialisatie)
   const city = one(sp.locatie) || undefined
 
   const [{ cards }, opts] = await Promise.all([
-    getProviderCards({ specialisatie, city, limit: 48 }),
+    getProviderCards({ specialisaties, city, limit: 48 }),
     getTrainerFilterOptions(),
   ])
 
@@ -42,9 +43,8 @@ export default async function OpleidersPage({ searchParams }: { searchParams: SP
         </p>
       </section>
 
-      <section className="bl-container" style={{ paddingTop: 8, paddingBottom: 0, display: 'flex', flexDirection: 'column', gap: 18 }}>
-        <FilterPills paramKey="specialisatie" label="Specialisatie" options={opts.specialisaties} />
-        {opts.cities.length ? <FilterPills paramKey="locatie" label="Locatie" options={opts.cities.map((c) => ({ value: c, label: c }))} /> : null}
+      <section className="bl-container" style={{ paddingTop: 8, paddingBottom: 0 }}>
+        <MerkenFilterBar facets={opts.facets} groups={opts.groups} basePath="/opleiders" />
       </section>
 
       <section className="bl-container" style={{ paddingTop: 24, paddingBottom: 64 }}>

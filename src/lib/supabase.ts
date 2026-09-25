@@ -132,3 +132,29 @@ export async function getProfileViewEvents(opts: { trainerId?: number; brandId?:
   if (!filter) return []
   return sbSelect<AnalyticsEvent>('analytics_events', `select=*&event_type=eq.profile_view&${filter}&order=created_at.asc`)
 }
+
+/** course_view events for the given courses (for per-course view counts + trend). */
+export async function getCourseViewEvents(courseIds: (string | number)[]): Promise<AnalyticsEvent[]> {
+  if (courseIds.length === 0) return []
+  return sbSelect<AnalyticsEvent>('analytics_events', `select=*&event_type=eq.course_view&payload_course_id=${inList(courseIds)}&order=created_at.asc`)
+}
+
+/**
+ * Click events (website / social / inschrijf) for a profile and its courses.
+ * Returns every click event attributed to the profile OR one of its courses,
+ * so the dashboard can total website/social clicks and compute CTR per course.
+ */
+export async function getClickEvents(opts: { trainerId?: number; brandId?: number; courseIds?: (string | number)[] }): Promise<AnalyticsEvent[]> {
+  const clickFilter = `event_type=in.(website_click,social_click,register_click)`
+  const results: AnalyticsEvent[] = []
+  if (opts.brandId) {
+    results.push(...(await sbSelect<AnalyticsEvent>('analytics_events', `select=*&${clickFilter}&payload_brand_id=eq.${opts.brandId}&order=created_at.asc`)))
+  }
+  if (opts.trainerId) {
+    results.push(...(await sbSelect<AnalyticsEvent>('analytics_events', `select=*&${clickFilter}&payload_trainer_id=eq.${opts.trainerId}&order=created_at.asc`)))
+  }
+  if (opts.courseIds && opts.courseIds.length) {
+    results.push(...(await sbSelect<AnalyticsEvent>('analytics_events', `select=*&${clickFilter}&payload_course_id=${inList(opts.courseIds)}&order=created_at.asc`)))
+  }
+  return results
+}

@@ -2,6 +2,7 @@ import React from 'react'
 import { StatusPill } from '@/components/ui'
 
 export type DashCourse = {
+  id?: number
   name: string
   category: string
   price: string
@@ -18,7 +19,19 @@ const STATUS_TONE: Record<string, 'published' | 'draft' | 'archived'> = {
   archived: 'archived',
 }
 
-export function CourseTable({ rows, limit }: { rows: DashCourse[]; limit?: number }) {
+export function CourseTable({
+  rows,
+  limit,
+  onDuplicate,
+  onDelete,
+  busyId,
+}: {
+  rows: DashCourse[]
+  limit?: number
+  onDuplicate?: (id: number) => void
+  onDelete?: (id: number) => void
+  busyId?: number | null
+}) {
   const data = limit ? rows.slice(0, limit) : rows
   const th: React.CSSProperties = {
     fontFamily: 'var(--font-ui)',
@@ -56,8 +69,10 @@ export function CourseTable({ rows, limit }: { rows: DashCourse[]; limit?: numbe
           </tr>
         </thead>
         <tbody>
-          {data.map((r, i) => (
-            <tr key={i}>
+          {data.map((r, i) => {
+            const busy = busyId != null && busyId === r.id
+            return (
+            <tr key={i} style={busy ? { opacity: 0.55 } : undefined}>
               <td style={{ ...td, fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 16, color: 'var(--text-brand)' }}>
                 {r.name}
               </td>
@@ -68,25 +83,56 @@ export function CourseTable({ rows, limit }: { rows: DashCourse[]; limit?: numbe
                 <StatusPill status={STATUS_TONE[r.status]}>{STATUS_LABELS[r.status]}</StatusPill>
               </td>
               <td style={{ ...td, textAlign: 'right', whiteSpace: 'nowrap' }}>
-                {r.editHref ? (
-                  <a href={r.editHref} className="bl-textlink" style={{ marginRight: 16 }}>
-                    Bewerken
-                  </a>
-                ) : (
-                  <span className="bl-textlink" style={{ marginRight: 16 }}>
-                    Bewerken
+                {busy ? (
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-meta)' }}>
+                    <i className="ti ti-loader-2 bl-spin" style={{ fontSize: 16 }} aria-hidden="true" />
+                    Bezig…
                   </span>
-                )}
-                {r.viewHref ? (
-                  <a href={r.viewHref} className="bl-textlink">
-                    Bekijken
-                  </a>
                 ) : (
-                  <span className="bl-textlink">Bekijken</span>
+                  <>
+                    {r.editHref ? (
+                      <a href={r.editHref} className="bl-textlink" style={{ marginRight: 16 }}>
+                        Bewerken
+                      </a>
+                    ) : (
+                      <span className="bl-textlink" style={{ marginRight: 16 }}>
+                        Bewerken
+                      </span>
+                    )}
+                    {r.viewHref ? (
+                      <a href={r.viewHref} className="bl-textlink" style={{ marginRight: 16 }}>
+                        Bekijken
+                      </a>
+                    ) : (
+                      <span className="bl-textlink" style={{ marginRight: 16 }}>Bekijken</span>
+                    )}
+                    {onDuplicate && r.id ? (
+                      <button
+                        type="button"
+                        onClick={() => onDuplicate(r.id as number)}
+                        disabled={busyId != null}
+                        className="bl-textlink"
+                        style={{ marginRight: 16, background: 'none', border: 'none', cursor: 'pointer', padding: 0, font: 'inherit' }}
+                      >
+                        Dupliceren
+                      </button>
+                    ) : null}
+                    {onDelete && r.id ? (
+                      <button
+                        type="button"
+                        onClick={() => onDelete(r.id as number)}
+                        disabled={busyId != null}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, font: 'inherit', fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--status-warning)' }}
+                      >
+                        Verwijderen
+                      </button>
+                    ) : null}
+                  </>
                 )}
               </td>
             </tr>
-          ))}
+            )
+          })}
         </tbody>
       </table>
     </div>

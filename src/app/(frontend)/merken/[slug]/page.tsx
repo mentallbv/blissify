@@ -42,9 +42,7 @@ export default async function MerkPage({ params }: Params) {
   return (
     <SiteChrome>
       {brand.id != null ? <TrackPageView kind="brand" id={brand.id} /> : null}
-      {/* Branding perk: the brand's own accent replaces the site accent.
-          Already tier-gated in getBrandBySlug. */}
-      <div style={brand.accentColor ? ({ '--text-accent': brand.accentColor } as React.CSSProperties) : undefined}>
+      <div>
       {/* Dark forest header (brand cover as backdrop when present) */}
       <header
         style={{

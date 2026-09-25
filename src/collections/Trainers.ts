@@ -138,9 +138,11 @@ export const Trainers: CollectionConfig = {
     {
       name: 'social',
       type: 'group',
+      label: 'Sociale kanalen',
       fields: [
         { name: 'instagram', type: 'text' },
         { name: 'facebook', type: 'text' },
+        { name: 'tiktok', type: 'text' },
         { name: 'linkedin', type: 'text' },
       ],
     },

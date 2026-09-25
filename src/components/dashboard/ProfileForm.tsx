@@ -98,29 +98,8 @@ export function ProfileForm({
             minHeight={160}
           />
         </div>
-        {v.canBrand ? (
-          <div style={{ borderTop: '0.5px solid var(--border-hairline)', paddingTop: 18 }}>
-            <FieldLabel>Accentkleur</FieldLabel>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <input
-                type="color"
-                aria-label="Accentkleur kiezen"
-                value={/^#[0-9a-f]{6}$/i.test(v.accentColor) ? v.accentColor : '#1A2E25'}
-                onChange={(e) => set('accentColor', e.target.value.toUpperCase())}
-                style={{ width: 44, height: 38, padding: 2, border: '0.5px solid var(--neutral-200)', borderRadius: 'var(--radius-sm)', background: 'var(--surface-card)', cursor: 'pointer' }}
-              />
-              <div style={{ flex: 1 }}>
-                <Input label="" placeholder="#1A2E25" value={v.accentColor} onChange={(e) => set('accentColor', e.target.value)} />
-              </div>
-              {v.accentColor ? (
-                <Button type="button" variant="ghost" size="sm" onClick={() => set('accentColor', '')}>Wissen</Button>
-              ) : null}
-            </div>
-            <p style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--text-meta)', margin: '8px 0 0' }}>
-              Gebruikt als accent op je publieke profiel.
-            </p>
-          </div>
-        ) : null}
+        {/* Eigen branding (accentkleur) removed - client #7: everything stays in
+            the site's consistent style. */}
 
         {v.role === 'brand' ? (
           <>

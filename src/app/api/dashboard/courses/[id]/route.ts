@@ -28,3 +28,26 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
     return NextResponse.json({ error: message }, { status: 400 })
   }
 }
+
+/** DELETE /api/dashboard/courses/[id] - permanently remove a course the user owns. */
+export async function DELETE(_req: Request, { params }: { params: Promise<{ id: string }> }) {
+  try {
+    const { id } = await params
+    const payload = await getPayload({ config: await config })
+    const { user } = await payload.auth({ headers: await getHeaders() })
+    if (!user) return NextResponse.json({ error: 'Niet ingelogd.' }, { status: 401 })
+
+    const owner = await resolveOwner(payload, user)
+    if (!owner) return NextResponse.json({ error: 'Geen opleiderprofiel gevonden.' }, { status: 400 })
+
+    const existing = await payload.findByID({ collection: 'courses', id, depth: 0, overrideAccess: true }).catch(() => null)
+    if (!existing) return NextResponse.json({ error: 'Opleiding niet gevonden.' }, { status: 404 })
+    if (!ownsCourse(existing as never, owner)) return NextResponse.json({ error: 'Geen toegang tot deze opleiding.' }, { status: 403 })
+
+    await payload.delete({ collection: 'courses', id, user, overrideAccess: false })
+    return NextResponse.json({ ok: true })
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Verwijderen mislukt.'
+    return NextResponse.json({ error: message }, { status: 400 })
+  }
+}

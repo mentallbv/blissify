@@ -46,7 +46,21 @@ export function RegisterCourseButton({ courseId, courseTitle }: { courseId: stri
 
   return (
     <>
-      <Button variant="primary" fullWidth onClick={() => setOpen(true)}>
+      <Button
+        variant="primary"
+        fullWidth
+        onClick={() => {
+          setOpen(true)
+          // Count the intent to register for per-course CTR (analytics #5).
+          try {
+            const body = JSON.stringify({ kind: 'course', id: courseId, type: 'register_click' })
+            if (navigator.sendBeacon) navigator.sendBeacon('/api/analytics-events', new Blob([body], { type: 'application/json' }))
+            else fetch('/api/analytics-events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body, keepalive: true }).catch(() => {})
+          } catch {
+            /* ignore */
+          }
+        }}
+      >
         Schrijf je in
       </Button>
 

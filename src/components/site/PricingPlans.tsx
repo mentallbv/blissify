@@ -2,6 +2,8 @@
 
 import React from 'react'
 import { ButtonLink } from '@/components/ui'
+import { InfoTooltip } from '@/components/site/InfoTooltip'
+import { glossaryFor } from '@/lib/pricing-glossary'
 import { type BillingSettings, type PricingData } from '@/lib/pricing'
 
 type Audience = 'opleiders' | 'brands'
@@ -95,12 +97,18 @@ export function PricingPlans({
               </ButtonLink>
               <div style={{ height: 1, background: 'var(--border-hairline)', margin: '22px 0' }} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {tier.features.slice(0, compact ? 3 : tier.features.length).map((feature) => (
-                  <div key={feature} style={{ display: 'flex', gap: 9, fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-body)' }}>
-                    <i className="ti ti-check" style={{ color: 'var(--text-accent)' }} />
-                    {feature}
-                  </div>
-                ))}
+                {tier.features.slice(0, compact ? 3 : tier.features.length).map((feature) => {
+                  const info = glossaryFor(feature)
+                  return (
+                    <div key={feature} style={{ display: 'flex', gap: 9, fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-body)' }}>
+                      <i className="ti ti-check" style={{ color: 'var(--text-accent)', flex: 'none', marginTop: 1 }} />
+                      <span>
+                        {feature}
+                        {info ? <InfoTooltip text={info} label={feature} /> : null}
+                      </span>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           )

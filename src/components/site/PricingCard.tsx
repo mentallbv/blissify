@@ -1,4 +1,6 @@
 import React from 'react'
+import { InfoTooltip } from '@/components/site/InfoTooltip'
+import { glossaryFor } from '@/lib/pricing-glossary'
 
 export type PricingCardTier = {
   name: string
@@ -33,12 +35,18 @@ export function PricingCard({ tier, cta }: { tier: PricingCardTier; cta: React.R
         </div>
         {tier.features.length ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
-            {tier.features.map((f) => (
-              <div key={f} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 14, color: 'var(--text-body)', lineHeight: 1.5 }}>
-                <i className="ti ti-check" style={{ fontSize: 17, color: 'var(--text-accent)', flex: 'none', marginTop: 1 }} />
-                <span>{f}</span>
-              </div>
-            ))}
+            {tier.features.map((f) => {
+              const info = glossaryFor(f)
+              return (
+                <div key={f} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 14, color: 'var(--text-body)', lineHeight: 1.5 }}>
+                  <i className="ti ti-check" style={{ fontSize: 17, color: 'var(--text-accent)', flex: 'none', marginTop: 1 }} />
+                  <span>
+                    {f}
+                    {info ? <InfoTooltip text={info} label={f} /> : null}
+                  </span>
+                </div>
+              )
+            })}
           </div>
         ) : null}
         {cta}

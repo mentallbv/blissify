@@ -40,8 +40,8 @@ export const TIERS: Tier[] = [
     monthlyPrice: 97,
     annualPrice: 970,
     price: '€ 970',
-    desc: 'Onbeperkt publiceren met eigen branding, diepe inzichten en exclusieve zichtbaarheid.',
-    features: ['Alles uit Opleider Premium', 'Onbeperkt actieve opleidingen', 'Geavanceerde statistieken per opleiding', 'Vergelijking, evolutie en CTR', 'Prioritaire ranking en homepage-rotatie', 'Eigen branding en Ultimate badge'],
+    desc: 'Onbeperkt publiceren met diepe inzichten en exclusieve zichtbaarheid.',
+    features: ['Alles uit Opleider Premium', 'Onbeperkt actieve opleidingen', 'Geavanceerde statistieken per opleiding', 'Vergelijking, evolutie en CTR', 'Prioritaire ranking en homepage-rotatie', 'Ultimate badge'],
   },
 ]
 
@@ -51,7 +51,6 @@ export const COMPARE_ROWS: { feature: string; basis: string; medium: string; pre
   { feature: 'Basisstatistieken', basis: '–', medium: 'Ja', premium: 'Ja' },
   { feature: 'Geavanceerde statistieken', basis: '–', medium: '–', premium: 'Ja' },
   { feature: 'Prioriteit in zoekresultaten', basis: '–', medium: '–', premium: 'Ja' },
-  { feature: 'Eigen branding', basis: '–', medium: '–', premium: 'Ja' },
   { feature: 'Homepage exposure', basis: '–', medium: '–', premium: 'Rotatie' },
   { feature: 'Ultimate badge', basis: '–', medium: '–', premium: 'Ja' },
 ]
@@ -170,7 +169,7 @@ export const BRAND_PRICING_FALLBACK: PricingData = {
       period: '/jaar',
       desc: 'Maximale zichtbaarheid, onbeperkt publiceren en prioritaire ondersteuning.',
       recommended: false,
-      features: ['Alles uit Partner Premium', 'Onbeperkte categorieën en opleidingen', 'Geavanceerde statistieken', 'Prioritaire ranking en homepage-rotatie', 'Productlanceringen extra uitlichten', 'Eigen branding en Ultimate badge', 'Co-branded opleidingen'],
+      features: ['Alles uit Partner Premium', 'Onbeperkte categorieën en opleidingen', 'Geavanceerde statistieken', 'Prioritaire ranking en homepage-rotatie', 'Productlanceringen extra uitlichten', 'Ultimate badge', 'Co-branded opleidingen'],
     },
   ],
   comparison: {
@@ -185,7 +184,7 @@ export const BRAND_PRICING_FALLBACK: PricingData = {
       { feature: 'Geavanceerde statistieken', v1: '–', v2: '–', v3: 'Ja' },
       { feature: 'Prioritaire ranking', v1: '–', v2: '–', v3: 'Ja' },
       { feature: 'Homepage-uitlichting', v1: '–', v2: '–', v3: 'Rotatie' },
-      { feature: 'Eigen branding en Ultimate badge', v1: '–', v2: '–', v3: 'Ja' },
+      { feature: 'Ultimate badge', v1: '–', v2: '–', v3: 'Ja' },
       { feature: 'Co-branded opleidingen', v1: '–', v2: '–', v3: 'Ja' },
     ],
   },

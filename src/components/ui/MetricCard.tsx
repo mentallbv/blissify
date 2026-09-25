@@ -1,8 +1,10 @@
 import React from 'react'
+import { InfoTooltip } from '@/components/site/InfoTooltip'
 
 /**
  * Dashboard metric card. Uppercase label, Freight Display value, optional
  * change indicator. `featured` paints the forest surface for the hero metric.
+ * `info` adds an (i) tooltip next to the label explaining what the metric means.
  */
 export function MetricCard({
   label,
@@ -10,12 +12,14 @@ export function MetricCard({
   change = null,
   changeTone = 'positive',
   featured = false,
+  info = null,
 }: {
   label: string
   value: string
   change?: string | null
   changeTone?: 'positive' | 'negative'
   featured?: boolean
+  info?: string | null
 }) {
   const onDark = featured
   const changeColor = changeTone === 'negative' ? 'var(--status-error)' : 'var(--status-success)'
@@ -46,6 +50,7 @@ export function MetricCard({
         }}
       >
         {label}
+        {info ? <InfoTooltip text={info} label={label} /> : null}
       </div>
       <div style={{ marginTop: 'auto', paddingTop: 'var(--space-4)' }}>
         <div

@@ -3,6 +3,7 @@
 import React from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { MERKEN_GROUPS, type MerkenFacets, type MerkenGroup } from '@/lib/merken-filters'
+import { CategoryPickerMenu } from './CategoryPickerMenu'
 
 /**
  * Envato-style filter bar for Merken & Leveranciers. A horizontal row of
@@ -11,7 +12,15 @@ import { MERKEN_GROUPS, type MerkenFacets, type MerkenGroup } from '@/lib/merken
  * both the homepage (quick access, navigates to /merken) and the /merken page.
  * The whole bar can be collapsed since not everyone needs the filters.
  */
-export function MerkenFilterBar({ facets, basePath = '/merken' }: { facets: MerkenFacets; basePath?: string }) {
+export function MerkenFilterBar({
+  facets,
+  basePath = '/merken',
+  groups = MERKEN_GROUPS,
+}: {
+  facets: MerkenFacets
+  basePath?: string
+  groups?: MerkenGroup[]
+}) {
   const router = useRouter()
   const sp = useSearchParams()
   const [openKey, setOpenKey] = React.useState<string | null>(null)
@@ -42,13 +51,13 @@ export function MerkenFilterBar({ facets, basePath = '/merken' }: { facets: Merk
 
   const clearAll = () => {
     const next = new URLSearchParams(Array.from(sp.entries()))
-    MERKEN_GROUPS.forEach((g) => next.delete(g.key))
+    groups.forEach((g) => next.delete(g.key))
     const qs = next.toString()
     router.push(qs ? `${basePath}?${qs}` : basePath, { scroll: false })
     setOpenKey(null)
   }
 
-  const totalActive = MERKEN_GROUPS.reduce((n, g) => n + getVals(g.key).length, 0)
+  const totalActive = groups.reduce((n, g) => n + getVals(g.key).length, 0)
   const count = (group: string, value: string) => facets[group]?.[value] ?? 0
 
   if (collapsed) {
@@ -61,7 +70,7 @@ export function MerkenFilterBar({ facets, basePath = '/merken' }: { facets: Merk
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-      {MERKEN_GROUPS.map((g) => {
+      {groups.map((g) => {
         const active = getVals(g.key)
         const open = openKey === g.key
         const isMega = g.ui === 'mega'
@@ -103,56 +112,66 @@ export function MerkenFilterBar({ facets, basePath = '/merken' }: { facets: Merk
                   border: '0.5px solid var(--border-hairline)',
                   borderRadius: 'var(--radius-md)',
                   boxShadow: '0 12px 34px rgba(26,46,37,0.12)',
-                  padding: isMega ? 20 : 8,
-                  width: isMega ? 520 : 240,
+                  padding: isMega ? 16 : 8,
+                  width: isMega ? 'auto' : 240,
                 }}
               >
-                <div style={isMega ? { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 20px' } : undefined}>
-                  {g.options.map((o) => {
-                    const on = active.includes(o.value)
-                    const n = count(g.key, o.value)
-                    return (
-                      <button
-                        key={o.value}
-                        type="button"
-                        onClick={() => toggle(g, o.value)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 10,
-                          width: '100%',
-                          textAlign: 'left',
-                          padding: '9px 10px',
-                          borderRadius: 'var(--radius-sm)',
-                          border: 'none',
-                          background: on ? 'var(--surface-page)' : 'transparent',
-                          cursor: 'pointer',
-                          fontFamily: 'var(--font-ui)',
-                          fontSize: 13,
-                          color: 'var(--text-strong)',
-                        }}
-                      >
-                        <span
+                {isMega ? (
+                  <CategoryPickerMenu
+                    options={g.options}
+                    selected={active}
+                    counts={facets[g.key]}
+                    multi={g.multi}
+                    onToggle={(v) => toggle(g, v)}
+                  />
+                ) : (
+                  <div>
+                    {g.options.map((o) => {
+                      const on = active.includes(o.value)
+                      const n = count(g.key, o.value)
+                      return (
+                        <button
+                          key={o.value}
+                          type="button"
+                          onClick={() => toggle(g, o.value)}
                           style={{
-                            width: 16,
-                            height: 16,
-                            flex: 'none',
-                            borderRadius: g.multi ? 4 : '50%',
-                            border: '0.5px solid ' + (on ? 'var(--blissify-forest)' : 'var(--border-strong)'),
-                            background: on ? 'var(--blissify-forest)' : 'transparent',
-                            display: 'inline-flex',
+                            display: 'flex',
                             alignItems: 'center',
-                            justifyContent: 'center',
+                            gap: 10,
+                            width: '100%',
+                            textAlign: 'left',
+                            padding: '9px 10px',
+                            borderRadius: 'var(--radius-sm)',
+                            border: 'none',
+                            background: on ? 'var(--surface-page)' : 'transparent',
+                            cursor: 'pointer',
+                            fontFamily: 'var(--font-ui)',
+                            fontSize: 13,
+                            color: 'var(--text-strong)',
                           }}
                         >
-                          {on ? <i className="ti ti-check" style={{ fontSize: 11, color: 'var(--blissify-chalk)' }} /> : null}
-                        </span>
-                        <span style={{ flex: 1 }}>{o.label}</span>
-                        <span style={{ color: 'var(--text-meta)', fontSize: 12 }}>({n})</span>
-                      </button>
-                    )
-                  })}
-                </div>
+                          <span
+                            style={{
+                              width: 16,
+                              height: 16,
+                              flex: 'none',
+                              borderRadius: g.multi ? 4 : '50%',
+                              border: '0.5px solid ' + (on ? 'var(--blissify-forest)' : 'var(--border-strong)'),
+                              background: on ? 'var(--blissify-forest)' : 'transparent',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
+                            {on ? <i className="ti ti-check" style={{ fontSize: 11, color: 'var(--blissify-chalk)' }} /> : null}
+                          </span>
+                          <span style={{ flex: 1 }}>{o.label}</span>
+                          <span style={{ color: 'var(--text-meta)', fontSize: 12 }}>({n})</span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
               </div>
             ) : null}
           </div>

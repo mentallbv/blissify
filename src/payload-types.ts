@@ -534,6 +534,7 @@ export interface Trainer {
   social?: {
     instagram?: string | null;
     facebook?: string | null;
+    tiktok?: string | null;
     linkedin?: string | null;
   };
   /**
@@ -1268,6 +1269,7 @@ export interface TrainersSelect<T extends boolean = true> {
     | {
         instagram?: T;
         facebook?: T;
+        tiktok?: T;
         linkedin?: T;
       };
   profileAccentColor?: T;

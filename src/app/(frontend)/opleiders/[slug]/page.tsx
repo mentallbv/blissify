@@ -5,6 +5,7 @@ import { SiteChrome, SectionHead } from '@/components/site/SiteChrome'
 import { TypeBadge, CourseCard, ButtonLink, Tag } from '@/components/ui'
 import { RichTextContent } from '@/components/site/RichTextContent'
 import { TrackPageView } from '@/components/site/TrackPageView'
+import { TrackedLink } from '@/components/site/TrackedLink'
 import { getProviderBySlug } from '@/lib/data'
 
 export const dynamic = 'force-dynamic'
@@ -29,16 +30,12 @@ export default async function ProviderProfilePage({ params }: Params) {
   // Several Belgian cities share their province's name (Antwerpen, Luik...);
   // showing both would read as "Antwerpen, Antwerpen".
   const place = [p.location, p.province && p.province !== p.location ? p.province : ''].filter(Boolean).join(', ')
-  // Medium+ perk: the provider's own accent colour replaces the site accent
-  // across their profile. Already tier-gated in getProviderBySlug.
-  const branding = p.accentColor ? ({ '--text-accent': p.accentColor } as React.CSSProperties) : undefined
-
   return (
     <SiteChrome>
       {p.id != null ? <TrackPageView kind="trainer" id={p.id} /> : null}
       {/* Dark header */}
-      <div style={branding}>
-      <header style={{ background: 'var(--surface-dark)', borderTop: `3px solid ${p.accentColor || 'var(--blissify-forest)'}` }}>
+      <div>
+      <header style={{ background: 'var(--surface-dark)', borderTop: '3px solid var(--blissify-forest)' }}>
         <div className="bl-container bl-provider-hero" style={{ paddingTop: 48, paddingBottom: 48, display: 'flex', gap: 24, alignItems: 'center' }}>
           <div style={{ width: 80, height: 80, borderRadius: 'var(--radius-md)', background: 'var(--surface-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: '0 0 80px', overflow: 'hidden' }}>
             {p.logo ? (
@@ -117,23 +114,30 @@ export default async function ProviderProfilePage({ params }: Params) {
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 20 }}>
               {([
-                ['ti-map-pin', place, ''],
-                ['ti-stack-2', `${p.courseCount} actieve ${p.courseCount === 1 ? 'opleiding' : 'opleidingen'}`, ''],
-                ['ti-world', p.website, p.website ? (p.website.startsWith('http') ? p.website : `https://${p.website}`) : ''],
-                ['ti-mail', p.email, p.email ? `mailto:${p.email}` : ''],
-                ['ti-phone', p.phone, p.phone ? `tel:${p.phone.replace(/\s/g, '')}` : ''],
-                ['ti-brand-instagram', p.social?.instagram, p.social?.instagram ? `https://instagram.com/${p.social.instagram.replace(/^@/, '')}` : ''],
-                ['ti-brand-facebook', p.social?.facebook, p.social?.facebook || ''],
-                ['ti-brand-linkedin', p.social?.linkedin, p.social?.linkedin || ''],
-              ] as [string, string, string][])
+                ['ti-map-pin', place, '', ''],
+                ['ti-stack-2', `${p.courseCount} actieve ${p.courseCount === 1 ? 'opleiding' : 'opleidingen'}`, '', ''],
+                ['ti-world', p.website, p.website ? (p.website.startsWith('http') ? p.website : `https://${p.website}`) : '', 'website_click'],
+                ['ti-mail', p.email, p.email ? `mailto:${p.email}` : '', ''],
+                ['ti-phone', p.phone, p.phone ? `tel:${p.phone.replace(/\s/g, '')}` : '', ''],
+                ['ti-brand-instagram', p.social?.instagram, p.social?.instagram ? `https://instagram.com/${p.social.instagram.replace(/^@/, '')}` : '', 'social_click'],
+                ['ti-brand-facebook', p.social?.facebook, p.social?.facebook || '', 'social_click'],
+                ['ti-brand-tiktok', p.social?.tiktok, p.social?.tiktok ? `https://tiktok.com/@${p.social.tiktok.replace(/^@/, '')}` : '', 'social_click'],
+                ['ti-brand-linkedin', p.social?.linkedin, p.social?.linkedin || '', 'social_click'],
+              ] as [string, string, string, string][])
                 .filter(([, text]) => Boolean(text))
-                .map(([ic, text, href]) => (
+                .map(([ic, text, href, track]) => (
                   <div key={text} style={{ display: 'flex', gap: 10, alignItems: 'center', fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-body)' }}>
                     <i className={'ti ' + ic} style={{ fontSize: 17, color: 'var(--text-meta)', flex: 'none' }} />
                     {href ? (
-                      <a href={href} target={href.startsWith('http') ? '_blank' : undefined} rel="noreferrer" style={{ color: 'var(--text-accent)', wordBreak: 'break-word' }}>
-                        {text}
-                      </a>
+                      track && href.startsWith('http') ? (
+                        <TrackedLink kind="trainer" entityId={p.id} type={track as 'website_click' | 'social_click'} href={href} target="_blank" rel="noreferrer" style={{ color: 'var(--text-accent)', wordBreak: 'break-word' }}>
+                          {text}
+                        </TrackedLink>
+                      ) : (
+                        <a href={href} target={href.startsWith('http') ? '_blank' : undefined} rel="noreferrer" style={{ color: 'var(--text-accent)', wordBreak: 'break-word' }}>
+                          {text}
+                        </a>
+                      )
                     ) : (
                       text
                     )}
