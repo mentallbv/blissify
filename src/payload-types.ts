@@ -358,7 +358,7 @@ export interface Brand {
   logo?: (number | null) | Media;
   coverImage?: (number | null) | Media;
   /**
-   * Maximaal vijf sfeer- of productfoto’s voor de publieke merkpagina.
+   * Maximaal tien sfeer-, product- of apparatuurfoto’s voor de publieke merkpagina.
    */
   gallery?:
     | {
@@ -526,6 +526,7 @@ export interface Trainer {
   location?: {
     city?: string | null;
     province?: string | null;
+    country?: ('be' | 'nl') | null;
     online?: boolean | null;
   };
   website?: string | null;
@@ -1259,6 +1260,7 @@ export interface TrainersSelect<T extends boolean = true> {
     | {
         city?: T;
         province?: T;
+        country?: T;
         online?: T;
       };
   website?: T;

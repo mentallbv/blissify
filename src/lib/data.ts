@@ -51,6 +51,7 @@ export type ProviderCardData = {
   speciality: string
   courseCount: number
   logo: string | null
+  type?: 'trainer' | 'brand'
   accentColor?: string | null
   /** Detail-page fields. Absent on card listings, which do not query them. */
   bio?: unknown
@@ -358,7 +359,9 @@ type TrainerCategoryIndex = {
   allCategories: { value: string; label: string; group?: string }[]
   /** trainerId -> every category slug it covers (the exact course category AND its main). */
   trainerSlugs: Map<number, Set<string>>
-  /** unique-trainer counts per slug (main and sub). */
+  /** brandId -> every category slug it covers via its published courses. */
+  brandSlugs: Map<number, Set<string>>
+  /** unique-provider (trainer + brand) counts per slug (main and sub). */
   counts: Record<string, number>
 }
 
@@ -399,32 +402,42 @@ async function getTrainerCategoryIndex(): Promise<TrainerCategoryIndex> {
   allCategories.sort((a, b) => a.label.localeCompare(b.label, 'nl-BE'))
 
   const trainerSlugs = new Map<number, Set<string>>()
-  const counted = new Map<string, Set<number>>() // slug -> unique trainerIds
-  const addCount = (slug: string, tid: number) => {
+  const brandSlugs = new Map<number, Set<string>>()
+  // Count unique providers (trainers AND brands) per slug; namespace the ids so
+  // a trainer and a brand with the same numeric id don't collide.
+  const counted = new Map<string, Set<string>>()
+  const addCount = (slug: string, key: string) => {
     if (!counted.has(slug)) counted.set(slug, new Set())
-    counted.get(slug)!.add(tid)
+    counted.get(slug)!.add(key)
   }
-  for (const course of courses.docs as unknown as { trainer?: number | { id: number } | null; category?: number | { id: number } | null }[]) {
-    const trainerId = typeof course.trainer === 'object' ? course.trainer?.id : course.trainer
+  const indexCourse = (ownerId: number, target: Map<number, Set<string>>, ns: string, categoryId: number) => {
+    const exactSlug = idToSlug.get(categoryId)
+    const mainSlug = idToMainSlug.get(categoryId)
+    if (!target.has(ownerId)) target.set(ownerId, new Set())
+    const set = target.get(ownerId)!
+    if (exactSlug) { set.add(exactSlug); addCount(exactSlug, `${ns}:${ownerId}`) }
+    if (mainSlug && mainSlug !== exactSlug) { set.add(mainSlug); addCount(mainSlug, `${ns}:${ownerId}`) }
+  }
+  for (const course of courses.docs as unknown as { trainer?: number | { id: number } | null; brand?: number | { id: number } | null; category?: number | { id: number } | null }[]) {
     const categoryId = typeof course.category === 'object' ? course.category?.id : course.category
-    if (!trainerId || !categoryId) continue
-    const exactSlug = idToSlug.get(categoryId as number)
-    const mainSlug = idToMainSlug.get(categoryId as number)
-    if (!trainerSlugs.has(trainerId as number)) trainerSlugs.set(trainerId as number, new Set())
-    const set = trainerSlugs.get(trainerId as number)!
-    if (exactSlug) { set.add(exactSlug); addCount(exactSlug, trainerId as number) }
-    if (mainSlug && mainSlug !== exactSlug) { set.add(mainSlug); addCount(mainSlug, trainerId as number) }
+    if (!categoryId) continue
+    const trainerId = typeof course.trainer === 'object' ? course.trainer?.id : course.trainer
+    const brandId = typeof course.brand === 'object' ? course.brand?.id : course.brand
+    if (trainerId) indexCourse(trainerId as number, trainerSlugs, 't', categoryId as number)
+    if (brandId) indexCourse(brandId as number, brandSlugs, 'b', categoryId as number)
   }
 
   const counts: Record<string, number> = {}
   for (const [slug, ids] of counted) counts[slug] = ids.size
 
-  return { mainCategories, allCategories, trainerSlugs, counts }
+  return { mainCategories, allCategories, trainerSlugs, brandSlugs, counts }
 }
 
 /** Opleiders = trainers. Maps a trainer doc to the shared provider-card shape. */
+const HERKOMST_TO_LAND: Record<string, string> = { belgisch: 'be', nederlands: 'nl' }
+
 export async function getProviderCards(
-  opts: { limit?: number; specialisatie?: string; specialisaties?: string[]; city?: string } | number = {},
+  opts: { limit?: number; specialisatie?: string; specialisaties?: string[]; city?: string; land?: string } | number = {},
 ): Promise<{ cards: ProviderCardData[]; isFallback: boolean }> {
   // Back-compat: a number used to mean `limit`.
   const o = typeof opts === 'number' ? { limit: opts } : opts
@@ -447,15 +460,17 @@ export async function getProviderCards(
     ])
     // Filter by specialisatie in memory: a trainer matches when any selected
     // main category is among the categories it teaches (derived from courses).
-    const filtered = specSlugs.length
+    const land = o.land === 'be' || o.land === 'nl' ? o.land : undefined
+    let filtered = specSlugs.length
       ? res.docs.filter((t) => {
           const slugs = index.trainerSlugs.get(t.id as number)
           return slugs ? specSlugs.some((s) => slugs.has(s)) : false
         })
       : res.docs
-    if (filtered.length === 0 && and.length === 0 && specSlugs.length === 0) throw new Error('empty')
+    // Country filter (client #11); a trainer without a set country counts as België.
+    if (land) filtered = filtered.filter((t) => ((t.location as { country?: string } | undefined)?.country || 'be') === land)
     const mainLabel = new Map(index.mainCategories.map((m) => [m.value, m.label]))
-    const cards = await Promise.all(
+    const trainerCards: ProviderCardData[] = await Promise.all(
       filtered.map(async (t) => {
         const courses = await payload.count({
           collection: 'courses',
@@ -472,10 +487,51 @@ export async function getProviderCards(
           speciality: firstMain || specLabel(t.specializations?.[0]),
           courseCount: courses.totalDocs,
           logo: mediaUrl(t.photo),
+          type: 'trainer' as const,
         }
       }),
     )
-    return { cards, isFallback: false }
+
+    // Brands that offer courses also belong in the opleiders list (client #10):
+    // they teach, so they appear here with their merk profile. Brands have no
+    // city, so a city filter excludes them.
+    const HERKOMST_LABEL: Record<string, string> = { belgisch: 'België', nederlands: 'Nederland', europees: 'Europa', internationaal: 'Internationaal' }
+    let brandCards: ProviderCardData[] = []
+    if (!o.city) {
+      const brandRes = await payload.find({ collection: 'brands', limit: 200, depth: 1 })
+      const brandFiltered = brandRes.docs.filter((b) => {
+        const slugs = index.brandSlugs.get(b.id as number)
+        if (!slugs) return false // only brands with ≥1 published course
+        if (specSlugs.length && !specSlugs.some((s) => slugs.has(s))) return false
+        if (land && HERKOMST_TO_LAND[(b as { herkomst?: string }).herkomst || ''] !== land) return false
+        return true
+      })
+      brandCards = await Promise.all(
+        brandFiltered.map(async (b) => {
+          const courses = await payload.count({
+            collection: 'courses',
+            where: { brand: { equals: b.id }, status: { equals: 'published' } } as never,
+          })
+          const slugs = index.brandSlugs.get(b.id as number)
+          const firstMain = slugs ? [...slugs].map((s) => mainLabel.get(s)).find(Boolean) : undefined
+          return {
+            slug: b.slug,
+            href: `/merken/${b.slug}`,
+            name: b.name,
+            initial: b.name[0],
+            location: HERKOMST_LABEL[(b as { herkomst?: string }).herkomst || ''] || 'België',
+            speciality: firstMain || 'Merk & Leverancier',
+            courseCount: courses.totalDocs,
+            logo: mediaUrl((b as { logo?: number | Media | null }).logo),
+            type: 'brand' as const,
+          }
+        }),
+      )
+    }
+
+    const cards = [...trainerCards, ...brandCards]
+    if (cards.length === 0 && and.length === 0 && specSlugs.length === 0 && !land) throw new Error('empty')
+    return { cards: limit ? cards.slice(0, limit) : cards, isFallback: false }
   } catch {
     const cards = FALLBACK_PROVIDERS.map(fallbackProvider)
     return { cards: limit ? cards.slice(0, limit) : cards, isFallback: true }
@@ -1112,9 +1168,12 @@ export async function getTrainerFilterOptions(): Promise<{ groups: MerkenGroup[]
       getTrainerCategoryIndex(),
     ])
     const cityCounts: Record<string, number> = {}
+    const landCounts: Record<string, number> = {}
     res.docs.forEach((t) => {
       const city = t.location?.city
       if (city) cityCounts[city] = (cityCounts[city] || 0) + 1
+      const country = (t.location as { country?: string } | undefined)?.country || 'be'
+      landCounts[country] = (landCounts[country] || 0) + 1
     })
     const cities = mergeLocations(Object.keys(cityCounts))
     const groups: MerkenGroup[] = [
@@ -1129,6 +1188,16 @@ export async function getTrainerFilterOptions(): Promise<{ groups: MerkenGroup[]
         options: index.allCategories,
       },
       {
+        key: 'land',
+        name: 'Land',
+        ui: 'dropdown',
+        multi: false,
+        options: [
+          { value: 'be', label: 'België' },
+          { value: 'nl', label: 'Nederland' },
+        ],
+      },
+      {
         key: 'locatie',
         name: 'Locatie',
         ui: 'dropdown',
@@ -1136,7 +1205,7 @@ export async function getTrainerFilterOptions(): Promise<{ groups: MerkenGroup[]
         options: cities.map((c) => ({ value: c, label: c })),
       },
     ]
-    return { groups, facets: { specialisatie: index.counts, locatie: cityCounts } }
+    return { groups, facets: { specialisatie: index.counts, locatie: cityCounts, land: landCounts } }
   } catch {
     return {
       groups: [

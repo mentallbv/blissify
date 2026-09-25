@@ -22,9 +22,10 @@ export default async function OpleidersPage({ searchParams }: { searchParams: SP
   const sp = await searchParams
   const specialisaties = many(sp.specialisatie)
   const city = one(sp.locatie) || undefined
+  const land = one(sp.land) || undefined
 
   const [{ cards }, opts] = await Promise.all([
-    getProviderCards({ specialisaties, city, limit: 48 }),
+    getProviderCards({ specialisaties, city, land, limit: 48 }),
     getTrainerFilterOptions(),
   ])
 
@@ -35,10 +36,10 @@ export default async function OpleidersPage({ searchParams }: { searchParams: SP
         <h1
           style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 48, letterSpacing: '-0.01em', color: 'var(--text-brand)', lineHeight: 1.1, margin: '14px 0 0', maxWidth: 760 }}
         >
-          Opleiders in België
+          Opleiders
         </h1>
         <p style={{ fontFamily: 'var(--font-ui)', fontSize: 16, lineHeight: 1.7, color: 'var(--text-body)', maxWidth: 640, margin: '20px 0 0' }}>
-          Ontdek beauty- en wellnessopleiders in heel België. Vergelijk hun profielen en opleidingen en
+          Ontdek beauty- en wellnessopleiders in België en Nederland. Vergelijk hun profielen en opleidingen en
           vraag rechtstreeks informatie aan.
         </p>
       </section>
@@ -51,7 +52,7 @@ export default async function OpleidersPage({ searchParams }: { searchParams: SP
         {cards.length ? (
           <div className="bl-grid-3">
             {cards.map((p) => (
-              <ProviderCard key={p.slug} {...p} />
+              <ProviderCard key={`${p.type || 'trainer'}:${p.slug}`} {...p} />
             ))}
           </div>
         ) : (

@@ -13,6 +13,7 @@ export function ProviderCard({
   speciality,
   courseCount,
   logo = null,
+  type = 'trainer',
 }: {
   href?: string
   name: string
@@ -21,6 +22,7 @@ export function ProviderCard({
   speciality: string
   courseCount: number
   logo?: string | null
+  type?: 'trainer' | 'brand'
 }) {
   return (
     <a href={href} className="bl-providercard" style={{ display: 'block', padding: 20 }}>
@@ -52,7 +54,7 @@ export function ProviderCard({
             {location} · {speciality}
           </p>
           <div style={{ marginTop: 8 }}>
-            <TypeBadge type="trainer" />
+            <TypeBadge type={type} />
           </div>
         </div>
       </div>

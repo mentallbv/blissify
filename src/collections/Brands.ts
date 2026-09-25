@@ -107,8 +107,8 @@ export const Brands: CollectionConfig = {
       name: 'gallery',
       type: 'array',
       label: 'Sfeerfoto’s',
-      maxRows: 5,
-      admin: { description: 'Maximaal vijf sfeer- of productfoto’s voor de publieke merkpagina.' },
+      maxRows: 10,
+      admin: { description: 'Maximaal tien sfeer-, product- of apparatuurfoto’s voor de publieke merkpagina.' },
       fields: [
         { name: 'image', type: 'upload', relationTo: 'media', required: true },
         { name: 'caption', type: 'text', label: 'Bijschrift' },

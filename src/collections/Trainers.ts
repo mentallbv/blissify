@@ -120,6 +120,15 @@ export const Trainers: CollectionConfig = {
       fields: [
         { name: 'city', type: 'text' },
         { name: 'province', type: 'text' },
+        {
+          name: 'country',
+          type: 'select',
+          defaultValue: 'be',
+          options: [
+            { label: 'België', value: 'be' },
+            { label: 'Nederland', value: 'nl' },
+          ],
+        },
         { name: 'online', type: 'checkbox', defaultValue: false },
       ],
     },

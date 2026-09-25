@@ -5,6 +5,11 @@ import { useRouter } from 'next/navigation'
 import { Input, Select, Button, FieldLabel } from '@/components/ui'
 import { ImageUploadField, type UploadedImage } from '@/components/dashboard/ImageUploadField'
 import { RichTextEditor } from '@/components/dashboard/RichTextEditor'
+import { MERKEN_GROUPS } from '@/lib/merken-filters'
+
+// Single source of truth: the exact category options used by the /merken filter,
+// so a partner's categories always match what visitors can filter on (client #8).
+const PRODUCTTYPE_OPTIONS = MERKEN_GROUPS.find((g) => g.key === 'producttype')?.options ?? []
 
 export function ProfileForm({
   initial,
@@ -13,6 +18,7 @@ export function ProfileForm({
     role: 'trainer' | 'brand'
     name: string
     city: string
+    country: string
     website: string
     email: string
     phone: string
@@ -23,9 +29,12 @@ export function ProfileForm({
     coverImage: UploadedImage
     partnerType: string
     origin: string
+    producttype: string[]
+    categoryLimit: number
     instagram: string
     facebook: string
     tiktok: string
+    gallery: { image: UploadedImage; caption: string }[]
     localPartners: { name: string; country: string; website: string }[]
   }
 }) {
@@ -40,6 +49,24 @@ export function ProfileForm({
     set('localPartners', v.localPartners.map((partner, itemIndex) => itemIndex === index ? { ...partner, [key]: value } : partner))
   const removePartner = (index: number) => set('localPartners', v.localPartners.filter((_, itemIndex) => itemIndex !== index))
 
+  // Gallery photos (client #9): up to 10 product/atmosphere photos on the
+  // public merk detail page.
+  const MAX_GALLERY = 10
+  const addPhoto = () => { if (v.gallery.length < MAX_GALLERY) set('gallery', [...v.gallery, { image: null, caption: '' }]) }
+  const updatePhoto = (index: number, patch: Partial<{ image: UploadedImage; caption: string }>) =>
+    set('gallery', v.gallery.map((g, i) => (i === index ? { ...g, ...patch } : g)))
+  const removePhoto = (index: number) => set('gallery', v.gallery.filter((_, i) => i !== index))
+
+  // Category (producttype) selection with the tier limit (Lite 1 / Premium 3 /
+  // Ultimate unlimited). Unlimited arrives as a large number (Infinity can't be
+  // JSON-serialised from the server component).
+  const unlimited = v.categoryLimit >= 999
+  const atCategoryLimit = !unlimited && v.producttype.length >= v.categoryLimit
+  const toggleCategory = (val: string) => {
+    if (v.producttype.includes(val)) set('producttype', v.producttype.filter((x) => x !== val))
+    else if (!atCategoryLimit) set('producttype', [...v.producttype, val])
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
@@ -51,7 +78,12 @@ export function ProfileForm({
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         // Images travel as relationship ids; they were uploaded on selection.
-        body: JSON.stringify({ ...v, photo: v.photo?.id ?? null, coverImage: v.coverImage?.id ?? null }),
+        body: JSON.stringify({
+          ...v,
+          photo: v.photo?.id ?? null,
+          coverImage: v.coverImage?.id ?? null,
+          gallery: v.gallery.filter((g) => g.image?.id).map((g) => ({ image: g.image?.id, caption: g.caption })),
+        }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data?.error || 'Opslaan mislukt.')
@@ -69,6 +101,12 @@ export function ProfileForm({
       <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: 28, display: 'flex', flexDirection: 'column', gap: 18 }}>
         <Input label={v.role === 'brand' ? 'Naam merk / leverancier' : 'Naam opleider'} value={v.name} onChange={(e) => set('name', e.target.value)} />
         <Input label="Locatie" value={v.city} onChange={(e) => set('city', e.target.value)} />
+        {v.role === 'trainer' ? (
+          <Select label="Land" value={v.country} onChange={(e) => set('country', e.target.value)} options={[
+            { value: 'be', label: 'België' },
+            { value: 'nl', label: 'Nederland' },
+          ]} />
+        ) : null}
         <Input label="Website" value={v.website} onChange={(e) => set('website', e.target.value)} />
         <Input label="E-mail" type="email" value={v.email} onChange={(e) => set('email', e.target.value)} />
         <Input label="Telefoon" value={v.phone} onChange={(e) => set('phone', e.target.value)} />
@@ -87,6 +125,41 @@ export function ProfileForm({
             value={v.coverImage}
             onChange={(image) => set('coverImage', image)}
           />
+        ) : null}
+
+        {v.role === 'brand' ? (
+          <div style={{ borderTop: '0.5px solid var(--border-hairline)', paddingTop: 18 }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12, marginBottom: 4 }}>
+              <FieldLabel>Foto&apos;s</FieldLabel>
+              <span style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-meta)' }}>{v.gallery.length} / {MAX_GALLERY}</span>
+            </div>
+            <p style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-meta)', margin: '0 0 12px' }}>
+              Toon je producten, apparatuur en sfeer op je merkpagina. Maximaal {MAX_GALLERY} foto&apos;s.
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              {v.gallery.map((g, i) => (
+                <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 12, alignItems: 'start' }}>
+                  <div>
+                    <ImageUploadField
+                      label={`Foto ${i + 1}`}
+                      hint="JPG, PNG, WebP of AVIF · max 5 MB"
+                      value={g.image}
+                      onChange={(image) => updatePhoto(i, { image })}
+                    />
+                    <div style={{ marginTop: 8 }}>
+                      <Input label="" placeholder="Bijschrift (optioneel)" value={g.caption} onChange={(e) => updatePhoto(i, { caption: e.target.value })} />
+                    </div>
+                  </div>
+                  <Button type="button" variant="ghost" size="sm" onClick={() => removePhoto(i)}>Verwijderen</Button>
+                </div>
+              ))}
+            </div>
+            {v.gallery.length < MAX_GALLERY ? (
+              <div style={{ marginTop: 12 }}>
+                <Button type="button" variant="ghost" size="sm" onClick={addPhoto}>Foto toevoegen</Button>
+              </div>
+            ) : null}
+          </div>
         ) : null}
 
         <div>
@@ -116,6 +189,37 @@ export function ProfileForm({
                 { value: 'europees', label: 'Europees' },
                 { value: 'internationaal', label: 'Internationaal' },
               ]} />
+            </div>
+
+            {/* Categorieën (producttype) — determine where the partner shows up in
+                the merken & leveranciers filters (client #8). Limited by tier. */}
+            <div style={{ borderTop: '0.5px solid var(--border-hairline)', paddingTop: 18 }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12 }}>
+                <FieldLabel>Categorieën</FieldLabel>
+                <span style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: atCategoryLimit ? 'var(--text-accent)' : 'var(--text-meta)' }}>
+                  {unlimited ? `${v.producttype.length} gekozen · onbeperkt` : `${v.producttype.length} / ${v.categoryLimit} gekozen`}
+                </span>
+              </div>
+              <p style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-meta)', margin: '2px 0 12px' }}>
+                Bepaalt bij welke zoekopdrachten en filters je verschijnt in Merken &amp; Leveranciers.
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                {PRODUCTTYPE_OPTIONS.map((o) => {
+                  const on = v.producttype.includes(o.value)
+                  const disabled = !on && atCategoryLimit
+                  return (
+                    <label key={o.value} style={{ display: 'flex', alignItems: 'center', gap: 9, cursor: disabled ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-ui)', fontSize: 13, color: disabled ? 'var(--text-meta)' : 'var(--text-body)', opacity: disabled ? 0.5 : 1 }}>
+                      <input type="checkbox" checked={on} disabled={disabled} onChange={() => toggleCategory(o.value)} style={{ accentColor: 'var(--blissify-forest)' }} />
+                      {o.label}
+                    </label>
+                  )
+                })}
+              </div>
+              {atCategoryLimit ? (
+                <p style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-meta)', margin: '10px 0 0' }}>
+                  Je hebt het maximum voor je abonnement bereikt. Upgrade voor meer categorieën.
+                </p>
+              ) : null}
             </div>
             <div style={{ borderTop: '0.5px solid var(--border-hairline)', paddingTop: 18 }}>
               <FieldLabel>Sociale kanalen</FieldLabel>

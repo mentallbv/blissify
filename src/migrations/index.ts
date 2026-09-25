@@ -14,6 +14,7 @@ import * as migration_20260826_partner_ultimate_course_features from './20260826
 import * as migration_20260924_trainer_social_tiktok from './20260924_trainer_social_tiktok';
 import * as migration_20260925_pricing_remove_branding from './20260925_pricing_remove_branding';
 import * as migration_20260925_taxonomy_to_client_list from './20260925_taxonomy_to_client_list';
+import * as migration_20260925_trainer_location_country from './20260925_trainer_location_country';
 
 export const migrations = [
   {
@@ -95,5 +96,10 @@ export const migrations = [
     up: migration_20260925_taxonomy_to_client_list.up,
     down: migration_20260925_taxonomy_to_client_list.down,
     name: '20260925_taxonomy_to_client_list',
+  },
+  {
+    up: migration_20260925_trainer_location_country.up,
+    down: migration_20260925_trainer_location_country.down,
+    name: '20260925_trainer_location_country',
   },
 ];

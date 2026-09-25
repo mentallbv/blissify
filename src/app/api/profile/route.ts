@@ -39,7 +39,15 @@ export async function PATCH(req: Request) {
       if (role === 'brand') data.name = body.name.trim()
       else data.displayName = body.name.trim()
     }
-    if (typeof body.city === 'string') data.location = { city: body.city }
+    if (typeof body.city === 'string' || typeof body.country === 'string') {
+      const cur = (doc as { location?: Record<string, unknown> }).location || {}
+      data.location = {
+        ...cur,
+        ...(typeof body.city === 'string' ? { city: body.city } : {}),
+        // Country only applies to opleiders (client #11); keep existing otherwise.
+        ...(role === 'trainer' && (body.country === 'be' || body.country === 'nl') ? { country: body.country } : {}),
+      }
+    }
     if (Array.isArray(body.specializations) && role === 'trainer') data.specializations = body.specializations
     if (Array.isArray(body.tags) && role === 'brand') data.tags = body.tags
     if (typeof body.website === 'string') data.website = body.website
@@ -78,12 +86,26 @@ export async function PATCH(req: Request) {
     if (role === 'brand') {
       const cover = mediaId(body.coverImage)
       if (cover !== undefined) data.coverImage = cover
+      // Gallery photos (client #9): up to 10 {image, caption} rows.
+      if (Array.isArray(body.gallery)) {
+        data.gallery = (body.gallery as { image?: unknown; caption?: unknown }[])
+          .map((g) => ({ image: mediaId(g.image), caption: typeof g.caption === 'string' ? g.caption.trim() : '' }))
+          .filter((g) => g.image != null)
+          .slice(0, 10)
+      }
     }
     if (role === 'brand') {
       const partnerTypes = ['productmerken', 'apparatuurmerken', 'groothandels_distributeurs', 'leveranciers']
       const origins = ['belgisch', 'nederlands', 'europees', 'internationaal']
       if (partnerTypes.includes(body.partnerType)) data.typePartner = body.partnerType
       if (origins.includes(body.origin)) data.herkomst = body.origin
+      // Categories that determine where the partner appears in the merken filters
+      // (client #8). Keep only known values; the Brands beforeChange hook enforces
+      // the per-tier category limit regardless of what the client sends.
+      if (Array.isArray(body.producttype)) {
+        const allowed = new Set(['skincare-huidverbetering', 'esthetische-technologie', 'make-up-pmu', 'wenkbrauwen-wimpers', 'manicure', 'pedicure', 'haarverzorging-scalp', 'massage-body', 'waxing-ontharing', 'wellness-holistisch', 'aromatherapie', 'praktijkinrichting-meubilair', 'praktijkbenodigdheden-instrumenten', 'hygiene-desinfectie', 'textiel-accessoires', 'business-salon'])
+        data.productType = (body.producttype as unknown[]).filter((x): x is string => typeof x === 'string' && allowed.has(x))
+      }
       data.social = {
         instagram: typeof body.instagram === 'string' ? body.instagram.trim() : '',
         facebook: typeof body.facebook === 'string' ? body.facebook.trim() : '',
