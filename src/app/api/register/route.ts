@@ -78,18 +78,25 @@ export async function POST(req: Request) {
     const baseSlug = slugify(name)
     const slug = `${baseSlug}-${String(user.id).slice(-6)}`
 
-    if (role === 'brand') {
-      await payload.create({
-        collection: 'brands',
-        data: { name, slug, owner: user.id } as never,
-        overrideAccess: true,
-      })
-    } else {
-      await payload.create({
-        collection: 'trainers',
-        data: { displayName: name, slug, owner: user.id } as never,
-        overrideAccess: true,
-      })
+    try {
+      if (role === 'brand') {
+        await payload.create({
+          collection: 'brands',
+          data: { name, slug, owner: user.id } as never,
+          overrideAccess: true,
+        })
+      } else {
+        await payload.create({
+          collection: 'trainers',
+          data: { displayName: name, slug, owner: user.id } as never,
+          overrideAccess: true,
+        })
+      }
+    } catch (profileErr) {
+      // Don't leave a login without a profile behind (it would also block a
+      // retry with "e-mailadres bestaat al"). Undo the user, then report.
+      await payload.delete({ collection: 'users', id: user.id, overrideAccess: true }).catch(() => {})
+      throw profileErr
     }
 
     return NextResponse.json({ ok: true, role })

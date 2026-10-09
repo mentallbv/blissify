@@ -2,6 +2,7 @@ import { headers as getHeaders } from 'next/headers'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import type { User, Trainer, Brand } from '@/payload-types'
+import { ensureProfile } from '@/lib/ensure-profile'
 
 export type Profile =
   | { kind: 'trainer'; doc: Trainer }
@@ -26,17 +27,10 @@ export async function getCurrentProfile(user: User | null): Promise<Profile> {
   if (role !== 'trainer' && role !== 'brand') return null
   try {
     const payload = await getPayload({ config: await config })
-    const collection = role === 'brand' ? 'brands' : 'trainers'
-    const res = await payload.find({
-      collection,
-      where: { owner: { equals: user.id } },
-      limit: 1,
-      depth: 1,
-      overrideAccess: true,
-    })
-    const doc = res.docs[0]
-    if (!doc) return null
-    return role === 'brand' ? { kind: 'brand', doc: doc as Brand } : { kind: 'trainer', doc: doc as Trainer }
+    // Creates the profile when the account has none (see ensureProfile).
+    const profile = await ensureProfile(payload, user as { id: number | string; role?: string; name?: string; email?: string })
+    if (!profile) return null
+    return role === 'brand' ? { kind: 'brand', doc: profile.doc as unknown as Brand } : { kind: 'trainer', doc: profile.doc as unknown as Trainer }
   } catch {
     return null
   }

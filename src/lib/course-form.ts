@@ -1,5 +1,6 @@
 import type { Payload } from 'payload'
 import { htmlToLexical } from '@/lib/richtext'
+import { ensureProfile } from '@/lib/ensure-profile'
 
 type AnyUser = { id: number | string; role?: string | null }
 
@@ -43,17 +44,10 @@ export async function resolveOwner(
 ): Promise<{ trainer: number } | { brand: number } | null> {
   const role = user.role
   if (role !== 'trainer' && role !== 'brand') return null
-  const collection = role === 'brand' ? 'brands' : 'trainers'
-  const res = await payload.find({
-    collection,
-    where: { owner: { equals: user.id } },
-    limit: 1,
-    depth: 0,
-    overrideAccess: true,
-  })
-  const doc = res.docs[0]
-  if (!doc) return null
-  return role === 'brand' ? { brand: doc.id as number } : { trainer: doc.id as number }
+  // Creates the profile when the account has none (see ensureProfile).
+  const profile = await ensureProfile(payload, user)
+  if (!profile) return null
+  return role === 'brand' ? { brand: profile.doc.id as number } : { trainer: profile.doc.id as number }
 }
 
 export function ownerWhereFromOwner(owner: { trainer?: number } | { brand?: number }): Record<string, unknown> {
