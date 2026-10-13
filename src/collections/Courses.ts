@@ -368,7 +368,7 @@ export const Courses: CollectionConfig = {
       name: 'price',
       type: 'group',
       fields: [
-        { name: 'amount', type: 'number' },
+        { name: 'amount', type: 'number', label: 'Prijs incl. btw', admin: { description: 'De prijs die de deelnemer betaalt, inclusief btw.' } },
         {
           name: 'currency',
           type: 'select',

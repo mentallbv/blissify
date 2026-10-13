@@ -396,11 +396,15 @@ export function CourseForm({
           />
         </div>
         <div className="bl-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, alignItems: 'end' }}>
-          <Input label="Prijs (€)" type="number" value={v.priceAmount} onChange={(e) => set('priceAmount', e.target.value)} />
+          <Input label="Prijs incl. btw (€)" type="number" value={v.priceAmount} onChange={(e) => set('priceAmount', e.target.value)} />
           <label style={{ display: 'flex', alignItems: 'center', gap: 10, height: 44, fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-body)' }}>
             <input type="checkbox" checked={v.priceOnRequest} onChange={(e) => set('priceOnRequest', e.target.checked)} />
             Prijs op aanvraag
           </label>
+        </div>
+        {/* Client round 2 #2.6: the course price is what visitors pay, so it is entered incl. btw. */}
+        <div style={{ fontFamily: 'var(--font-ui)', fontSize: 12, lineHeight: 1.5, color: 'var(--text-meta)', marginTop: -8 }}>
+          Vul de prijs in die de deelnemer betaalt, inclusief btw. Deze prijs wordt zo op je opleidingspagina getoond.
         </div>
         <div>
           <Input label="Inschrijf-URL (optioneel)" placeholder="https://..." value={v.externalUrl} onChange={(e) => set('externalUrl', e.target.value)} />

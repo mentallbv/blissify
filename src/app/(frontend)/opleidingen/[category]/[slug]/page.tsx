@@ -438,7 +438,7 @@ export default async function CourseDetailPage({ params }: Params) {
                 {v.price}
               </div>
               <div style={{ fontFamily: 'var(--font-ui)', fontSize: 'var(--type-sm)', color: 'var(--text-body)', margin: '6px 0 20px' }}>
-                incl. btw · {v.format}
+                {[v.price.startsWith('€') ? 'incl. btw' : null, v.format].filter(Boolean).join(' · ')}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {bookable ? (
