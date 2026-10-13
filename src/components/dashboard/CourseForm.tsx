@@ -134,6 +134,10 @@ export function CourseForm({
 
   // Client-side validation in Dutch. Flags the specific missing fields so the
   // form can draw a red border and show one clear message (client #5).
+  const [participantsMode, setParticipantsMode] = React.useState<'max' | 'na'>(
+    initial?.maximumParticipants || !initial?.title ? 'max' : 'na',
+  )
+
   function validate(): boolean {
     const errs: Record<string, string> = {}
     if (!v.title.trim()) errs.title = 'Vul een titel in.'
@@ -349,24 +353,28 @@ export function CourseForm({
           />
         </div>
         <div className="bl-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, alignItems: 'end' }}>
-          {v.privateOneToOne ? (
-            <div style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-meta)', height: 44, display: 'flex', alignItems: 'center' }}>
-              Eén-op-één: geen maximumaantal deelnemers nodig.
-            </div>
+          {/* One explicit choice so it's clear the field isn't required (client round 2 #2.4).
+              "Niet van toepassing" stores nothing and hides the row on the course page. */}
+          <Select
+            label="Deelnemers"
+            value={v.privateOneToOne ? 'private' : participantsMode}
+            onChange={(e) => {
+              const mode = e.target.value as 'max' | 'private' | 'na'
+              set('privateOneToOne', mode === 'private')
+              if (mode !== 'max') set('maximumParticipants', '')
+              setParticipantsMode(mode === 'private' ? 'max' : mode)
+            }}
+            options={[
+              { value: 'max', label: 'Maximum aantal deelnemers' },
+              { value: 'private', label: 'Privé / één-op-één' },
+              { value: 'na', label: 'Niet van toepassing' },
+            ]}
+          />
+          {!v.privateOneToOne && participantsMode === 'max' ? (
+            <Input label="Maximum deelnemers (optioneel)" type="number" min={1} value={v.maximumParticipants} onChange={(e) => set('maximumParticipants', e.target.value)} />
           ) : (
-            <Input label="Maximum deelnemers (optioneel)" type="number" value={v.maximumParticipants} onChange={(e) => set('maximumParticipants', e.target.value)} />
+            <div />
           )}
-          <label style={{ display: 'flex', alignItems: 'center', gap: 10, height: 44, fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-body)' }}>
-            <input
-              type="checkbox"
-              checked={v.privateOneToOne}
-              onChange={(e) => {
-                set('privateOneToOne', e.target.checked)
-                if (e.target.checked) set('maximumParticipants', '')
-              }}
-            />
-            Privé / één-op-één
-          </label>
         </div>
         <div className="bl-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           <Select label="Model meenemen" value={v.modelRequired} onChange={(e) => set('modelRequired', e.target.value)} options={[{ value: 'not_applicable', label: 'Niet van toepassing' }, { value: 'yes', label: 'Ja' }, { value: 'no', label: 'Nee' }]} />

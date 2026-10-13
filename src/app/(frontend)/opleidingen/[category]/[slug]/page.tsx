@@ -358,7 +358,7 @@ export default async function CourseDetailPage({ params }: Params) {
                   ['Type', ({ practice_training: 'Praktijktraining', online_course: 'Online cursus', live_course: 'Live cursus', coaching: 'Coachingsessie', workshop: 'Workshop', webinar: 'Webinar', event: 'Evenement' } as Record<string, string>)[v.courseType]],
                   ['Taal', v.languages],
                   ['Niveau', v.level],
-                  ['Deelnemers', v.privateOneToOne ? 'Privé / één-op-één' : v.maximumParticipants ? `Maximaal ${v.maximumParticipants}` : 'Niet vermeld'],
+                  ['Deelnemers', v.privateOneToOne ? 'Privé / één-op-één' : v.maximumParticipants ? `Maximaal ${v.maximumParticipants}` : 'Niet van toepassing'],
                   ['Model meenemen', v.modelRequired === 'yes' ? 'Ja' : v.modelRequired === 'no' ? 'Nee' : 'Niet van toepassing'],
                   ['Lunch voorzien', v.lunchProvided === 'yes' ? 'Ja' : v.lunchProvided === 'no' ? 'Nee' : 'Niet van toepassing'],
                   ['Accreditatie / erkenning', v.accreditation],
