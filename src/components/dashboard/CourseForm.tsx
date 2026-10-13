@@ -420,10 +420,6 @@ export function CourseForm({
         {showPartnerUltimateFeatures ? (
           <div style={{ borderTop: '1px solid var(--border-hairline)', paddingTop: 18, display: 'grid', gap: 14 }}>
             <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, color: 'var(--text-brand)' }}>Partner Ultimate</div>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 10, fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-body)' }}>
-              <input type="checkbox" checked={v.productLaunchHighlighted} onChange={(e) => set('productLaunchHighlighted', e.target.checked)} />
-              Productlancering extra uitlichten
-            </label>
             <Input label="Co-branding partner" placeholder="Naam van het samenwerkende merk" value={v.coBrandPartner} onChange={(e) => set('coBrandPartner', e.target.value)} />
           </div>
         ) : null}

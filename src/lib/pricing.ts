@@ -169,7 +169,7 @@ export const BRAND_PRICING_FALLBACK: PricingData = {
       period: '/jaar',
       desc: 'Maximale zichtbaarheid, onbeperkt publiceren en prioritaire ondersteuning.',
       recommended: false,
-      features: ['Alles uit Partner Premium', 'Onbeperkte categorieën en opleidingen', 'Geavanceerde statistieken', 'Prioritaire ranking en homepage-rotatie', 'Productlanceringen extra uitlichten', 'Ultimate badge', 'Co-branded opleidingen'],
+      features: ['Alles uit Partner Premium', 'Onbeperkte categorieën en opleidingen', 'Geavanceerde statistieken', 'Prioritaire ranking en homepage-rotatie', 'Ultimate badge', 'Co-branded opleidingen'],
     },
   ],
   comparison: {

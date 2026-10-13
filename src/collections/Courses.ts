@@ -252,7 +252,8 @@ export const Courses: CollectionConfig = {
       name: 'productLaunchHighlighted',
       type: 'checkbox',
       defaultValue: false,
-      admin: { description: 'Productlancering extra uitlichten (alleen Partner Ultimate).' },
+      // Retired (client round 2 #2.12); kept in the schema so no data migration is needed.
+      admin: { hidden: true },
     },
     {
       name: 'coBrandPartner',

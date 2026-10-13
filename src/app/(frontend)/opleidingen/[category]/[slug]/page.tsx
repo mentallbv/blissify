@@ -265,13 +265,6 @@ export default async function CourseDetailPage({ params }: Params) {
                 </span>
               </div>
             ) : null}
-            {tierContext?.features.hasProductLaunchHighlighting && (course as { productLaunchHighlighted?: boolean } | null)?.productLaunchHighlighted ? (
-              <div style={{ marginTop: 8 }}>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, borderRadius: 'var(--radius-pill)', padding: '5px 11px', background: 'var(--text-accent)', color: 'white', fontFamily: 'var(--font-ui)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.09em' }}>
-                  <i className="ti ti-rocket" /> Productlancering
-                </span>
-              </div>
-            ) : null}
             <h1
               style={{
                 fontFamily: 'var(--font-display)',

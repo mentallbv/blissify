@@ -37,10 +37,6 @@ const ENTRIES: GlossaryEntry[] = [
     text: 'De categorieën waaronder je gevonden wordt in de filters. Je abonnement bepaalt hoeveel je er kunt kiezen.',
   },
   {
-    match: /productlanceringen extra uitlichten/i,
-    text: 'Nieuwe producten of apparatuur krijgen een extra uitgelichte plek op je merkpagina.',
-  },
-  {
     match: /vindbaar via (zoeken en filters|uitgebreide filters)/i,
     text: 'Je verschijnt in de zoekfunctie en kunt via de filters (categorie, locatie, type, …) teruggevonden worden.',
   },
