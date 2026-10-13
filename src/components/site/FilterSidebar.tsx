@@ -115,10 +115,14 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
   // subs via the query layer). Options carry the full taxonomy with each sub's
   // main as `group`.
   const catNameBySlug = React.useMemo(() => new Map(options.categories.map((c) => [c.slug, c.name])), [options.categories])
-  const pickerOptions = React.useMemo(
-    () => options.categories.map((c) => ({ value: c.slug, label: c.name, group: c.parentSlug ? catNameBySlug.get(c.parentSlug) : undefined })),
-    [options.categories, catNameBySlug],
-  )
+  // Client round 2 #3.3: main categories are no longer selectable; each sub
+  // already shows its main in small text. A main without subs stays selectable.
+  const pickerOptions = React.useMemo(() => {
+    const hasSubs = new Set(options.categories.map((c) => c.parentSlug).filter(Boolean))
+    return options.categories
+      .filter((c) => c.parentSlug || !hasSubs.has(c.slug))
+      .map((c) => ({ value: c.slug, label: c.name, group: c.parentSlug ? catNameBySlug.get(c.parentSlug) : undefined }))
+  }, [options.categories, catNameBySlug])
   const selectedCatLabel = current.categorie ? catNameBySlug.get(current.categorie) || 'Categorie' : 'Alle categorieën'
   const [catOpen, setCatOpen] = React.useState(false)
   const catRef = React.useRef<HTMLDivElement>(null)
