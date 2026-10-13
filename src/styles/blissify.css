@@ -970,6 +970,12 @@ a.bl-providercard:hover,
     max-height: none;
     overflow: visible;
   }
+  /* Client round 2 #3.2: a filter that leaves few results made the grid shorter
+     than the screen, so the sticky panel was pushed up with it and the page
+     "jumped". At least one screen of height keeps the panel where it was. */
+  .bl-listing-grid {
+    min-height: calc(100vh - 88px);
+  }
 }
 
 /* Search-card mode tabs: one row; the long label shortens when the card is narrow. */

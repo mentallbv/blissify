@@ -67,11 +67,24 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
     prijsMax: params.get('prijsMax') || '',
   }
 
+  // Client round 2 #3.2: when a filter leaves fewer results the page gets
+  // shorter, the browser pulls the scroll position back and the sticky panel
+  // jumped with it. Moving the page to where the results start first keeps the
+  // panel exactly where it is on screen (it is already pinned under the header
+  // there); only the results restart at the top.
+  const keepPanelInPlace = () => {
+    const grid = document.querySelector('.bl-listing-grid')
+    if (!grid || !window.matchMedia('(min-width: 861px)').matches) return
+    const pinnedAt = grid.getBoundingClientRect().top + window.scrollY - 88
+    if (window.scrollY > pinnedAt) window.scrollTo({ top: pinnedAt })
+  }
+
   const update = (key: string, value: string | null) => {
     const next = new URLSearchParams(params.toString())
     if (value === null || value === '') next.delete(key)
     else next.set(key, value)
     next.delete('page')
+    keepPanelInPlace()
     router.push(`${pathname}?${next.toString()}`, { scroll: false })
   }
   const toggleCsv = (key: 'doelgroep' | 'praktisch' | 'focus' | 'certificering', value: string) => {
@@ -126,7 +139,10 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
         <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 20, color: 'var(--text-brand)' }}>Filters</span>
         {hasActive ? (
-          <button type="button" onClick={() => router.push(pathname, { scroll: false })} style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-accent)' }}>
+          <button type="button" onClick={() => {
+            keepPanelInPlace()
+            router.push(pathname, { scroll: false })
+          }} style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-accent)' }}>
             Wissen
           </button>
         ) : null}
