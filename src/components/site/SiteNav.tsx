@@ -16,7 +16,9 @@ export function SiteNav({ user = null }: { user?: { name?: string | null; role?:
   const [mobileOpen, setMobileOpen] = React.useState(false)
 
   React.useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 48)
+    // Hysteresis: separate on/off thresholds so the bar doesn't flicker
+    // between states when the scroll position hovers around one value.
+    const onScroll = () => setScrolled((was) => (was ? window.scrollY > 24 : window.scrollY > 96))
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)

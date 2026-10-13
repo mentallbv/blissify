@@ -466,14 +466,32 @@ a.bl-providercard:hover,
 }
 
 /* --- Glass navigation (flat bar -> blurred pill on scroll) --- */
+/* The wrap keeps one fixed height in both states so page content never jumps;
+   only the inner bar morphs (and fades/slides) into the pill. */
 .blnav-wrap {
   position: sticky;
   top: 0;
   z-index: 50;
-}
-.blnav-wrap:not(.is-scrolled) {
+  min-height: 77px;
   background: var(--blissify-chalk);
   border-bottom: 0.5px solid var(--border-hairline);
+  transition:
+    background-color 0.45s cubic-bezier(0.22, 0.61, 0.36, 1),
+    border-color 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.blnav-wrap.is-scrolled {
+  background-color: transparent;
+  border-bottom-color: transparent;
+  pointer-events: none;
+}
+.blnav-wrap.is-scrolled .blnav-inner,
+.blnav-wrap.is-scrolled .blnav-mobile-menu {
+  pointer-events: auto;
+}
+@media (max-width: 780px) {
+  .blnav-wrap {
+    min-height: 65px;
+  }
 }
 .blnav-inner {
   display: flex;
@@ -484,17 +502,17 @@ a.bl-providercard:hover,
   padding: 18px 24px;
   border: 0.5px solid transparent;
   transition:
-    max-width 0.25s ease,
-    background 0.25s ease,
-    box-shadow 0.25s ease,
-    border-radius 0.25s ease,
-    padding 0.18s ease;
-}
-.blnav-wrap.is-scrolled {
-  padding: 10px 16px 0;
+    max-width 0.5s cubic-bezier(0.22, 0.61, 0.36, 1),
+    background-color 0.45s cubic-bezier(0.22, 0.61, 0.36, 1),
+    border-color 0.45s cubic-bezier(0.22, 0.61, 0.36, 1),
+    box-shadow 0.45s cubic-bezier(0.22, 0.61, 0.36, 1),
+    border-radius 0.45s cubic-bezier(0.22, 0.61, 0.36, 1),
+    padding 0.45s cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 .blnav-wrap.is-scrolled .blnav-inner {
   max-width: 920px;
+  transform: translateY(10px);
   background: rgba(225, 230, 234, 0.72);
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
@@ -820,6 +838,8 @@ a.bl-providercard:hover,
 
 @media (prefers-reduced-motion: reduce) {
   .bl-marquee-track,
+  .blnav-wrap,
+  .blnav-inner,
   .bl-faq-answer,
   .bl-faq-icon {
     animation-duration: 0.01ms !important;
