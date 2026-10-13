@@ -655,9 +655,7 @@ export interface Course {
   targetAudience?:
     | ('beginner-friendly' | 'intermediate' | 'expert-advanced' | 'professional-only' | 'startende-ondernemer')[]
     | null;
-  practical?:
-    | ('online' | 'praktijkopleiding' | 'een-dag' | 'meerdere-dagen' | 'op-locatie' | 'kleine-groepen')[]
-    | null;
+  practical?: ('online' | 'praktijkopleiding' | 'een-dag' | 'meerdere-dagen' | 'op-locatie')[] | null;
   focus?:
     | (
         | 'huidverbeterend'

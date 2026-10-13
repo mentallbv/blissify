@@ -23,7 +23,6 @@ const PRACTICAL = [
   { value: 'een-dag', label: '1-daagse opleiding' },
   { value: 'meerdere-dagen', label: 'Meerdere dagen' },
   { value: 'op-locatie', label: 'Op locatie' },
-  { value: 'kleine-groepen', label: 'Kleine groepen (<12)' },
 ]
 const FOCUS = [
   { value: 'huidverbeterend', label: 'Huidverbeterend' },

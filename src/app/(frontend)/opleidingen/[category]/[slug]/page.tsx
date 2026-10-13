@@ -67,7 +67,6 @@ const PRACTICAL_LABEL: Record<string, string> = {
   'een-dag': '1-daagse opleiding',
   'meerdere-dagen': 'Meerdere dagen',
   'op-locatie': 'Op locatie',
-  'kleine-groepen': 'Kleine groepen (<12)',
 }
 
 const FOCUS_LABEL: Record<string, string> = {
