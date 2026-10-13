@@ -127,8 +127,9 @@ export function SearchCard({
       {/* Top-level toggle: what are you looking for? */}
       <div
         role="tablist"
+        className="bl-mode-tabs"
         aria-label="Wat zoek je?"
-        style={{ display: 'flex', gap: 6, background: 'var(--surface-page, rgba(90, 105, 124,0.04))', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-pill)', padding: 4, marginBottom: 18, flexWrap: 'wrap' }}
+        style={{ display: 'flex', gap: 6, background: 'var(--surface-page, rgba(90, 105, 124,0.04))', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-pill)', padding: 4, marginBottom: 18, flexWrap: 'nowrap' }}
       >
         {MODE_ORDER.map((m) => {
           const active = m === mode
@@ -155,7 +156,13 @@ export function SearchCard({
                 transition: 'background 0.14s ease, color 0.14s ease',
               }}
             >
-              {MODES[m].label}
+              {m === 'merken' ? (
+                <>
+                  Merken<span className="bl-hide-narrow"> &amp; leveranciers</span>
+                </>
+              ) : (
+                MODES[m].label
+              )}
             </button>
           )
         })}

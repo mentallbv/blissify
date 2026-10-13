@@ -955,6 +955,28 @@ a.bl-providercard:hover,
   }
 }
 
+/* Search-card mode tabs: one row; the long label shortens when the card is narrow. */
+.bl-mode-tabs {
+  container-type: inline-size;
+}
+@container (max-width: 400px) {
+  .bl-hide-narrow {
+    display: none;
+  }
+}
+
+/* Homepage hero: on phones the two "Vind" buttons share one row, equal width. */
+@media (max-width: 480px) {
+  .bl-hero-ctas {
+    flex-wrap: nowrap !important;
+  }
+  .bl-hero-ctas > .bl-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 0 10px;
+  }
+}
+
 /* Hero split (text + search card) */
 .bl-hero-split {
   display: grid;

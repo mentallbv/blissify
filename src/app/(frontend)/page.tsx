@@ -109,7 +109,7 @@ export default async function HomePage() {
               </p>
               {/* Two equal "find" actions (opleidingen + merken, client feedback round 2 #1.2).
                   Provider actions live in the nav and on /voor-aanbieders. */}
-              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 30 }}>
+              <div className="bl-hero-ctas" style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 30 }}>
                 <ButtonLink href={hero.primaryCtaUrl || '/opleidingen'} variant="primary">
                   {hero.primaryCtaLabel || 'Vind een opleiding'}
                 </ButtonLink>
