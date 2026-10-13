@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { SiteChrome } from '@/components/site/SiteChrome'
 import { ProviderCard, Eyebrow } from '@/components/ui'
 import { MerkenFilterBar } from '@/components/site/MerkenFilterBar'
+import { NameSearch } from '@/components/site/NameSearch'
 import { getProviderCards, getTrainerFilterOptions } from '@/lib/data'
 
 export const dynamic = 'force-dynamic'
@@ -23,9 +24,10 @@ export default async function OpleidersPage({ searchParams }: { searchParams: SP
   const specialisaties = many(sp.specialisatie)
   const city = one(sp.locatie) || undefined
   const land = one(sp.land) || undefined
+  const q = one(sp.q).trim() || undefined
 
   const [{ cards }, opts] = await Promise.all([
-    getProviderCards({ specialisaties, city, land, limit: 48 }),
+    getProviderCards({ specialisaties, city, land, q, limit: 48 }),
     getTrainerFilterOptions(),
   ])
 
@@ -45,6 +47,9 @@ export default async function OpleidersPage({ searchParams }: { searchParams: SP
       </section>
 
       <section className="bl-container" style={{ paddingTop: 8, paddingBottom: 0 }}>
+        <div style={{ marginBottom: 16 }}>
+          <NameSearch basePath="/opleiders" placeholder="Zoek op naam van opleider of bedrijf" />
+        </div>
         <MerkenFilterBar facets={opts.facets} groups={opts.groups} basePath="/opleiders" />
       </section>
 

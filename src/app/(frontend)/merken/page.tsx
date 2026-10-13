@@ -2,6 +2,7 @@ import React from 'react'
 import type { Metadata } from 'next'
 import { SiteChrome } from '@/components/site/SiteChrome'
 import { Eyebrow, Avatar, TypeBadge } from '@/components/ui'
+import { NameSearch } from '@/components/site/NameSearch'
 import { MerkenFilterBar } from '@/components/site/MerkenFilterBar'
 import { getBrandCards, getMerkenFacets, type MerkenFilters } from '@/lib/data'
 
@@ -49,6 +50,9 @@ export default async function MerkenPage({ searchParams }: { searchParams: Promi
           Ontdek merken en leveranciers die samenwerken met professionele opleiders in de Belgische wellness- en beautysector.
         </p>
         <div style={{ marginTop: 24 }}>
+          <div style={{ marginBottom: 16 }}>
+            <NameSearch basePath="/merken" placeholder="Zoek op merk- of bedrijfsnaam" />
+          </div>
           <MerkenFilterBar facets={facets} basePath="/merken" />
         </div>
       </section>

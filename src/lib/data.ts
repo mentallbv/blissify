@@ -217,7 +217,14 @@ export async function getCourseCards(opts: CourseFilters = {}): Promise<{
     if (typeof opts.priceMax === 'number') and.push({ 'price.amount': { less_than_equal: opts.priceMax } })
     if (opts.keyword) {
       and.push({
-        or: [{ title: { like: opts.keyword } }, { shortDescription: { like: opts.keyword } }],
+        // Also match the opleider/merk name so a provider can be found by name
+        // from the hero search (client round 2 #1.3).
+        or: [
+          { title: { like: opts.keyword } },
+          { shortDescription: { like: opts.keyword } },
+          { 'trainer.displayName': { like: opts.keyword } },
+          { 'brand.name': { like: opts.keyword } },
+        ],
       })
     }
     if (opts.providerType === 'brand') and.push({ brand: { exists: true } })
@@ -452,7 +459,7 @@ export async function getBrandOptions(): Promise<{ value: number; label: string 
 }
 
 export async function getProviderCards(
-  opts: { limit?: number; specialisatie?: string; specialisaties?: string[]; city?: string; land?: string } | number = {},
+  opts: { limit?: number; specialisatie?: string; specialisaties?: string[]; city?: string; land?: string; q?: string } | number = {},
 ): Promise<{ cards: ProviderCardData[]; isFallback: boolean }> {
   // Back-compat: a number used to mean `limit`.
   const o = typeof opts === 'number' ? { limit: opts } : opts
@@ -464,6 +471,8 @@ export async function getProviderCards(
     const payload = await client()
     const and: Record<string, unknown>[] = []
     if (o.city) and.push({ 'location.city': { equals: o.city } })
+    // Name search (client round 2 #1.3): match the opleider's (company) name.
+    if (o.q) and.push({ displayName: { like: o.q } })
     const [res, index] = await Promise.all([
       payload.find({
         collection: 'trainers',
@@ -513,7 +522,12 @@ export async function getProviderCards(
     const HERKOMST_LABEL: Record<string, string> = { belgisch: 'België', nederlands: 'Nederland', europees: 'Europa', internationaal: 'Internationaal' }
     let brandCards: ProviderCardData[] = []
     if (!o.city) {
-      const brandRes = await payload.find({ collection: 'brands', limit: 200, depth: 1 })
+      const brandRes = await payload.find({
+        collection: 'brands',
+        where: (o.q ? { name: { like: o.q } } : undefined) as never,
+        limit: 200,
+        depth: 1,
+      })
       const brandFiltered = brandRes.docs.filter((b) => {
         const slugs = index.brandSlugs.get(b.id as number)
         if (!slugs) return false // only brands with ≥1 published course
