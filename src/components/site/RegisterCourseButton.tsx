@@ -69,7 +69,7 @@ export function RegisterCourseButton({ courseId, courseTitle }: { courseId: stri
           role="dialog"
           aria-modal="true"
           onClick={() => setOpen(false)}
-          style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(26,46,37,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
+          style={{ position: 'fixed', inset: 0, zIndex: 100, background: 'rgba(90, 105, 124,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
         >
           <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxWidth: 460, background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-lg)', padding: 28 }}>
             {done ? (

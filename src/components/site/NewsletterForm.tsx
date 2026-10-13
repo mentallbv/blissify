@@ -36,7 +36,7 @@ export function NewsletterForm() {
 
   if (status === 'done') {
     return (
-      <p style={{ fontFamily: 'var(--font-ui)', fontSize: 13, lineHeight: 1.6, color: 'rgba(245,240,234,0.85)', margin: 0 }}>
+      <p style={{ fontFamily: 'var(--font-ui)', fontSize: 13, lineHeight: 1.6, color: 'rgba(225, 230, 234,0.85)', margin: 0 }}>
         {message}
       </p>
     )
@@ -61,15 +61,15 @@ export function NewsletterForm() {
             height: 48,
             borderRadius: 'var(--radius-sm) 0 0 var(--radius-sm)',
             border: focused
-              ? '0.5px solid rgba(245,240,234,0.6)'
-              : '0.5px solid rgba(245,240,234,0.25)',
+              ? '0.5px solid rgba(225, 230, 234,0.6)'
+              : '0.5px solid rgba(225, 230, 234,0.25)',
             borderRight: 'none',
-            background: 'rgba(245,240,234,0.06)',
+            background: 'rgba(225, 230, 234,0.06)',
             color: 'var(--blissify-chalk)',
             padding: '0 16px',
             fontFamily: 'var(--font-ui)',
             fontSize: 15,
-            outline: focused ? '2px solid rgba(245,240,234,0.2)' : 'none',
+            outline: focused ? '2px solid rgba(225, 230, 234,0.2)' : 'none',
             outlineOffset: 2,
             transition: 'border-color 0.15s ease',
           }}

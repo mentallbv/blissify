@@ -144,12 +144,25 @@ export function CourseForm({
     setFieldErrors(errs)
     if (Object.keys(errs).length) {
       setError('Enkele verplichte velden ontbreken nog. Ze zijn hieronder rood aangeduid.')
-      const first = document.querySelector('[data-field-error="true"]')
-      if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      // The error elements don't exist until React re-renders, so the scroll
+      // runs in an effect keyed on this counter instead of right here.
+      setScrollTick((t) => t + 1)
       return false
     }
     return true
   }
+
+  // After a failed validation: scroll to the first red field and focus it.
+  const [scrollTick, setScrollTick] = React.useState(0)
+  React.useEffect(() => {
+    if (!scrollTick) return
+    const message = document.querySelector('[data-field-error="true"]') as HTMLElement | null
+    if (!message) return
+    message.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    const above = message.previousElementSibling as HTMLElement | null
+    const field = above?.matches('input,textarea,button') ? above : (above?.querySelector('input,textarea,button,[contenteditable="true"]') as HTMLElement | null)
+    field?.focus({ preventScroll: true })
+  }, [scrollTick])
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -175,10 +188,10 @@ export function CourseForm({
   }
 
   const card: React.CSSProperties = { background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: 28, display: 'flex', flexDirection: 'column', gap: 18, marginBottom: 20 }
-  const errBorder = (k: string): React.CSSProperties | undefined => (fieldErrors[k] ? { border: '1px solid var(--status-warning)' } : undefined)
+  const errBorder = (k: string): React.CSSProperties | undefined => (fieldErrors[k] ? { border: '1.5px solid var(--status-error)', background: 'var(--status-error-bg)' } : undefined)
   const clearErr = (k: string) => { if (fieldErrors[k]) setFieldErrors((s) => { const n = { ...s }; delete n[k]; return n }) }
   const FieldError = ({ k }: { k: string }) => (fieldErrors[k] ? (
-    <div data-field-error="true" style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--status-warning)', marginTop: 6 }}>{fieldErrors[k]}</div>
+    <div data-field-error="true" style={{ fontFamily: 'var(--font-ui)', fontSize: 12, fontWeight: 500, color: 'var(--status-error)', marginTop: 6 }}>{fieldErrors[k]}</div>
   ) : null)
 
   return (
@@ -216,7 +229,7 @@ export function CourseForm({
               <i className={`ti ti-chevron-${catOpen ? 'up' : 'down'}`} style={{ fontSize: 15, flex: 'none', color: 'var(--text-meta)' }} />
             </button>
             {catOpen ? (
-              <div style={{ position: 'absolute', top: 74, left: 0, zIndex: 50, background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', boxShadow: '0 12px 34px rgba(26,46,37,0.12)', padding: 16 }}>
+              <div style={{ position: 'absolute', top: 74, left: 0, zIndex: 50, background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', boxShadow: '0 12px 34px rgba(90, 105, 124,0.12)', padding: 16 }}>
                 <CategoryPickerMenu
                   options={catOptions}
                   selected={v.category ? [v.category] : []}
@@ -245,7 +258,7 @@ export function CourseForm({
         </div>
         <div>
           <FieldLabel>Volledige omschrijving</FieldLabel>
-          <div style={fieldErrors.description ? { border: '1px solid var(--status-warning)', borderRadius: 'var(--radius-sm)' } : undefined}>
+          <div style={fieldErrors.description ? { border: '1.5px solid var(--status-error)', background: 'var(--status-error-bg)', borderRadius: 'var(--radius-sm)' } : undefined}>
             <RichTextEditor
               value={v.description}
               onChange={(html) => { set('description', html); clearErr('description') }}

@@ -46,7 +46,7 @@ export function MetricCard({
           letterSpacing: 'var(--track-label)',
           lineHeight: 1.3,
           minHeight: '2.6em',
-          color: onDark ? 'rgba(245,240,234,0.6)' : 'var(--text-meta)',
+          color: onDark ? 'rgba(225, 230, 234,0.6)' : 'var(--text-meta)',
         }}
       >
         {label}
@@ -72,7 +72,7 @@ export function MetricCard({
               fontFamily: 'var(--font-ui)',
               fontWeight: 'var(--fw-ui-regular)',
               fontSize: 'var(--type-xs)',
-              color: onDark ? 'rgba(245,240,234,0.7)' : changeColor,
+              color: onDark ? 'rgba(225, 230, 234,0.7)' : changeColor,
             }}
           >
             {change}

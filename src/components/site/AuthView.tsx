@@ -1,4 +1,5 @@
 import React from 'react'
+import { Logo } from '@/components/ui/Logo'
 import { AuthForm } from './AuthForm'
 
 export function AuthView({
@@ -30,18 +31,18 @@ export function AuthView({
     <div className="bl-auth-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: '100vh' }}>
       {/* Forest brand panel */}
       <div style={{ background: 'var(--surface-dark)', padding: 56, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-        <a href="/" style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 26, letterSpacing: '-0.01em', color: 'var(--blissify-chalk)' }}>
-          Blissify
+        <a href="/" aria-label="Blissify home">
+          <Logo height={36} light />
         </a>
         <div>
           <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 44, lineHeight: 1.1, letterSpacing: '-0.01em', color: 'var(--blissify-chalk)', margin: 0, textWrap: 'balance' }}>
             Jouw praktijk begint hier.
           </h2>
-          <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 16, lineHeight: 1.7, color: 'rgba(245,240,234,0.7)', margin: '20px 0 0', maxWidth: 380 }}>
+          <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 16, lineHeight: 1.7, color: 'rgba(225, 230, 234,0.7)', margin: '20px 0 0', maxWidth: 380 }}>
             Beheer je opleidingen, ontvang directe leads en bereik duizenden professionals via het Blissify-dashboard.
           </p>
         </div>
-        <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 12, color: 'rgba(245,240,234,0.4)' }}>© 2026 Blissify · België</div>
+        <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 12, color: 'rgba(225, 230, 234,0.4)' }}>© 2026 Blissify · België</div>
       </div>
 
       {/* Form panel */}

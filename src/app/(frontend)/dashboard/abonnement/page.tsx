@@ -33,24 +33,24 @@ export default async function DashboardSubscriptionPage() {
 
       <div style={{ maxWidth: 640, marginBottom: 32 }}>
         <div style={{ background: 'var(--surface-dark)', borderRadius: 'var(--radius-md)', padding: 28 }}>
-          <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(245,240,234,0.6)', marginBottom: 12 }}>
+          <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(225, 230, 234,0.6)', marginBottom: 12 }}>
             Huidig abonnement
           </div>
           <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 16 }}>
             <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 36, letterSpacing: '-0.01em', color: 'var(--blissify-chalk)' }}>
               {(isBrand ? BRAND_TIER_LABEL[tier] : TIER_LABEL[tier]) || tier}
             </span>
-            <span style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'rgba(245,240,234,0.7)' }}>
+            <span style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'rgba(225, 230, 234,0.7)' }}>
               {STATUS_LABEL[status] || status}
               {expires ? ` · ${status === 'canceled' ? 'eindigt' : 'verlengt'} ${expires}` : ''}
             </span>
           </div>
-          <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'rgba(245,240,234,0.7)', margin: '16px 0 0' }}>
+          <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'rgba(225, 230, 234,0.7)', margin: '16px 0 0' }}>
             {counts.total} van {limitLabel} opleidingen gebruikt
           </p>
-          {u?.pendingSubscriptionTier && u.pendingSubscriptionEffectiveAt ? <p style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'rgba(245,240,234,0.85)', margin: '12px 0 0' }}>Wijzigt op {new Date(u.pendingSubscriptionEffectiveAt).toLocaleDateString('nl-BE')} naar {(isBrand ? BRAND_TIER_LABEL : TIER_LABEL)[u.pendingSubscriptionTier] || u.pendingSubscriptionTier}.</p> : null}
+          {u?.pendingSubscriptionTier && u.pendingSubscriptionEffectiveAt ? <p style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'rgba(225, 230, 234,0.85)', margin: '12px 0 0' }}>Wijzigt op {new Date(u.pendingSubscriptionEffectiveAt).toLocaleDateString('nl-BE')} naar {(isBrand ? BRAND_TIER_LABEL : TIER_LABEL)[u.pendingSubscriptionTier] || u.pendingSubscriptionTier}.</p> : null}
           {u?.subscriptionBillingCycle ? (
-            <p style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'rgba(245,240,234,0.6)', margin: '8px 0 0' }}>
+            <p style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'rgba(225, 230, 234,0.6)', margin: '8px 0 0' }}>
               {u.subscriptionBillingCycle === 'monthly' ? 'Maandelijks betaald' : 'Jaarlijks betaald'}
             </p>
           ) : null}

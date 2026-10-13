@@ -3,25 +3,49 @@
    Tokens + base canvas. Consumed once in the frontend root layout.
    ============================================================ */
 
-/* --- Webfonts: Freight Display Pro + Acumin Pro (Adobe Fonts/Typekit),
-   DM Sans (Google) as graceful sans fallback until Acumin loads. --- */
+/* --- Webfonts: Salsify (brand display serif, self-hosted) + Acumin Pro
+   (Adobe Fonts/Typekit), DM Sans (Google) as sans fallback until Acumin loads. --- */
 @import url('https://use.typekit.net/juo4ahh.css');
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
 
-:root {
-  /* --- Brand --- */
-  --blissify-forest: #1a2e25;
-  --blissify-chalk: #f5f0ea;
-  --blissify-terracotta: #c4795a;
+@font-face {
+  font-family: 'Salsify';
+  src: url('/fonts/salsify.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Salsify';
+  src: url('/fonts/salsify-italic.woff') format('woff');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
 
-  /* --- Neutral scale (warm) --- */
-  --neutral-50: #f5f0ea;
-  --neutral-100: #e8e3dc;
-  --neutral-200: #c9c4bc;
-  --neutral-400: #8a8880;
-  --neutral-600: #4a5568;
-  --neutral-700: #2c3440;
-  --neutral-900: #1a2e25;
+:root {
+  /* --- Brand palette (MENTALL rebrand, Oct 2026) --- */
+  --palette-slate: #5a697c;
+  --palette-mist: #e1e6ea;
+  --palette-rose: #b48173;
+  --palette-sand: #e6d7cc;
+  --palette-mauve: #7e7584;
+  --palette-lilac: #e6dae5;
+
+  /* Legacy role names, kept so every existing reference follows the palette. */
+  --blissify-forest: var(--palette-slate);
+  --blissify-chalk: var(--palette-mist);
+  --blissify-terracotta: var(--palette-rose);
+
+  /* --- Neutral scale (cool, slate-tinted) --- */
+  --neutral-50: var(--palette-mist);
+  --neutral-100: var(--palette-sand);
+  --neutral-200: #c8c2c9;
+  --neutral-400: var(--palette-mauve);
+  /* Body/heading text: darker slate so copy stays readable on mist. */
+  --neutral-600: #4a5666;
+  --neutral-700: #364150;
+  --neutral-900: var(--palette-slate);
 
   /* --- Surfaces --- */
   --surface-page: var(--blissify-chalk);
@@ -45,7 +69,7 @@
   --status-warning: #92400e;
   --status-error: #9b1c1c;
   --status-success-bg: #e8f0e8;
-  --status-neutral-bg: #e8e3dc;
+  --status-neutral-bg: var(--palette-lilac);
   --status-error-bg: #fcebeb;
 
   /* --- Button system --- */
@@ -53,8 +77,8 @@
   --btn-primary-fg: var(--blissify-chalk);
   --btn-accent-bg: var(--blissify-terracotta);
   --btn-accent-fg: #ffffff;
-  --btn-ghost-border: var(--blissify-forest);
-  --btn-ghost-fg: var(--blissify-forest);
+  --btn-ghost-border: var(--palette-rose);
+  --btn-ghost-fg: #9a6a5d;
   --btn-disabled-bg: var(--neutral-100);
   --btn-disabled-fg: var(--neutral-400);
 
@@ -65,7 +89,7 @@
   --badge-trainer-fg: var(--blissify-chalk);
 
   /* --- Families --- */
-  --font-display: 'freight-display-pro', Georgia, 'Times New Roman', serif;
+  --font-display: 'Salsify', 'freight-display-pro', Georgia, 'Times New Roman', serif;
   --font-ui: 'acumin-pro', 'DM Sans', system-ui, -apple-system, sans-serif;
 
   /* --- Weights --- */
@@ -170,7 +194,7 @@
   text-align: left;
   padding: 9px 11px;
   border-radius: var(--radius-md);
-  box-shadow: 0 10px 28px rgba(26, 46, 37, 0.22);
+  box-shadow: 0 10px 28px rgba(90, 105, 124, 0.22);
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.14s ease, transform 0.14s ease;
@@ -309,7 +333,7 @@ img {
 
 /* --- Newsletter form (footer) --- */
 .bl-newsletter-input::placeholder {
-  color: rgba(245, 240, 234, 0.4);
+  color: rgba(225, 230, 234, 0.4);
 }
 
 /* --- Card hover: border darkens only, nothing moves/lifts --- */
@@ -356,7 +380,7 @@ a.bl-providercard:hover,
   appearance: none;
   cursor: pointer;
   padding: 0 40px 0 16px;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%238a8880' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%237e7584' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 16px center;
 }
@@ -400,7 +424,7 @@ a.bl-providercard:hover,
   border-color: var(--btn-primary-bg);
 }
 .bl-btn--primary:hover {
-  background: #14241d;
+  background: #4a5868;
 }
 .bl-btn--accent {
   background: var(--btn-accent-bg);
@@ -408,7 +432,7 @@ a.bl-providercard:hover,
   border-color: var(--btn-accent-bg);
 }
 .bl-btn--accent:hover {
-  background: #b56a4c;
+  background: #a06f62;
 }
 .bl-btn--ghost {
   background: transparent;
@@ -417,16 +441,16 @@ a.bl-providercard:hover,
   font-weight: var(--fw-ui-regular);
 }
 .bl-btn--ghost:hover {
-  background: rgba(26, 46, 37, 0.04);
+  background: rgba(180, 129, 115, 0.08);
 }
 .bl-btn--ghost-dark {
   background: transparent;
   color: var(--blissify-chalk);
-  border-color: rgba(245, 240, 234, 0.4);
+  border-color: rgba(225, 230, 234, 0.4);
   font-weight: var(--fw-ui-regular);
 }
 .bl-btn--ghost-dark:hover {
-  background: rgba(245, 240, 234, 0.08);
+  background: rgba(225, 230, 234, 0.08);
 }
 .bl-textlink {
   font-family: var(--font-ui);
@@ -471,12 +495,12 @@ a.bl-providercard:hover,
 }
 .blnav-wrap.is-scrolled .blnav-inner {
   max-width: 920px;
-  background: rgba(245, 240, 234, 0.72);
+  background: rgba(225, 230, 234, 0.72);
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
-  border: 0.5px solid rgba(26, 46, 37, 0.1);
+  border: 0.5px solid rgba(90, 105, 124, 0.1);
   border-radius: var(--radius-pill);
-  box-shadow: 0 8px 30px rgba(26, 46, 37, 0.08);
+  box-shadow: 0 8px 30px rgba(90, 105, 124, 0.08);
   padding: 10px 14px 10px 22px;
 }
 .blnav-wm {
@@ -532,7 +556,7 @@ a.bl-providercard:hover,
   border: 0.5px solid var(--border-hairline);
   border-radius: var(--radius-sm);
   background: var(--surface-card);
-  box-shadow: 0 14px 36px rgba(28, 38, 31, 0.12);
+  box-shadow: 0 14px 36px rgba(90, 105, 124, 0.12);
 }
 .blnav-dropdown:hover .blnav-dropdown-menu,
 .blnav-dropdown:focus-within .blnav-dropdown-menu {
@@ -638,8 +662,8 @@ a.bl-providercard:hover,
     opacity: 0;
     border: 0.5px solid transparent;
     border-radius: var(--radius-md);
-    background: rgba(245, 240, 234, 0.98);
-    box-shadow: 0 18px 42px rgba(26, 46, 37, 0.14);
+    background: rgba(225, 230, 234, 0.98);
+    box-shadow: 0 18px 42px rgba(90, 105, 124, 0.14);
     transition: max-height 0.28s ease, padding 0.28s ease, opacity 0.2s ease, visibility 0.2s ease;
   }
   .blnav-mobile-menu.is-open {
@@ -745,7 +769,7 @@ a.bl-providercard:hover,
   font-weight: var(--fw-display-light);
   font-size: 56px;
   letter-spacing: -0.01em;
-  color: rgba(245, 240, 234, 0.16);
+  color: rgba(225, 230, 234, 0.16);
 }
 @keyframes bl-marquee {
   from {
@@ -770,8 +794,8 @@ a.bl-providercard:hover,
   transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
 }
 .bl-faq-item.is-open {
-  border-color: rgba(26, 46, 37, 0.2) !important;
-  box-shadow: 0 8px 24px rgba(26, 46, 37, 0.045);
+  border-color: rgba(90, 105, 124, 0.2) !important;
+  box-shadow: 0 8px 24px rgba(90, 105, 124, 0.045);
 }
 .bl-faq-answer {
   display: grid;

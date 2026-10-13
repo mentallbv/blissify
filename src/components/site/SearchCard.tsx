@@ -128,7 +128,7 @@ export function SearchCard({
       <div
         role="tablist"
         aria-label="Wat zoek je?"
-        style={{ display: 'flex', gap: 6, background: 'var(--surface-page, rgba(26,46,37,0.04))', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-pill)', padding: 4, marginBottom: 18, flexWrap: 'wrap' }}
+        style={{ display: 'flex', gap: 6, background: 'var(--surface-page, rgba(90, 105, 124,0.04))', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-pill)', padding: 4, marginBottom: 18, flexWrap: 'wrap' }}
       >
         {MODE_ORDER.map((m) => {
           const active = m === mode

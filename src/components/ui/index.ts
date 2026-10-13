@@ -13,3 +13,4 @@ export {
 export { CourseCard } from './CourseCard'
 export { ProviderCard } from './ProviderCard'
 export { MetricCard } from './MetricCard'
+export { Logo } from './Logo'

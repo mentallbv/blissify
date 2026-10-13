@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { Logo } from '@/components/ui/Logo'
 import { usePathname } from 'next/navigation'
 
 const LINKS = [
@@ -35,8 +36,8 @@ export function SiteNav({ user = null }: { user?: { name?: string | null; role?:
   return (
     <div className={'blnav-wrap' + (scrolled ? ' is-scrolled' : '')}>
       <div className="blnav-inner">
-        <a className="blnav-wm" href="/">
-          Blissify
+        <a className="blnav-wm" href="/" aria-label="Blissify home">
+          <Logo height={30} />
         </a>
         <nav className="blnav-links">
           {LINKS.map((l) => (

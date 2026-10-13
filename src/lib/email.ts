@@ -25,12 +25,12 @@ export function emailHtml(lines: string[]): string {
       if (l === '') return '<div style="height:12px"></div>'
       if (/^https?:\/\/\S+$/.test(l)) {
         const safeUrl = escapeHtml(l)
-        return `<p style="margin:20px 0"><a href="${safeUrl}" style="display:inline-block;background:#1A2E25;color:#fff;text-decoration:none;padding:12px 18px;border-radius:6px;font-size:14px">E-mailadres bevestigen</a></p>`
+        return `<p style="margin:20px 0"><a href="${safeUrl}" style="display:inline-block;background:#5A697C;color:#fff;text-decoration:none;padding:12px 18px;border-radius:6px;font-size:14px">E-mailadres bevestigen</a></p>`
       }
       return `<p style="margin:0 0 12px;font-size:15px;line-height:1.7;color:#2C3440">${escapeHtml(l)}</p>`
     })
     .join('')
-  return `<div style="font-family:Arial,Helvetica,sans-serif;background:#F5F0EA;padding:32px"><div style="max-width:520px;margin:0 auto;background:#fff;border:0.5px solid #E8E3DC;border-radius:8px;padding:32px"><div style="font-size:22px;letter-spacing:-0.01em;color:#1A2E25;margin-bottom:20px">Blissify</div>${body}</div></div>`
+  return `<div style="font-family:Arial,Helvetica,sans-serif;background:#E1E6EA;padding:32px"><div style="max-width:520px;margin:0 auto;background:#fff;border:0.5px solid #E6D7CC;border-radius:8px;padding:32px"><div style="font-size:22px;letter-spacing:-0.01em;color:#5A697C;margin-bottom:20px">Blissify</div>${body}</div></div>`
 }
 
 /** Sends one email. Returns true on success, false otherwise (never throws). */

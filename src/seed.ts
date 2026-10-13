@@ -272,7 +272,32 @@ const OPLEIDER_COURSES: CourseSeed[] = [
   { title: 'Lymfedrainage opleiding', ownerKey: 'ruben', categorySlug: 'lymfedrainage', price: 520, format: ['fysiek'], erkend: true },
 ]
 
+// The seed wipes every course, trainer, brand and category. Refuse to run it
+// against production; the prod Neon endpoint is ep-mute-sea.
+const PROD_DB_MARKER = 'ep-mute-sea'
+
+function assertNotProduction() {
+  const urls = [
+    process.env.DATABASE_URL,
+    process.env.POSTGRES_DATABASE_URL,
+    process.env.POSTGRES_URL,
+    process.env.POSTGRES_DATABASE_URL_UNPOOLED,
+    process.env.DATABASE_URL_UNPOOLED,
+  ]
+  const reason =
+    process.env.NODE_ENV === 'production' || process.env.VERCEL
+      ? 'NODE_ENV=production of VERCEL is gezet'
+      : urls.some((u) => u?.includes(PROD_DB_MARKER))
+        ? `de database-URL wijst naar productie (${PROD_DB_MARKER})`
+        : null
+  if (reason) {
+    console.error(`⛔ Seed geweigerd: ${reason}. De seed wist alle opleidingen, opleiders, merken en categorieën.`)
+    process.exit(1)
+  }
+}
+
 async function seed() {
+  assertNotProduction()
   const payload = await getPayload({ config })
   console.log('🌱 Seeding Blissify (tier + registration test dataset)...\n')
 

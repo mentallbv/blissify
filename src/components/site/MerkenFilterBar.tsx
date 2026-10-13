@@ -111,7 +111,7 @@ export function MerkenFilterBar({
                   background: 'var(--surface-card)',
                   border: '0.5px solid var(--border-hairline)',
                   borderRadius: 'var(--radius-md)',
-                  boxShadow: '0 12px 34px rgba(26,46,37,0.12)',
+                  boxShadow: '0 12px 34px rgba(90, 105, 124,0.12)',
                   padding: isMega ? 16 : 8,
                   width: isMega ? 'auto' : 240,
                 }}

@@ -89,7 +89,7 @@ export function PageBlocks({ blocks }: { blocks: Block[] }) {
                     {String(b.title || '')}
                   </h2>
                   {b.body ? (
-                    <p style={{ fontFamily: 'var(--font-ui)', fontSize: 16, lineHeight: 1.7, margin: '16px auto 28px', maxWidth: 480, color: dark ? 'rgba(245,240,234,0.7)' : 'var(--text-body)' }}>
+                    <p style={{ fontFamily: 'var(--font-ui)', fontSize: 16, lineHeight: 1.7, margin: '16px auto 28px', maxWidth: 480, color: dark ? 'rgba(225, 230, 234,0.7)' : 'var(--text-body)' }}>
                       {String(b.body)}
                     </p>
                   ) : null}

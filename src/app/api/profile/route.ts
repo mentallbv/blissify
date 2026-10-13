@@ -65,7 +65,7 @@ export async function PATCH(req: Request) {
       const value = body.accentColor.trim()
       if (!value) data.profileAccentColor = null
       else if (/^#[0-9a-f]{6}$/i.test(value)) data.profileAccentColor = value
-      else return NextResponse.json({ error: 'Gebruik een geldige hexkleur, bijvoorbeeld #1A2E25.' }, { status: 400 })
+      else return NextResponse.json({ error: 'Gebruik een geldige hexkleur, bijvoorbeeld #5A697C.' }, { status: 400 })
     }
 
     // Trainers have `photo`; brands use `logo` plus a wide `coverImage`.

@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { Logo } from '@/components/ui/Logo'
 import { Input, Select, Button, Tag } from '@/components/ui'
 import { PricingCard, type PricingCardTier } from '@/components/site/PricingCard'
 import { FormErrorCard } from '@/components/site/FormErrorCard'
@@ -151,8 +152,8 @@ export function OnboardingFlow({
     <>
       <header style={{ background: 'var(--blissify-chalk)', borderBottom: '0.5px solid var(--border-hairline)' }}>
         <div className="bl-container" style={{ height: 68, display: 'flex', alignItems: 'center' }}>
-          <a href="/" style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 24, letterSpacing: '-0.01em', color: 'var(--blissify-forest)' }}>
-            Blissify
+          <a href="/" aria-label="Blissify home">
+            <Logo height={30} />
           </a>
         </div>
       </header>

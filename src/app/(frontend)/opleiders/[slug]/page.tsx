@@ -51,13 +51,13 @@ export default async function ProviderProfilePage({ params }: Params) {
             <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 48, lineHeight: 1.1, letterSpacing: '-0.01em', color: 'var(--blissify-chalk)', margin: 0 }}>
               {p.name}
             </h1>
-            <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'rgba(245,240,234,0.7)', margin: '8px 0 12px' }}>
+            <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'rgba(225, 230, 234,0.7)', margin: '8px 0 12px' }}>
               {[place, p.speciality, p.online ? 'Ook online' : '']
                 .filter(Boolean)
                 .join(' · ')}
             </p>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-              <TypeBadge type="trainer" style={{ background: 'transparent', border: '1px solid rgba(245,240,234,0.45)' }} />
+              <TypeBadge type="trainer" style={{ background: 'transparent', border: '1px solid rgba(225, 230, 234,0.45)' }} />
               {p.hasPremiumBadge ? (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, borderRadius: 'var(--radius-pill)', padding: '5px 11px', background: 'var(--blissify-chalk)', color: 'var(--text-brand)', fontFamily: 'var(--font-ui)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.09em' }}>
                   <i className="ti ti-crown" /> Premium

@@ -47,7 +47,7 @@ export default async function MerkPage({ params }: Params) {
       <header
         style={{
           background: 'var(--surface-dark)',
-          backgroundImage: brand.cover ? `linear-gradient(rgba(26,46,37,0.72),rgba(26,46,37,0.72)), url(${brand.cover})` : 'none',
+          backgroundImage: brand.cover ? `linear-gradient(rgba(90, 105, 124,0.72),rgba(90, 105, 124,0.72)), url(${brand.cover})` : 'none',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
@@ -68,7 +68,7 @@ export default async function MerkPage({ params }: Params) {
               <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 48, lineHeight: 1.1, letterSpacing: '-0.01em', color: 'var(--blissify-chalk)', margin: 0 }}>
                 {brand.name}
               </h1>
-              <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'rgba(245,240,234,0.7)', margin: '8px 0 12px' }}>
+              <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'rgba(225, 230, 234,0.7)', margin: '8px 0 12px' }}>
                 {partnerType} · {origin}
               </p>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>

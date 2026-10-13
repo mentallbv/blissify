@@ -28,7 +28,7 @@ export function Listing({
           {/* Forest header */}
           <section style={{ background: 'var(--surface-dark)' }}>
             <div className="bl-container" style={{ paddingTop: 36, paddingBottom: 36 }}>
-              <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 'var(--type-label)', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(245,240,234,0.5)' }}>Zoekresultaten</span>
+              <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 'var(--type-label)', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(225, 230, 234,0.5)' }}>Zoekresultaten</span>
               <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 34, lineHeight: 1.1, letterSpacing: '-0.01em', color: 'var(--blissify-chalk)', margin: '8px 0 0' }}>
                 {title}
               </h1>

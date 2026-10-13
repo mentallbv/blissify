@@ -70,7 +70,7 @@ export function PricingDetailPage({
           <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 44, color: 'var(--blissify-chalk)', lineHeight: 1.1, margin: 0 }}>
             {data.bottomCta.title}
           </h2>
-          <p style={{ fontFamily: 'var(--font-ui)', fontSize: 16, lineHeight: 1.7, color: 'rgba(245,240,234,0.7)', margin: '16px auto 28px', maxWidth: 520 }}>
+          <p style={{ fontFamily: 'var(--font-ui)', fontSize: 16, lineHeight: 1.7, color: 'rgba(225, 230, 234,0.7)', margin: '16px auto 28px', maxWidth: 520 }}>
             {data.bottomCta.body}
           </p>
           <ButtonLink href={data.bottomCta.buttonUrl || '/registreren'} variant="accent">

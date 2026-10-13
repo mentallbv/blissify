@@ -89,7 +89,7 @@ export default async function HomePage() {
           position: 'relative',
           overflow: 'hidden',
           background:
-            'radial-gradient(120% 90% at 15% 0%, rgba(196,121,90,0.10), rgba(245,240,234,0) 55%), radial-gradient(120% 90% at 85% 5%, rgba(26,46,37,0.08), rgba(245,240,234,0) 55%), #F5F0EA',
+            'radial-gradient(120% 90% at 15% 0%, rgba(180, 129, 115,0.10), rgba(225, 230, 234,0) 55%), radial-gradient(120% 90% at 85% 5%, rgba(90, 105, 124,0.08), rgba(225, 230, 234,0) 55%), #E1E6EA',
         }}
       >
         <div className="bl-container bl-home-hero-inner" style={{ paddingTop: 88, paddingBottom: 80 }}>
@@ -107,15 +107,14 @@ export default async function HomePage() {
                 {hero.subtitle ||
                   'Vind professionele opleidingen in massage, nagelstyliste, reflexologie, yoga, voeding en beauty, overzichtelijk samengebracht door Blissify.'}
               </p>
-              <div style={{ display: 'flex', gap: 12, marginTop: 30, flexWrap: 'wrap' }}>
+              {/* Two equal "find" actions (opleidingen + merken, client feedback round 2 #1.2).
+                  Provider actions live in the nav and on /voor-aanbieders. */}
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginTop: 30 }}>
                 <ButtonLink href={hero.primaryCtaUrl || '/opleidingen'} variant="primary">
                   {hero.primaryCtaLabel || 'Vind een opleiding'}
                 </ButtonLink>
-                <ButtonLink href={hero.secondaryCtaUrl || '/voor-aanbieders'} variant="ghost">
-                  {hero.secondaryCtaLabel || 'Publiceer jouw opleiding'}
-                </ButtonLink>
-                <ButtonLink href={hero.tertiaryCtaUrl || '/registreren?type=brand'} variant="ghost">
-                  {hero.tertiaryCtaLabel || 'Zet je merk in de kijker'}
+                <ButtonLink href="/merken" variant="primary">
+                  Vind een merk
                 </ButtonLink>
               </div>
             </div>
@@ -177,9 +176,9 @@ export default async function HomePage() {
           </div>
           <div className="bl-cat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
             {darkCards.map((d: { icon?: string; title: string; body?: string }) => (
-              <div key={d.title} style={{ border: '0.5px solid rgba(245,240,234,0.12)', borderRadius: 'var(--radius-md)', padding: 32 }}>
+              <div key={d.title} style={{ border: '0.5px solid rgba(225, 230, 234,0.12)', borderRadius: 'var(--radius-md)', padding: 32 }}>
                 <div style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 24, color: 'var(--blissify-chalk)', lineHeight: 1.2, marginBottom: 12 }}>{d.title}</div>
-                <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 15, lineHeight: 1.65, color: 'rgba(245,240,234,0.72)', margin: 0 }}>{d.body}</p>
+                <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 15, lineHeight: 1.65, color: 'rgba(225, 230, 234,0.72)', margin: 0 }}>{d.body}</p>
               </div>
             ))}
           </div>
@@ -283,7 +282,7 @@ export default async function HomePage() {
             <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 15, lineHeight: 1.7, color: 'var(--text-body)', margin: '18px 0 24px' }}>
               Korte antwoorden op de belangrijkste vragen over Blissify en het platform.
             </p>
-            <ButtonLink href="/over-ons" variant="primary">
+            <ButtonLink href="/over-ons" variant="accent">
               Meer weten
             </ButtonLink>
           </div>

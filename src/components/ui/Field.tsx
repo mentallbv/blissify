@@ -5,6 +5,7 @@ import { FieldLabel } from './primitives'
 export function Input({
   label = null,
   icon = null,
+  style,
   ...rest
 }: {
   label?: React.ReactNode
@@ -29,7 +30,7 @@ export function Input({
             {icon}
           </span>
         ) : null}
-        <input className="bl-input" style={{ padding: icon ? '0 16px 0 42px' : '0 16px' }} {...rest} />
+        <input className="bl-input" {...rest} style={{ padding: icon ? '0 16px 0 42px' : '0 16px', ...style }} />
       </span>
     </label>
   )

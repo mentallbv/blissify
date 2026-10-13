@@ -60,7 +60,7 @@ export function CourseCard({
           {category}
         </span>
         <div style={{ position: 'absolute', right: 12, top: 12, display: 'flex', gap: 6 }}>
-          {featured ? <span style={{ borderRadius: 999, padding: '4px 8px', background: 'rgba(26,46,37,0.9)', color: '#fff', fontFamily: 'var(--font-ui)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Uitgelicht</span> : null}
+          {featured ? <span style={{ borderRadius: 999, padding: '4px 8px', background: 'rgba(90, 105, 124,0.9)', color: '#fff', fontFamily: 'var(--font-ui)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Uitgelicht</span> : null}
           {premium ? <span style={{ borderRadius: 999, padding: '4px 8px', background: 'var(--blissify-terracotta)', color: '#fff', fontFamily: 'var(--font-ui)', fontSize: 9, textTransform: 'uppercase', letterSpacing: '0.08em' }}>Premium</span> : null}
         </div>
       </div>

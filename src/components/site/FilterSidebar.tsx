@@ -146,7 +146,7 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
             <i className={`ti ti-chevron-${catOpen ? 'up' : 'down'}`} style={{ fontSize: 15, flex: 'none', color: 'var(--text-meta)' }} />
           </button>
           {catOpen ? (
-            <div style={{ position: 'absolute', top: 72, left: 0, zIndex: 50, background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', boxShadow: '0 12px 34px rgba(26,46,37,0.12)', padding: 16 }}>
+            <div style={{ position: 'absolute', top: 72, left: 0, zIndex: 50, background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', boxShadow: '0 12px 34px rgba(90, 105, 124,0.12)', padding: 16 }}>
               <CategoryPickerMenu
                 options={pickerOptions}
                 selected={current.categorie ? [current.categorie] : []}

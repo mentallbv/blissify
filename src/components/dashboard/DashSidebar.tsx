@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { Logo } from '@/components/ui/Logo'
 import { usePathname, useRouter } from 'next/navigation'
 
 const NAV = [
@@ -56,16 +57,10 @@ export function DashSidebar({
     >
       <a
         href="/"
-        style={{
-          padding: '24px 24px 28px',
-          fontFamily: 'var(--font-display)',
-          fontWeight: 'var(--fw-display-light)',
-          fontSize: 22,
-          letterSpacing: '-0.01em',
-          color: 'var(--blissify-chalk)',
-        }}
+        aria-label="Blissify home"
+        style={{ display: 'block', padding: '24px 24px 28px' }}
       >
-        Blissify
+        <Logo height={30} light />
       </a>
       <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2, padding: '0 12px' }}>
         {nav.map((n) => {
@@ -80,11 +75,11 @@ export function DashSidebar({
                 gap: 12,
                 padding: '10px 12px',
                 borderRadius: 'var(--radius-sm)',
-                background: on ? 'rgba(245,240,234,0.08)' : 'transparent',
+                background: on ? 'rgba(225, 230, 234,0.08)' : 'transparent',
                 fontFamily: 'var(--font-ui)',
                 fontWeight: 'var(--fw-ui-regular)',
                 fontSize: 14,
-                color: on ? 'var(--blissify-chalk)' : 'rgba(245,240,234,0.6)',
+                color: on ? 'var(--blissify-chalk)' : 'rgba(225, 230, 234,0.6)',
               }}
             >
               <i className={'ti ' + n.icon} style={{ fontSize: 18 }} />
@@ -94,13 +89,13 @@ export function DashSidebar({
           )
         })}
       </nav>
-      <div style={{ borderTop: '0.5px solid rgba(245,240,234,0.15)', padding: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div style={{ borderTop: '0.5px solid rgba(225, 230, 234,0.15)', padding: 16, display: 'flex', alignItems: 'center', gap: 12 }}>
         <span
           style={{
             width: 36,
             height: 36,
             borderRadius: 'var(--radius-sm)',
-            background: 'rgba(245,240,234,0.12)',
+            background: 'rgba(225, 230, 234,0.12)',
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -119,7 +114,7 @@ export function DashSidebar({
           <button
             type="button"
             onClick={logout}
-            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: 12, color: 'rgba(245,240,234,0.5)' }}
+            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: 12, color: 'rgba(225, 230, 234,0.5)' }}
           >
             Uitloggen
           </button>
