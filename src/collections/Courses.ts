@@ -359,6 +359,7 @@ export const Courses: CollectionConfig = {
             { label: 'Dagen', value: 'days' },
             { label: 'Weken', value: 'weeks' },
             { label: 'Maanden', value: 'months' },
+            { label: 'Modules', value: 'modules' },
           ],
         },
       ],

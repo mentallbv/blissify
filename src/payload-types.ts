@@ -642,7 +642,7 @@ export interface Course {
   };
   duration?: {
     value?: number | null;
-    unit?: ('hours' | 'days' | 'weeks' | 'months') | null;
+    unit?: ('hours' | 'days' | 'weeks' | 'months' | 'modules') | null;
   };
   price?: {
     amount?: number | null;

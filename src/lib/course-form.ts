@@ -66,7 +66,10 @@ export function ownsCourse(course: { trainer?: unknown; brand?: unknown }, owner
 /** Maps the form body to a Courses collection data object. */
 export async function buildCourseData(body: Record<string, unknown>): Promise<Record<string, unknown>> {
   const str = (v: unknown) => (typeof v === 'string' ? v.trim() : '')
+  // An empty field means "not set": Number('') is 0, which would fail min: 1
+  // validation (e.g. an empty "Maximum deelnemers" blocked saving).
   const num = (v: unknown) => {
+    if (v === null || v === undefined || (typeof v === 'string' && v.trim() === '')) return undefined
     const n = Number(v)
     return Number.isFinite(n) ? n : undefined
   }
@@ -81,13 +84,15 @@ export async function buildCourseData(body: Record<string, unknown>): Promise<Re
     certificate: Boolean(body.certificate),
     productLaunchHighlighted: Boolean(body.productLaunchHighlighted),
     coBrandPartner: str(body.coBrandPartner) || null,
-    courseType: str(body.courseType),
+    // An empty choice is not a valid option value; store "no type" instead.
+    courseType: str(body.courseType) || null,
     language: Array.isArray(body.language) ? body.language : ['nl'],
     targetAudience: Array.isArray(body.targetAudience) ? body.targetAudience : [],
     practical: Array.isArray(body.practical) ? body.practical : [],
     focus: Array.isArray(body.focus) ? body.focus : [],
     participants: {
-      maximum: num(body.maximumParticipants),
+      // null (not undefined) so clearing the field also clears a saved maximum.
+      maximum: num(body.maximumParticipants) ?? null,
       privateOneToOne: Boolean(body.privateOneToOne),
     },
     modelRequired: str(body.modelRequired) || 'not_applicable',
@@ -121,6 +126,8 @@ export async function buildCourseData(body: Record<string, unknown>): Promise<Re
   const durValue = num(body.durationValue)
   if (durValue !== undefined && str(body.durationUnit)) {
     data.duration = { value: durValue, unit: str(body.durationUnit) }
+  } else if ('durationValue' in body && durValue === undefined) {
+    data.duration = { value: null, unit: null }
   }
   if (typeof body.tags === 'string' && body.tags.trim()) {
     data.tags = body.tags

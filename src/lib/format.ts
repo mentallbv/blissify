@@ -1,10 +1,12 @@
 import type { Course } from '@/payload-types'
 
-const UNIT_NL: Record<string, string> = {
-  hours: 'uur',
-  days: 'dagen',
-  weeks: 'weken',
-  months: 'maanden',
+// [singular, plural]
+const UNIT_NL: Record<string, [string, string]> = {
+  hours: ['uur', 'uur'],
+  days: ['dag', 'dagen'],
+  weeks: ['week', 'weken'],
+  months: ['maand', 'maanden'],
+  modules: ['module', 'modules'],
 }
 
 const FORMAT_NL: Record<string, string> = {
@@ -24,7 +26,8 @@ export function formatPrice(price?: Course['price']): string {
 
 export function formatDuration(duration?: Course['duration']): string | null {
   if (!duration?.value || !duration.unit) return null
-  const unit = UNIT_NL[duration.unit] || duration.unit
+  const names = UNIT_NL[duration.unit]
+  const unit = names ? names[duration.value === 1 ? 0 : 1] : duration.unit
   return `${duration.value} ${unit}`
 }
 

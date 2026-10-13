@@ -391,6 +391,7 @@ export function CourseForm({
               { value: 'days', label: 'Dagen' },
               { value: 'weeks', label: 'Weken' },
               { value: 'months', label: 'Maanden' },
+              { value: 'modules', label: 'Modules' },
             ]}
           />
         </div>
