@@ -325,8 +325,11 @@ export async function getCourseFilterOptions(): Promise<CourseFilterOptions> {
       })),
       categoryCounts,
       cities: mergeLocations(Array.from(cities)),
-      priceMin: Number.isFinite(min) ? Math.floor(min) : 0,
-      priceMax: max > 0 ? Math.ceil(max) : 2000,
+      // A multiple of the slider step (50), so the slider can reach priceMax exactly.
+      priceMin: Number.isFinite(min) ? Math.floor(min / 50) * 50 : 0,
+      // Client round 2 #3.11: the slider runs to at least €2.500 (some
+      // specialised courses are expensive), rounded up to a step of 50.
+      priceMax: Math.max(2500, Math.ceil(max / 50) * 50),
     }
   } catch {
     return {
@@ -334,7 +337,7 @@ export async function getCourseFilterOptions(): Promise<CourseFilterOptions> {
       categoryCounts: {},
       cities: mergeLocations(),
       priceMin: 0,
-      priceMax: 2000,
+      priceMax: 2500,
     }
   }
 }

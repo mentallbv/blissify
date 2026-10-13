@@ -242,7 +242,14 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
       </div>
 
       <div style={{ marginBottom: 26 }}>
-        <div style={labelStyle}>Prijs (tot {Number(price).toLocaleString('nl-BE')} €)</div>
+        {/* Client round 2 #3.10/#3.12: Gratis belongs with the price, and course prices are incl. btw. */}
+        <div style={labelStyle}>
+          Prijs incl. btw ({Number(price) >= options.priceMax ? 'alle prijzen' : `tot € ${Number(price).toLocaleString('nl-BE')}`})
+        </div>
+        <label style={{ display: 'flex', alignItems: 'center', gap: 9, cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-body)', marginBottom: 12 }}>
+          <input type="checkbox" checked={current.gratis} onChange={() => update('gratis', current.gratis ? null : 'true')} />
+          Enkel gratis opleidingen
+        </label>
         <input
           type="range"
           min={options.priceMin}
@@ -254,7 +261,7 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
         />
         <div style={{ display: 'flex', justifyContent: 'space-between', fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--text-meta)' }}>
           <span>€ {options.priceMin.toLocaleString('nl-BE')}</span>
-          <span>€ {options.priceMax.toLocaleString('nl-BE')}</span>
+          <span>€ {options.priceMax.toLocaleString('nl-BE')}+</span>
         </div>
       </div>
 
@@ -278,7 +285,6 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
         {[
           ['nieuw', 'Nieuwe opleiding', current.nieuw],
           ['populair', 'Trending / populair', current.populair],
-          ['gratis', 'Gratis', current.gratis],
         ].map(([key, label, active]) => (
           <label key={String(key)} style={{ display: 'flex', alignItems: 'center', gap: 9, cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-body)' }}>
             <input type="checkbox" checked={Boolean(active)} onChange={() => update(String(key), active ? null : 'true')} />
