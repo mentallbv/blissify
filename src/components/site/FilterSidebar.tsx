@@ -66,8 +66,6 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
     focus: params.get('focus') || '',
     certificering: params.get('certificering') || '',
     erkend: params.get('erkend') === 'true',
-    nieuw: params.get('nieuw') === 'true',
-    populair: params.get('populair') === 'true',
     gratis: params.get('gratis') === 'true',
     prijsMax: params.get('prijsMax') || '',
   }
@@ -111,7 +109,7 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
     priceTimer.current = setTimeout(() => update('prijsMax', Number(v) >= options.priceMax ? null : v), 350)
   }
 
-  const hasAdvanced = Boolean(current.praktisch || current.focus || current.certificering || current.erkend || current.nieuw || current.populair || current.gratis || current.prijsMax)
+  const hasAdvanced = Boolean(current.praktisch || current.focus || current.certificering || current.erkend || current.gratis || current.prijsMax)
   const [moreOpen, setMoreOpen] = React.useState(hasAdvanced)
   const hasActive = Boolean(current.categorie || current.locatie || current.format || current.aanbieder || current.doelgroep || current.taal || hasAdvanced)
 
@@ -280,17 +278,6 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
           </button>
           <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 13, color: 'var(--text-body)' }}>Certificaat verstrekt</span>
         </label>
-      </div>
-      <div style={{ display: 'grid', gap: 10, marginTop: 22 }}>
-        {[
-          ['nieuw', 'Nieuwe opleiding', current.nieuw],
-          ['populair', 'Trending / populair', current.populair],
-        ].map(([key, label, active]) => (
-          <label key={String(key)} style={{ display: 'flex', alignItems: 'center', gap: 9, cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-body)' }}>
-            <input type="checkbox" checked={Boolean(active)} onChange={() => update(String(key), active ? null : 'true')} />
-            {String(label)}
-          </label>
-        ))}
       </div>
       </> : null}
     </aside>
