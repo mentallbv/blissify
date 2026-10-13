@@ -15,6 +15,12 @@ const AUDIENCES = [
   { value: 'intermediate', label: 'Intermediate' },
   { value: 'expert-advanced', label: 'Expert / Advanced' },
 ]
+// Client round 2 #3.9.
+const LANGUAGES = [
+  { value: 'nl', label: 'Nederlands' },
+  { value: 'fr', label: 'Frans' },
+  { value: 'en', label: 'Engels' },
+]
 const PRACTICAL = [
   { value: 'online', label: 'Online' },
   { value: 'praktijkopleiding', label: 'Praktijkopleiding' },
@@ -55,6 +61,7 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
     format: params.get('format') || '',
     aanbieder: params.get('aanbieder') || '',
     doelgroep: params.get('doelgroep') || '',
+    taal: params.get('taal') || '',
     praktisch: params.get('praktisch') || '',
     focus: params.get('focus') || '',
     certificering: params.get('certificering') || '',
@@ -85,7 +92,7 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
     keepPanelInPlace()
     router.push(`${pathname}?${next.toString()}`, { scroll: false })
   }
-  const toggleCsv = (key: 'doelgroep' | 'praktisch' | 'focus' | 'certificering', value: string) => {
+  const toggleCsv = (key: 'doelgroep' | 'taal' | 'praktisch' | 'focus' | 'certificering', value: string) => {
     const selected = current[key].split(',').filter(Boolean)
     const next = selected.includes(value) ? selected.filter((item) => item !== value) : [...selected, value]
     update(key, next.length ? next.join(',') : null)
@@ -106,7 +113,7 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
 
   const hasAdvanced = Boolean(current.praktisch || current.focus || current.certificering || current.erkend || current.nieuw || current.populair || current.gratis || current.prijsMax)
   const [moreOpen, setMoreOpen] = React.useState(hasAdvanced)
-  const hasActive = Boolean(current.categorie || current.locatie || current.format || current.aanbieder || current.doelgroep || hasAdvanced)
+  const hasActive = Boolean(current.categorie || current.locatie || current.format || current.aanbieder || current.doelgroep || current.taal || hasAdvanced)
 
   // Category picker (search + A-Z), shared with /opleiders and /merken. Single-
   // select here: the course `categorie` param is one slug (a main includes its
@@ -191,6 +198,11 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
       <div style={{ marginBottom: 26 }}>
         <div style={labelStyle}>Niveau &amp; doelgroep</div>
         <CheckOptions options={AUDIENCES} selected={current.doelgroep} onToggle={(value) => toggleCsv('doelgroep', value)} />
+      </div>
+
+      <div style={{ marginBottom: 26 }}>
+        <div style={labelStyle}>Taal van de opleiding</div>
+        <CheckOptions options={LANGUAGES} selected={current.taal} onToggle={(value) => toggleCsv('taal', value)} />
       </div>
 
       <div style={{ marginBottom: 26 }}>

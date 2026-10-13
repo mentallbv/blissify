@@ -171,6 +171,7 @@ export type CourseFilters = {
   targetAudiences?: string[]
   practical?: string[]
   focus?: string[]
+  languages?: string[]
   popular?: boolean
   free?: boolean
   newOnly?: boolean
@@ -232,6 +233,7 @@ export async function getCourseCards(opts: CourseFilters = {}): Promise<{
     if (opts.targetAudiences?.length) and.push({ targetAudience: { in: opts.targetAudiences } })
     if (opts.practical?.length) and.push({ practical: { in: opts.practical } })
     if (opts.focus?.length) and.push({ focus: { in: opts.focus } })
+    if (opts.languages?.length) and.push({ language: { in: opts.languages } })
     if (opts.popular) and.push({ popular: { equals: true } })
     if (opts.free) and.push({ 'price.isFree': { equals: true } })
     if (opts.newOnly) {

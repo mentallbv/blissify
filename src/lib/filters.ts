@@ -7,6 +7,7 @@ const one = (v: string | string[] | undefined): string => (Array.isArray(v) ? v[
 const SORTS: CourseSort[] = ['relevant', 'price-asc', 'recent']
 // Only values the DB enum knows; a stale link (e.g. the removed 'kleine-groepen')
 // would otherwise make the query fail.
+const LANGUAGE_VALUES = new Set(['nl', 'fr', 'en'])
 const AUDIENCE_VALUES = new Set(['beginner-friendly', 'intermediate', 'expert-advanced'])
 const PRACTICAL_VALUES = new Set(['online', 'praktijkopleiding', 'een-dag', 'meerdere-dagen', 'op-locatie'])
 const many = (value: string | string[] | undefined): string[] =>
@@ -28,6 +29,7 @@ export function parseCourseFilters(sp: SearchParams): CourseFilters {
     targetAudiences: many(sp.doelgroep).filter((v) => AUDIENCE_VALUES.has(v)),
     practical: many(sp.praktisch).filter((v) => PRACTICAL_VALUES.has(v)),
     focus: many(sp.focus),
+    languages: many(sp.taal).filter((v) => LANGUAGE_VALUES.has(v)),
     popular: one(sp.populair) === 'true' || undefined,
     free: one(sp.gratis) === 'true' || undefined,
     newOnly: one(sp.nieuw) === 'true' || undefined,
