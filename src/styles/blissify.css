@@ -955,6 +955,23 @@ a.bl-providercard:hover,
   }
 }
 
+/* Course filter panel (client round 2 #3.1): on desktop it scrolls on its own so
+   every filter is reachable without scrolling the whole results page. While the
+   category dropdown is open it must not clip it, so the limit is lifted. */
+@media (min-width: 861px) {
+  .bl-filter-panel {
+    max-height: calc(100vh - 104px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+  }
+  .bl-filter-panel.is-cat-open {
+    max-height: none;
+    overflow: visible;
+  }
+}
+
 /* Search-card mode tabs: one row; the long label shortens when the card is narrow. */
 .bl-mode-tabs {
   container-type: inline-size;

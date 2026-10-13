@@ -122,7 +122,7 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
   const selectStyle: React.CSSProperties = { height: 40, fontSize: 13 }
 
   return (
-    <aside style={{ position: 'sticky', top: 68, alignSelf: 'start', zIndex: catOpen ? 40 : 1, background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: '28px 24px' }}>
+    <aside className={'bl-filter-panel' + (catOpen ? ' is-cat-open' : '')} style={{ position: 'sticky', top: 88, alignSelf: 'start', zIndex: catOpen ? 40 : 1, background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: '28px 24px' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
         <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 20, color: 'var(--text-brand)' }}>Filters</span>
         {hasActive ? (
