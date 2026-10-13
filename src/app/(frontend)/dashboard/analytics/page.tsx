@@ -95,12 +95,12 @@ export default async function DashboardAnalyticsPage() {
 
       <div className="bl-dashboard-metrics" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 16, marginBottom: 24 }}>
         <MetricCard
-          label="Profielweergaven"
+          label={"Profiel\u00ADweergaven"}
           value={nf(totalViews)}
           info="Het totale aantal keren dat je profiel is bekeken. Elke weergave telt mee — bezoekers worden (nog) niet ontdubbeld tot unieke personen."
         />
         <MetricCard
-          label="Opleidingsweergaven"
+          label={"Opleidings\u00ADweergaven"}
           value={nf(courseViews.length)}
           info="Het totale aantal keren dat je opleidingspagina's zijn bekeken."
         />
@@ -110,17 +110,17 @@ export default async function DashboardAnalyticsPage() {
           info="Het aantal keer dat bezoekers via je profiel of een opleiding rechtstreeks informatie hebben aangevraagd."
         />
         <MetricCard
-          label="Websiteklikken"
+          label={"Website\u00ADklikken"}
           value={nf(websiteClicks)}
           info="Het aantal keer dat bezoekers op je websitelink klikten, op je profiel of op een opleiding."
         />
         <MetricCard
-          label="Socialklikken"
+          label={"Social\u00ADklikken"}
           value={nf(socialClicks)}
           info="Het aantal keer dat bezoekers op een van je socialmedialinks (Instagram, Facebook, TikTok) klikten."
         />
         <MetricCard
-          label="Conversieratio"
+          label={"Conversie\u00ADratio"}
           value={conversion}
           info="Het percentage weergaven dat leidt tot een aanvraag: aanvragen ÷ profielweergaven. Bijvoorbeeld 5 aanvragen op 100 weergaven = 5%."
         />
@@ -181,11 +181,11 @@ export default async function DashboardAnalyticsPage() {
                   <th style={cell}>Aanvragen</th>
                   <th style={cell}>
                     CTR
-                    <InfoTooltip text="Click-through ratio: het percentage weergaven van deze opleiding dat doorklikt naar je website of de inschrijving. Een streepje betekent nog geen weergaven." label="CTR" />
+                    <InfoTooltip text="Click-through ratio: het percentage weergaven van deze opleiding dat doorklikt naar je website of de inschrijving. Een streepje betekent nog geen weergaven." label="CTR" placement="below" />
                   </th>
                   <th style={cell}>
                     Trend
-                    <InfoTooltip text="Verandering in weergaven van de laatste 30 dagen t.o.v. de 30 dagen daarvoor." label="Trend" />
+                    <InfoTooltip text="Verandering in weergaven van de laatste 30 dagen t.o.v. de 30 dagen daarvoor." label="Trend" placement="below" align="end" />
                   </th>
                 </tr>
               </thead>

@@ -46,11 +46,15 @@ export function MetricCard({
           letterSpacing: 'var(--track-label)',
           lineHeight: 1.3,
           minHeight: '2.6em',
+          // Long Dutch compounds (client round 2 #4.1): labels carry soft
+          // hyphens; wrapping anywhere is the fallback so nothing overflows.
+          overflowWrap: 'anywhere',
+          hyphens: 'manual',
           color: onDark ? 'rgba(225, 230, 234,0.6)' : 'var(--text-meta)',
         }}
       >
         {label}
-        {info ? <InfoTooltip text={info} label={label} /> : null}
+        {info ? <InfoTooltip text={info} label={label.replace(/\u00AD/g, '')} /> : null}
       </div>
       <div style={{ marginTop: 'auto', paddingTop: 'var(--space-4)' }}>
         <div

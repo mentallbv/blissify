@@ -221,6 +221,48 @@
 .bl-info-pop {
   left: min(50%, calc(100vw - 130px));
 }
+/* Client round 2 #4.2: inside a scroll box (the analytics table) a bubble that
+   opens upwards is clipped away, so header markers open downwards. */
+.bl-info--below .bl-info-pop {
+  top: calc(100% + 9px);
+  bottom: auto;
+  transform: translateX(-50%) translateY(-4px);
+}
+.bl-info--below .bl-info-pop::after {
+  top: auto;
+  bottom: 100%;
+  border-top-color: transparent;
+  border-bottom-color: var(--blissify-forest);
+}
+.bl-info--below:hover .bl-info-pop,
+.bl-info--below:focus .bl-info-pop,
+.bl-info--below:focus-visible .bl-info-pop {
+  transform: translateX(-50%) translateY(0);
+}
+/* Right-aligned bubble for markers in the last column. */
+.bl-info--end .bl-info-pop {
+  left: auto;
+  right: -8px;
+  transform: translateY(4px);
+}
+.bl-info--end .bl-info-pop::after {
+  left: auto;
+  right: 10px;
+  transform: none;
+}
+.bl-info--end:hover .bl-info-pop,
+.bl-info--end:focus .bl-info-pop,
+.bl-info--end:focus-visible .bl-info-pop {
+  transform: translateY(0);
+}
+.bl-info--end.bl-info--below .bl-info-pop {
+  transform: translateY(-4px);
+}
+.bl-info--end.bl-info--below:hover .bl-info-pop,
+.bl-info--end.bl-info--below:focus .bl-info-pop,
+.bl-info--end.bl-info--below:focus-visible .bl-info-pop {
+  transform: translateY(0);
+}
 
 *,
 *::before,
