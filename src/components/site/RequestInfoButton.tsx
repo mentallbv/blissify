@@ -9,12 +9,15 @@ export function RequestInfoButton({
   courseSlug = '',
   providerEmail = '',
   providerName = '',
+  variant = 'primary',
 }: {
   courseId: string
   courseTitle: string
   courseSlug?: string
   providerEmail?: string
   providerName?: string
+  /** Ghost when a course link is the main action next to it. */
+  variant?: 'primary' | 'ghost'
 }) {
   const [open, setOpen] = React.useState(false)
   const [name, setName] = React.useState('')
@@ -46,7 +49,7 @@ export function RequestInfoButton({
 
   return (
     <>
-      <Button variant="primary" fullWidth onClick={() => setOpen(true)}>
+      <Button variant={variant} fullWidth onClick={() => setOpen(true)}>
         Vraag informatie aan
       </Button>
 

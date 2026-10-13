@@ -51,6 +51,7 @@ type DetailView = {
   practical: string[]
   focus: string[]
   accreditation: string
+  externalUrl?: string
 }
 
 const TARGET_AUDIENCE_LABEL: Record<string, string> = {
@@ -126,6 +127,8 @@ function viewFromCourse(c: Course): DetailView {
     lunchProvided: details.lunchProvided || 'not_applicable',
     startDates: details.startDates || [],
     contact: details.contact || {},
+    // Only real web links; anything else would render a broken button.
+    externalUrl: /^https?:\/\//i.test(c.externalUrl || '') ? (c.externalUrl as string) : undefined,
     description: c.description,
     targetAudience: labelsFor(c.targetAudience, TARGET_AUDIENCE_LABEL),
     practical: labelsFor(c.practical, PRACTICAL_LABEL),
@@ -444,13 +447,30 @@ export default async function CourseDetailPage({ params }: Params) {
                 {bookable ? (
                   <RegisterCourseButton courseId={courseRef} courseTitle={v.title} />
                 ) : (
+                  <>
+                  {v.externalUrl ? (
+                    // The opleider's own page to view, buy, book or register (client round 2 #2.7).
+                    <TrackedLink
+                      kind="course"
+                      entityId={courseRef}
+                      type="register_click"
+                      href={v.externalUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="bl-btn bl-btn--primary bl-btn--full"
+                    >
+                      Naar de opleiding <i className="ti ti-external-link" aria-hidden="true" />
+                    </TrackedLink>
+                  ) : null}
                   <RequestInfoButton
+                    variant={v.externalUrl ? 'ghost' : 'primary'}
                     courseId={courseRef}
                     courseTitle={v.title}
                     courseSlug={`${category}/${slug}`}
                     providerEmail={v.providerEmail}
                     providerName={v.provider}
                   />
+                  </>
                 )}
                 <Button variant="ghost" fullWidth>
                   Opleiding opslaan

@@ -467,8 +467,8 @@ export const Courses: CollectionConfig = {
     {
       name: 'externalUrl',
       type: 'text',
-      label: 'Externe inschrijvingslink',
-      admin: { description: 'URL naar de externe inschrijvingspagina (voor opleidingen zonder in-platform inschrijving).' },
+      label: 'Link naar opleiding of meer informatie',
+      admin: { description: 'Waar bezoekers de opleiding kunnen bekijken, aankopen, boeken of zich inschrijven. Wordt op de opleidingspagina getoond als knop "Naar de opleiding".' },
     },
     {
       // Set automatically by the beforeChange hook from the owning brand tier.

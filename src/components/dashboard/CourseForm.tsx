@@ -407,9 +407,9 @@ export function CourseForm({
           Vul de prijs in die de deelnemer betaalt, inclusief btw. Deze prijs wordt zo op je opleidingspagina getoond.
         </div>
         <div>
-          <Input label="Inschrijf-URL (optioneel)" placeholder="https://..." value={v.externalUrl} onChange={(e) => set('externalUrl', e.target.value)} />
+          <Input label="Link naar opleiding of meer informatie (optioneel)" placeholder="https://..." value={v.externalUrl} onChange={(e) => set('externalUrl', e.target.value)} />
           <div style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-meta)', marginTop: 6 }}>
-            Laat leeg als je geen aparte inschrijvingspagina hebt; bezoekers kunnen dan via e-mail contact opnemen.
+            Voeg hier de link toe waar bezoekers jouw opleiding kunnen bekijken, aankopen, boeken of zich kunnen inschrijven. Laat leeg als je die niet hebt; bezoekers kunnen dan via e-mail informatie aanvragen.
           </div>
         </div>
         <label style={{ display: 'flex', alignItems: 'center', gap: 10, fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-body)' }}>
