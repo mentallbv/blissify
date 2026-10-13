@@ -510,7 +510,7 @@ async function seed() {
       price: { amount: c.price, currency: 'EUR', isFree: false, priceOnRequest: false },
       language: ['nl'],
       level: c.price > 600 ? 'gevorderd' : 'beginner',
-      targetAudience: c.price > 600 ? ['expert-advanced', 'professional-only'] : ['beginner-friendly'],
+      targetAudience: c.price > 600 ? ['expert-advanced'] : ['beginner-friendly'],
       practical: isOnline
         ? ['online']
         : ['praktijkopleiding', idx % 3 === 0 ? 'meerdere-dagen' : 'een-dag', 'op-locatie'],

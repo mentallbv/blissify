@@ -14,8 +14,6 @@ const AUDIENCES = [
   { value: 'beginner-friendly', label: 'Beginner friendly' },
   { value: 'intermediate', label: 'Intermediate' },
   { value: 'expert-advanced', label: 'Expert / Advanced' },
-  { value: 'professional-only', label: 'Professional only' },
-  { value: 'startende-ondernemer', label: 'Startende ondernemer' },
 ]
 const PRACTICAL = [
   { value: 'online', label: 'Online' },

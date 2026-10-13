@@ -410,8 +410,6 @@ export const Courses: CollectionConfig = {
         { label: 'Beginner friendly', value: 'beginner-friendly' },
         { label: 'Intermediate', value: 'intermediate' },
         { label: 'Expert / Advanced', value: 'expert-advanced' },
-        { label: 'Professional only', value: 'professional-only' },
-        { label: 'Startende ondernemer', value: 'startende-ondernemer' },
       ],
     },
     {

@@ -588,9 +588,6 @@ export interface Course {
    * Uitgelicht in de directory
    */
   featured?: boolean | null;
-  /**
-   * Productlancering extra uitlichten (alleen Partner Ultimate).
-   */
   productLaunchHighlighted?: boolean | null;
   /**
    * Naam van het co-brandingmerk (alleen Partner Ultimate).
@@ -645,6 +642,9 @@ export interface Course {
     unit?: ('hours' | 'days' | 'weeks' | 'months' | 'modules') | null;
   };
   price?: {
+    /**
+     * De prijs die de deelnemer betaalt, inclusief btw.
+     */
     amount?: number | null;
     currency?: 'EUR' | null;
     isFree?: boolean | null;
@@ -652,9 +652,7 @@ export interface Course {
   };
   language?: ('nl' | 'fr' | 'en')[] | null;
   level?: ('beginner' | 'gevorderd' | 'expert' | 'all') | null;
-  targetAudience?:
-    | ('beginner-friendly' | 'intermediate' | 'expert-advanced' | 'professional-only' | 'startende-ondernemer')[]
-    | null;
+  targetAudience?: ('beginner-friendly' | 'intermediate' | 'expert-advanced')[] | null;
   practical?: ('online' | 'praktijkopleiding' | 'een-dag' | 'meerdere-dagen' | 'op-locatie')[] | null;
   focus?:
     | (
@@ -683,7 +681,7 @@ export interface Course {
     | null;
   accreditation?: string | null;
   /**
-   * URL naar de externe inschrijvingspagina (voor opleidingen zonder in-platform inschrijving).
+   * Waar bezoekers de opleiding kunnen bekijken, aankopen, boeken of zich inschrijven. Wordt op de opleidingspagina getoond als knop "Naar de opleiding".
    */
   externalUrl?: string | null;
   /**

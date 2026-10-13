@@ -316,7 +316,7 @@ export function CourseForm({
         <div>
           <FieldLabel>Niveau &amp; doelgroep</FieldLabel>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {[['beginner-friendly', 'Beginner friendly'], ['intermediate', 'Intermediate'], ['expert-advanced', 'Expert / Advanced'], ['professional-only', 'Professional only'], ['startende-ondernemer', 'Startende ondernemer']].map(([key, label]) => (
+            {[['beginner-friendly', 'Beginner friendly'], ['intermediate', 'Intermediate'], ['expert-advanced', 'Expert / Advanced']].map(([key, label]) => (
               <Tag key={key} as="button" active={v.targetAudience.includes(key)} onClick={() => toggleMany('targetAudience', key)}>{label}</Tag>
             ))}
           </div>

@@ -58,8 +58,6 @@ const TARGET_AUDIENCE_LABEL: Record<string, string> = {
   'beginner-friendly': 'Beginner friendly',
   intermediate: 'Intermediate',
   'expert-advanced': 'Expert / Advanced',
-  'professional-only': 'Professional only',
-  'startende-ondernemer': 'Startende ondernemer',
 }
 
 const PRACTICAL_LABEL: Record<string, string> = {
