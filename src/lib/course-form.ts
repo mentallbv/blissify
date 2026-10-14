@@ -180,7 +180,8 @@ export async function buildCourseData(body: Record<string, unknown>): Promise<Re
   } else if ('durationValue' in body && durValue === undefined) {
     data.duration = { value: null, unit: null }
   }
-  if (typeof body.tags === 'string' && body.tags.trim()) {
+  // An emptied field clears the keywords (it used to keep the old ones).
+  if (typeof body.tags === 'string') {
     data.tags = body.tags
       .split(',')
       .map((t) => t.trim())

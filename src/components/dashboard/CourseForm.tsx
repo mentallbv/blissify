@@ -510,7 +510,12 @@ export function CourseForm({
           </div>
           <FieldError k="certificationTypes" />
         </div>
-        <Input label="Trefwoorden (komma-gescheiden)" value={v.tags} onChange={(e) => set('tags', e.target.value)} />
+        <div>
+          <Input label="Trefwoorden (komma-gescheiden)" placeholder="bv. hot stone, ontspanning, rugmassage" value={v.tags} onChange={(e) => set('tags', e.target.value)} />
+          <div style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-meta)', marginTop: 6 }}>
+            Woorden waarop bezoekers je opleiding ook kunnen vinden via de zoekbalk.
+          </div>
+        </div>
         {partner ? (
           <div style={{ borderTop: '1px solid var(--border-hairline)', paddingTop: 18, display: 'grid', gap: 8 }}>
             {partner.options.length ? (

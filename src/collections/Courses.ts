@@ -620,7 +620,7 @@ export const Courses: CollectionConfig = {
       name: 'tags',
       type: 'text',
       hasMany: true,
-      admin: { description: 'Vrije trefwoorden voor zoeken' },
+      admin: { description: 'Trefwoorden: de opleiding is ook via deze woorden vindbaar in de zoekbalk.' },
     },
     ...seoFields,
   ],

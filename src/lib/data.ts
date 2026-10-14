@@ -237,6 +237,8 @@ export async function getCourseCards(opts: CourseFilters = {}): Promise<{
           { shortDescription: { like: opts.keyword } },
           { 'trainer.displayName': { like: opts.keyword } },
           { 'brand.name': { like: opts.keyword } },
+          // Trefwoorden count too (client round 2 #2.10).
+          { tags: { like: opts.keyword } },
         ],
       })
     }
