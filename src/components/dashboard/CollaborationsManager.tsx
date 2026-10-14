@@ -36,7 +36,7 @@ export function CollaborationsManager({
     if (res.ok) setRows(((await res.json()) as { rows: CollaborationRow[] }).rows)
   }
 
-  const act = async (id: number, action: 'accept' | 'decline' | 'remove', confirmText?: string) => {
+  const act = async (id: number, action: 'accept' | 'decline' | 'remove', confirmText?: string, doneText?: string) => {
     if (confirmText && !window.confirm(confirmText)) return
     setBusy(id)
     setError('')
@@ -51,7 +51,7 @@ export function CollaborationsManager({
       const json = (await res.json().catch(() => ({}))) as { error?: string }
       if (!res.ok) setError(json.error || 'Er ging iets mis.')
       else {
-        setNotice(action === 'accept' ? 'Samenwerking aanvaard.' : action === 'decline' ? 'Verzoek geweigerd.' : 'Samenwerking beëindigd.')
+        setNotice(doneText || (action === 'accept' ? 'Samenwerking aanvaard.' : action === 'decline' ? 'Verzoek geweigerd.' : 'Samenwerking beëindigd.'))
         await refresh()
       }
     } finally {
@@ -107,7 +107,7 @@ export function CollaborationsManager({
                     <Button size="sm" variant="ghost" disabled={busy === r.id} onClick={() => act(r.id, 'decline')}>Weigeren</Button>
                   </>
                 ) : (
-                  <Button size="sm" variant="ghost" disabled={busy === r.id} onClick={() => act(r.id, 'remove', `Verzoek aan ${r.partner.name} intrekken?`)}>Intrekken</Button>
+                  <Button size="sm" variant="ghost" disabled={busy === r.id} onClick={() => act(r.id, 'remove', `Verzoek aan ${r.partner.name} intrekken?`, 'Verzoek ingetrokken.')}>Intrekken</Button>
                 )}
               </PartnerRow>
             ))}
