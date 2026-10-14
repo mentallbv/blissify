@@ -17,6 +17,7 @@ export type CourseFormValues = {
   coverImage: UploadedImage
   externalUrl: string
   city: string
+  country: 'be' | 'nl'
   level: string
   accreditation: string
   certificate: boolean
@@ -55,6 +56,7 @@ const EMPTY: CourseFormValues = {
   coverImage: null,
   externalUrl: '',
   city: '',
+  country: 'be',
   level: '',
   accreditation: '',
   certificate: false,
@@ -339,8 +341,16 @@ export function CourseForm({
         </div>
         <div className="bl-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           <Input label="Stad" value={v.city} onChange={(e) => set('city', e.target.value)} />
-          {/* The level is the Niveau checkbox group above (client round 2 #2.1). */}
-          <div />
+          {/* Client round 2 #3.6: courses can also take place in Nederland. */}
+          <Select
+            label="Land"
+            value={v.country}
+            onChange={(e) => set('country', e.target.value as 'be' | 'nl')}
+            options={[
+              { value: 'be', label: 'België' },
+              { value: 'nl', label: 'Nederland' },
+            ]}
+          />
         </div>
         <div className="bl-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, alignItems: 'end' }}>
           {/* One explicit choice so it's clear the field isn't required (client round 2 #2.4).

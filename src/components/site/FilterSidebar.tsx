@@ -4,6 +4,7 @@ import React from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import type { CourseFilterOptions } from '@/lib/data'
 import { CategoryPickerMenu } from './CategoryPickerMenu'
+import { LocationSelect, encodeLocation, decodeLocation } from './LocationSelect'
 
 const FORMATS = [
   { value: 'fysiek', label: 'In-persoon' },
@@ -60,6 +61,7 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
   const current = {
     categorie: params.get('categorie') || '',
     locatie: params.get('locatie') || '',
+    land: params.get('land') || '',
     format: params.get('format') || '',
     aanbieder: params.get('aanbieder') || '',
     doelgroep: params.get('doelgroep') || '',
@@ -84,14 +86,17 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
     if (window.scrollY > pinnedAt) window.scrollTo({ top: pinnedAt })
   }
 
-  const update = (key: string, value: string | null) => {
+  const updateMany = (changes: Record<string, string | null>) => {
     const next = new URLSearchParams(params.toString())
-    if (value === null || value === '') next.delete(key)
-    else next.set(key, value)
+    for (const [key, value] of Object.entries(changes)) {
+      if (value === null || value === '') next.delete(key)
+      else next.set(key, value)
+    }
     next.delete('page')
     keepPanelInPlace()
     router.push(`${pathname}?${next.toString()}`, { scroll: false })
   }
+  const update = (key: string, value: string | null) => updateMany({ [key]: value })
   const toggleCsv = (key: 'doelgroep' | 'taal' | 'praktisch' | 'focus' | 'certificering', value: string) => {
     const selected = current[key].split(',').filter(Boolean)
     const next = selected.includes(value) ? selected.filter((item) => item !== value) : [...selected, value]
@@ -113,7 +118,7 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
 
   const hasAdvanced = Boolean(current.praktisch || current.focus || current.certificering || current.erkend || current.gratis || current.prijsMax)
   const [moreOpen, setMoreOpen] = React.useState(hasAdvanced)
-  const hasActive = Boolean(current.categorie || current.locatie || current.format || current.aanbieder || current.doelgroep || current.taal || hasAdvanced)
+  const hasActive = Boolean(current.categorie || current.locatie || current.land || current.format || current.aanbieder || current.doelgroep || current.taal || hasAdvanced)
 
   // Category picker (search + A-Z), shared with /opleiders and /merken. Single-
   // select here: the course `categorie` param is one slug (a main includes its
@@ -207,12 +212,12 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
 
       <div style={{ marginBottom: 26 }}>
         <div style={labelStyle}>Locatie</div>
-        <select className="bl-select" value={current.locatie} onChange={(e) => update('locatie', e.target.value)} style={selectStyle}>
-          <option value="">Overal in België</option>
-          {options.cities.map((c) => (
-            <option key={c} value={c}>{c}</option>
-          ))}
-        </select>
+        <LocationSelect
+          cities={options.citiesByCountry}
+          value={encodeLocation(current.locatie, current.land)}
+          onChange={(e) => updateMany(decodeLocation(e.target.value))}
+          style={selectStyle}
+        />
       </div>
 
       <div style={{ marginBottom: 20 }}>

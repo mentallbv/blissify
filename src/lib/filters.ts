@@ -21,6 +21,7 @@ export function parseCourseFilters(sp: SearchParams): CourseFilters {
   return {
     categorySlug: one(sp.categorie) || undefined,
     city: one(sp.locatie) || undefined,
+    land: one(sp.land) === 'nl' ? 'nl' : one(sp.land) === 'be' ? 'be' : undefined,
     format: one(sp.format) || undefined,
     certificate: one(sp.erkend) === 'true' || undefined,
     certificationTypes: many(sp.certificering),

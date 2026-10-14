@@ -636,6 +636,7 @@ export interface Course {
     city?: string | null;
     province?: string | null;
     postcode?: string | null;
+    country?: ('be' | 'nl') | null;
   };
   duration?: {
     value?: number | null;
@@ -1317,6 +1318,7 @@ export interface CoursesSelect<T extends boolean = true> {
         city?: T;
         province?: T;
         postcode?: T;
+        country?: T;
       };
   duration?:
     | T

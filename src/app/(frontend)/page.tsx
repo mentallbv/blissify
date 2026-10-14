@@ -120,7 +120,7 @@ export default async function HomePage() {
             </div>
 
             {/* Right column */}
-            <SearchCard categories={searchOptions.categories} cities={searchOptions.cities} counts={counts} />
+            <SearchCard categories={searchOptions.categories} cities={searchOptions.citiesByCountry} counts={counts} />
           </div>
         </div>
       </section>

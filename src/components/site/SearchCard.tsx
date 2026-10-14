@@ -1,7 +1,9 @@
 'use client'
 
 import React from 'react'
-import { Input, Select, Button } from '@/components/ui'
+import { Input, Select, Button, FieldLabel } from '@/components/ui'
+import type { CitiesByCountry } from '@/lib/cities'
+import { LocationSelect, decodeLocation } from './LocationSelect'
 
 /**
  * Hero search card - Option A (client feedback #1): one broadened search with a
@@ -86,7 +88,7 @@ export function SearchCard({
   counts,
 }: {
   categories?: { slug: string; name: string }[]
-  cities: string[]
+  cities: CitiesByCountry
   counts: { courses: number; opleiders: number; merken: number }
 }) {
   const [mode, setMode] = React.useState<Mode>('opleidingen')
@@ -109,7 +111,11 @@ export function SearchCard({
     const herkomst = String(fd.get('herkomst') || '').trim()
     const params = new URLSearchParams()
     if (keyword) params.set(cfg.keywordParam, keyword)
-    if (cfg.showLocation && locatie) params.set('locatie', locatie)
+    if (cfg.showLocation && locatie) {
+      const loc = decodeLocation(locatie)
+      if (loc.locatie) params.set('locatie', loc.locatie)
+      if (loc.land) params.set('land', loc.land)
+    }
     if (cfg.showHerkomst && herkomst) params.set('herkomst', herkomst)
     const qs = params.toString()
     window.location.assign(qs ? `${cfg.path}?${qs}` : cfg.path)
@@ -174,7 +180,10 @@ export function SearchCard({
       <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
         <Input name="keyword" label={cfg.fieldLabel} icon={<i className="ti ti-search" />} placeholder={cfg.placeholders[idx]} />
         {cfg.showLocation ? (
-          <Select name="locatie" label="Locatie" placeholder="Overal in België" options={cities} />
+          <label style={{ display: 'block', width: '100%' }}>
+            <FieldLabel>Locatie</FieldLabel>
+            <LocationSelect name="locatie" cities={cities} defaultValue="" />
+          </label>
         ) : null}
         {cfg.showHerkomst ? (
           <Select name="herkomst" label="Land van herkomst" placeholder="Alle landen" options={HERKOMST_OPTIONS} />

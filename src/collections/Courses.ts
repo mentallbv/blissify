@@ -345,6 +345,16 @@ export const Courses: CollectionConfig = {
         { name: 'city', type: 'text', index: true },
         { name: 'province', type: 'text' },
         { name: 'postcode', type: 'text' },
+        {
+          name: 'country',
+          type: 'select',
+          label: 'Land',
+          defaultValue: 'be',
+          options: [
+            { label: 'België', value: 'be' },
+            { label: 'Nederland', value: 'nl' },
+          ],
+        },
       ],
     },
     {

@@ -108,7 +108,7 @@ export async function buildCourseData(body: Record<string, unknown>): Promise<Re
   if (num(body.category) !== undefined) data.category = num(body.category)
   if (Array.isArray(body.format)) data.format = body.format
   if (str(body.accreditation)) data.accreditation = str(body.accreditation)
-  if (str(body.city)) data.location = { city: str(body.city) }
+  if (str(body.city)) data.location = { city: str(body.city), country: str(body.country) === 'nl' ? 'nl' : 'be' }
   // null clears the image, undefined leaves it untouched on a partial update.
   if (body.coverImage === null) data.coverImage = null
   else if (num(body.coverImage) !== undefined) data.coverImage = num(body.coverImage)

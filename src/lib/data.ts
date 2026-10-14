@@ -4,7 +4,7 @@ import type { Course, Brand, Category, Media, Trainer } from '@/payload-types'
 import { formatPrice, formatCardMeta, courseLocation } from './format'
 import { publicMediaUrl } from './media'
 import { CATEGORY_CONTENT } from './categories'
-import { mergeLocations } from './cities'
+import { mergeLocations, mergeLocationsByCountry, type CitiesByCountry } from './cities'
 import type { MerkenGroup, MerkenFacets } from './merken-filters'
 import {
   BRAND_PRICING_FALLBACK,
@@ -170,6 +170,8 @@ export type CourseFilters = {
   providerType?: 'trainer' | 'brand'
   targetAudiences?: string[]
   practical?: string[]
+  /** Course country: 'be' or 'nl' (client round 2 #3.6). */
+  land?: 'be' | 'nl'
   noOwnModel?: boolean
   privateOneToOne?: boolean
   focus?: string[]
@@ -213,6 +215,7 @@ export async function getCourseCards(opts: CourseFilters = {}): Promise<{
       else and.push({ category: { equals: -1 } }) // unknown category -> no matches
     }
     if (opts.city) and.push({ 'location.city': { equals: opts.city } })
+    if (opts.land) and.push({ 'location.country': { equals: opts.land } })
     if (opts.format) and.push({ format: { contains: opts.format } })
     if (opts.certificate) and.push({ certificate: { equals: true } })
     if (opts.certificationTypes?.length) and.push({ certificationTypes: { in: opts.certificationTypes } })
@@ -280,6 +283,8 @@ export type CourseFilterOptions = {
   /** Published-course counts per category slug (a main rolls up its subs). */
   categoryCounts: Record<string, number>
   cities: string[]
+  /** Locatie dropdown, grouped by country (client round 2 #3.6). */
+  citiesByCountry: CitiesByCountry
   priceMin: number
   priceMax: number
 }
@@ -306,11 +311,16 @@ export async function getCourseFilterOptions(): Promise<CourseFilterOptions> {
     }
     const categoryCounts: Record<string, number> = {}
     const cities = new Set<string>()
+    const liveByCountry = { be: [] as string[], nl: [] as string[] }
     let min = Infinity
     let max = 0
     courses.docs.forEach((c) => {
-      const city = (c as Course).location?.city
-      if (city) cities.add(city)
+      const loc = (c as Course).location as { city?: string | null; country?: string | null } | undefined
+      const city = loc?.city
+      if (city) {
+        cities.add(city)
+        liveByCountry[loc?.country === 'nl' ? 'nl' : 'be'].push(city)
+      }
       const amt = (c as Course).price?.amount
       if (typeof amt === 'number' && amt > 0) {
         if (amt < min) min = amt
@@ -333,6 +343,7 @@ export async function getCourseFilterOptions(): Promise<CourseFilterOptions> {
       })),
       categoryCounts,
       cities: mergeLocations(Array.from(cities)),
+      citiesByCountry: mergeLocationsByCountry(liveByCountry),
       // A multiple of the slider step (50), so the slider can reach priceMax exactly.
       priceMin: Number.isFinite(min) ? Math.floor(min / 50) * 50 : 0,
       // Client round 2 #3.11: the slider runs to at least €2.500 (some
@@ -344,6 +355,7 @@ export async function getCourseFilterOptions(): Promise<CourseFilterOptions> {
       categories: CATEGORY_TILES.map((c) => ({ slug: c.slug, name: c.name, parentSlug: null })),
       categoryCounts: {},
       cities: mergeLocations(),
+      citiesByCountry: mergeLocationsByCountry(),
       priceMin: 0,
       priceMax: 2500,
     }

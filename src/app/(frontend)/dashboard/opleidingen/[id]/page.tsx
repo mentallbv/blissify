@@ -62,6 +62,7 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
     coverImage: toUploadedImage(course.coverImage),
     externalUrl: course.externalUrl || '',
     city: course.location?.city || '',
+    country: course.location?.country === 'nl' ? 'nl' : 'be',
     level: course.level || '',
     accreditation: course.accreditation || '',
     certificate: Boolean(course.certificate),

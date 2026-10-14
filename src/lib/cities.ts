@@ -43,6 +43,38 @@ export const LOCATION_OPTIONS: string[] = [
   'Online',
 ]
 
+/** Main Dutch cities for the Locatie dropdowns (client round 2 #3.6 / #1.1). */
+export const NL_LOCATION_OPTIONS: string[] = [
+  'Amsterdam',
+  'Rotterdam',
+  'Den Haag',
+  'Utrecht',
+  'Eindhoven',
+  'Tilburg',
+  'Groningen',
+  'Breda',
+  'Nijmegen',
+  "'s-Hertogenbosch",
+  'Maastricht',
+  'Arnhem',
+  'Haarlem',
+  'Zwolle',
+]
+
+export type CitiesByCountry = { be: string[]; nl: string[] }
+
+/** Curated + live cities per country, sorted; "Online" is not part of either. */
+export function mergeLocationsByCountry(live: { be?: string[]; nl?: string[] } = {}): CitiesByCountry {
+  const build = (base: string[], extra: string[] = []) =>
+    Array.from(new Set([...base, ...extra].map((c) => c && c.trim()).filter((c): c is string => Boolean(c) && c.toLowerCase() !== 'online'))).sort(
+      (a, b) => a.localeCompare(b, 'nl-BE'),
+    )
+  return {
+    be: build(LOCATION_OPTIONS, live.be),
+    nl: build(NL_LOCATION_OPTIONS, live.nl),
+  }
+}
+
 export function mergeLocations(live: string[] = []): string[] {
   const set = new Set<string>()
   for (const c of [...LOCATION_OPTIONS, ...live]) {
