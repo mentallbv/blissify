@@ -74,6 +74,7 @@ export interface Config {
     trainers: Trainer;
     courses: Course;
     reviews: Review;
+    collaborations: Collaboration;
     pages: Page;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -89,6 +90,7 @@ export interface Config {
     trainers: TrainersSelect<false> | TrainersSelect<true>;
     courses: CoursesSelect<false> | CoursesSelect<true>;
     reviews: ReviewsSelect<false> | ReviewsSelect<true>;
+    collaborations: CollaborationsSelect<false> | CollaborationsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -493,9 +495,6 @@ export interface Trainer {
    * Gekoppeld aan brand (optioneel)
    */
   brand?: (number | null) | Brand;
-  /**
-   * Merken waarmee deze opleider samenwerkt / door erkend is.
-   */
   collaboratingBrands?: (number | Brand)[] | null;
   photo?: (number | null) | Media;
   bio?: {
@@ -589,10 +588,15 @@ export interface Course {
    */
   featured?: boolean | null;
   productLaunchHighlighted?: boolean | null;
-  /**
-   * Naam van het co-brandingmerk (alleen Partner Ultimate).
-   */
   coBrandPartner?: string | null;
+  /**
+   * Alleen merken met een goedgekeurde samenwerking.
+   */
+  collaborationBrand?: (number | null) | Brand;
+  /**
+   * Alleen opleiders met een goedgekeurde samenwerking.
+   */
+  deliveredByTrainer?: (number | null) | Trainer;
   featuredPosition?: ('top' | 'permanent_top') | null;
   /**
    * Automatische zoekprioriteit op basis van het abonnement.
@@ -786,6 +790,22 @@ export interface Review {
   verificationSentAt?: string | null;
   verificationExpiresAt?: string | null;
   verificationTokenHash?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Samenwerkingen tussen merken (Partner Ultimate) en opleiders.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "collaborations".
+ */
+export interface Collaboration {
+  id: number;
+  brand: number | Brand;
+  trainer: number | Trainer;
+  status: 'pending' | 'approved' | 'declined' | 'removed';
+  endedBy?: ('brand' | 'trainer') | null;
+  respondedAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1016,6 +1036,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'reviews';
         value: number | Review;
+      } | null)
+    | ({
+        relationTo: 'collaborations';
+        value: number | Collaboration;
       } | null)
     | ({
         relationTo: 'pages';
@@ -1314,6 +1338,8 @@ export interface CoursesSelect<T extends boolean = true> {
   featured?: T;
   productLaunchHighlighted?: T;
   coBrandPartner?: T;
+  collaborationBrand?: T;
+  deliveredByTrainer?: T;
   featuredPosition?: T;
   tierPriority?: T;
   trainer?: T;
@@ -1446,6 +1472,19 @@ export interface ReviewsSelect<T extends boolean = true> {
   verificationSentAt?: T;
   verificationExpiresAt?: T;
   verificationTokenHash?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "collaborations_select".
+ */
+export interface CollaborationsSelect<T extends boolean = true> {
+  brand?: T;
+  trainer?: T;
+  status?: T;
+  endedBy?: T;
+  respondedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
