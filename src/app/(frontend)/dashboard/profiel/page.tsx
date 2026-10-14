@@ -40,7 +40,7 @@ export default async function DashboardProfilePage() {
     // Medium+ perk; hidden rather than shown-and-ignored on Basis.
     canBrand: tierForUser((user || {}) as never).features.hasProfileBranding,
     photo: toUploadedImage(profile?.kind === 'brand' ? profile.doc.logo : profile?.doc.photo),
-    coverImage: toUploadedImage(profile?.kind === 'brand' ? profile.doc.coverImage : null),
+    coverImage: toUploadedImage(profile ? (profile.doc as { coverImage?: unknown }).coverImage as never : null),
     partnerType: profile?.kind === 'brand' ? profile.doc.typePartner || '' : '',
     origin: profile?.kind === 'brand' ? profile.doc.herkomst || '' : '',
     producttype: profile?.kind === 'brand' ? ((profile.doc as { productType?: string[] }).productType || []) : [],

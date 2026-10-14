@@ -123,14 +123,13 @@ export function ProfileForm({
           aspect={v.role === 'brand' ? '16 / 9' : '1 / 1'}
         />
 
-        {v.role === 'brand' ? (
-          <ImageUploadField
-            label="Coverafbeelding"
-            hint="Breed beeld bovenaan je merkpagina · max 5 MB"
-            value={v.coverImage}
-            onChange={(image) => set('coverImage', image)}
-          />
-        ) : null}
+        <ImageUploadField
+          label="Coverafbeelding"
+          hint={v.role === 'brand' ? 'Breed beeld bovenaan je merkpagina · max 5 MB' : 'Breed beeld bovenaan je opleidersprofiel · max 5 MB'}
+          value={v.coverImage}
+          onChange={(image) => set('coverImage', image)}
+          aspect="3 / 1"
+        />
 
         {v.role === 'brand' ? (
           <div style={{ borderTop: '0.5px solid var(--border-hairline)', paddingTop: 18 }}>

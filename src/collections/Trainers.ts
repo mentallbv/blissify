@@ -105,6 +105,13 @@ export const Trainers: CollectionConfig = {
       relationTo: 'media',
     },
     {
+      // Wide banner on the opleider profile, like brands have (client round 2 #1.5).
+      name: 'coverImage',
+      type: 'upload',
+      relationTo: 'media',
+      label: 'Coverafbeelding',
+    },
+    {
       name: 'bio',
       type: 'richText',
     },

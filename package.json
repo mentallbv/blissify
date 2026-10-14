@@ -33,6 +33,7 @@
     "payload": "3.85.1",
     "react": "19.2.6",
     "react-dom": "19.2.6",
+    "react-easy-crop": "6.2.3",
     "sharp": "0.34.2"
   },
   "devDependencies": {

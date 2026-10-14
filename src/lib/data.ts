@@ -53,6 +53,8 @@ export type ProviderCardData = {
   courseCount: number
   logo: string | null
   type?: 'trainer' | 'brand'
+  /** Wide cover image (opleider profile, client round 2 #1.5). */
+  cover?: string | null
   accentColor?: string | null
   /** Detail-page fields. Absent on card listings, which do not query them. */
   bio?: unknown
@@ -628,6 +630,7 @@ export async function getProviderBySlug(
         speciality: specLabel(t.specializations?.[0]),
         courseCount: courses.totalDocs,
         logo: mediaUrl(t.photo),
+        cover: mediaUrl((t as { coverImage?: number | Media | null }).coverImage),
         // Both are paid perks (Medium: branding, Premium: badge), so they are
         // resolved from the owning account's tier rather than the profile alone.
         accentColor: ownerFeatures.hasProfileBranding ? accentColor : null,

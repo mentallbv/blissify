@@ -84,9 +84,10 @@ export async function PATCH(req: Request) {
       }
       // Collaborations are managed on /dashboard/samenwerkingen now (client round 2, section 5).
     }
+    // Both brands and opleiders have a cover image (opleiders: client round 2 #1.5).
+    const cover = mediaId(body.coverImage)
+    if (cover !== undefined) data.coverImage = cover
     if (role === 'brand') {
-      const cover = mediaId(body.coverImage)
-      if (cover !== undefined) data.coverImage = cover
       // Gallery photos (client #9): up to 10 {image, caption} rows.
       if (Array.isArray(body.gallery)) {
         data.gallery = (body.gallery as { image?: unknown; caption?: unknown }[])

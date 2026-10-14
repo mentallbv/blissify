@@ -35,7 +35,16 @@ export default async function ProviderProfilePage({ params }: Params) {
       {p.id != null ? <TrackPageView kind="trainer" id={p.id} /> : null}
       {/* Dark header */}
       <div>
-      <header style={{ background: 'var(--surface-dark)', borderTop: '3px solid var(--blissify-forest)' }}>
+      {/* Cover image as backdrop when present, like the merk page (client round 2 #1.5). */}
+      <header
+        style={{
+          background: 'var(--surface-dark)',
+          backgroundImage: p.cover ? `linear-gradient(rgba(90, 105, 124,0.72),rgba(90, 105, 124,0.72)), url(${p.cover})` : 'none',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          borderTop: '3px solid var(--blissify-forest)',
+        }}
+      >
         <div className="bl-container bl-provider-hero" style={{ paddingTop: 48, paddingBottom: 48, display: 'flex', gap: 24, alignItems: 'center' }}>
           <div style={{ width: 80, height: 80, borderRadius: 'var(--radius-md)', background: 'var(--surface-card)', display: 'flex', alignItems: 'center', justifyContent: 'center', flex: '0 0 80px', overflow: 'hidden' }}>
             {p.logo ? (

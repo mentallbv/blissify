@@ -497,6 +497,7 @@ export interface Trainer {
   brand?: (number | null) | Brand;
   collaboratingBrands?: (number | Brand)[] | null;
   photo?: (number | null) | Media;
+  coverImage?: (number | null) | Media;
   bio?: {
     root: {
       type: string;
@@ -1292,6 +1293,7 @@ export interface TrainersSelect<T extends boolean = true> {
   brand?: T;
   collaboratingBrands?: T;
   photo?: T;
+  coverImage?: T;
   bio?: T;
   specializations?: T;
   location?:

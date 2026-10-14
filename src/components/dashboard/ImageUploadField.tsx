@@ -1,6 +1,7 @@
 'use client'
 
 import React from 'react'
+import { ImageCropDialog } from './ImageCropDialog'
 
 export type UploadedImage = { id: number | string; url: string } | null
 
@@ -25,6 +26,20 @@ export function ImageUploadField({
   const inputRef = React.useRef<HTMLInputElement>(null)
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
+  // Client round 2 #2.3: a chosen file opens the crop dialog before uploading.
+  const [pending, setPending] = React.useState<{ src: string; file: File } | null>(null)
+  const ratio = React.useMemo(() => {
+    const [w, h] = aspect.split('/').map((n) => Number(n.trim()))
+    return w > 0 && h > 0 ? w / h : 16 / 9
+  }, [aspect])
+
+  const closeCrop = React.useCallback(() => {
+    setPending((p) => {
+      if (p) URL.revokeObjectURL(p.src)
+      return null
+    })
+    if (inputRef.current) inputRef.current.value = ''
+  }, [])
 
   async function upload(file: File) {
     setError(null)
@@ -90,7 +105,7 @@ export function ImageUploadField({
         accept="image/jpeg,image/png,image/webp,image/avif"
         onChange={(e) => {
           const file = e.target.files?.[0]
-          if (file) void upload(file)
+          if (file) setPending({ src: URL.createObjectURL(file), file })
         }}
         style={{ display: 'none' }}
       />
@@ -105,6 +120,21 @@ export function ImageUploadField({
           </button>
         ) : null}
       </div>
+
+      {pending ? (
+        <ImageCropDialog
+          src={pending.src}
+          aspect={ratio}
+          mimeType={pending.file.type}
+          onCancel={closeCrop}
+          onDone={(blob) => {
+            const base = pending.file.name.replace(/\.[^.]+$/, '') || 'afbeelding'
+            const ext = blob.type === 'image/png' ? 'png' : 'jpg'
+            closeCrop()
+            void upload(new File([blob], `${base}.${ext}`, { type: blob.type }))
+          }}
+        />
+      ) : null}
 
       {hint && !error ? (
         <p style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-meta)', margin: '6px 0 0' }}>{hint}</p>
