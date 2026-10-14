@@ -740,7 +740,7 @@ export interface Course {
     tiktok?: string | null;
   };
   /**
-   * Vrije trefwoorden voor zoeken
+   * Trefwoorden: de opleiding is ook via deze woorden vindbaar in de zoekbalk.
    */
   tags?: string[] | null;
   /**

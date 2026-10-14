@@ -10,7 +10,7 @@ export function SaveCourseButton({ course }: { course: Omit<SavedCourse, 'savedA
   return (
     <div>
       <Button variant="ghost" fullWidth aria-pressed={saved} onClick={() => toggleSavedCourse(course)}>
-        <i className={saved ? 'ti ti-bookmark-filled' : 'ti ti-bookmark'} aria-hidden="true" />
+        <i className={saved ? 'ti ti-heart-filled' : 'ti ti-heart'} aria-hidden="true" />
         {saved ? 'Opgeslagen' : 'Opleiding opslaan'}
       </Button>
       {saved ? (

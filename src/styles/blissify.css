@@ -654,7 +654,7 @@ a.bl-providercard:hover,
   width: 40px;
   height: 40px;
   border-radius: var(--radius-sm);
-  color: var(--text-brand);
+  color: var(--palette-rose);
   font-size: 19px;
 }
 .blnav-saved:hover {
@@ -668,7 +668,7 @@ a.bl-providercard:hover,
   height: 17px;
   padding: 0 4px;
   border-radius: var(--radius-pill);
-  background: var(--palette-rose);
+  background: var(--palette-slate);
   color: #fff;
   font-family: var(--font-ui);
   font-size: 10px;

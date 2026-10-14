@@ -63,7 +63,7 @@ export function SiteNav({ user = null }: { user?: { name?: string | null; role?:
           {savedCount ? (
             // Saved courses (client round 2 #4.3), only once something is saved.
             <a className="blnav-saved" href="/bewaard" aria-label={`Bewaarde opleidingen (${savedCount})`}>
-              <i className="ti ti-bookmark" aria-hidden="true" />
+              <i className="ti ti-heart-filled" aria-hidden="true" />
               <span className="blnav-saved-count">{savedCount}</span>
             </a>
           ) : null}
