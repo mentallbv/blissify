@@ -260,7 +260,7 @@ export function CourseForm({
               type="button"
               onClick={() => setCatOpen((o) => !o)}
               className="bl-select"
-              style={{ height: 44, display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', textAlign: 'left', cursor: 'pointer', background: 'var(--surface-card)', ...errBorder('category') }}
+              style={{ height: 44, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, width: '100%', textAlign: 'left', cursor: 'pointer', background: 'var(--surface-card)', paddingRight: 16, ...errBorder('category') }}
               aria-invalid={Boolean(fieldErrors.category)}
             >
               <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: selectedCatName ? 'var(--text-strong)' : 'var(--text-meta)' }}>

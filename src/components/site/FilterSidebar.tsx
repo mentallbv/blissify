@@ -167,7 +167,7 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
             type="button"
             onClick={() => setCatOpen((o) => !o)}
             className="bl-select"
-            style={{ ...selectStyle, display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', textAlign: 'left', cursor: 'pointer', background: 'var(--surface-card)' }}
+            style={{ ...selectStyle, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, width: '100%', textAlign: 'left', cursor: 'pointer', background: 'var(--surface-card)', paddingRight: 16 }}
           >
             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: current.categorie ? 'var(--text-strong)' : 'var(--text-meta)' }}>{selectedCatLabel}</span>
             <i className={`ti ti-chevron-${catOpen ? 'up' : 'down'}`} style={{ fontSize: 15, flex: 'none', color: 'var(--text-meta)' }} />
