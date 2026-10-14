@@ -4,6 +4,7 @@ import { htmlToLexical } from '@/lib/richtext'
 import { ensureProfile } from '@/lib/ensure-profile'
 import { hasVisibleCollaboration } from '@/lib/collaborations'
 import { COURSE_TYPE_LABEL, deriveFormat } from '@/lib/course-types'
+import { slugify } from '@/lib/slug'
 
 type AnyUser = { id: number | string; role?: string | null }
 
@@ -29,16 +30,7 @@ export function lexical(text: string) {
   }
 }
 
-export function slugify(input: string): string {
-  return (
-    input
-      .toLowerCase()
-      .normalize('NFKD')
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '')
-      .slice(0, 70) || 'opleiding'
-  )
-}
+export { slugify } from '@/lib/slug'
 
 /** Resolves { trainer: id } or { brand: id } for the current user's owned profile. */
 export async function resolveOwner(
@@ -135,7 +127,8 @@ export async function buildCourseData(body: Record<string, unknown>): Promise<Re
   const title = str(body.title)
   const data: Record<string, unknown> = {
     title,
-    slug: str(body.slug) || slugify(title),
+    // A typed address is cleaned the same way as the form's preview shows it.
+    slug: slugify(str(body.slug) || title),
     status: ['draft', 'published', 'archived'].includes(str(body.status)) ? str(body.status) : 'draft',
     shortDescription: str(body.shortDescription),
     description: await htmlToLexical(str(body.description)),

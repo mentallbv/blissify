@@ -4,6 +4,7 @@ import React from 'react'
 import { useRouter } from 'next/navigation'
 import { Input, Select, Button, FieldLabel, Tag } from '@/components/ui'
 import { COURSE_TYPES, DELIVERY_OPTIONS, typeNeedsDelivery } from '@/lib/course-types'
+import { slugify } from '@/lib/slug'
 import {
   CERTIFICATION_OPTIONS,
   CERTIFICATION_FIELDS,
@@ -108,7 +109,7 @@ export function CourseForm({
   courseId,
   partner,
 }: {
-  categories: { id: number; name: string; parentName?: string }[]
+  categories: { id: number; name: string; slug?: string; parentName?: string }[]
   initial?: Partial<CourseFormValues>
   courseId?: number
   /** Approved collaboration partners this course can be linked to (client round 2, section 5). */
@@ -229,9 +230,19 @@ export function CourseForm({
           <FieldError k="title" />
         </div>
         <div>
-          <Input label="Link-naam (optioneel)" placeholder="wordt automatisch gegenereerd uit de titel" value={v.slug} onChange={(e) => set('slug', e.target.value)} />
-          <div style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-meta)', marginTop: 6 }}>
-            Dit is het adres van de opleidingspagina. Laat leeg om het automatisch te laten genereren.
+          {/* Client round 2 #2.8: say what this is and show the resulting address. */}
+          <Input
+            label="Webadres van je opleidingspagina (optioneel)"
+            placeholder={v.title ? slugify(v.title) : 'wordt automatisch gemaakt uit de titel'}
+            value={v.slug}
+            onChange={(e) => set('slug', e.target.value)}
+          />
+          <div style={{ fontFamily: 'var(--font-ui)', fontSize: 12, lineHeight: 1.5, color: 'var(--text-meta)', marginTop: 6 }}>
+            Het laatste deel van de link naar je opleiding. Laat leeg om het automatisch uit de titel te maken.
+            <div style={{ marginTop: 4, color: 'var(--text-body)', overflowWrap: 'anywhere' }}>
+              blissify.be/opleidingen/{categories.find((c) => String(c.id) === v.category)?.slug || 'categorie'}/
+              <strong style={{ fontWeight: 'var(--fw-ui-medium)' }}>{slugify(v.slug || v.title || 'opleiding')}</strong>
+            </div>
           </div>
         </div>
         <div className="bl-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, alignItems: 'start' }}>
