@@ -1,3 +1,4 @@
+import { CERTIFICATION_VALUES } from '@/lib/certifications'
 import type { CourseFilters, CourseSort } from '@/lib/data'
 
 type SearchParams = Record<string, string | string[] | undefined>
@@ -23,8 +24,8 @@ export function parseCourseFilters(sp: SearchParams): CourseFilters {
     city: one(sp.locatie) || undefined,
     land: one(sp.land) === 'nl' ? 'nl' : one(sp.land) === 'be' ? 'be' : undefined,
     format: one(sp.format) || undefined,
-    certificate: one(sp.erkend) === 'true' || undefined,
-    certificationTypes: many(sp.certificering),
+    // Client round 2, section 6: the old ?erkend= switch is gone; unknown values are ignored.
+    certificationTypes: many(sp.certificering).filter((v) => CERTIFICATION_VALUES.has(v)),
     keyword: one(sp.keyword) || undefined,
     providerType: one(sp.aanbieder) === 'brand' ? 'brand' : one(sp.aanbieder) === 'trainer' ? 'trainer' : undefined,
     targetAudiences: many(sp.doelgroep).filter((v) => AUDIENCE_VALUES.has(v)),

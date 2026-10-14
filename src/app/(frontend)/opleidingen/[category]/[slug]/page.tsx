@@ -6,6 +6,7 @@ import { Eyebrow, Avatar, TypeBadge, Button, Tag } from '@/components/ui'
 import { RequestInfoButton } from '@/components/site/RequestInfoButton'
 import { RegisterCourseButton } from '@/components/site/RegisterCourseButton'
 import { TrackedLink } from '@/components/site/TrackedLink'
+import { CERTIFICATION_LABEL, NO_CERTIFICATION } from '@/lib/certifications'
 import { ReviewForm } from '@/components/site/ReviewForm'
 import { CourseCard } from '@/components/ui/CourseCard'
 import { TrackPageView } from '@/components/site/TrackPageView'
@@ -51,6 +52,7 @@ type DetailView = {
   practical: string[]
   focus: string[]
   accreditation: string
+  certifications: { label: string; details: [string, string][] }[]
   externalUrl?: string
 }
 
@@ -99,7 +101,7 @@ function viewFromCourse(c: Course): DetailView {
     { icon: 'ti-clock', label: dur },
     { icon: 'ti-device-laptop', label: fmt },
     { icon: 'ti-map-pin', label: courseLocation(c) },
-    { icon: 'ti-certificate', label: c.certificate ? 'Certificaat inbegrepen' : 'Geen certificaat' },
+    { icon: 'ti-certificate', label: certificationChip(c.certificationTypes) },
   ].filter((chip): chip is { icon: string; label: string } => Boolean(chip.label))
   return {
     title: c.title,
@@ -130,6 +132,7 @@ function viewFromCourse(c: Course): DetailView {
     practical: labelsFor(c.practical, PRACTICAL_LABEL),
     focus: labelsFor(c.focus, FOCUS_LABEL),
     accreditation: c.accreditation || '',
+    certifications: certificationItems(c),
   }
 }
 
@@ -208,6 +211,7 @@ export default async function CourseDetailPage({ params }: Params) {
         practical: [],
         focus: [],
         accreditation: '',
+        certifications: [],
         startDates: [],
         contact: {},
       }
@@ -335,6 +339,39 @@ export default async function CourseDetailPage({ params }: Params) {
             ) : null}
 
 
+            {v.certifications.length ? (
+              <Section title="Certificaten, diploma's & erkenningen">
+                <div style={{ display: 'grid', gap: 12, maxWidth: 620 }}>
+                  {v.certifications.map((item) => (
+                    <div key={item.label} style={{ border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-sm)', background: 'var(--surface-card)', padding: 14 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 14, color: 'var(--text-strong)' }}>
+                        <i className="ti ti-certificate" aria-hidden="true" style={{ color: 'var(--text-accent)' }} />
+                        {item.label}
+                      </div>
+                      {item.details.length ? (
+                        <dl className="bl-cert-dl" style={{ display: 'grid', gridTemplateColumns: 'max-content 1fr', gap: '4px 14px', margin: '10px 0 0', fontFamily: 'var(--font-ui)', fontSize: 13 }}>
+                          {item.details.map(([k, val]) => (
+                            <React.Fragment key={k}>
+                              <dt style={{ color: 'var(--text-meta)' }}>{k}</dt>
+                              <dd style={{ margin: 0, color: 'var(--text-body)', overflowWrap: 'break-word' }}>
+                                {/^https?:\/\//i.test(val) ? (
+                                  <a href={val} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--text-accent)', textDecoration: 'underline', textUnderlineOffset: 3 }}>
+                                    {val.replace(/^https?:\/\//i, '')}
+                                  </a>
+                                ) : (
+                                  val
+                                )}
+                              </dd>
+                            </React.Fragment>
+                          ))}
+                        </dl>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              </Section>
+            ) : null}
+
             <Section title="Praktische informatie">
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12, maxWidth: 620 }}>
                 {[
@@ -344,7 +381,6 @@ export default async function CourseDetailPage({ params }: Params) {
                   ['Deelnemers', v.privateOneToOne ? 'Privé / één-op-één' : v.maximumParticipants ? `Maximaal ${v.maximumParticipants}` : 'Niet van toepassing'],
                   ['Model meenemen', v.modelRequired === 'yes' ? 'Ja' : v.modelRequired === 'no' ? 'Nee' : 'Niet van toepassing'],
                   ['Lunch voorzien', v.lunchProvided === 'yes' ? 'Ja' : v.lunchProvided === 'no' ? 'Nee' : 'Niet van toepassing'],
-                  ['Accreditatie / erkenning', v.accreditation],
                 ].filter(([, value]) => Boolean(value)).map(([label, value]) => (
                   <div key={label} style={{ border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-sm)', background: 'var(--surface-card)', padding: 14 }}>
                     <div style={{ fontFamily: 'var(--font-ui)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-meta)', marginBottom: 5 }}>{label}</div>
@@ -488,6 +524,42 @@ export default async function CourseDetailPage({ params }: Params) {
       </div>
     </SiteChrome>
   )
+}
+
+/** Short hero-chip text for the course's certification choices. */
+function certificationChip(types?: string[] | null): string {
+  const list = (types || []).filter(Boolean)
+  if (!list.length) return ''
+  if (list.includes(NO_CERTIFICATION)) return 'Geen certificaat'
+  if (list.includes('mbo-diploma')) return 'Erkend mbo-diploma'
+  if (list.includes('branche-diploma')) return 'Branche-erkend diploma'
+  if (list.includes('diploma')) return 'Diploma'
+  if (list.includes('geaccrediteerde-bijscholing')) return 'Geaccrediteerde bijscholing'
+  return 'Certificaat'
+}
+
+/** Certification choices with their filled-in details, for the course page. */
+function certificationItems(c: Course): { label: string; details: [string, string][] }[] {
+  const types = (c.certificationTypes || []) as string[]
+  const pairs = (rows: [string, string | number | null | undefined][]) =>
+    rows.filter(([, v]) => v !== null && v !== undefined && String(v).trim() !== '').map(([k, v]) => [k, String(v)] as [string, string])
+  return types
+    .filter((t) => CERTIFICATION_LABEL[t])
+    .map((t) => {
+      let details: [string, string][] = []
+      if (t === 'mbo-diploma') {
+        const d = c.mboDiploma || {}
+        details = pairs([['Diploma', d.name], ['CREBO-nummer', d.crebo], ['Onderwijsinstelling', d.institution], ['Erkenning', d.url]])
+      } else if (t === 'branche-diploma') {
+        const d = c.brancheDiploma || {}
+        details = pairs([['Diploma', d.name], ['Brancheorganisatie', d.organisation], ['Erkenning', d.url]])
+      } else if (t === 'geaccrediteerde-bijscholing') {
+        const d = c.accreditedTraining || {}
+        const amount = d.amount != null ? `${d.amount} ${d.amountUnit === 'hours' ? (d.amount === 1 ? 'uur' : 'uren') : d.amount === 1 ? 'punt' : 'punten'}` : null
+        details = pairs([['Instantie', d.authority], ['Beroepsregister / doelgroep', d.register], ['Accreditatie', amount], ['Accreditatienummer', d.number], ['Meer info', d.url]])
+      }
+      return { label: CERTIFICATION_LABEL[t], details }
+    })
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {

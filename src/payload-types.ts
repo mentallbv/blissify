@@ -671,16 +671,29 @@ export interface Course {
    */
   popular?: boolean | null;
   certificate?: boolean | null;
-  certificationTypes?:
-    | (
-        | 'certificate-included'
-        | 'diploma-possible'
-        | 'accredited-recognized'
-        | 'industry-recognized'
-        | 'mbo-recognized'
-      )[]
-    | null;
   accreditation?: string | null;
+  certificationTypes?:
+    | ('certificaat' | 'diploma' | 'mbo-diploma' | 'branche-diploma' | 'geaccrediteerde-bijscholing' | 'geen')[]
+    | null;
+  mboDiploma?: {
+    name?: string | null;
+    crebo?: string | null;
+    institution?: string | null;
+    url?: string | null;
+  };
+  brancheDiploma?: {
+    name?: string | null;
+    organisation?: string | null;
+    url?: string | null;
+  };
+  accreditedTraining?: {
+    authority?: string | null;
+    register?: string | null;
+    amount?: number | null;
+    amountUnit?: ('points' | 'hours') | null;
+    number?: string | null;
+    url?: string | null;
+  };
   /**
    * Waar bezoekers de opleiding kunnen bekijken, aankopen, boeken of zich inschrijven. Wordt op de opleidingspagina getoond als knop "Naar de opleiding".
    */
@@ -1341,8 +1354,33 @@ export interface CoursesSelect<T extends boolean = true> {
   focus?: T;
   popular?: T;
   certificate?: T;
-  certificationTypes?: T;
   accreditation?: T;
+  certificationTypes?: T;
+  mboDiploma?:
+    | T
+    | {
+        name?: T;
+        crebo?: T;
+        institution?: T;
+        url?: T;
+      };
+  brancheDiploma?:
+    | T
+    | {
+        name?: T;
+        organisation?: T;
+        url?: T;
+      };
+  accreditedTraining?:
+    | T
+    | {
+        authority?: T;
+        register?: T;
+        amount?: T;
+        amountUnit?: T;
+        number?: T;
+        url?: T;
+      };
   externalUrl?: T;
   isBookable?: T;
   notificationRecipients?:

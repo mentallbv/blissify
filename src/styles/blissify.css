@@ -1020,6 +1020,18 @@ a.bl-providercard:hover,
   }
 }
 
+/* Course page certification details: label above value on phones, so long
+   values such as diploma names don't break mid-word. */
+@media (max-width: 480px) {
+  .bl-cert-dl {
+    grid-template-columns: 1fr !important;
+    row-gap: 0 !important;
+  }
+  .bl-cert-dl dd {
+    margin-bottom: 8px !important;
+  }
+}
+
 /* Search-card mode tabs: one row; the long label shortens when the card is narrow. */
 .bl-mode-tabs {
   container-type: inline-size;

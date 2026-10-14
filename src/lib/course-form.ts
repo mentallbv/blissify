@@ -1,3 +1,4 @@
+import { CERTIFICATION_VALUES, NO_CERTIFICATION } from '@/lib/certifications'
 import type { Payload } from 'payload'
 import { htmlToLexical } from '@/lib/richtext'
 import { ensureProfile } from '@/lib/ensure-profile'
@@ -64,6 +65,41 @@ export function ownsCourse(course: { trainer?: unknown; brand?: unknown }, owner
 }
 
 /** Maps the form body to a Courses collection data object. */
+/**
+ * Certificaten, diploma's & erkenningen (client round 2, section 6). Only known
+ * choices are kept, "Geen" stays exclusive, and the details of a choice that is
+ * not ticked are cleared so the course page never shows stale data.
+ */
+function certificationData(body: Record<string, unknown>) {
+  const raw = Array.isArray(body.certificationTypes) ? (body.certificationTypes as unknown[]).map(String) : []
+  let types = Array.from(new Set(raw.filter((v) => CERTIFICATION_VALUES.has(v))))
+  if (types.includes(NO_CERTIFICATION)) types = [NO_CERTIFICATION]
+  const d = (body.certificationDetails || {}) as Partial<Record<'mboDiploma' | 'brancheDiploma' | 'accreditedTraining', Record<string, unknown>>>
+  const t = (v: unknown) => (typeof v === 'string' && v.trim() ? v.trim() : null)
+  const n = (v: unknown) => {
+    const x = typeof v === 'string' && v.trim() === '' ? NaN : Number(v)
+    return Number.isFinite(x) ? x : null
+  }
+  const mbo = types.includes('mbo-diploma') ? d.mboDiploma || {} : {}
+  const branche = types.includes('branche-diploma') ? d.brancheDiploma || {} : {}
+  const acc = types.includes('geaccrediteerde-bijscholing') ? d.accreditedTraining || {} : {}
+  return {
+    certificationTypes: types,
+    // Kept in step for anything that still reads the old flag.
+    certificate: types.some((v) => v !== NO_CERTIFICATION),
+    mboDiploma: { name: t(mbo.name), crebo: t(mbo.crebo), institution: t(mbo.institution), url: t(mbo.url) },
+    brancheDiploma: { name: t(branche.name), organisation: t(branche.organisation), url: t(branche.url) },
+    accreditedTraining: {
+      authority: t(acc.authority),
+      register: t(acc.register),
+      amount: n(acc.amount),
+      amountUnit: acc.amountUnit === 'hours' ? 'hours' : 'points',
+      number: t(acc.number),
+      url: t(acc.url),
+    },
+  }
+}
+
 export async function buildCourseData(body: Record<string, unknown>): Promise<Record<string, unknown>> {
   const str = (v: unknown) => (typeof v === 'string' ? v.trim() : '')
   // An empty field means "not set": Number('') is 0, which would fail min: 1
@@ -81,7 +117,7 @@ export async function buildCourseData(body: Record<string, unknown>): Promise<Re
     shortDescription: str(body.shortDescription),
     description: await htmlToLexical(str(body.description)),
     externalUrl: str(body.externalUrl),
-    certificate: Boolean(body.certificate),
+    ...certificationData(body),
     productLaunchHighlighted: Boolean(body.productLaunchHighlighted),
     coBrandPartner: str(body.coBrandPartner) || null,
     // An empty choice is not a valid option value; store "no type" instead.
@@ -107,7 +143,6 @@ export async function buildCourseData(body: Record<string, unknown>): Promise<Re
   }
   if (num(body.category) !== undefined) data.category = num(body.category)
   if (Array.isArray(body.format)) data.format = body.format
-  if (str(body.accreditation)) data.accreditation = str(body.accreditation)
   if (str(body.city)) data.location = { city: str(body.city), country: str(body.country) === 'nl' ? 'nl' : 'be' }
   // null clears the image, undefined leaves it untouched on a partial update.
   if (body.coverImage === null) data.coverImage = null

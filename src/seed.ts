@@ -296,6 +296,28 @@ function assertNotProduction() {
   }
 }
 
+// Varied "Certificaten, diploma's & erkenningen" test data (client round 2,
+// section 6); mirrors the 20261014_certifications migration.
+function seedCertifications(i: number) {
+  const k = i % 7
+  const types = [['certificaat'], ['certificaat', 'diploma'], ['mbo-diploma'], ['certificaat', 'branche-diploma'], ['geaccrediteerde-bijscholing'], ['geen'], ['diploma', 'geaccrediteerde-bijscholing']][k]
+  const pick = <T,>(list: T[]) => list[i % list.length]
+  return {
+    certificationTypes: types,
+    certificate: k !== 5,
+    mboDiploma:
+      k === 2
+        ? { name: pick(['Schoonheidsspecialist', 'Allround schoonheidsspecialist', 'Medewerker Uiterlijke Verzorging']), crebo: pick(['25404', '25405', '25401']), institution: pick(['ROC van Amsterdam', 'Graafschap College', 'ROC Midden Nederland']), url: i % 2 ? null : 'https://www.s-bb.nl' }
+        : {},
+    brancheDiploma:
+      k === 3 ? { name: pick(['Schoonheidsspecialist ANBOS', 'Pedicure ProVoet', 'Huidtherapie Beauty Expert']), organisation: pick(['ANBOS', 'ProVoet', 'Beautyprofs']), url: i % 2 ? null : 'https://www.anbos.nl' } : {},
+    accreditedTraining:
+      k === 4 || k === 6
+        ? { authority: pick(['ANBOS', 'Kwaliteitsregister Paramedici', 'SKB Huidtherapie']), register: pick(['Schoonheidsspecialisten', 'Huidtherapeuten', 'Pedicures']), amount: pick([4, 8, 12, 16]), amountUnit: i % 2 ? 'hours' : 'points', number: i % 3 ? `ACC-${2026000 + i}` : null }
+        : {},
+  }
+}
+
 async function seed() {
   assertNotProduction()
   const payload = await getPayload({ config })
@@ -521,8 +543,7 @@ async function seed() {
           : ['holistisch'],
       popular: idx % 4 === 0,
       featured: idx % 2 === 0,
-      certificate: c.erkend,
-      accreditation: c.erkend ? 'Certificaat verstrekt door de aanbieder' : null,
+      ...seedCertifications(idx),
       startDates: [{ date: futureDate(startMonths), spotsAvailable: 8 + Math.floor(Math.random() * 13) }],
     }
     const owned =

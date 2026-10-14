@@ -66,6 +66,28 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
     level: course.level || '',
     accreditation: course.accreditation || '',
     certificate: Boolean(course.certificate),
+    certificationTypes: (course.certificationTypes as string[] | null | undefined) || [],
+    certificationDetails: {
+      mboDiploma: {
+        name: course.mboDiploma?.name || '',
+        crebo: course.mboDiploma?.crebo || '',
+        institution: course.mboDiploma?.institution || '',
+        url: course.mboDiploma?.url || '',
+      },
+      brancheDiploma: {
+        name: course.brancheDiploma?.name || '',
+        organisation: course.brancheDiploma?.organisation || '',
+        url: course.brancheDiploma?.url || '',
+      },
+      accreditedTraining: {
+        authority: course.accreditedTraining?.authority || '',
+        register: course.accreditedTraining?.register || '',
+        amount: course.accreditedTraining?.amount != null ? String(course.accreditedTraining.amount) : '',
+        amountUnit: course.accreditedTraining?.amountUnit === 'hours' ? 'hours' : 'points',
+        number: course.accreditedTraining?.number || '',
+        url: course.accreditedTraining?.url || '',
+      },
+    },
     productLaunchHighlighted: Boolean((course as any).productLaunchHighlighted),
     coBrandPartner: String((course as any).coBrandPartner || ''),
     priceAmount: course.price?.amount != null ? String(course.price.amount) : '',

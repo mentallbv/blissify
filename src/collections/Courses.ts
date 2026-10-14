@@ -1,3 +1,4 @@
+import { CERTIFICATION_OPTIONS } from '@/lib/certifications'
 import type { CollectionConfig, Access } from 'payload'
 import { seoFields } from '@/fields/seo'
 import { getBrandIdForUser, getTrainerIdForUser } from '@/access'
@@ -458,21 +459,63 @@ export const Courses: CollectionConfig = {
       access: { update: adminField },
       admin: { position: 'sidebar', description: 'Handmatig beheerd door Blissify.' },
     },
-    { name: 'certificate', type: 'checkbox', defaultValue: false, label: 'Certificaat uitgereikt' },
+    // Retired by "Certificaten, diploma's & erkenningen" (client round 2, section 6);
+    // kept hidden so no data is lost.
+    { name: 'certificate', type: 'checkbox', defaultValue: false, label: 'Certificaat uitgereikt', admin: { hidden: true } },
+    { name: 'accreditation', type: 'text', label: 'Accreditatie / erkenning', admin: { hidden: true } },
     {
       name: 'certificationTypes',
       type: 'select',
       hasMany: true,
-      label: 'Certificering en erkenning',
-      options: [
-        { label: 'Certificaat inbegrepen', value: 'certificate-included' },
-        { label: 'Diploma mogelijk', value: 'diploma-possible' },
-        { label: 'Geaccrediteerd / Erkend', value: 'accredited-recognized' },
-        { label: 'Branche-erkend (ANBOS / ProBeauty)', value: 'industry-recognized' },
-        { label: 'MBO-erkend (Nederland)', value: 'mbo-recognized' },
+      label: "Certificaten, diploma's & erkenningen",
+      options: CERTIFICATION_OPTIONS.map((o) => ({ label: o.label, value: o.value })),
+    },
+    {
+      name: 'mboDiploma',
+      type: 'group',
+      label: 'Erkend mbo-diploma (Nederland)',
+      admin: { condition: (data) => Boolean(data.certificationTypes?.includes('mbo-diploma')) },
+      fields: [
+        { name: 'name', type: 'text', label: 'Naam diploma' },
+        { name: 'crebo', type: 'text', label: 'CREBO-nummer' },
+        { name: 'institution', type: 'text', label: 'Naam onderwijsinstelling' },
+        { name: 'url', type: 'text', label: 'Link naar erkenning (optioneel)' },
       ],
     },
-    { name: 'accreditation', type: 'text', label: 'Accreditatie / erkenning' },
+    {
+      name: 'brancheDiploma',
+      type: 'group',
+      label: 'Branche-erkend diploma (Nederland)',
+      admin: { condition: (data) => Boolean(data.certificationTypes?.includes('branche-diploma')) },
+      fields: [
+        { name: 'name', type: 'text', label: 'Naam diploma' },
+        { name: 'organisation', type: 'text', label: 'Erkennende brancheorganisatie' },
+        { name: 'url', type: 'text', label: 'Link naar erkenning (optioneel)' },
+      ],
+    },
+    {
+      name: 'accreditedTraining',
+      type: 'group',
+      label: 'Geaccrediteerde bijscholing',
+      admin: { condition: (data) => Boolean(data.certificationTypes?.includes('geaccrediteerde-bijscholing')) },
+      fields: [
+        { name: 'authority', type: 'text', label: 'Accrediterende instantie' },
+        { name: 'register', type: 'text', label: 'Beroepsregister / doelgroep' },
+        { name: 'amount', type: 'number', min: 0, label: 'Aantal accreditatiepunten of -uren' },
+        {
+          name: 'amountUnit',
+          type: 'select',
+          label: 'Eenheid',
+          defaultValue: 'points',
+          options: [
+            { label: 'Punten', value: 'points' },
+            { label: 'Uren', value: 'hours' },
+          ],
+        },
+        { name: 'number', type: 'text', label: 'Accreditatienummer (optioneel)' },
+        { name: 'url', type: 'text', label: 'Link naar accreditatie (optioneel)' },
+      ],
+    },
     {
       name: 'externalUrl',
       type: 'text',

@@ -4,6 +4,7 @@ import React from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import type { CourseFilterOptions } from '@/lib/data'
 import { CategoryPickerMenu } from './CategoryPickerMenu'
+import { CERTIFICATION_OPTIONS } from '@/lib/certifications'
 import { LocationSelect, encodeLocation, decodeLocation } from './LocationSelect'
 
 const FORMATS = [
@@ -40,13 +41,8 @@ const FOCUS = [
   { value: 'therapeutisch', label: 'Therapeutisch' },
   { value: 'energetisch', label: 'Energetisch' },
 ]
-const CERTIFICATIONS = [
-  { value: 'certificate-included', label: 'Certificaat inbegrepen' },
-  { value: 'diploma-possible', label: 'Diploma mogelijk' },
-  { value: 'accredited-recognized', label: 'Geaccrediteerd / Erkend' },
-  { value: 'industry-recognized', label: 'Branche-erkend (ANBOS / ProBeauty)' },
-  { value: 'mbo-recognized', label: 'MBO-erkend (Nederland)' },
-]
+// Same options as the course form (client round 2, section 6).
+const CERTIFICATIONS = CERTIFICATION_OPTIONS.map((o) => ({ value: o.value as string, label: o.label as string }))
 
 /**
  * Course filter rail. All state lives in the URL query string, so results are
@@ -69,7 +65,6 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
     praktisch: params.get('praktisch') || '',
     focus: params.get('focus') || '',
     certificering: params.get('certificering') || '',
-    erkend: params.get('erkend') === 'true',
     gratis: params.get('gratis') === 'true',
     prijsMax: params.get('prijsMax') || '',
   }
@@ -116,7 +111,7 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
     priceTimer.current = setTimeout(() => update('prijsMax', Number(v) >= options.priceMax ? null : v), 350)
   }
 
-  const hasAdvanced = Boolean(current.praktisch || current.focus || current.certificering || current.erkend || current.gratis || current.prijsMax)
+  const hasAdvanced = Boolean(current.praktisch || current.focus || current.certificering || current.gratis || current.prijsMax)
   const [moreOpen, setMoreOpen] = React.useState(hasAdvanced)
   const hasActive = Boolean(current.categorie || current.locatie || current.land || current.format || current.aanbieder || current.doelgroep || current.taal || hasAdvanced)
 
@@ -271,20 +266,8 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
       </div>
 
       <div>
-        <div style={labelStyle}>Certificaat</div>
+        <div style={labelStyle}>Certificaten, diploma&apos;s &amp; erkenningen</div>
         <CheckOptions options={CERTIFICATIONS} selected={current.certificering} onToggle={(value) => toggleCsv('certificering', value)} />
-        <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={current.erkend}
-            onClick={() => update('erkend', current.erkend ? null : 'true')}
-            style={{ width: 34, height: 20, borderRadius: 'var(--radius-pill)', border: 'none', cursor: 'pointer', background: current.erkend ? 'var(--blissify-forest)' : 'var(--neutral-200)', position: 'relative', flex: 'none' }}
-          >
-            <span style={{ position: 'absolute', top: 2, left: current.erkend ? 16 : 2, width: 16, height: 16, borderRadius: '50%', background: 'var(--blissify-chalk)', transition: 'left .15s ease' }} />
-          </button>
-          <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 13, color: 'var(--text-body)' }}>Certificaat verstrekt</span>
-        </label>
       </div>
       </> : null}
     </aside>

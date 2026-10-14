@@ -3,6 +3,14 @@
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import { Input, Select, Button, FieldLabel, Tag } from '@/components/ui'
+import {
+  CERTIFICATION_OPTIONS,
+  CERTIFICATION_FIELDS,
+  EMPTY_CERTIFICATION_DETAILS,
+  missingCertificationFields,
+  toggleCertification,
+  type CertificationDetails,
+} from '@/lib/certifications'
 import { ImageUploadField, type UploadedImage } from '@/components/dashboard/ImageUploadField'
 import { RichTextEditor } from '@/components/dashboard/RichTextEditor'
 import { CategoryPickerMenu } from '@/components/site/CategoryPickerMenu'
@@ -21,6 +29,8 @@ export type CourseFormValues = {
   level: string
   accreditation: string
   certificate: boolean
+  certificationTypes: string[]
+  certificationDetails: CertificationDetails
   productLaunchHighlighted: boolean
   coBrandPartner: string
   priceAmount: string
@@ -60,6 +70,8 @@ const EMPTY: CourseFormValues = {
   level: '',
   accreditation: '',
   certificate: false,
+  certificationTypes: [],
+  certificationDetails: EMPTY_CERTIFICATION_DETAILS,
   productLaunchHighlighted: false,
   coBrandPartner: '',
   priceAmount: '',
@@ -147,6 +159,8 @@ export function CourseForm({
     if (!v.shortDescription.trim()) errs.shortDescription = 'Vul een korte omschrijving in.'
     const plainDescription = v.description.replace(/<[^>]*>/g, '').trim()
     if (!plainDescription) errs.description = 'Vul een volledige omschrijving in.'
+    if (!v.certificationTypes.length) errs.certificationTypes = "Kies wat deelnemers krijgen, of 'Geen certificaat, diploma of accreditatie'."
+    Object.assign(errs, missingCertificationFields(v.certificationTypes, v.certificationDetails))
     setFieldErrors(errs)
     if (Object.keys(errs).length) {
       setError('Enkele verplichte velden ontbreken nog. Ze zijn hieronder rood aangeduid.')
@@ -412,10 +426,70 @@ export function CourseForm({
             Voeg hier de link toe waar bezoekers jouw opleiding kunnen bekijken, aankopen, boeken of zich kunnen inschrijven. Laat leeg als je die niet hebt; bezoekers kunnen dan via e-mail informatie aanvragen.
           </div>
         </div>
-        <label style={{ display: 'flex', alignItems: 'center', gap: 10, fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-body)' }}>
-          <input type="checkbox" checked={v.certificate} onChange={(e) => set('certificate', e.target.checked)} />
-          Certificaat inbegrepen
-        </label>
+        {/* Client round 2, section 6: one multi-select; ticked choices reveal their details. */}
+        <div>
+          <FieldLabel>Certificaten, diploma&apos;s &amp; erkenningen</FieldLabel>
+          <div style={{ display: 'grid', gap: 10, marginTop: 4, padding: fieldErrors.certificationTypes ? 10 : 0, borderRadius: 'var(--radius-sm)', ...errBorder('certificationTypes') }}>
+            {CERTIFICATION_OPTIONS.map((o) => (
+              <div key={o.value}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: 10, fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-body)', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    checked={v.certificationTypes.includes(o.value)}
+                    onChange={() => {
+                      set('certificationTypes', toggleCertification(v.certificationTypes, o.value))
+                      clearErr('certificationTypes')
+                    }}
+                  />
+                  {o.label}
+                </label>
+                {CERTIFICATION_FIELDS.filter((d) => d.type === o.value && v.certificationTypes.includes(o.value)).map((d) => (
+                  <div key={d.group} style={{ display: 'grid', gap: 12, margin: '12px 0 6px 26px', paddingLeft: 14, borderLeft: '2px solid var(--border-hairline)' }}>
+                    {d.fields.map((f) => {
+                      const k = `${d.group}.${f.key}`
+                      const group = v.certificationDetails[d.group] as Record<string, string>
+                      const onChange = (value: string) => {
+                        set('certificationDetails', { ...v.certificationDetails, [d.group]: { ...group, [f.key]: value } } as CertificationDetails)
+                        clearErr(k)
+                      }
+                      return (
+                        <div key={k}>
+                          {f.kind === 'number' ? (
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 140px', gap: 10, alignItems: 'end' }}>
+                              <Input label={f.label} type="number" min={0} value={group[f.key]} onChange={(e) => onChange(e.target.value)} style={errBorder(k)} />
+                              <Select
+                                label="Eenheid"
+                                value={v.certificationDetails.accreditedTraining.amountUnit}
+                                onChange={(e) =>
+                                  set('certificationDetails', {
+                                    ...v.certificationDetails,
+                                    accreditedTraining: { ...v.certificationDetails.accreditedTraining, amountUnit: e.target.value as 'points' | 'hours' },
+                                  })
+                                }
+                                options={[{ value: 'points', label: 'Punten' }, { value: 'hours', label: 'Uren' }]}
+                              />
+                            </div>
+                          ) : (
+                            <Input
+                              label={f.optional ? `${f.label} (optioneel)` : f.label}
+                              type={f.kind === 'url' ? 'url' : 'text'}
+                              placeholder={f.kind === 'url' ? 'https://...' : undefined}
+                              value={group[f.key]}
+                              onChange={(e) => onChange(e.target.value)}
+                              style={errBorder(k)}
+                            />
+                          )}
+                          <FieldError k={k} />
+                        </div>
+                      )
+                    })}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+          <FieldError k="certificationTypes" />
+        </div>
         <Input label="Trefwoorden (komma-gescheiden)" value={v.tags} onChange={(e) => set('tags', e.target.value)} />
         {showPartnerUltimateFeatures ? (
           <div style={{ borderTop: '1px solid var(--border-hairline)', paddingTop: 18, display: 'grid', gap: 14 }}>
