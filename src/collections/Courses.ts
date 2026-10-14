@@ -394,6 +394,8 @@ export const Courses: CollectionConfig = {
     {
       name: 'level',
       type: 'select',
+      // Retired (client round 2 #2.1): merged into targetAudience by a migration.
+      admin: { hidden: true },
       options: [
         { label: 'Beginner', value: 'beginner' },
         { label: 'Gevorderd', value: 'gevorderd' },
@@ -405,7 +407,7 @@ export const Courses: CollectionConfig = {
       name: 'targetAudience',
       type: 'select',
       hasMany: true,
-      label: 'Niveau en doelgroep',
+      label: 'Niveau',
       options: [
         { label: 'Beginner friendly', value: 'beginner-friendly' },
         { label: 'Intermediate', value: 'intermediate' },

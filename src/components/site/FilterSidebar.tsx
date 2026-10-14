@@ -196,7 +196,7 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
       </div>
 
       <div style={{ marginBottom: 26 }}>
-        <div style={labelStyle}>Niveau &amp; doelgroep</div>
+        <div style={labelStyle}>Niveau</div>
         <CheckOptions options={AUDIENCES} selected={current.doelgroep} onToggle={(value) => toggleCsv('doelgroep', value)} />
       </div>
 

@@ -314,7 +314,7 @@ export function CourseForm({
           </div>
         </div>
         <div>
-          <FieldLabel>Niveau &amp; doelgroep</FieldLabel>
+          <FieldLabel>Niveau</FieldLabel>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             {[['beginner-friendly', 'Beginner friendly'], ['intermediate', 'Intermediate'], ['expert-advanced', 'Expert / Advanced']].map(([key, label]) => (
               <Tag key={key} as="button" active={v.targetAudience.includes(key)} onClick={() => toggleMany('targetAudience', key)}>{label}</Tag>
@@ -339,18 +339,8 @@ export function CourseForm({
         </div>
         <div className="bl-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           <Input label="Stad" value={v.city} onChange={(e) => set('city', e.target.value)} />
-          <Select
-            label="Niveau"
-            placeholder="Kies een niveau"
-            value={v.level}
-            onChange={(e) => set('level', e.target.value)}
-            options={[
-              { value: 'beginner', label: 'Beginner' },
-              { value: 'gevorderd', label: 'Gevorderd' },
-              { value: 'expert', label: 'Expert' },
-              { value: 'all', label: 'Alle niveaus' },
-            ]}
-          />
+          {/* The level is the Niveau checkbox group above (client round 2 #2.1). */}
+          <div />
         </div>
         <div className="bl-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, alignItems: 'end' }}>
           {/* One explicit choice so it's clear the field isn't required (client round 2 #2.4).

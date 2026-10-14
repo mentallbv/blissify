@@ -334,22 +334,13 @@ export default async function CourseDetailPage({ params }: Params) {
               </Section>
             ) : null}
 
-            {v.targetAudience.length ? (
-              <Section title="Voor wie is deze opleiding bedoeld?">
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                  {v.targetAudience.map((item) => (
-                    <Tag key={item} as="span">{item}</Tag>
-                  ))}
-                </div>
-              </Section>
-            ) : null}
 
             <Section title="Praktische informatie">
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12, maxWidth: 620 }}>
                 {[
                   ['Type', ({ practice_training: 'Praktijktraining', online_course: 'Online cursus', live_course: 'Live cursus', coaching: 'Coachingsessie', workshop: 'Workshop', webinar: 'Webinar', event: 'Evenement' } as Record<string, string>)[v.courseType]],
                   ['Taal', v.languages],
-                  ['Niveau', v.level],
+                  ['Niveau', v.targetAudience.join(', ')],
                   ['Deelnemers', v.privateOneToOne ? 'Privé / één-op-één' : v.maximumParticipants ? `Maximaal ${v.maximumParticipants}` : 'Niet van toepassing'],
                   ['Model meenemen', v.modelRequired === 'yes' ? 'Ja' : v.modelRequired === 'no' ? 'Nee' : 'Niet van toepassing'],
                   ['Lunch voorzien', v.lunchProvided === 'yes' ? 'Ja' : v.lunchProvided === 'no' ? 'Nee' : 'Niet van toepassing'],
