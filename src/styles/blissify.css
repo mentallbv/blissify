@@ -1084,6 +1084,19 @@ a.bl-providercard:hover,
   }
 }
 
+/* Geavanceerde analytics table: a horizontal scroll box also clips the header
+   tooltips, so it only scrolls where the table can be wider than the screen. */
+.bl-analytics-table-scroll {
+  overflow: visible;
+}
+@media (max-width: 900px) {
+  .bl-analytics-table-scroll {
+    overflow-x: auto;
+    padding-bottom: 72px;
+    margin-bottom: -72px;
+  }
+}
+
 /* Search-card mode tabs: one row; the long label shortens when the card is narrow. */
 .bl-mode-tabs {
   container-type: inline-size;

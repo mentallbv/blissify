@@ -172,7 +172,7 @@ export default async function DashboardAnalyticsPage() {
               Vergelijk prestaties per opleiding: weergaven, aanvragen, CTR en trend.
             </p>
           </div>
-          <div style={{ overflowX: 'auto' }}>
+          <div className="bl-analytics-table-scroll">
             <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--font-ui)', fontSize: 13 }}>
               <thead>
                 <tr style={{ textAlign: 'left', color: 'var(--text-meta)' }}>
