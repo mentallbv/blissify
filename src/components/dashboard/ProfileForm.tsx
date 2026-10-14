@@ -61,8 +61,6 @@ export function ProfileForm({
   const removePhoto = (index: number) => set('gallery', v.gallery.filter((_, i) => i !== index))
 
   // Co-branding (client #12): opleider picks the merken it collaborates with.
-  const toggleBrand = (id: number) =>
-    set('collaboratingBrands', v.collaboratingBrands.includes(id) ? v.collaboratingBrands.filter((x) => x !== id) : [...v.collaboratingBrands, id])
 
   // Category (producttype) selection with the tier limit (Lite 1 / Premium 3 /
   // Ultimate unlimited). Unlimited arrives as a large number (Infinity can't be
@@ -270,22 +268,13 @@ export function ProfileForm({
               </div>
             </div>
 
-            {brandOptions.length ? (
-              <div style={{ borderTop: '0.5px solid var(--border-hairline)', paddingTop: 18 }}>
-                <FieldLabel>Samenwerkende merken</FieldLabel>
-                <p style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-meta)', margin: '2px 0 12px' }}>
-                  Merken waarmee je samenwerkt of door erkend bent. Ze verschijnen op jouw profiel, en jij verschijnt op hun merkpagina.
-                </p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, maxHeight: 220, overflowY: 'auto' }}>
-                  {brandOptions.map((b) => (
-                    <label key={b.value} style={{ display: 'flex', alignItems: 'center', gap: 9, cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-body)' }}>
-                      <input type="checkbox" checked={v.collaboratingBrands.includes(b.value)} onChange={() => toggleBrand(b.value)} style={{ accentColor: 'var(--blissify-forest)' }} />
-                      {b.label}
-                    </label>
-                  ))}
-                </div>
-              </div>
-            ) : null}
+            <div style={{ borderTop: '0.5px solid var(--border-hairline)', paddingTop: 18 }}>
+              <FieldLabel>Samenwerkende merken</FieldLabel>
+              <p style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-meta)', margin: '2px 0 0' }}>
+                Merken sturen jou een samenwerkingsverzoek. Beantwoord en beheer ze bij{' '}
+                <a href="/dashboard/samenwerkingen" style={{ color: 'var(--text-accent)', textDecoration: 'underline', textUnderlineOffset: 3 }}>Samenwerkingen</a>.
+              </p>
+            </div>
           </>
         ) : null}
       </div>

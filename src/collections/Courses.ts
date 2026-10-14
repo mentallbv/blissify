@@ -257,9 +257,28 @@ export const Courses: CollectionConfig = {
       admin: { hidden: true },
     },
     {
+      // Retired free-text field; replaced by the two approved-collaboration links below.
       name: 'coBrandPartner',
       type: 'text',
-      admin: { description: 'Naam van het co-brandingmerk (alleen Partner Ultimate).' },
+      admin: { hidden: true },
+    },
+    {
+      // Opleider course run with a merk it has an approved collaboration with
+      // (client round 2, section 5): course page shows "In samenwerking met".
+      name: 'collaborationBrand',
+      type: 'relationship',
+      relationTo: 'brands',
+      label: 'In samenwerking met (merk)',
+      admin: { description: 'Alleen merken met een goedgekeurde samenwerking.' },
+    },
+    {
+      // Merk course delivered by an opleider it has an approved collaboration
+      // with: course page shows "Opleiding verzorgd door".
+      name: 'deliveredByTrainer',
+      type: 'relationship',
+      relationTo: 'trainers',
+      label: 'Opleiding verzorgd door (opleider)',
+      admin: { description: 'Alleen opleiders met een goedgekeurde samenwerking.' },
     },
     {
       name: 'featuredPosition',

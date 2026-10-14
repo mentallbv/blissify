@@ -7,6 +7,7 @@ import { ButtonLink } from '@/components/ui'
 import { getCurrentProfile, getCurrentUser } from '@/lib/session'
 import { getMyCourses } from '@/lib/dashboard-data'
 import { tierForUser } from '@/lib/tier-features'
+import { collaborationPartnerOptions } from '@/lib/collaborations'
 
 export const dynamic = 'force-dynamic'
 
@@ -21,6 +22,12 @@ export default async function NewCoursePage() {
   const account = user as { role?: string; brandTier?: string; subscriptionTier?: string } | null
   const profile = await getCurrentProfile(user)
   const courses = await getMyCourses(profile)
+  const partner = profile
+    ? {
+        role: profile.kind,
+        options: await collaborationPartnerOptions(await getPayload({ config: await config }), { kind: profile.kind, id: profile.doc.id }),
+      }
+    : undefined
   const entitlement = tierForUser(account || {})
   const cannotPublish = !entitlement.features.canPublishCourses
   const limitReached = courses.length >= entitlement.features.courseLimit
@@ -55,7 +62,7 @@ export default async function NewCoursePage() {
   return (
     <>
       <PageTitle>Nieuwe opleiding</PageTitle>
-      <CourseForm categories={categories} showPartnerUltimateFeatures={entitlement.features.hasProductLaunchHighlighting && entitlement.features.hasCoBrandedCourses} />
+      <CourseForm categories={categories} partner={partner} />
     </>
   )
 }

@@ -2,6 +2,7 @@ import { CERTIFICATION_VALUES, NO_CERTIFICATION } from '@/lib/certifications'
 import type { Payload } from 'payload'
 import { htmlToLexical } from '@/lib/richtext'
 import { ensureProfile } from '@/lib/ensure-profile'
+import { hasVisibleCollaboration } from '@/lib/collaborations'
 
 type AnyUser = { id: number | string; role?: string | null }
 
@@ -49,6 +50,27 @@ export async function resolveOwner(
   const profile = await ensureProfile(payload, user)
   if (!profile) return null
   return role === 'brand' ? { brand: profile.doc.id as number } : { trainer: profile.doc.id as number }
+}
+
+/**
+ * Course ↔ collaboration link (client round 2, section 5). An opleider course
+ * can name a merk ("In samenwerking met"), a merk course an opleider
+ * ("Opleiding verzorgd door") — only with an approved, currently visible
+ * collaboration; anything else is stored as no link.
+ */
+export async function applyCollaborationLink(
+  payload: Payload,
+  data: Record<string, unknown>,
+  owner: { trainer: number } | { brand: number },
+  body: Record<string, unknown>,
+): Promise<void> {
+  const partnerId = Number(body.collaborationPartner)
+  const valid = Number.isFinite(partnerId) && partnerId > 0
+  if ('trainer' in owner) {
+    data.collaborationBrand = valid && (await hasVisibleCollaboration(payload, partnerId, owner.trainer)) ? partnerId : null
+  } else {
+    data.deliveredByTrainer = valid && (await hasVisibleCollaboration(payload, owner.brand, partnerId)) ? partnerId : null
+  }
 }
 
 export function ownerWhereFromOwner(owner: { trainer?: number } | { brand?: number }): Record<string, unknown> {
@@ -119,7 +141,6 @@ export async function buildCourseData(body: Record<string, unknown>): Promise<Re
     externalUrl: str(body.externalUrl),
     ...certificationData(body),
     productLaunchHighlighted: Boolean(body.productLaunchHighlighted),
-    coBrandPartner: str(body.coBrandPartner) || null,
     // An empty choice is not a valid option value; store "no type" instead.
     courseType: str(body.courseType) || null,
     language: Array.isArray(body.language) ? body.language : ['nl'],

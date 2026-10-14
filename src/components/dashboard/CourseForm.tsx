@@ -33,6 +33,7 @@ export type CourseFormValues = {
   certificationDetails: CertificationDetails
   productLaunchHighlighted: boolean
   coBrandPartner: string
+  collaborationPartner: string
   priceAmount: string
   priceOnRequest: boolean
   durationValue: string
@@ -74,6 +75,7 @@ const EMPTY: CourseFormValues = {
   certificationDetails: EMPTY_CERTIFICATION_DETAILS,
   productLaunchHighlighted: false,
   coBrandPartner: '',
+  collaborationPartner: '',
   priceAmount: '',
   priceOnRequest: false,
   durationValue: '',
@@ -107,12 +109,13 @@ export function CourseForm({
   categories,
   initial,
   courseId,
-  showPartnerUltimateFeatures = false,
+  partner,
 }: {
   categories: { id: number; name: string; parentName?: string }[]
   initial?: Partial<CourseFormValues>
   courseId?: number
-  showPartnerUltimateFeatures?: boolean
+  /** Approved collaboration partners this course can be linked to (client round 2, section 5). */
+  partner?: { role: 'brand' | 'trainer'; options: { value: number; label: string }[] }
 }) {
   const router = useRouter()
   const [v, setV] = React.useState<CourseFormValues>({ ...EMPTY, ...initial })
@@ -491,10 +494,26 @@ export function CourseForm({
           <FieldError k="certificationTypes" />
         </div>
         <Input label="Trefwoorden (komma-gescheiden)" value={v.tags} onChange={(e) => set('tags', e.target.value)} />
-        {showPartnerUltimateFeatures ? (
-          <div style={{ borderTop: '1px solid var(--border-hairline)', paddingTop: 18, display: 'grid', gap: 14 }}>
-            <div style={{ fontFamily: 'var(--font-display)', fontSize: 20, color: 'var(--text-brand)' }}>Partner Ultimate</div>
-            <Input label="Co-branding partner" placeholder="Naam van het samenwerkende merk" value={v.coBrandPartner} onChange={(e) => set('coBrandPartner', e.target.value)} />
+        {partner ? (
+          <div style={{ borderTop: '1px solid var(--border-hairline)', paddingTop: 18, display: 'grid', gap: 8 }}>
+            {partner.options.length ? (
+              <Select
+                label={partner.role === 'trainer' ? 'In samenwerking met (merk)' : 'Opleiding verzorgd door (opleider)'}
+                value={v.collaborationPartner}
+                onChange={(e) => set('collaborationPartner', e.target.value)}
+                options={[{ value: '', label: 'Geen' }, ...partner.options.map((o) => ({ value: String(o.value), label: o.label }))]}
+              />
+            ) : (
+              <FieldLabel>{partner.role === 'trainer' ? 'In samenwerking met' : 'Opleiding verzorgd door'}</FieldLabel>
+            )}
+            <div style={{ fontFamily: 'var(--font-ui)', fontSize: 12, lineHeight: 1.5, color: 'var(--text-meta)' }}>
+              {partner.options.length
+                ? partner.role === 'trainer'
+                  ? 'Optioneel. Op de opleidingspagina verschijnt dan "In samenwerking met" met een link naar het merk.'
+                  : 'Optioneel. Op de opleidingspagina verschijnt dan "Opleiding verzorgd door" met een link naar de opleider.'
+                : 'Je kunt een opleiding koppelen zodra je een goedgekeurde samenwerking hebt.'}{' '}
+              <a href="/dashboard/samenwerkingen" style={{ color: 'var(--text-accent)', textDecoration: 'underline', textUnderlineOffset: 3 }}>Samenwerkingen</a>
+            </div>
           </div>
         ) : null}
       </div>

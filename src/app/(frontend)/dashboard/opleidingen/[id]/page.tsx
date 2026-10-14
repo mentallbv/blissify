@@ -7,7 +7,7 @@ import { CourseForm, type CourseFormValues } from '@/components/dashboard/Course
 import { getCurrentUser } from '@/lib/session'
 import { resolveOwner, ownsCourse } from '@/lib/course-form'
 import { lexicalToHtml } from '@/lib/richtext'
-import { tierForUser } from '@/lib/tier-features'
+import { collaborationPartnerOptions } from '@/lib/collaborations'
 import type { UploadedImage } from '@/components/dashboard/ImageUploadField'
 
 /** Upload relationships arrive populated at depth 1, or as a bare id at depth 0. */
@@ -42,6 +42,12 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
   if (!owner || !ownsCourse(course as never, owner)) redirect('/dashboard/opleidingen')
 
   const categories = await getCategories()
+  const partnerRole: 'brand' | 'trainer' = 'brand' in owner ? 'brand' : 'trainer'
+  const partner = {
+    role: partnerRole,
+    options: await collaborationPartnerOptions(payload, { kind: partnerRole, id: 'brand' in owner ? owner.brand : owner.trainer }),
+  }
+  const relId = (v: unknown) => (v && typeof v === 'object' ? String((v as { id: unknown }).id) : v != null ? String(v) : '')
   const cat = typeof course.category === 'object' ? (course.category as Category) : null
   const details = course as Course & {
     courseType?: string
@@ -90,6 +96,7 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
     },
     productLaunchHighlighted: Boolean((course as any).productLaunchHighlighted),
     coBrandPartner: String((course as any).coBrandPartner || ''),
+    collaborationPartner: relId(partnerRole === 'trainer' ? (course as { collaborationBrand?: unknown }).collaborationBrand : (course as { deliveredByTrainer?: unknown }).deliveredByTrainer),
     priceAmount: course.price?.amount != null ? String(course.price.amount) : '',
     priceOnRequest: Boolean(course.price?.priceOnRequest),
     durationValue: course.duration?.value != null ? String(course.duration.value) : '',
@@ -126,7 +133,7 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
         categories={categories}
         initial={initial}
         courseId={course.id}
-        showPartnerUltimateFeatures={tierForUser(user).features.hasProductLaunchHighlighting && tierForUser(user).features.hasCoBrandedCourses}
+        partner={partner}
       />
     </>
   )

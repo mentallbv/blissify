@@ -10,6 +10,7 @@ const NAV = [
   { id: 'leads', label: 'Aanvragen', icon: 'ti-inbox', href: '/dashboard/leads' },
   { id: 'analytics', label: 'Analytics', icon: 'ti-chart-line', href: '/dashboard/analytics' },
   { id: 'profile', label: 'Profiel', icon: 'ti-building-store', href: '/dashboard/profiel' },
+  { id: 'collaborations', label: 'Samenwerkingen', icon: 'ti-users-group', href: '/dashboard/samenwerkingen' },
   { id: 'subscription', label: 'Abonnement', icon: 'ti-credit-card', href: '/dashboard/abonnement' },
 ]
 

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { headers as getHeaders } from 'next/headers'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
-import { buildCourseData, resolveOwner } from '@/lib/course-form'
+import { applyCollaborationLink, buildCourseData, resolveOwner } from '@/lib/course-form'
 
 /** POST /api/dashboard/courses - create a course owned by the current user. */
 export async function POST(req: Request) {
@@ -15,7 +15,8 @@ export async function POST(req: Request) {
     if (!owner) return NextResponse.json({ error: 'Geen opleiderprofiel gevonden.' }, { status: 400 })
 
     const body = await req.json()
-    const data = { ...(await buildCourseData(body)), ...owner }
+    const data: Record<string, unknown> = { ...(await buildCourseData(body)), ...owner }
+    await applyCollaborationLink(payload, data, owner, body)
 
     // Run as the user so access control + the tier-limit hook apply.
     const created = await payload.create({ collection: 'courses', data: data as never, user, overrideAccess: false })

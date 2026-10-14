@@ -3,6 +3,7 @@ import config from '@/payload.config'
 import type { Course, Brand, Category, Media, Trainer } from '@/payload-types'
 import { formatPrice, formatCardMeta, courseLocation } from './format'
 import { publicMediaUrl } from './media'
+import { hasVisibleCollaboration, visibleBrandsForTrainer, visibleTrainersForBrand } from './collaborations'
 import { CATEGORY_CONTENT } from './categories'
 import { mergeLocations, mergeLocationsByCountry, type CitiesByCountry } from './cities'
 import type { MerkenGroup, MerkenFacets } from './merken-filters'
@@ -644,9 +645,8 @@ export async function getProviderBySlug(
           tiktok: (t.social as { tiktok?: string } | undefined)?.tiktok || '',
           linkedin: t.social?.linkedin || '',
         },
-        collaboratingBrands: (((t as { collaboratingBrands?: unknown[] }).collaboratingBrands || [])
-          .map((b) => (b && typeof b === 'object' ? { slug: (b as { slug?: string }).slug || '', name: (b as { name?: string }).name || '', logo: mediaUrl((b as { logo?: number | Media | null }).logo) } : null))
-          .filter((b): b is { slug: string; name: string; logo: string | null } => Boolean(b && b.slug))),
+        // Approved collaborations with a brand that is still Partner Ultimate (client round 2, section 5).
+        collaboratingBrands: (await visibleBrandsForTrainer(payload, t.id)).map((b) => ({ slug: b.slug, name: b.name, logo: b.logo })),
       },
       courses: courses.docs.map(toCard),
       isFallback: false,
@@ -938,10 +938,8 @@ export async function getBrandBySlug(
       limit: 12,
     })
     const trainers = await payload.find({ collection: 'trainers', where: { brand: { equals: b.id } } as never, depth: 1, limit: 12 })
-    // Co-branding (client #12): opleiders that declared they collaborate with
-    // this merk. Reverse of trainer.collaboratingBrands.
-    const collaborators = await payload.find({ collection: 'trainers', where: { collaboratingBrands: { in: [b.id] } } as never, depth: 0, limit: 24 })
-    const collaboratingProviders = collaborators.docs.map((t) => ({ slug: t.slug, name: t.displayName }))
+    // Approved collaborations (client round 2, section 5); empty unless the brand is Partner Ultimate.
+    const collaboratingProviders = (await visibleTrainersForBrand(payload, b.id)).map((t) => ({ slug: t.slug, name: t.name }))
 
     // Branding and the Premium badge are paid perks, resolved from the owning
     // account's tier rather than from the brand document alone.
@@ -1184,6 +1182,36 @@ export type CourseTierContext = {
   tier: string
   features: TierFeatures
   accentColor: string | null
+}
+
+/**
+ * The collaboration line on a course page (client round 2, section 5): an
+ * opleider course "In samenwerking met" a merk, or a merk course "Opleiding
+ * verzorgd door" an opleider. Only shown while the collaboration counts.
+ */
+export async function getCourseCollaboration(course: Course): Promise<{ label: string; name: string; href: string } | null> {
+  try {
+    const payload = await client()
+    const relId = (v: unknown) => (v && typeof v === 'object' ? Number((v as { id: unknown }).id) : v != null ? Number(v) : null)
+    const c = course as Course & { collaborationBrand?: unknown; deliveredByTrainer?: unknown }
+    if (c.trainer && c.collaborationBrand) {
+      const brandId = relId(c.collaborationBrand)
+      const trainerId = relId(c.trainer)
+      if (!brandId || !trainerId || !(await hasVisibleCollaboration(payload, brandId, trainerId))) return null
+      const b = await payload.findByID({ collection: 'brands', id: brandId, depth: 0 }).catch(() => null)
+      return b ? { label: 'In samenwerking met', name: b.name, href: `/merken/${b.slug}` } : null
+    }
+    if (c.brand && c.deliveredByTrainer) {
+      const brandId = relId(c.brand)
+      const trainerId = relId(c.deliveredByTrainer)
+      if (!brandId || !trainerId || !(await hasVisibleCollaboration(payload, brandId, trainerId))) return null
+      const t = await payload.findByID({ collection: 'trainers', id: trainerId, depth: 0 }).catch(() => null)
+      return t ? { label: 'Opleiding verzorgd door', name: t.displayName, href: `/opleiders/${t.slug}` } : null
+    }
+    return null
+  } catch {
+    return null
+  }
 }
 
 export async function getCourseTierContext(course: Course): Promise<CourseTierContext> {

@@ -10,7 +10,7 @@ import { CERTIFICATION_LABEL, NO_CERTIFICATION } from '@/lib/certifications'
 import { ReviewForm } from '@/components/site/ReviewForm'
 import { CourseCard } from '@/components/ui/CourseCard'
 import { TrackPageView } from '@/components/site/TrackPageView'
-import { getApprovedCourseReviews, getCourseBySlug, getCourseCards, getCourseTierContext } from '@/lib/data'
+import { getApprovedCourseReviews, getCourseBySlug, getCourseCards, getCourseCollaboration, getCourseTierContext } from '@/lib/data'
 import { FALLBACK_COURSES } from '@/lib/fallback'
 import { formatPrice, formatDuration, formatFormat, courseLocation } from '@/lib/format'
 import { isCitySlug, cityName } from '@/lib/cities'
@@ -224,6 +224,7 @@ export default async function CourseDetailPage({ params }: Params) {
   const courseRef = course ? String(course.id) : slug
   const reviews = course ? await getApprovedCourseReviews(course.id) : []
   const tierContext = course ? await getCourseTierContext(course) : null
+  const collaboration = course ? await getCourseCollaboration(course) : null
   const similarResult = course ? await getCourseCards({ categorySlug: category, limit: 4 }) : { cards: [], total: 0, isFallback: false }
   const similarCourses = similarResult.cards.filter((card) => card.slug !== slug).slice(0, 3)
   const averageRating = reviews.length ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length : 0
@@ -281,9 +282,12 @@ export default async function CourseDetailPage({ params }: Params) {
             <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-body)', margin: '0 0 18px' }}>
               {v.provider} · {v.location}
             </p>
-            {tierContext?.features.hasCoBrandedCourses && (course as { coBrandPartner?: string | null } | null)?.coBrandPartner ? (
-              <p style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-accent)', margin: '-8px 0 18px' }}>
-                In samenwerking met {(course as { coBrandPartner?: string }).coBrandPartner}
+            {collaboration ? (
+              <p style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-body)', margin: '-8px 0 18px' }}>
+                {collaboration.label}{' '}
+                <a href={collaboration.href} style={{ color: 'var(--text-accent)', textDecoration: 'underline', textUnderlineOffset: 3 }}>
+                  {collaboration.name}
+                </a>
               </p>
             ) : null}
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>

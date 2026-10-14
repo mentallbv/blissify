@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { headers as getHeaders } from 'next/headers'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
-import { buildCourseData, resolveOwner, ownsCourse } from '@/lib/course-form'
+import { applyCollaborationLink, buildCourseData, resolveOwner, ownsCourse } from '@/lib/course-form'
 
 /** PATCH /api/dashboard/courses/[id] - update a course the current user owns. */
 export async function PATCH(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -21,6 +21,7 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
 
     const body = await req.json()
     const data = await buildCourseData(body)
+    await applyCollaborationLink(payload, data, owner, body)
     const updated = await payload.update({ collection: 'courses', id, data: data as never, user, overrideAccess: false })
     return NextResponse.json({ ok: true, id: updated.id })
   } catch (err) {
