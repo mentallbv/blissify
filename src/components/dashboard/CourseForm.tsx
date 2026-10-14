@@ -132,8 +132,16 @@ export function CourseForm({
     document.addEventListener('mousedown', onDoc)
     return () => document.removeEventListener('mousedown', onDoc)
   }, [catOpen])
+  // Subcategories only, like the filter (client round 2 #3.3, form ↔ filter):
+  // a course on a main category could not be found by category. A main
+  // without subcategories stays selectable.
   const catOptions = React.useMemo(
-    () => categories.map((c) => ({ value: String(c.id), label: c.name, group: c.parentName })),
+    () => {
+      const mainsWithSubs = new Set(categories.map((c) => c.parentName).filter(Boolean))
+      return categories
+        .filter((c) => c.parentName || !mainsWithSubs.has(c.name))
+        .map((c) => ({ value: String(c.id), label: c.name, group: c.parentName }))
+    },
     [categories],
   )
   const selectedCatName = v.category ? categories.find((c) => String(c.id) === v.category)?.name || 'Categorie' : ''
