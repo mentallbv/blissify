@@ -50,11 +50,12 @@ export function supabaseConfigured(): boolean {
 }
 
 function serverHeaders(): Record<string, string> {
-  return {
-    apikey: SERVICE_KEY as string,
-    Authorization: `Bearer ${SERVICE_KEY}`,
-    'Content-Type': 'application/json',
-  }
+  const key = SERVICE_KEY as string
+  // Legacy service_role keys are JWTs and also go in Authorization. The newer
+  // "sb_secret_…" keys are not JWTs: Supabase reads them from `apikey` only.
+  return key.startsWith('sb_')
+    ? { apikey: key, 'Content-Type': 'application/json' }
+    : { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' }
 }
 
 /** GET rows from a table with a raw PostgREST query string (server-side, service role). */
