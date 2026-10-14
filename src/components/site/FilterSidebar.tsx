@@ -21,12 +21,14 @@ const LANGUAGES = [
   { value: 'fr', label: 'Frans' },
   { value: 'en', label: 'Engels' },
 ]
+// Client round 2 #3.8: Online/Praktijkopleiding are covered by Type; the last
+// two options come from the course's model and participants fields.
 const PRACTICAL = [
-  { value: 'online', label: 'Online' },
-  { value: 'praktijkopleiding', label: 'Praktijkopleiding' },
   { value: 'een-dag', label: '1-daagse opleiding' },
   { value: 'meerdere-dagen', label: 'Meerdere dagen' },
   { value: 'op-locatie', label: 'Op locatie' },
+  { value: 'geen-model', label: 'Geen eigen model nodig' },
+  { value: 'prive', label: 'Privé – één-op-één' },
 ]
 const FOCUS = [
   { value: 'huidverbeterend', label: 'Huidverbeterend' },

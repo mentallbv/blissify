@@ -61,8 +61,6 @@ const TARGET_AUDIENCE_LABEL: Record<string, string> = {
 }
 
 const PRACTICAL_LABEL: Record<string, string> = {
-  online: 'Online',
-  praktijkopleiding: 'Praktijkopleiding',
   'een-dag': '1-daagse opleiding',
   'meerdere-dagen': 'Meerdere dagen',
   'op-locatie': 'Op locatie',

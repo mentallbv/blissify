@@ -170,6 +170,8 @@ export type CourseFilters = {
   providerType?: 'trainer' | 'brand'
   targetAudiences?: string[]
   practical?: string[]
+  noOwnModel?: boolean
+  privateOneToOne?: boolean
   focus?: string[]
   languages?: string[]
   popular?: boolean
@@ -231,7 +233,13 @@ export async function getCourseCards(opts: CourseFilters = {}): Promise<{
     if (opts.providerType === 'brand') and.push({ brand: { exists: true } })
     if (opts.providerType === 'trainer') and.push({ trainer: { exists: true } })
     if (opts.targetAudiences?.length) and.push({ targetAudience: { in: opts.targetAudiences } })
-    if (opts.practical?.length) and.push({ practical: { in: opts.practical } })
+    // Praktisch options are OR'ed: a course matches any ticked option. Two of
+    // them read other course fields (client round 2 #3.8).
+    const practicalOr: Record<string, unknown>[] = []
+    if (opts.practical?.length) practicalOr.push({ practical: { in: opts.practical } })
+    if (opts.noOwnModel) practicalOr.push({ modelRequired: { equals: 'no' } })
+    if (opts.privateOneToOne) practicalOr.push({ 'participants.privateOneToOne': { equals: true } })
+    if (practicalOr.length) and.push(practicalOr.length === 1 ? practicalOr[0] : { or: practicalOr })
     if (opts.focus?.length) and.push({ focus: { in: opts.focus } })
     if (opts.languages?.length) and.push({ language: { in: opts.languages } })
     if (opts.popular) and.push({ popular: { equals: true } })

@@ -324,7 +324,7 @@ export function CourseForm({
         <div>
           <FieldLabel>Praktisch</FieldLabel>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {[['online', 'Online'], ['praktijkopleiding', 'Praktijkopleiding'], ['een-dag', '1-daagse'], ['meerdere-dagen', 'Meerdere dagen'], ['op-locatie', 'Op locatie']].map(([key, label]) => (
+            {[['een-dag', '1-daagse'], ['meerdere-dagen', 'Meerdere dagen'], ['op-locatie', 'Op locatie']].map(([key, label]) => (
               <Tag key={key} as="button" active={v.practical.includes(key)} onClick={() => toggleMany('practical', key)}>{label}</Tag>
             ))}
           </div>

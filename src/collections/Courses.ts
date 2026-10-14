@@ -418,8 +418,6 @@ export const Courses: CollectionConfig = {
       hasMany: true,
       label: 'Praktisch',
       options: [
-        { label: 'Online', value: 'online' },
-        { label: 'Praktijkopleiding', value: 'praktijkopleiding' },
         { label: '1-daagse opleiding', value: 'een-dag' },
         { label: 'Meerdere dagen', value: 'meerdere-dagen' },
         { label: 'Op locatie', value: 'op-locatie' },

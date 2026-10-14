@@ -653,7 +653,7 @@ export interface Course {
   language?: ('nl' | 'fr' | 'en')[] | null;
   level?: ('beginner' | 'gevorderd' | 'expert' | 'all') | null;
   targetAudience?: ('beginner-friendly' | 'intermediate' | 'expert-advanced')[] | null;
-  practical?: ('online' | 'praktijkopleiding' | 'een-dag' | 'meerdere-dagen' | 'op-locatie')[] | null;
+  practical?: ('een-dag' | 'meerdere-dagen' | 'op-locatie')[] | null;
   focus?:
     | (
         | 'huidverbeterend'

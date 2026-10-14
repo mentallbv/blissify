@@ -9,7 +9,7 @@ const SORTS: CourseSort[] = ['relevant', 'price-asc', 'recent']
 // would otherwise make the query fail.
 const LANGUAGE_VALUES = new Set(['nl', 'fr', 'en'])
 const AUDIENCE_VALUES = new Set(['beginner-friendly', 'intermediate', 'expert-advanced'])
-const PRACTICAL_VALUES = new Set(['online', 'praktijkopleiding', 'een-dag', 'meerdere-dagen', 'op-locatie'])
+const PRACTICAL_VALUES = new Set(['een-dag', 'meerdere-dagen', 'op-locatie'])
 const many = (value: string | string[] | undefined): string[] =>
   one(value).split(',').map((item) => item.trim()).filter(Boolean)
 
@@ -28,6 +28,8 @@ export function parseCourseFilters(sp: SearchParams): CourseFilters {
     providerType: one(sp.aanbieder) === 'brand' ? 'brand' : one(sp.aanbieder) === 'trainer' ? 'trainer' : undefined,
     targetAudiences: many(sp.doelgroep).filter((v) => AUDIENCE_VALUES.has(v)),
     practical: many(sp.praktisch).filter((v) => PRACTICAL_VALUES.has(v)),
+    noOwnModel: many(sp.praktisch).includes('geen-model') || undefined,
+    privateOneToOne: many(sp.praktisch).includes('prive') || undefined,
     focus: many(sp.focus),
     languages: many(sp.taal).filter((v) => LANGUAGE_VALUES.has(v)),
     free: one(sp.gratis) === 'true' || undefined,

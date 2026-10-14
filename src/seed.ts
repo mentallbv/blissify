@@ -513,7 +513,7 @@ async function seed() {
       targetAudience: c.price > 600 ? ['expert-advanced'] : ['beginner-friendly'],
       practical: isOnline
         ? ['online']
-        : ['praktijkopleiding', idx % 3 === 0 ? 'meerdere-dagen' : 'een-dag', 'op-locatie'],
+        : [idx % 3 === 0 ? 'meerdere-dagen' : 'een-dag', 'op-locatie'],
       focus: c.categorySlug.includes('massage')
         ? ['therapeutisch', 'ontspannend']
         : c.categorySlug.includes('schoonheid') || c.categorySlug.includes('gezicht')
