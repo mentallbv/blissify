@@ -6,6 +6,7 @@ import { Eyebrow, Avatar, TypeBadge, Button, Tag } from '@/components/ui'
 import { RequestInfoButton } from '@/components/site/RequestInfoButton'
 import { RegisterCourseButton } from '@/components/site/RegisterCourseButton'
 import { TrackedLink } from '@/components/site/TrackedLink'
+import { SaveCourseButton } from '@/components/site/SaveCourseButton'
 import { CERTIFICATION_LABEL, NO_CERTIFICATION } from '@/lib/certifications'
 import { COURSE_TYPE_LABEL } from '@/lib/course-types'
 import { ReviewForm } from '@/components/site/ReviewForm'
@@ -493,9 +494,19 @@ export default async function CourseDetailPage({ params }: Params) {
                   />
                   </>
                 )}
-                <Button variant="ghost" fullWidth>
-                  Opleiding opslaan
-                </Button>
+                <SaveCourseButton
+                  course={{
+                    href: `/opleidingen/${category}/${slug}`,
+                    title: v.title,
+                    category: v.category,
+                    provider: v.provider,
+                    location: v.location,
+                    price: v.price,
+                    format: v.format,
+                    image: coverImg || null,
+                    providerType: v.providerType,
+                  }}
+                />
               </div>
               <div style={{ borderTop: '0.5px solid var(--border-hairline)', marginTop: 24, paddingTop: 20, display: 'flex', gap: 12, alignItems: 'center' }}>
                 <Avatar initial={v.provider[0]} size={44} />

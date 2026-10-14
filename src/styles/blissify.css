@@ -564,6 +564,8 @@ a.bl-providercard:hover,
   padding: 10px 14px 10px 22px;
 }
 .blnav-wm {
+  /* Never squeeze the logo; the account name gives way first on small screens. */
+  flex: none;
   font-family: var(--font-display);
   font-weight: 400;
   font-size: 23px;
@@ -645,6 +647,35 @@ a.bl-providercard:hover,
   color: var(--blissify-forest);
   padding: 0 14px;
 }
+.blnav-saved {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  color: var(--text-brand);
+  font-size: 19px;
+}
+.blnav-saved:hover {
+  background: rgba(90, 105, 124, 0.06);
+}
+.blnav-saved-count {
+  position: absolute;
+  top: 3px;
+  right: 2px;
+  min-width: 17px;
+  height: 17px;
+  padding: 0 4px;
+  border-radius: var(--radius-pill);
+  background: var(--palette-rose);
+  color: #fff;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 17px;
+  text-align: center;
+}
 .blnav-logout {
   height: 40px;
   padding: 0 8px;
@@ -694,6 +725,13 @@ a.bl-providercard:hover,
   }
   .blnav-cta {
     padding: 0 12px;
+  }
+  .blnav-right {
+    min-width: 0;
+    gap: 2px;
+  }
+  .blnav-saved {
+    width: 34px;
   }
   .blnav-menu-toggle {
     display: inline-grid;
@@ -1029,6 +1067,20 @@ a.bl-providercard:hover,
   }
   .bl-cert-dl dd {
     margin-bottom: 8px !important;
+  }
+}
+
+@media (max-width: 400px) {
+  .blnav-login {
+    max-width: 72px !important;
+  }
+  /* Logged in: the account link is in the ☰ menu, so the bar keeps logo,
+     saved courses, Publiceer and the menu button. */
+  .blnav-account {
+    display: none !important;
+  }
+  .blnav-wm img {
+    height: 26px !important;
   }
 }
 

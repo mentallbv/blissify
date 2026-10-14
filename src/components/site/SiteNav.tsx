@@ -3,6 +3,7 @@
 import React from 'react'
 import { Logo } from '@/components/ui/Logo'
 import { usePathname } from 'next/navigation'
+import { useSavedCourses } from '@/lib/saved-courses'
 
 const LINKS = [
   { slug: 'opleidingen', label: 'Opleidingen', href: '/opleidingen' },
@@ -14,6 +15,7 @@ export function SiteNav({ user = null }: { user?: { name?: string | null; role?:
   const pathname = usePathname() || '/'
   const [scrolled, setScrolled] = React.useState(false)
   const [mobileOpen, setMobileOpen] = React.useState(false)
+  const savedCount = useSavedCourses().length
 
   React.useEffect(() => {
     // Hysteresis: separate on/off thresholds so the bar doesn't flicker
@@ -58,9 +60,16 @@ export function SiteNav({ user = null }: { user?: { name?: string | null; role?:
           </div>
         </nav>
         <div className="blnav-right">
+          {savedCount ? (
+            // Saved courses (client round 2 #4.3), only once something is saved.
+            <a className="blnav-saved" href="/bewaard" aria-label={`Bewaarde opleidingen (${savedCount})`}>
+              <i className="ti ti-bookmark" aria-hidden="true" />
+              <span className="blnav-saved-count">{savedCount}</span>
+            </a>
+          ) : null}
           {user ? (
             <>
-              <a className="blnav-login" href={accountHref}>
+              <a className="blnav-login blnav-account" href={accountHref}>
                 {accountLabel}
               </a>
               <button type="button" className="blnav-logout" onClick={logout}>Uitloggen</button>
