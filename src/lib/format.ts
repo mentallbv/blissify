@@ -9,10 +9,11 @@ const UNIT_NL: Record<string, [string, string]> = {
   modules: ['module', 'modules'],
 }
 
+// Same wording as the course form (client round 2 #2.9).
 const FORMAT_NL: Record<string, string> = {
   online: 'Online',
-  fysiek: 'In-persoon',
-  hybride: 'Hybride',
+  fysiek: 'Op locatie',
+  hybride: 'Op locatie & online',
 }
 
 /** "€1.450 · incl. btw" style price. */

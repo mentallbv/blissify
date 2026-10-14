@@ -8,6 +8,7 @@ import { getCurrentUser } from '@/lib/session'
 import { resolveOwner, ownsCourse } from '@/lib/course-form'
 import { lexicalToHtml } from '@/lib/richtext'
 import { collaborationPartnerOptions } from '@/lib/collaborations'
+import { deliveryFromFormat } from '@/lib/course-types'
 import type { UploadedImage } from '@/components/dashboard/ImageUploadField'
 
 /** Upload relationships arrive populated at depth 1, or as a bare id at depth 0. */
@@ -103,6 +104,7 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
     durationUnit: course.duration?.unit || 'days',
     format: course.format || [],
     courseType: details.courseType || '',
+    delivery: deliveryFromFormat(course.format as string[] | null),
     language: course.language || ['nl'],
     targetAudience: (details as { targetAudience?: string[] }).targetAudience || [],
     practical: (details as { practical?: string[] }).practical || [],

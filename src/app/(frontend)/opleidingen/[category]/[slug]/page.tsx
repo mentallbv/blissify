@@ -7,6 +7,7 @@ import { RequestInfoButton } from '@/components/site/RequestInfoButton'
 import { RegisterCourseButton } from '@/components/site/RegisterCourseButton'
 import { TrackedLink } from '@/components/site/TrackedLink'
 import { CERTIFICATION_LABEL, NO_CERTIFICATION } from '@/lib/certifications'
+import { COURSE_TYPE_LABEL } from '@/lib/course-types'
 import { ReviewForm } from '@/components/site/ReviewForm'
 import { CourseCard } from '@/components/ui/CourseCard'
 import { TrackPageView } from '@/components/site/TrackPageView'
@@ -379,7 +380,7 @@ export default async function CourseDetailPage({ params }: Params) {
             <Section title="Praktische informatie">
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12, maxWidth: 620 }}>
                 {[
-                  ['Type', ({ practice_training: 'Praktijktraining', online_course: 'Online cursus', live_course: 'Live cursus', coaching: 'Coachingsessie', workshop: 'Workshop', webinar: 'Webinar', event: 'Evenement' } as Record<string, string>)[v.courseType]],
+                  ['Type', COURSE_TYPE_LABEL[v.courseType]],
                   ['Taal', v.languages],
                   ['Niveau', v.targetAudience.join(', ')],
                   ['Deelnemers', v.privateOneToOne ? 'Privé / één-op-één' : v.maximumParticipants ? `Maximaal ${v.maximumParticipants}` : 'Niet van toepassing'],

@@ -165,6 +165,8 @@ export type CourseFilters = {
   categorySlug?: string
   city?: string
   format?: string // online | fysiek | hybride
+  /** Type opleiding (client round 2 #3.7). */
+  courseType?: string
   certificate?: boolean // Certificaat wordt door de aanbieder uitgereikt
   certificationTypes?: string[]
   priceMin?: number
@@ -219,7 +221,9 @@ export async function getCourseCards(opts: CourseFilters = {}): Promise<{
     }
     if (opts.city) and.push({ 'location.city': { equals: opts.city } })
     if (opts.land) and.push({ 'location.country': { equals: opts.land } })
-    if (opts.format) and.push({ format: { contains: opts.format } })
+    // A "Beide" (hybride) course matches both Online and Op locatie (client round 2 #2.9).
+    if (opts.format) and.push({ format: { in: opts.format === 'hybride' ? ['hybride'] : [opts.format, 'hybride'] } })
+    if (opts.courseType) and.push({ courseType: { equals: opts.courseType } })
     if (opts.certificate) and.push({ certificate: { equals: true } })
     if (opts.certificationTypes?.length) and.push({ certificationTypes: { in: opts.certificationTypes } })
     if (typeof opts.priceMin === 'number') and.push({ 'price.amount': { greater_than_equal: opts.priceMin } })

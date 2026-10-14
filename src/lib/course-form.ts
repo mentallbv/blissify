@@ -3,6 +3,7 @@ import type { Payload } from 'payload'
 import { htmlToLexical } from '@/lib/richtext'
 import { ensureProfile } from '@/lib/ensure-profile'
 import { hasVisibleCollaboration } from '@/lib/collaborations'
+import { COURSE_TYPE_LABEL, deriveFormat } from '@/lib/course-types'
 
 type AnyUser = { id: number | string; role?: string | null }
 
@@ -142,7 +143,7 @@ export async function buildCourseData(body: Record<string, unknown>): Promise<Re
     ...certificationData(body),
     productLaunchHighlighted: Boolean(body.productLaunchHighlighted),
     // An empty choice is not a valid option value; store "no type" instead.
-    courseType: str(body.courseType) || null,
+    courseType: COURSE_TYPE_LABEL[str(body.courseType)] ? str(body.courseType) : null,
     language: Array.isArray(body.language) ? body.language : ['nl'],
     targetAudience: Array.isArray(body.targetAudience) ? body.targetAudience : [],
     practical: Array.isArray(body.practical) ? body.practical : [],
@@ -163,7 +164,9 @@ export async function buildCourseData(body: Record<string, unknown>): Promise<Re
     },
   }
   if (num(body.category) !== undefined) data.category = num(body.category)
-  if (Array.isArray(body.format)) data.format = body.format
+  // Client round 2 #2.9: the lesvorm is derived from the type (+ the follow-up
+  // answer), never sent separately, so form and filter cannot disagree.
+  if (COURSE_TYPE_LABEL[str(body.courseType)]) data.format = deriveFormat(str(body.courseType), str(body.delivery))
   if (str(body.city)) data.location = { city: str(body.city), country: str(body.country) === 'nl' ? 'nl' : 'be' }
   // null clears the image, undefined leaves it untouched on a partial update.
   if (body.coverImage === null) data.coverImage = null

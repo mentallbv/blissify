@@ -1,4 +1,5 @@
 import { CERTIFICATION_VALUES } from '@/lib/certifications'
+import { COURSE_TYPE_LABEL } from '@/lib/course-types'
 import type { CourseFilters, CourseSort } from '@/lib/data'
 
 type SearchParams = Record<string, string | string[] | undefined>
@@ -23,7 +24,8 @@ export function parseCourseFilters(sp: SearchParams): CourseFilters {
     categorySlug: one(sp.categorie) || undefined,
     city: one(sp.locatie) || undefined,
     land: one(sp.land) === 'nl' ? 'nl' : one(sp.land) === 'be' ? 'be' : undefined,
-    format: one(sp.format) || undefined,
+    format: ['online', 'fysiek', 'hybride'].includes(one(sp.format)) ? one(sp.format) : undefined,
+    courseType: COURSE_TYPE_LABEL[one(sp.type)] ? one(sp.type) : undefined,
     // Client round 2, section 6: the old ?erkend= switch is gone; unknown values are ignored.
     certificationTypes: many(sp.certificering).filter((v) => CERTIFICATION_VALUES.has(v)),
     keyword: one(sp.keyword) || undefined,

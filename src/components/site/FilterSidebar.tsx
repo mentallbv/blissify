@@ -6,11 +6,13 @@ import type { CourseFilterOptions } from '@/lib/data'
 import { CategoryPickerMenu } from './CategoryPickerMenu'
 import { CERTIFICATION_OPTIONS } from '@/lib/certifications'
 import { LocationSelect, encodeLocation, decodeLocation } from './LocationSelect'
+import { COURSE_TYPES } from '@/lib/course-types'
 
+// Client round 2 #2.9 / #3.7: every type the form offers, plus where it takes
+// place (a "Beide" course counts for both).
 const FORMATS = [
-  { value: 'fysiek', label: 'In-persoon' },
+  { value: 'fysiek', label: 'Op locatie' },
   { value: 'online', label: 'Online' },
-  { value: 'hybride', label: 'Hybride' },
 ]
 const AUDIENCES = [
   { value: 'beginner-friendly', label: 'Beginner friendly' },
@@ -59,6 +61,7 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
     locatie: params.get('locatie') || '',
     land: params.get('land') || '',
     format: params.get('format') || '',
+    type: params.get('type') || '',
     aanbieder: params.get('aanbieder') || '',
     doelgroep: params.get('doelgroep') || '',
     taal: params.get('taal') || '',
@@ -113,7 +116,7 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
 
   const hasAdvanced = Boolean(current.praktisch || current.focus || current.certificering || current.gratis || current.prijsMax)
   const [moreOpen, setMoreOpen] = React.useState(hasAdvanced)
-  const hasActive = Boolean(current.categorie || current.locatie || current.land || current.format || current.aanbieder || current.doelgroep || current.taal || hasAdvanced)
+  const hasActive = Boolean(current.categorie || current.locatie || current.land || current.format || current.type || current.aanbieder || current.doelgroep || current.taal || hasAdvanced)
 
   // Category picker (search + A-Z), shared with /opleiders and /merken. Single-
   // select here: the course `categorie` param is one slug (a main includes its
@@ -216,9 +219,19 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
       </div>
 
       <div style={{ marginBottom: 20 }}>
-        <div style={labelStyle}>Type</div>
-        <select className="bl-select" value={current.format} onChange={(e) => update('format', e.target.value)} style={selectStyle}>
+        <div style={labelStyle}>Type opleiding</div>
+        <select className="bl-select" value={current.type} onChange={(e) => update('type', e.target.value)} style={selectStyle}>
           <option value="">Alle types</option>
+          {COURSE_TYPES.map((t) => (
+            <option key={t.value} value={t.value}>{t.label}</option>
+          ))}
+        </select>
+      </div>
+
+      <div style={{ marginBottom: 20 }}>
+        <div style={labelStyle}>Online of op locatie</div>
+        <select className="bl-select" value={current.format} onChange={(e) => update('format', e.target.value)} style={selectStyle}>
+          <option value="">Beide</option>
           {FORMATS.map((f) => (
             <option key={f.value} value={f.value}>{f.label}</option>
           ))}

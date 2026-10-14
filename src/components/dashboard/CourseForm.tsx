@@ -3,6 +3,7 @@
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import { Input, Select, Button, FieldLabel, Tag } from '@/components/ui'
+import { COURSE_TYPES, DELIVERY_OPTIONS, typeNeedsDelivery } from '@/lib/course-types'
 import {
   CERTIFICATION_OPTIONS,
   CERTIFICATION_FIELDS,
@@ -40,6 +41,7 @@ export type CourseFormValues = {
   durationUnit: string
   format: string[]
   courseType: string
+  delivery: string
   language: string[]
   targetAudience: string[]
   practical: string[]
@@ -82,6 +84,7 @@ const EMPTY: CourseFormValues = {
   durationUnit: 'days',
   format: [],
   courseType: '',
+  delivery: '',
   language: ['nl'],
   targetAudience: [],
   practical: [],
@@ -98,12 +101,6 @@ const EMPTY: CourseFormValues = {
   startDates: [],
   tags: '',
 }
-
-const FORMATS = [
-  { value: 'fysiek', label: 'In-persoon' },
-  { value: 'online', label: 'Online' },
-  { value: 'hybride', label: 'Hybride' },
-]
 
 export function CourseForm({
   categories,
@@ -140,7 +137,6 @@ export function CourseForm({
   )
   const selectedCatName = v.category ? categories.find((c) => String(c.id) === v.category)?.name || 'Categorie' : ''
   const set = <K extends keyof CourseFormValues>(k: K, val: CourseFormValues[K]) => setV((s) => ({ ...s, [k]: val }))
-  const toggleFormat = (f: string) => set('format', v.format.includes(f) ? v.format.filter((x) => x !== f) : [...v.format, f])
   const toggleLanguage = (language: string) => set('language', v.language.includes(language) ? v.language.filter((item) => item !== language) : [...v.language, language])
   const toggleMany = (key: 'targetAudience' | 'practical' | 'focus', value: string) =>
     set(key, v[key].includes(value) ? v[key].filter((item) => item !== value) : [...v[key], value])
@@ -162,6 +158,8 @@ export function CourseForm({
     if (!v.shortDescription.trim()) errs.shortDescription = 'Vul een korte omschrijving in.'
     const plainDescription = v.description.replace(/<[^>]*>/g, '').trim()
     if (!plainDescription) errs.description = 'Vul een volledige omschrijving in.'
+    if (!v.courseType) errs.courseType = 'Kies een type opleiding.'
+    else if (typeNeedsDelivery(v.courseType) && !v.delivery) errs.delivery = 'Kies waar de opleiding plaatsvindt.'
     if (!v.certificationTypes.length) errs.certificationTypes = "Kies wat deelnemers krijgen, of 'Geen certificaat, diploma of accreditatie'."
     Object.assign(errs, missingCertificationFields(v.certificationTypes, v.certificationDetails))
     setFieldErrors(errs)
@@ -299,31 +297,39 @@ export function CourseForm({
       </div>
 
       <div style={card}>
-        <Select
-          label="Type opleiding"
-          placeholder="Kies een type"
-          value={v.courseType}
-          onChange={(e) => set('courseType', e.target.value)}
-          options={[
-            { value: 'practice_training', label: 'Praktijktraining' },
-            { value: 'online_course', label: 'Online cursus' },
-            { value: 'live_course', label: 'Live cursus' },
-            { value: 'coaching', label: 'Coachingsessie' },
-            { value: 'workshop', label: 'Workshop' },
-            { value: 'webinar', label: 'Webinar' },
-            { value: 'event', label: 'Evenement' },
-          ]}
-        />
+        {/* Client round 2 #2.9: one choice; the lesvorm follows from the type, or
+            from one follow-up question for types that can go either way. */}
         <div>
-          <FieldLabel>Lesvorm</FieldLabel>
-          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            {FORMATS.map((f) => (
-              <Tag key={f.value} as="button" active={v.format.includes(f.value)} onClick={() => toggleFormat(f.value)}>
-                {f.label}
-              </Tag>
-            ))}
-          </div>
+          <Select
+            label="Type opleiding"
+            placeholder="Kies een type"
+            value={v.courseType}
+            onChange={(e) => {
+              set('courseType', e.target.value)
+              clearErr('courseType')
+              clearErr('delivery')
+            }}
+            options={COURSE_TYPES.map((t) => ({ value: t.value, label: t.label }))}
+            style={errBorder('courseType')}
+          />
+          <FieldError k="courseType" />
         </div>
+        {typeNeedsDelivery(v.courseType) ? (
+          <div>
+            <Select
+              label="Waar vindt dit plaats?"
+              placeholder="Kies een optie"
+              value={v.delivery}
+              onChange={(e) => {
+                set('delivery', e.target.value)
+                clearErr('delivery')
+              }}
+              options={DELIVERY_OPTIONS}
+              style={errBorder('delivery')}
+            />
+            <FieldError k="delivery" />
+          </div>
+        ) : null}
         <div>
           <FieldLabel>Taal</FieldLabel>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
