@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { provider } = await getProviderBySlug(slug)
   if (!provider) return {}
   return {
-    title: `${provider.name} - Opleider | Blissify`,
+    title: `${provider.name} - Wellness- en beautyopleider in ${provider.location}`,
     description: `${provider.name} is een opleider op Blissify in ${provider.location}, gespecialiseerd in ${provider.speciality.toLowerCase()}.`,
   }
 }

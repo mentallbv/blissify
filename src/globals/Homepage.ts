@@ -19,7 +19,7 @@ export const Homepage: GlobalConfig = {
       fields: [
         { name: 'badge', type: 'text', defaultValue: '847 opleidingen in België' },
         { name: 'title', type: 'text', defaultValue: 'De Europese standaard voor' },
-        { name: 'highlight', type: 'text', defaultValue: 'wellnessopleiding.', admin: { description: 'Het woord met terracotta-gradient.' } },
+        { name: 'highlight', type: 'text', defaultValue: 'wellnessopleidingen.', admin: { description: 'Het woord met terracotta-gradient.' } },
         {
           name: 'subtitle',
           type: 'textarea',

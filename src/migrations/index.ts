@@ -15,6 +15,7 @@ import * as migration_20260924_trainer_social_tiktok from './20260924_trainer_so
 import * as migration_20260925_pricing_remove_branding from './20260925_pricing_remove_branding';
 import * as migration_20260925_taxonomy_to_client_list from './20260925_taxonomy_to_client_list';
 import * as migration_20260925_trainer_location_country from './20260925_trainer_location_country';
+import * as migration_20261014_copy_wellnessopleidingen from './20261014_copy_wellnessopleidingen';
 import * as migration_20261014_type_drives_lesvorm from './20261014_type_drives_lesvorm';
 import * as migration_20261014_trainer_cover_image from './20261014_trainer_cover_image';
 import * as migration_20261014_collaborations from './20261014_collaborations';
@@ -173,5 +174,10 @@ export const migrations = [
     up: migration_20261014_type_drives_lesvorm.up,
     down: migration_20261014_type_drives_lesvorm.down,
     name: '20261014_type_drives_lesvorm',
+  },
+  {
+    up: migration_20261014_copy_wellnessopleidingen.up,
+    down: migration_20261014_copy_wellnessopleidingen.down,
+    name: '20261014_copy_wellnessopleidingen',
   },
 ];

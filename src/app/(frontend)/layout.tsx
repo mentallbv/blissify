@@ -4,11 +4,11 @@ import '../../styles/blissify.css'
 
 export const metadata: Metadata = {
   title: {
-    default: 'Blissify - Wellness opleidingen in België | Vind jouw opleiding',
+    default: 'Wellness- en beautyopleidingen in België en Nederland | Blissify',
     template: '%s | Blissify',
   },
   description:
-    'Ontdek wellnessopleidingen in België. Massage, nagelstyliste, reflexologie, yoga, voeding en meer. Vergelijk aanbieders en vind de juiste opleiding via Blissify.',
+    'Ontdek wellness- en beautyopleidingen in België en Nederland: massage, nagelstyliste, gelaatsverzorging, reflexologie, yoga en meer. Vergelijk opleiders, merken en opleidingen op Blissify.',
   icons: {
     icon: [
       { url: '/brand/favicon.svg', type: 'image/svg+xml' },

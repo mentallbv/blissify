@@ -6,6 +6,7 @@ import { SavedCoursesList } from '@/components/site/SavedCoursesList'
 
 export const metadata: Metadata = {
   title: 'Bewaarde opleidingen',
+  description: 'Je bewaarde wellness- en beautyopleidingen op dit toestel, om te vergelijken.',
   robots: { index: false },
 }
 

@@ -9,9 +9,9 @@ import { getBrandCards, getMerkenFacets, type MerkenFilters } from '@/lib/data'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Merken en Leveranciers in de wellnesssector | Blissify',
+  title: 'Merken en leveranciers voor de wellness- en beautysector',
   description:
-    'Ontdek merken en leveranciers die samenwerken met opleiders in de Belgische wellness- en beautysector. Vergelijk opleidingen en partners via Blissify.',
+    'Ontdek merken en leveranciers die samenwerken met opleiders in de wellness- en beautysector in België en Nederland. Vergelijk opleidingen en partners op Blissify.',
 }
 
 const one = (v: string | string[] | undefined): string => (Array.isArray(v) ? v[0] : v || '')
@@ -44,7 +44,7 @@ export default async function MerkenPage({ searchParams }: { searchParams: Promi
             margin: '14px 0 0',
           }}
         >
-          Merken en Leveranciers op Blissify
+          Merken en leveranciers voor de beautysector
         </h1>
         <p style={{ fontFamily: 'var(--font-ui)', fontSize: 16, lineHeight: 1.7, color: 'var(--text-body)', maxWidth: 640, margin: '20px 0 0' }}>
           Ontdek merken en leveranciers die samenwerken met professionele opleiders in de Belgische wellness- en beautysector.

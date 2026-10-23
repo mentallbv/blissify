@@ -8,9 +8,9 @@ import { parseCourseFilters } from '@/lib/filters'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Wellness opleidingen in België - Alle categorieën',
+  title: 'Alle wellness- en beautyopleidingen in België en Nederland',
   description:
-    'Zoek en vergelijk wellnessopleidingen in België. Massage, nagelstyliste, schoonheid, yoga, reflexologie en meer. Filter op locatie, lesmoment en certificaat.',
+    'Zoek en vergelijk wellness- en beautyopleidingen in België en Nederland. Massage, nagelstyliste, schoonheid, yoga, reflexologie en meer. Filter op locatie, lesmoment en certificaat.',
 }
 
 type SP = Promise<Record<string, string | string[] | undefined>>
@@ -25,7 +25,7 @@ export default async function OpleidingenPage({ searchParams }: { searchParams: 
 
   return (
     <SiteChrome>
-      <Listing title={`${total} opleidingen in België`} cards={cards} total={total} options={options} activeCategory={filters.categorySlug} />
+      <Listing title={`${total} wellness- en beautyopleidingen`} cards={cards} total={total} options={options} activeCategory={filters.categorySlug} />
     </SiteChrome>
   )
 }

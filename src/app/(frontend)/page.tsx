@@ -96,11 +96,11 @@ export default async function HomePage() {
           <div className="bl-hero-split">
             {/* Left column */}
             <div style={{ maxWidth: 600 }}>
-              <Eyebrow>Professionele wellnessopleiding · België</Eyebrow>
+              <Eyebrow>Professionele wellnessopleidingen · België &amp; Nederland</Eyebrow>
               <h1 className="bl-home-hero-title" style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 64, lineHeight: 1.04, letterSpacing: '-0.02em', color: 'var(--text-brand)', margin: '20px 0 0', textWrap: 'balance' }}>
                 {hero.title || 'De Europese standaard voor'}{' '}
                 <span style={{ color: 'var(--blissify-terracotta)' }}>
-                  {hero.highlight || 'wellnessopleiding.'}
+                  {hero.highlight || 'wellnessopleidingen.'}
                 </span>
               </h1>
               <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 18, lineHeight: 1.7, color: 'var(--text-body)', margin: '22px 0 0' }}>
@@ -131,7 +131,7 @@ export default async function HomePage() {
           <div className="bl-container bl-home-section" style={{ paddingTop: 96, paddingBottom: 96 }}>
             <div style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto 48px' }}>
               <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 44, lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: 0, textWrap: 'balance' }}>
-                Uitgelicht van Merken & Leveranciers
+                Uitgelichte merken en leveranciers
               </h2>
               <a href="/merken" className="bl-textlink" style={{ display: 'inline-block', marginTop: 16 }}>Bekijk alle merken</a>
             </div>
@@ -153,7 +153,7 @@ export default async function HomePage() {
           <div className="bl-container bl-home-section" style={{ paddingTop: 96, paddingBottom: 96 }}>
             <div style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto 48px' }}>
               <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 44, lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: 0, textWrap: 'balance' }}>
-                Uitgelichte opleidingen van opleiders
+                Uitgelichte opleidingen
               </h2>
               <a href="/opleiders" className="bl-textlink" style={{ display: 'inline-block', marginTop: 16 }}>Bekijk alle opleiders</a>
             </div>

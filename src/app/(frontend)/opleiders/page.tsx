@@ -9,9 +9,9 @@ import { getProviderCards, getTrainerFilterOptions } from '@/lib/data'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Wellness opleiders in België - Beauty en wellness academies',
+  title: 'Wellnessopleiders en beautyacademies in België en Nederland',
   description:
-    'Ontdek wellness opleiders in België. Massageacademies, beautyscholen, yogascholen en meer. Vergelijk profielen en opleidingen op Blissify.',
+    'Ontdek wellness- en beautyopleiders in België en Nederland: massageacademies, beautyscholen, yogascholen en meer. Vergelijk profielen en opleidingen op Blissify.',
 }
 
 const one = (v: string | string[] | undefined): string => (Array.isArray(v) ? v[0] : v || '')
@@ -38,7 +38,7 @@ export default async function OpleidersPage({ searchParams }: { searchParams: SP
         <h1
           style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 48, letterSpacing: '-0.01em', color: 'var(--text-brand)', lineHeight: 1.1, margin: '14px 0 0', maxWidth: 760 }}
         >
-          Opleiders
+          Wellness- en beautyopleiders
         </h1>
         <p style={{ fontFamily: 'var(--font-ui)', fontSize: 16, lineHeight: 1.7, color: 'var(--text-body)', maxWidth: 640, margin: '20px 0 0' }}>
           Ontdek beauty- en wellnessopleiders in België en Nederland. Vergelijk hun profielen en opleidingen en

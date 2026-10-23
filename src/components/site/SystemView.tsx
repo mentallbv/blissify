@@ -62,7 +62,7 @@ export function SystemView({ state }: { state: 'betaling-succes' | '404' }) {
 
       <footer style={{ background: 'var(--surface-dark)', color: 'rgba(225, 230, 234,0.4)' }}>
         <div className="bl-container" style={{ paddingTop: 24, paddingBottom: 24, fontFamily: 'var(--font-ui)', fontSize: 12 }}>
-          © 2026 Blissify · Professionele wellnessopleiding · België
+          © 2026 Blissify · Professionele wellnessopleidingen · België &amp; Nederland
         </div>
       </footer>
     </div>

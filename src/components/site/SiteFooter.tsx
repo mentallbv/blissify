@@ -105,7 +105,7 @@ export function SiteFooter() {
             color: 'rgba(225, 230, 234,0.55)',
           }}
         >
-          <span>© 2026 Blissify · Professionele wellnessopleiding · België</span>
+          <span>© 2026 Blissify · Professionele wellnessopleidingen · België &amp; Nederland</span>
           <a href="/privacybeleid" className="bl-footer-link" style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'rgba(225, 230, 234,0.55)' }}>Privacybeleid</a>
           <a href="/cookiebeleid" className="bl-footer-link" style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'rgba(225, 230, 234,0.55)' }}>Cookiebeleid</a>
         </div>

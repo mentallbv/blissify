@@ -146,7 +146,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     const cat = CATEGORY_CONTENT[category]
     const catName = cat?.name || category
     return {
-      title: `Opleiding ${catName.toLowerCase()} in ${cName} - Cursussen vergelijken | Blissify`,
+      title: `Opleiding ${catName.toLowerCase()} in ${cName} - Cursussen vergelijken`,
       description: `Ontdek ${catName.toLowerCase()} opleidingen in ${cName}. Dag, avond of weekend - vergelijk lesmomenten en certificaatinformatie. Schrijf in via de aanbieder.`,
     }
   }
@@ -154,7 +154,18 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const fb = FALLBACK_COURSES.find((c) => c.slug === slug)
   const title = course?.title || fb?.title
   if (!title) return {}
-  return { title: `${title} | Blissify`, description: course?.shortDescription || undefined }
+  // A description that says what, where and by whom; the seeded "X - professionele
+  // opleiding via Blissify." placeholder is not worth showing in search results.
+  const short = (course?.shortDescription || '').trim()
+  const placeholder = /- professionele opleiding via Blissify\.?$/i.test(short)
+  const c = course as (typeof course & { trainer?: unknown; brand?: unknown }) | null
+  const owner = (c?.brand && typeof c.brand === 'object' ? (c.brand as { name?: string }).name : null) || (c?.trainer && typeof c.trainer === 'object' ? (c.trainer as { displayName?: string }).displayName : null)
+  const city = course?.location?.city
+  const typeLabel = COURSE_TYPE_LABEL[(course as { courseType?: string } | null)?.courseType || ''] || 'Opleiding'
+  // Skip the type when the title already names it ("Lymfedrainage opleiding").
+  const lead = /opleiding|cursus|workshop|training|masterclass|webinar|coaching/i.test(title) ? title : `${typeLabel} ${title}`
+  const generated = `${lead}${city ? ` in ${city}` : ''}${owner ? ` door ${owner}` : ''}. Bekijk prijs, data, certificaten en praktische info op Blissify.`
+  return { title, description: short && !placeholder ? short : generated }
 }
 
 export default async function CourseDetailPage({ params }: Params) {

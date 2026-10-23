@@ -5,7 +5,7 @@ import { getPricingCatalog } from '@/lib/data'
 export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
-  title: 'Prijzen voor opleiders | Blissify',
+  title: 'Prijzen voor opleiders',
   description: 'Vergelijk de Blissify-abonnementen voor opleiders en kies jaarlijkse of maandelijkse betaling.',
 }
 
