@@ -141,6 +141,13 @@ export async function getVacancyViewEvents(opts: { trainerId?: number; brandId?:
   return sbSelect<AnalyticsEvent>('analytics_events', `select=*&event_type=eq.vacancy_view&${filter}&order=created_at.asc`)
 }
 
+/** workspace_view events for a profile's werkruimtes. */
+export async function getWorkspaceViewEvents(opts: { trainerId?: number; brandId?: number }): Promise<AnalyticsEvent[]> {
+  const filter = opts.brandId ? `payload_brand_id=eq.${opts.brandId}` : opts.trainerId ? `payload_trainer_id=eq.${opts.trainerId}` : null
+  if (!filter) return []
+  return sbSelect<AnalyticsEvent>('analytics_events', `select=*&event_type=eq.workspace_view&${filter}&order=created_at.asc`)
+}
+
 /** course_view events for the given courses (for per-course view counts + trend). */
 export async function getCourseViewEvents(courseIds: (string | number)[]): Promise<AnalyticsEvent[]> {
   if (courseIds.length === 0) return []

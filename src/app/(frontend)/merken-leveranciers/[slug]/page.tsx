@@ -8,6 +8,8 @@ import { getBrandBySlug } from '@/lib/data'
 import { TrackPageView } from '@/components/site/TrackPageView'
 import { VacancyCard } from '@/components/site/VacancyCard'
 import { getVacanciesForProfile } from '@/lib/vacancies'
+import { WorkspaceCard } from '@/components/site/WorkspaceCard'
+import { getWorkspacesForProfile } from '@/lib/workspaces'
 import { RichTextContent } from '@/components/site/RichTextContent'
 import { cssUrl } from '@/lib/css-url'
 
@@ -30,6 +32,7 @@ export default async function MerkPage({ params }: Params) {
   const { brand, providers, collaboratingProviders, courses } = await getBrandBySlug(slug)
   if (!brand) notFound()
   const vacancies = brand.id != null ? await getVacanciesForProfile('brand', Number(brand.id)) : []
+  const workspaces = brand.id != null ? await getWorkspacesForProfile('brand', Number(brand.id)) : []
   const partnerType = ({
     productmerken: 'Productmerk',
     apparatuurmerken: 'Apparatuurmerk',
@@ -160,6 +163,14 @@ export default async function MerkPage({ params }: Params) {
           <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 28, color: 'var(--text-brand)', margin: '0 0 24px' }}>Vacatures bij {brand.name}</h2>
           <div className="bl-grid-3">
             {vacancies.map((v) => <VacancyCard key={v.id} v={v} />)}
+          </div>
+        </section>
+      ) : null}
+      {workspaces.length ? (
+        <section className="bl-container" style={{ paddingTop: 0, paddingBottom: 96 }}>
+          <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 28, color: 'var(--text-brand)', margin: '0 0 24px' }}>Werkruimtes bij {brand.name}</h2>
+          <div className="bl-grid-3">
+            {workspaces.map((w) => <WorkspaceCard key={w.id} w={w} />)}
           </div>
         </section>
       ) : null}

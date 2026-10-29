@@ -5,7 +5,7 @@ import { MetricCard } from '@/components/ui'
 import { InfoTooltip } from '@/components/site/InfoTooltip'
 import { getCurrentUser, getCurrentProfile } from '@/lib/session'
 import { getMyCourses } from '@/lib/dashboard-data'
-import { getProfileViewEvents, getCourseViewEvents, getVacancyViewEvents, getClickEvents, getLeadsForCourses, supabaseConfigured } from '@/lib/supabase'
+import { getProfileViewEvents, getCourseViewEvents, getVacancyViewEvents, getWorkspaceViewEvents, getClickEvents, getLeadsForCourses, supabaseConfigured } from '@/lib/supabase'
 import { tierForUser } from '@/lib/tier-features'
 import { redirect } from 'next/navigation'
 
@@ -24,7 +24,7 @@ export default async function DashboardAnalyticsPage() {
   const courseIds = courses.map((c) => c.id)
 
   const ownerRef = profile?.kind === 'brand' ? { brandId: profile.doc.id } : profile?.kind === 'trainer' ? { trainerId: profile.doc.id } : {}
-  const [views, courseViews, leads, clicks, vacancyViews] = await Promise.all([
+  const [views, courseViews, leads, clicks, vacancyViews, workspaceViews] = await Promise.all([
     getProfileViewEvents(profile?.kind === 'brand' ? { brandId: profile.doc.id } : profile?.kind === 'trainer' ? { trainerId: profile.doc.id } : {}),
     getCourseViewEvents(courseIds),
     getLeadsForCourses(courseIds),
@@ -34,6 +34,7 @@ export default async function DashboardAnalyticsPage() {
       courseIds,
     }),
     getVacancyViewEvents(ownerRef),
+    getWorkspaceViewEvents(ownerRef),
   ])
 
   // bucket profile views over the last 12 months
@@ -110,6 +111,11 @@ export default async function DashboardAnalyticsPage() {
           label={"Vacature\u00ADweergaven"}
           value={nf(vacancyViews.length)}
           info="Het totale aantal keren dat je vacaturepagina's zijn bekeken."
+        />
+        <MetricCard
+          label={"Werkruimte\u00ADweergaven"}
+          value={nf(workspaceViews.length)}
+          info="Het totale aantal keren dat je werkruimtepagina's zijn bekeken."
         />
         <MetricCard
           label="Aanvragen"

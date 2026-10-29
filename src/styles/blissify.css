@@ -553,7 +553,8 @@ a.bl-providercard:hover,
     transform 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 .blnav-wrap.is-scrolled .blnav-inner {
-  max-width: 920px;
+  /* Six menu items since the copy (10/2026): the pill needs room for them. */
+  max-width: 1320px;
   transform: translateY(10px);
   background: rgba(225, 230, 234, 0.72);
   -webkit-backdrop-filter: blur(14px);
@@ -574,7 +575,7 @@ a.bl-providercard:hover,
 }
 .blnav-links {
   display: flex;
-  gap: 24px;
+  gap: 18px;
 }
 .blnav-links a {
   white-space: nowrap;
@@ -679,6 +680,8 @@ a.bl-providercard:hover,
   text-align: center;
 }
 .blnav-logout {
+  /* Uitloggen lives in the dashboard and the mobile menu; the bar keeps room for the six links. */
+  display: none;
   height: 40px;
   padding: 0 8px;
   border: 0;
@@ -830,9 +833,10 @@ a.bl-providercard:hover,
 }
 @media (min-width: 1280px) {
   .blnav-inner {
-    max-width: 1280px;
-    padding-left: 64px;
-    padding-right: 64px;
+    /* Wider bar with less side padding so the copy's six menu items fit. */
+    max-width: 1360px;
+    padding-left: 40px;
+    padding-right: 40px;
   }
 }
 @media (min-width: 1600px) {
@@ -1404,4 +1408,16 @@ a.bl-providercard:hover,
   .bl-facility-row > :first-child { grid-column: 1 / -1; }
   .bl-facility-head { display: none; }
   .bl-schedule-row { grid-template-columns: 1fr; gap: 6px; }
+}
+
+/* Werkruimte detail: photo strip and fact lists. */
+.bl-ws-gallery { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 4px; height: 320px; }
+.bl-ws-gallery > div { background-size: cover; background-position: center; }
+.bl-ws-gallery > div:only-child { grid-column: 1 / -1; }
+.bl-facts { display: grid; grid-template-columns: minmax(96px, 200px) minmax(0, 1fr); gap: 10px 20px; margin: 0; font-family: var(--font-ui); font-size: 14px; }
+.bl-facts dt { color: var(--text-meta); }
+.bl-facts dd { margin: 0; color: var(--text-strong); }
+@media (max-width: 640px) {
+  .bl-ws-gallery { grid-template-columns: 1fr; height: 220px; }
+  .bl-ws-gallery > div:not(:first-child) { display: none; }
 }

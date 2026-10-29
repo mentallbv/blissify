@@ -8,7 +8,7 @@ export function TrackPageView({
   id,
   owner,
 }: {
-  kind: 'course' | 'trainer' | 'brand' | 'vacancy'
+  kind: 'course' | 'trainer' | 'brand' | 'vacancy' | 'workspace'
   id: number | string | null | undefined
   /** For vacancies: the profile the view counts towards. */
   owner?: { kind: 'trainer' | 'brand'; id: number | string } | null

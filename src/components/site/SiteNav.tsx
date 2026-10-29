@@ -11,7 +11,7 @@ const ALL_LINKS = [
   { slug: 'salons-professionals', label: 'Salons & professionals', href: '/salons-professionals', ready: true },
   { slug: 'merken-leveranciers', label: 'Merken & leveranciers', href: '/merken-leveranciers', ready: true },
   { slug: 'opleidingen', label: 'Opleidingen', href: '/opleidingen', ready: true },
-  { slug: 'werkruimtes', label: 'Werkruimtes', href: '/werkruimtes', ready: false },
+  { slug: 'werkruimtes', label: 'Werkruimtes', href: '/werkruimtes', ready: true },
   { slug: 'vacatures', label: 'Vacatures & samenwerkingen', href: '/vacatures', ready: true },
   { slug: 'abonnementen-tarieven', label: 'Abonnementen & tarieven', href: '/abonnementen-tarieven', ready: true },
 ]

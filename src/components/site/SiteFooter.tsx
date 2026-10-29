@@ -12,7 +12,7 @@ const COLS: { head: string; items: FooterLink[] }[] = [
       { label: 'Salons & professionals', href: '/salons-professionals' },
       { label: 'Merken & leveranciers', href: '/merken-leveranciers' },
       { label: 'Opleidingen', href: '/opleidingen' },
-      { label: 'Werkruimtes', href: '/werkruimtes', ready: false },
+      { label: 'Werkruimtes', href: '/werkruimtes' },
       { label: 'Vacatures & samenwerkingen', href: '/vacatures' },
     ],
   },
@@ -22,7 +22,7 @@ const COLS: { head: string; items: FooterLink[] }[] = [
       { label: 'Word aanbieder', href: '/abonnementen-tarieven' },
       { label: 'Bied opleidingen aan', href: '/abonnementen-tarieven' },
       { label: 'Promoot jouw merk', href: '/abonnementen-tarieven?voor=merken' },
-      { label: 'Bied een werkruimte aan', href: '/abonnementen-tarieven', ready: false },
+      { label: 'Bied een werkruimte aan', href: '/abonnementen-tarieven' },
       { label: 'Plaats een vacature', href: '/abonnementen-tarieven' },
     ],
   },
@@ -44,7 +44,7 @@ const POPULAR: FooterLink[] = [
   { label: 'Opleiding pedicure', href: '/opleidingen/pedicure', ready: false },
   { label: 'Massage opleiding', href: '/opleidingen/massage' },
   { label: 'Vacature schoonheidsspecialiste', href: '/vacatures/schoonheidsspecialiste' },
-  { label: 'Salon te huur', href: '/werkruimtes', ready: false },
+  { label: 'Salon te huur', href: '/werkruimtes' },
 ]
 
 const shown = (l: FooterLink) => l.ready !== false

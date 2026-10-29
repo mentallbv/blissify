@@ -151,7 +151,9 @@ export function buildWorkspaceData(body: Record<string, unknown>): Record<string
 }
 
 export async function uniqueWorkspaceSlug(payload: Payload, title: string, city: string, ignoreId?: number | string): Promise<string> {
-  const base = slugify(`${title} ${city}`) || 'werkruimte'
+  // Add the city unless the title already names it ("… in Antwerpen").
+  const withCity = title.toLowerCase().includes(city.trim().toLowerCase()) ? title : `${title} ${city}`
+  const base = slugify(withCity) || 'werkruimte'
   for (let i = 0; i < 50; i++) {
     const slug = i ? `${base}-${i + 1}` : base
     if (WORKSPACE_RESERVED_SLUGS.has(slug)) continue

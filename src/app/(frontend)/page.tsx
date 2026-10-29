@@ -13,6 +13,8 @@ import { FAQ_HOME } from '@/lib/pricing'
 import { getCurrentUser } from '@/lib/session'
 import { VacancyCard } from '@/components/site/VacancyCard'
 import { getHomepageVacancies } from '@/lib/vacancies'
+import { WorkspaceCard } from '@/components/site/WorkspaceCard'
+import { getHomepageWorkspaces } from '@/lib/workspaces'
 
 export const dynamic = 'force-dynamic'
 
@@ -78,7 +80,7 @@ export default async function HomePage() {
     : FAQ_HOME
 
   const searchOptions = await getCourseFilterOptions()
-  const [{ brandCourses, opleiderCourses }, featuredVacancies] = await Promise.all([getHomepageSections(), getHomepageVacancies()])
+  const [{ brandCourses, opleiderCourses }, featuredVacancies, featuredWorkspaces] = await Promise.all([getHomepageSections(), getHomepageVacancies(), getHomepageWorkspaces()])
   const pricingCatalog = await getPricingCatalog()
 
   return (
@@ -163,6 +165,25 @@ export default async function HomePage() {
               {opleiderCourses.slice(0, 6).map((c) => (
                 <CourseCard key={c.slug} {...c} />
               ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
+
+      {featuredWorkspaces.length ? (
+        <section>
+          <div className="bl-container bl-home-section" style={{ paddingTop: 0, paddingBottom: 96 }}>
+            <div style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto 48px' }}>
+              <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 44, lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: 0, textWrap: 'balance' }}>
+                Werkruimtes in de kijker
+              </h2>
+              <p style={{ fontFamily: 'var(--font-ui)', fontSize: 16, lineHeight: 1.7, color: 'var(--text-body)', margin: '16px 0 0' }}>
+                Een salon te huur, een stoel in een bestaande salon of een behandelkamer voor een paar dagen per week.
+              </p>
+              <a href="/werkruimtes" className="bl-textlink" style={{ display: 'inline-block', marginTop: 16 }}>Bekijk alle werkruimtes</a>
+            </div>
+            <div className="bl-grid-3">
+              {featuredWorkspaces.map((w) => <WorkspaceCard key={w.id} w={w} />)}
             </div>
           </div>
         </section>
