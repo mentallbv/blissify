@@ -14,13 +14,13 @@ import { LocationSelect, decodeLocation } from './LocationSelect'
  *
  *  - opleidingen -> /opleidingen (reads `keyword` + `locatie`); this catalogus
  *    already bundles both independent and brand/leverancier opleidingen.
- *  - merken      -> /merken (reads `q`; filters by herkomst, not stad, so the
- *    location field is hidden here).
- *  - alles       -> /opleidingen with the keyword, the broadest catalogus, plus
- *    a shortcut to browse Merken & leveranciers.
+ *  - merken      -> /merken-leveranciers (reads `q`; filters by herkomst, not
+ *    stad, so the location field is hidden here).
+ *  - werkruimtes -> /werkruimtes and vacatures -> /vacatures (read `q`,
+ *    `land` and `locatie`).
  */
 
-type Mode = 'opleidingen' | 'merken' | 'alles'
+type Mode = 'opleidingen' | 'merken' | 'werkruimtes' | 'vacatures'
 
 /**
  * Brands/leveranciers have no city - their geographic dimension is `herkomst`
@@ -69,19 +69,30 @@ const MODES: Record<
     showLocation: false,
     showHerkomst: true,
   },
-  alles: {
-    label: 'Alles',
-    title: 'Zoek op Blissify',
-    fieldLabel: 'Wat of wie zoek je?',
-    placeholders: ['opleiding, merk of leverancier...', 'massage...', 'huidverzorging...', 'apparatuur...'],
-    button: 'Zoeken',
-    path: '/opleidingen',
-    keywordParam: 'keyword',
+  werkruimtes: {
+    label: 'Werkruimtes',
+    title: 'Vind een werkruimte',
+    fieldLabel: 'Welke ruimte zoek je?',
+    placeholders: ['behandelruimte...', 'stoelhuur...', 'nageltafel...', 'praktijkruimte...'],
+    button: 'Zoek werkruimtes',
+    path: '/werkruimtes',
+    keywordParam: 'q',
+    showLocation: true,
+  },
+  vacatures: {
+    label: 'Vacatures',
+    title: 'Vind een vacature',
+    fieldLabel: 'Welke functie zoek je?',
+    placeholders: ['schoonheidsspecialiste...', 'nagelstyliste...', 'masseur...', 'kapper...'],
+    button: 'Zoek vacatures',
+    path: '/vacatures',
+    keywordParam: 'q',
     showLocation: true,
   },
 }
 
-const MODE_ORDER: Mode[] = ['opleidingen', 'merken', 'alles']
+// Copy 10/2026: Opleidingen · Merken · Werkruimtes · Vacatures.
+const MODE_ORDER: Mode[] = ['opleidingen', 'merken', 'werkruimtes', 'vacatures']
 
 export function SearchCard({
   cities,
@@ -146,6 +157,7 @@ export function SearchCard({
               role="tab"
               aria-selected={active}
               onClick={() => setMode(m)}
+              className="bl-mode-tab"
               style={{
                 flex: '1 1 auto',
                 minWidth: 0,
@@ -193,12 +205,6 @@ export function SearchCard({
             {cfg.button}
           </Button>
         </div>
-        {mode === 'alles' ? (
-          <div style={{ textAlign: 'center', fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 12, color: 'var(--text-meta)', marginTop: 2 }}>
-            Op zoek naar een merk of leverancier?{' '}
-            <a href="/merken-leveranciers" className="bl-textlink">Blader door Merken &amp; Leveranciers</a>
-          </div>
-        ) : null}
         <div style={{ textAlign: 'center', fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 12, color: 'var(--text-meta)', marginTop: 2 }}>
           {nf(counts.courses)} opleidingen · {nf(counts.opleiders)} opleiders · {nf(counts.merken)} Merken
         </div>

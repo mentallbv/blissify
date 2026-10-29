@@ -2201,7 +2201,7 @@ export interface Homepage {
     badge?: string | null;
     title?: string | null;
     /**
-     * Het woord met terracotta-gradient.
+     * Het deel in terracotta.
      */
     highlight?: string | null;
     subtitle?: string | null;

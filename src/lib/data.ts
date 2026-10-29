@@ -856,6 +856,8 @@ export async function getBrandCards(opts: MerkenFilters = {}): Promise<{ cards: 
           courseCount: courses.totalDocs,
           logo: mediaUrl(b.logo),
           website: b.website,
+          // Ultimate (Partner Ultimate) brands rotate on the homepage.
+          hasPremiumBadge: b.owner && typeof b.owner === 'object' ? tierForUser({ ...(b.owner as object), role: 'brand' } as never).features.hasHomepageExposure : false,
         }
       }),
     )

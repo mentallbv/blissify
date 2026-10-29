@@ -1114,16 +1114,23 @@ a.bl-providercard:hover,
     display: none;
   }
 }
+/* Four tabs since the copy (10/2026): tighter on narrow cards so every label fits. */
+@container (max-width: 340px) {
+  .bl-mode-tab {
+    padding: 8px 6px !important;
+    font-size: 11.5px !important;
+  }
+}
 
-/* Homepage hero: on phones the two "Vind" buttons share one row, equal width. */
+/* Homepage hero: the four "Vind" buttons as a 2 x 2 grid; on phones each takes half the width. */
 @media (max-width: 480px) {
   .bl-hero-ctas {
-    flex-wrap: nowrap !important;
+    grid-template-columns: 1fr 1fr !important;
   }
   .bl-hero-ctas > .bl-btn {
-    flex: 1 1 0;
     min-width: 0;
     padding: 0 10px;
+    justify-content: center;
   }
 }
 
@@ -1564,3 +1571,11 @@ a.bl-providercard:hover,
 
 /* Workspace results next to the filter column: two cards per row, three on wide screens. */
 .bl-grid-ws { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+
+/* FAQ page category navigation. */
+.bl-faq-navlink { display: block; padding: 9px 12px; border-radius: var(--radius-sm); font-family: var(--font-ui); font-size: 14px; color: var(--text-strong); text-decoration: none; }
+.bl-faq-navlink:hover { background: var(--surface-card); color: var(--text-brand); }
+@media (max-width: 860px) {
+  .bl-listing-grid > nav[aria-label="Categorieën"] { position: static !important; display: flex !important; flex-wrap: wrap; gap: 6px !important; }
+  .bl-faq-navlink { border: 0.5px solid var(--border-strong); padding: 6px 10px; font-size: 13px; }
+}

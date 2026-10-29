@@ -17,9 +17,9 @@ export const Homepage: GlobalConfig = {
       type: 'group',
       label: 'Hero',
       fields: [
-        { name: 'badge', type: 'text', defaultValue: '847 opleidingen in België' },
-        { name: 'title', type: 'text', defaultValue: 'De Europese standaard voor' },
-        { name: 'highlight', type: 'text', defaultValue: 'wellnessopleidingen.', admin: { description: 'Het woord met terracotta-gradient.' } },
+        { name: 'badge', type: 'text' },
+        { name: 'title', type: 'text', defaultValue: 'Alles voor jouw groei in' },
+        { name: 'highlight', type: 'text', defaultValue: 'beauty & wellness.', admin: { description: 'Het deel in terracotta.' } },
         {
           name: 'subtitle',
           type: 'textarea',
