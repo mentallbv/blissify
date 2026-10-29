@@ -180,7 +180,7 @@ export const Trainers: CollectionConfig = {
       admin: {
         position: 'sidebar',
         placeholder: '#1A2E25',
-        description: 'Hex-kleur voor je profielaccent (bijv. #1A2E25). Alleen beschikbaar met Opleider Ultimate.',
+        description: 'Hex-kleur voor je profielaccent (bijv. #1A2E25). Alleen beschikbaar met Ultimate.',
       },
     },
     {

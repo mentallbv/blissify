@@ -670,7 +670,7 @@ export async function getProviderBySlug(
 
 // ── Homepage exposure sections (B3/B4/B5) ───────────────────────────────────
 // Tier-gated: only courses owned by accounts with a "homepage exposure" perk.
-//   - Opleider Premium (subscriptionTier premium)
+//   - Premium (subscriptionTier premium)
 //   - Brand Partner Professional / Premium (brandTier), Premium weighted first
 const relId = (v: unknown): string => (v && typeof v === 'object' ? String((v as { id?: unknown }).id) : String(v))
 
@@ -1085,8 +1085,11 @@ function mapPricingAudience(raw: Record<string, any> | undefined, fallback: Pric
   // plans remain editable in the CMS, but legacy names must never override the
   // Blissify 2.0 pricing required by the client.
   const sourceTiers = Array.isArray(source.tiers) ? source.tiers : []
+  // The old ladder was Basis / Medium / Premium. "Premium" alone is a current
+  // name again (copy 10/2026: Lite / Premium / Ultimate), so only Basis and
+  // Medium mark stale data.
   const hasLegacyTierNames = sourceTiers.some((tier: Record<string, unknown>) =>
-    ['basis', 'medium', 'premium'].includes(String(tier.name || '').trim().toLowerCase()),
+    ['basis', 'medium'].includes(String(tier.name || '').trim().toLowerCase()),
   )
   const withDefined = <T extends Record<string, unknown>>(base: T, values?: Record<string, unknown>): T =>
     ({ ...base, ...Object.fromEntries(Object.entries(values || {}).filter(([, value]) => value != null && value !== '')) }) as T

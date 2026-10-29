@@ -17,7 +17,7 @@ export const TIER_AMOUNT: Record<Tier, string> = {
   medium: '490.00',
   premium: '970.00',
 }
-export const TIER_LABEL: Record<Tier, string> = { basis: 'Opleider Lite', medium: 'Opleider Premium', premium: 'Opleider Ultimate' }
+export const TIER_LABEL: Record<Tier, string> = { basis: 'Lite', medium: 'Premium', premium: 'Ultimate' }
 
 /** Merk & Leverancier (Brand) tiers - separate ladder, annual only. */
 export type BrandTier = 'partner_listing' | 'partner_professional' | 'partner_premium'

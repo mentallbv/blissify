@@ -8,7 +8,7 @@ import { tierFeatures } from '@/lib/tier-features'
 
 export const dynamic = 'force-dynamic'
 
-const TIER_LABEL: Record<string, string> = { basis: 'Opleider Lite', medium: 'Opleider Premium', premium: 'Opleider Ultimate' }
+const TIER_LABEL: Record<string, string> = { basis: 'Lite', medium: 'Premium', premium: 'Ultimate' }
 const BRAND_TIER_LABEL: Record<string, string> = { partner_listing: 'Partner Lite', partner_professional: 'Partner Premium', partner_premium: 'Partner Ultimate' }
 const STATUS_LABEL: Record<string, string> = { active: 'Actief', inactive: 'Inactief', canceled: 'Geannuleerd', past_due: 'Verlopen' }
 

@@ -543,7 +543,7 @@ export interface Trainer {
     linkedin?: string | null;
   };
   /**
-   * Hex-kleur voor je profielaccent (bijv. #1A2E25). Alleen beschikbaar met Opleider Ultimate.
+   * Hex-kleur voor je profielaccent (bijv. #1A2E25). Alleen beschikbaar met Ultimate.
    */
   profileAccentColor?: string | null;
   featured?: boolean | null;

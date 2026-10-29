@@ -26,9 +26,9 @@ export const SubscriptionSettings: GlobalConfig = {
       defaultValue: ['premium'],
       admin: { description: 'Welke Opleider-abonnementen mogen uitgelicht worden op de homepage.' },
       options: [
-        { label: 'Opleider Lite', value: 'basis' },
-        { label: 'Opleider Premium', value: 'medium' },
-        { label: 'Opleider Ultimate', value: 'premium' },
+        { label: 'Lite', value: 'basis' },
+        { label: 'Premium', value: 'medium' },
+        { label: 'Ultimate', value: 'premium' },
       ],
     },
     {

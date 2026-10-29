@@ -20,6 +20,7 @@ import * as migration_20261029_unpin_homepage_courses from './20261029_unpin_hom
 import * as migration_20261029_unpublish_test_course from './20261029_unpublish_test_course';
 import * as migration_20261029_brand_values from './20261029_brand_values';
 import * as migration_20261029_legal_pages from './20261029_legal_pages';
+import * as migration_20261029_pricing_copy from './20261029_pricing_copy';
 import * as migration_20261014_type_drives_lesvorm from './20261014_type_drives_lesvorm';
 import * as migration_20261014_trainer_cover_image from './20261014_trainer_cover_image';
 import * as migration_20261014_collaborations from './20261014_collaborations';
@@ -203,5 +204,10 @@ export const migrations = [
     up: migration_20261029_legal_pages.up,
     down: migration_20261029_legal_pages.down,
     name: '20261029_legal_pages',
+  },
+  {
+    up: migration_20261029_pricing_copy.up,
+    down: migration_20261029_pricing_copy.down,
+    name: '20261029_pricing_copy',
   },
 ];

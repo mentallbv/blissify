@@ -14,7 +14,7 @@ export type Tier = {
 export const TIERS: Tier[] = [
   {
     key: 'basis',
-    name: 'Opleider Lite',
+    name: 'Lite',
     tagline: 'Voor starters en kleine opleiders',
     monthlyPrice: 15,
     annualPrice: 150,
@@ -24,24 +24,24 @@ export const TIERS: Tier[] = [
   },
   {
     key: 'medium',
-    name: 'Opleider Premium',
+    name: 'Premium',
     tagline: 'Voor actieve opleiders met meerdere opleidingen',
     monthlyPrice: 49,
     annualPrice: 490,
     price: '€ 490',
     desc: 'Presenteer meerdere opleidingen en volg hun bereik met basisstatistieken.',
-    features: ['Alles uit Opleider Lite', 'Tot 5 actieve opleidingen', 'Basisstatistieken', 'Profiel- en opleidingsweergaven', 'Websiteklikken en populairste opleidingen'],
+    features: ['Alles uit Lite', 'Tot 5 actieve opleidingen', 'Basisstatistieken', 'Profiel- en opleidingsweergaven', 'Websiteklikken en populairste opleidingen'],
     recommended: true,
   },
   {
     key: 'premium',
-    name: 'Opleider Ultimate',
+    name: 'Ultimate',
     tagline: 'Voor gevestigde opleiders en academies',
     monthlyPrice: 97,
     annualPrice: 970,
     price: '€ 970',
     desc: 'Onbeperkt publiceren met diepe inzichten en exclusieve zichtbaarheid.',
-    features: ['Alles uit Opleider Premium', 'Onbeperkt actieve opleidingen', 'Geavanceerde statistieken per opleiding', 'Vergelijking, evolutie en CTR', 'Prioritaire ranking en homepage-rotatie', 'Ultimate badge'],
+    features: ['Alles uit Premium', 'Onbeperkt actieve opleidingen', 'Geavanceerde statistieken per opleiding', 'Vergelijking, evolutie en CTR', 'Prioritaire ranking en homepage-rotatie', 'Ultimate badge'],
   },
 ]
 
@@ -117,9 +117,9 @@ export const PRICING_FALLBACK: PricingData = {
     features: t.features,
   })),
   comparison: {
-    col1: 'Opleider Lite',
-    col2: 'Opleider Premium',
-    col3: 'Opleider Ultimate',
+    col1: 'Lite',
+    col2: 'Premium',
+    col3: 'Ultimate',
     rows: COMPARE_ROWS.map((r) => ({ feature: r.feature, v1: r.basis, v2: r.medium, v3: r.premium })),
   },
   bottomCta: {

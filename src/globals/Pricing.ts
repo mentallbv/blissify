@@ -140,9 +140,9 @@ export const Pricing: GlobalConfig = {
       label: 'Vergelijkingstabel',
       admin: { hidden: true },
       fields: [
-        { name: 'col1', type: 'text', defaultValue: 'Opleider Lite' },
-        { name: 'col2', type: 'text', defaultValue: 'Opleider Premium' },
-        { name: 'col3', type: 'text', defaultValue: 'Opleider Ultimate' },
+        { name: 'col1', type: 'text', defaultValue: 'Lite' },
+        { name: 'col2', type: 'text', defaultValue: 'Premium' },
+        { name: 'col3', type: 'text', defaultValue: 'Ultimate' },
         {
           name: 'rows',
           type: 'array',

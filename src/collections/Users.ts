@@ -151,9 +151,9 @@ export const Users: CollectionConfig = {
       defaultValue: 'basis',
       saveToJWT: true,
       options: [
-        { label: 'Opleider Lite (€15/maand of €150/jaar)', value: 'basis' },
-        { label: 'Opleider Premium (€49/maand of €490/jaar)', value: 'medium' },
-        { label: 'Opleider Ultimate (€97/maand of €970/jaar)', value: 'premium' },
+        { label: 'Lite (€15/maand of €150/jaar)', value: 'basis' },
+        { label: 'Premium (€49/maand of €490/jaar)', value: 'medium' },
+        { label: 'Ultimate (€97/maand of €970/jaar)', value: 'premium' },
       ],
       access: {
         update: adminOnlyField,
@@ -270,9 +270,9 @@ export const Users: CollectionConfig = {
       name: 'pendingSubscriptionTier',
       type: 'select',
       options: [
-        { label: 'Opleider Lite', value: 'basis' },
-        { label: 'Opleider Premium', value: 'medium' },
-        { label: 'Opleider Ultimate', value: 'premium' },
+        { label: 'Lite', value: 'basis' },
+        { label: 'Premium', value: 'medium' },
+        { label: 'Ultimate', value: 'premium' },
         { label: 'Partner Lite', value: 'partner_listing' },
         { label: 'Partner Premium', value: 'partner_professional' },
         { label: 'Partner Ultimate', value: 'partner_premium' },
