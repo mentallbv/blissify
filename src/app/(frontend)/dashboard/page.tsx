@@ -7,6 +7,7 @@ import { getCurrentUser, getCurrentProfile, profileName } from '@/lib/session'
 import { getMyCourses, getMyCourseCounts } from '@/lib/dashboard-data'
 import { getLeadsForCourses, getProfileViewEvents } from '@/lib/supabase'
 import { isEntitled } from '@/lib/entitlement'
+import { tierForUser } from '@/lib/tier-features'
 
 export const dynamic = 'force-dynamic'
 
@@ -26,9 +27,13 @@ export default async function DashboardOverviewPage() {
   const [courses, counts] = await Promise.all([getMyCourses(profile), getMyCourseCounts(profile)])
   const courseIds = courses.map((c) => c.id)
   const leads = await getLeadsForCourses(courseIds)
-  const views = await getProfileViewEvents(
-    profile?.kind === 'brand' ? { brandId: profile.doc.id } : profile?.kind === 'trainer' ? { trainerId: profile.doc.id } : {},
-  )
+  // Statistics (views, request counts, conversion) are a Premium+ perk: Lite sees none.
+  const hasAnalytics = tierForUser(sub || {}).features.hasAnalytics
+  const views = hasAnalytics
+    ? await getProfileViewEvents(
+        profile?.kind === 'brand' ? { brandId: profile.doc.id } : profile?.kind === 'trainer' ? { trainerId: profile.doc.id } : {},
+      )
+    : []
 
   // enquiries per course
   const perCourse = new Map<string, number>()
@@ -63,12 +68,26 @@ export default async function DashboardOverviewPage() {
         ) : null}
       </div>
 
-      <div className="bl-dashboard-metrics" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 40 }}>
-        <MetricCard label="Profielweergaven" value={viewCount.toLocaleString('nl-BE')} change="0% t.o.v. vorige maand" />
-        <MetricCard label="Aanvragen" value={leadCount.toLocaleString('nl-BE')} change={`${leadCount} totaal`} />
-        <MetricCard label="Actieve opleidingen" value={String(counts.active)} change={`${counts.total} totaal`} />
-        <MetricCard label="Conversieratio" value={conversion} change="leads ÷ weergaven" featured />
-      </div>
+      {hasAnalytics ? (
+        <div className="bl-dashboard-metrics" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 40 }}>
+          <MetricCard label="Profielweergaven" value={viewCount.toLocaleString('nl-BE')} change="0% t.o.v. vorige maand" />
+          <MetricCard label="Aanvragen" value={leadCount.toLocaleString('nl-BE')} change={`${leadCount} totaal`} />
+          <MetricCard label="Actieve opleidingen" value={String(counts.active)} change={`${counts.total} totaal`} />
+          <MetricCard label="Conversieratio" value={conversion} change="leads ÷ weergaven" featured />
+        </div>
+      ) : (
+        <div className="bl-dashboard-metrics" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 40 }}>
+          <MetricCard label="Actieve opleidingen" value={String(counts.active)} change={`${counts.total} totaal`} />
+          <div style={{ gridColumn: 'span 3', background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: 24, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+            <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, lineHeight: 1.6, color: 'var(--text-body)', margin: 0, maxWidth: 460 }}>
+              Statistieken zoals profielweergaven, aanvragen en conversieratio zijn beschikbaar vanaf Premium.
+            </p>
+            <ButtonLink href="/dashboard/abonnement" variant="ghost" size="sm">
+              Bekijk je abonnement
+            </ButtonLink>
+          </div>
+        </div>
+      )}
 
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 16 }}>
         <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 24, color: 'var(--text-brand)', margin: 0 }}>
