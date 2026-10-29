@@ -50,9 +50,9 @@ export default async function MerkenPage({ searchParams }: { searchParams: Promi
         </p>
         <div style={{ marginTop: 24 }}>
           <div style={{ marginBottom: 16 }}>
-            <NameSearch basePath="/merken" placeholder="Zoek op merk- of bedrijfsnaam" />
+            <NameSearch basePath="/merken-leveranciers" placeholder="Zoek op merk- of bedrijfsnaam" />
           </div>
-          <MerkenFilterBar facets={facets} basePath="/merken" />
+          <MerkenFilterBar facets={facets} basePath="/merken-leveranciers" />
         </div>
       </section>
 

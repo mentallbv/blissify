@@ -113,7 +113,7 @@ export default async function HomePage() {
                 <ButtonLink href={hero.primaryCtaUrl || '/opleidingen'} variant="primary">
                   {hero.primaryCtaLabel || 'Vind een opleiding'}
                 </ButtonLink>
-                <ButtonLink href="/merken" variant="primary">
+                <ButtonLink href="/merken-leveranciers" variant="primary">
                   Vind een merk
                 </ButtonLink>
               </div>
@@ -133,7 +133,7 @@ export default async function HomePage() {
               <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 44, lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: 0, textWrap: 'balance' }}>
                 Uitgelichte merken en leveranciers
               </h2>
-              <a href="/merken" className="bl-textlink" style={{ display: 'inline-block', marginTop: 16 }}>Bekijk alle merken</a>
+              <a href="/merken-leveranciers" className="bl-textlink" style={{ display: 'inline-block', marginTop: 16 }}>Bekijk alle merken</a>
             </div>
             <div className="bl-grid-3">
               {brandCourses.slice(0, 6).map((c) => (
@@ -155,7 +155,7 @@ export default async function HomePage() {
               <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 44, lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: 0, textWrap: 'balance' }}>
                 Uitgelichte opleidingen
               </h2>
-              <a href="/opleiders" className="bl-textlink" style={{ display: 'inline-block', marginTop: 16 }}>Bekijk alle opleiders</a>
+              <a href="/salons-professionals" className="bl-textlink" style={{ display: 'inline-block', marginTop: 16 }}>Bekijk alle opleiders</a>
             </div>
             <div className="bl-grid-3">
               {opleiderCourses.slice(0, 6).map((c) => (
@@ -207,7 +207,7 @@ export default async function HomePage() {
                   'Word gevonden via zoeken en filters op categorie, locatie en lesmoment.',
                   'Ontvang rechtstreeks informatieaanvragen en inschrijvingen, zonder tussenpersoon.',
                 ],
-                cta: { href: '/voor-aanbieders', label: 'Publiceer jouw opleiding' },
+                cta: { href: '/abonnementen-tarieven', label: 'Publiceer jouw opleiding' },
               },
               {
                 eyebrow: 'Voor merken & leveranciers',

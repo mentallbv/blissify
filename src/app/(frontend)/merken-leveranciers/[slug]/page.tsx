@@ -128,7 +128,7 @@ export default async function MerkPage({ params }: Params) {
             </p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
               {collaboratingProviders.map((op) => (
-                <a key={op.slug} href={`/opleiders/${op.slug}`} className="bl-textlink" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-pill)', padding: '8px 16px', fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-accent)' }}>
+                <a key={op.slug} href={`/salons-professionals/${op.slug}`} className="bl-textlink" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-pill)', padding: '8px 16px', fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-accent)' }}>
                   <i className="ti ti-user" style={{ fontSize: 15 }} />
                   {op.name}
                 </a>

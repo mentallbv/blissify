@@ -532,7 +532,7 @@ export default async function CourseDetailPage({ params }: Params) {
                 </div>
               </div>
               {v.providerSlug ? (
-                <a href={v.providerType === 'brand' ? `/merken/${v.providerSlug}` : `/opleiders/${v.providerSlug}`} className="bl-textlink" style={{ display: 'inline-block', marginTop: 14 }}>
+                <a href={v.providerType === 'brand' ? `/merken-leveranciers/${v.providerSlug}` : `/salons-professionals/${v.providerSlug}`} className="bl-textlink" style={{ display: 'inline-block', marginTop: 14 }}>
                   Bekijk {v.providerType === 'brand' ? 'merkprofiel' : 'opleiderprofiel'}
                 </a>
               ) : null}

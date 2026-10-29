@@ -5,11 +5,17 @@ import { Logo } from '@/components/ui/Logo'
 import { usePathname } from 'next/navigation'
 import { useSavedCourses } from '@/lib/saved-courses'
 
-const LINKS = [
-  { slug: 'opleidingen', label: 'Opleidingen', href: '/opleidingen' },
-  { slug: 'opleiders', label: 'Opleiders', href: '/opleiders' },
-  { slug: 'merken', label: 'Merken en Leveranciers', href: '/merken' },
+// Main menu from the copy (10/2026). Werkruimtes and Vacatures appear once
+// their pages exist (flip `ready`).
+const ALL_LINKS = [
+  { slug: 'salons-professionals', label: 'Salons & professionals', href: '/salons-professionals', ready: true },
+  { slug: 'merken-leveranciers', label: 'Merken & leveranciers', href: '/merken-leveranciers', ready: true },
+  { slug: 'opleidingen', label: 'Opleidingen', href: '/opleidingen', ready: true },
+  { slug: 'werkruimtes', label: 'Werkruimtes', href: '/werkruimtes', ready: false },
+  { slug: 'vacatures', label: 'Vacatures & samenwerkingen', href: '/vacatures', ready: false },
+  { slug: 'abonnementen-tarieven', label: 'Abonnementen & tarieven', href: '/abonnementen-tarieven', ready: true },
 ]
+const LINKS = ALL_LINKS.filter((l) => l.ready)
 
 export function SiteNav({ user = null }: { user?: { name?: string | null; role?: string | null } | null }) {
   const pathname = usePathname() || '/'
@@ -49,20 +55,11 @@ export function SiteNav({ user = null }: { user?: { name?: string | null; role?:
               {l.label}
             </a>
           ))}
-          <div className={'blnav-dropdown' + (isActive('/prijzen') ? ' active' : '')}>
-            <a href="/prijzen/opleiders" className={isActive('/prijzen') ? 'active' : ''}>
-              Prijzen <i className="ti ti-chevron-down" aria-hidden="true" />
-            </a>
-            <div className="blnav-dropdown-menu">
-              <a href="/prijzen/opleiders" className={isActive('/prijzen/opleiders') ? 'active' : ''}>Voor opleiders</a>
-              <a href="/prijzen/merken-leveranciers" className={isActive('/prijzen/merken-leveranciers') ? 'active' : ''}>Voor merken &amp; leveranciers</a>
-            </div>
-          </div>
         </nav>
         <div className="blnav-right">
           {savedCount ? (
             // Saved courses (client round 2 #4.3), only once something is saved.
-            <a className="blnav-saved" href="/bewaard" aria-label={`Bewaarde opleidingen (${savedCount})`}>
+            <a className="blnav-saved" href="/favorieten" aria-label={`Mijn favorieten (${savedCount})`}>
               <i className="ti ti-heart-filled" aria-hidden="true" />
               <span className="blnav-saved-count">{savedCount}</span>
             </a>
@@ -77,8 +74,8 @@ export function SiteNav({ user = null }: { user?: { name?: string | null; role?:
           ) : (
             <a className="blnav-login" href="/inloggen">Inloggen</a>
           )}
-          <a className="blnav-cta" href="/voor-aanbieders">
-            Publiceer
+          <a className="blnav-cta" href="/abonnementen-tarieven">
+            Word aanbieder
           </a>
           <button
             type="button"
@@ -96,11 +93,6 @@ export function SiteNav({ user = null }: { user?: { name?: string | null; role?:
         {LINKS.map((link) => (
           <a key={link.slug} href={link.href} className={isActive(link.href) ? 'active' : ''}>{link.label}</a>
         ))}
-        <div className="blnav-mobile-pricing">
-          <span>Prijzen</span>
-          <a href="/prijzen/opleiders" className={isActive('/prijzen/opleiders') ? 'active' : ''}>Voor opleiders</a>
-          <a href="/prijzen/merken-leveranciers" className={isActive('/prijzen/merken-leveranciers') ? 'active' : ''}>Voor merken &amp; leveranciers</a>
-        </div>
         {user ? (
           <div className="blnav-mobile-account">
             <a href={accountHref}>{accountLabel}</a>

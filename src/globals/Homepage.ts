@@ -29,7 +29,7 @@ export const Homepage: GlobalConfig = {
         { name: 'primaryCtaLabel', type: 'text', defaultValue: 'Vind een opleiding' },
         { name: 'primaryCtaUrl', type: 'text', defaultValue: '/opleidingen' },
         { name: 'secondaryCtaLabel', type: 'text', defaultValue: 'Publiceer jouw opleiding' },
-        { name: 'secondaryCtaUrl', type: 'text', defaultValue: '/voor-aanbieders' },
+        { name: 'secondaryCtaUrl', type: 'text', defaultValue: '/abonnementen-tarieven' },
       ],
     },
     {

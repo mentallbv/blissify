@@ -132,7 +132,7 @@ export function AuthForm({
               </div>
             ))}
           </div>
-          <a href={role === 'trainer' ? '/prijzen/opleiders' : '/prijzen/merken-leveranciers'} className="bl-textlink" style={{ display: 'inline-block', marginTop: 10, fontSize: 12 }}>
+          <a href={role === 'trainer' ? '/abonnementen-tarieven' : '/abonnementen-tarieven?voor=merken'} className="bl-textlink" style={{ display: 'inline-block', marginTop: 10, fontSize: 12 }}>
             Bekijk alle details en maandprijzen
           </a>
         </div>

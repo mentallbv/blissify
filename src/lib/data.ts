@@ -119,7 +119,7 @@ function fallbackCard(c: FallbackCourse): CourseCardData {
 function fallbackProvider(p: FallbackProvider): ProviderCardData {
   return {
     slug: p.slug,
-    href: `/opleiders/${p.slug}`,
+    href: `/salons-professionals/${p.slug}`,
     name: p.name,
     initial: p.initial,
     location: p.location,
@@ -538,7 +538,7 @@ export async function getProviderCards(
         const firstMain = slugs ? [...slugs].map((s) => mainLabel.get(s)).find(Boolean) : undefined
         return {
           slug: t.slug,
-          href: `/opleiders/${t.slug}`,
+          href: `/salons-professionals/${t.slug}`,
           name: t.displayName,
           initial: t.displayName[0],
           location: t.location?.city || 'België',
@@ -579,7 +579,7 @@ export async function getProviderCards(
           const firstMain = slugs ? [...slugs].map((s) => mainLabel.get(s)).find(Boolean) : undefined
           return {
             slug: b.slug,
-            href: `/merken/${b.slug}`,
+            href: `/merken-leveranciers/${b.slug}`,
             name: b.name,
             initial: b.name[0],
             location: HERKOMST_LABEL[(b as { herkomst?: string }).herkomst || ''] || 'België',
@@ -629,7 +629,7 @@ export async function getProviderBySlug(
       provider: {
         id: t.id,
         slug: t.slug,
-        href: `/opleiders/${t.slug}`,
+        href: `/salons-professionals/${t.slug}`,
         name: t.displayName,
         initial: t.displayName[0],
         location: t.location?.city || 'België',
@@ -848,7 +848,7 @@ export async function getBrandCards(opts: MerkenFilters = {}): Promise<{ cards: 
         })
         return {
           slug: b.slug,
-          href: `/merken/${b.slug}`,
+          href: `/merken-leveranciers/${b.slug}`,
           name: b.name,
           initial: b.name[0],
           sector: (b.tags && b.tags[0]) || 'Wellnessmerk',
@@ -866,7 +866,7 @@ export async function getBrandCards(opts: MerkenFilters = {}): Promise<{ cards: 
     return {
       cards: FALLBACK_BRANDS.map((b) => ({
         slug: b.slug,
-        href: `/merken/${b.slug}`,
+        href: `/merken-leveranciers/${b.slug}`,
         name: b.name,
         initial: b.initial,
         sector: b.sector,
@@ -966,7 +966,7 @@ export async function getBrandBySlug(
       brand: {
         id: b.id,
         slug: b.slug,
-        href: `/merken/${b.slug}`,
+        href: `/merken-leveranciers/${b.slug}`,
         name: b.name,
         initial: b.name[0],
         sector: (b.tags && b.tags[0]) || 'Wellnessmerk',
@@ -992,7 +992,7 @@ export async function getBrandBySlug(
       },
       providers: trainers.docs.map((t) => ({
         slug: t.slug,
-        href: `/opleiders/${t.slug}`,
+        href: `/salons-professionals/${t.slug}`,
         name: t.displayName,
         initial: t.displayName[0],
         location: t.location?.city || 'België',
@@ -1010,7 +1010,7 @@ export async function getBrandBySlug(
     return {
       brand: {
         slug: fb.slug,
-        href: `/merken/${fb.slug}`,
+        href: `/merken-leveranciers/${fb.slug}`,
         name: fb.name,
         initial: fb.initial,
         sector: fb.sector,
@@ -1210,14 +1210,14 @@ export async function getCourseCollaboration(course: Course): Promise<{ label: s
       const trainerId = relId(c.trainer)
       if (!brandId || !trainerId || !(await hasVisibleCollaboration(payload, brandId, trainerId))) return null
       const b = await payload.findByID({ collection: 'brands', id: brandId, depth: 0 }).catch(() => null)
-      return b ? { label: 'In samenwerking met', name: b.name, href: `/merken/${b.slug}` } : null
+      return b ? { label: 'In samenwerking met', name: b.name, href: `/merken-leveranciers/${b.slug}` } : null
     }
     if (c.brand && c.deliveredByTrainer) {
       const brandId = relId(c.brand)
       const trainerId = relId(c.deliveredByTrainer)
       if (!brandId || !trainerId || !(await hasVisibleCollaboration(payload, brandId, trainerId))) return null
       const t = await payload.findByID({ collection: 'trainers', id: trainerId, depth: 0 }).catch(() => null)
-      return t ? { label: 'Opleiding verzorgd door', name: t.displayName, href: `/opleiders/${t.slug}` } : null
+      return t ? { label: 'Opleiding verzorgd door', name: t.displayName, href: `/salons-professionals/${t.slug}` } : null
     }
     return null
   } catch {

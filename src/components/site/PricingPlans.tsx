@@ -25,7 +25,7 @@ export function PricingPlans({
   const [cycle, setCycle] = React.useState<'yearly' | 'monthly'>('yearly')
   const data = catalog[audience]
   const monthlyAvailable = audience === 'opleiders' && billing.monthlyEnabled
-  const detailHref = audience === 'brands' ? '/prijzen/merken-leveranciers' : '/prijzen/opleiders'
+  const detailHref = audience === 'brands' ? '/abonnementen-tarieven?voor=merken' : '/abonnementen-tarieven'
 
   return (
     <>

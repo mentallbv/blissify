@@ -64,7 +64,7 @@ const MODES: Record<
     fieldLabel: 'Welk merk, product of apparaat zoek je?',
     placeholders: ['huidverzorging...', 'apparatuur...', 'nagelproducten...', 'groothandel...', 'massageolie...'],
     button: 'Zoek merken & leveranciers',
-    path: '/merken',
+    path: '/merken-leveranciers',
     keywordParam: 'q',
     showLocation: false,
     showHerkomst: true,
@@ -196,7 +196,7 @@ export function SearchCard({
         {mode === 'alles' ? (
           <div style={{ textAlign: 'center', fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 12, color: 'var(--text-meta)', marginTop: 2 }}>
             Op zoek naar een merk of leverancier?{' '}
-            <a href="/merken" className="bl-textlink">Blader door Merken &amp; Leveranciers</a>
+            <a href="/merken-leveranciers" className="bl-textlink">Blader door Merken &amp; Leveranciers</a>
           </div>
         ) : null}
         <div style={{ textAlign: 'center', fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 12, color: 'var(--text-meta)', marginTop: 2 }}>

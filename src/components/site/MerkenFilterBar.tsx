@@ -14,7 +14,7 @@ import { CategoryPickerMenu } from './CategoryPickerMenu'
  */
 export function MerkenFilterBar({
   facets,
-  basePath = '/merken',
+  basePath = '/merken-leveranciers',
   groups = MERKEN_GROUPS,
 }: {
   facets: MerkenFacets

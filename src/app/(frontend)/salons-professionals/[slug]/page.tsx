@@ -168,7 +168,7 @@ export default async function ProviderProfilePage({ params }: Params) {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {p.collaboratingBrands.map((b) => (
-                  <a key={b.slug} href={`/merken/${b.slug}`} style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'var(--text-accent)', fontFamily: 'var(--font-ui)', fontSize: 14 }}>
+                  <a key={b.slug} href={`/merken-leveranciers/${b.slug}`} style={{ display: 'flex', alignItems: 'center', gap: 10, color: 'var(--text-accent)', fontFamily: 'var(--font-ui)', fontSize: 14 }}>
                     {b.logo ? <img src={b.logo} alt="" style={{ width: 28, height: 28, borderRadius: 6, objectFit: 'cover', flex: 'none' }} /> : null}
                     <span className="bl-textlink">{b.name}</span>
                   </a>

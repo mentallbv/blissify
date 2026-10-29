@@ -48,9 +48,9 @@ export default async function OpleidersPage({ searchParams }: { searchParams: SP
 
       <section className="bl-container" style={{ paddingTop: 8, paddingBottom: 0 }}>
         <div style={{ marginBottom: 16 }}>
-          <NameSearch basePath="/opleiders" placeholder="Zoek op naam van opleider of bedrijf" />
+          <NameSearch basePath="/salons-professionals" placeholder="Zoek op naam van opleider of bedrijf" />
         </div>
-        <MerkenFilterBar facets={opts.facets} groups={opts.groups} basePath="/opleiders" />
+        <MerkenFilterBar facets={opts.facets} groups={opts.groups} basePath="/salons-professionals" />
       </section>
 
       <section className="bl-container" style={{ paddingTop: 24, paddingBottom: 64 }}>

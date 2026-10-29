@@ -26,6 +26,20 @@ const nextConfig: NextConfig = {
 
     return webpackConfig
   },
+  // URL structure from the copy (10/2026); old URLs keep their SEO via 301s.
+  async redirects() {
+    return [
+      { source: '/opleiders', destination: '/salons-professionals', permanent: true },
+      { source: '/opleiders/:slug', destination: '/salons-professionals/:slug', permanent: true },
+      { source: '/merken', destination: '/merken-leveranciers', permanent: true },
+      { source: '/merken/:slug', destination: '/merken-leveranciers/:slug', permanent: true },
+      { source: '/prijzen', destination: '/abonnementen-tarieven', permanent: true },
+      { source: '/prijzen/opleiders', destination: '/abonnementen-tarieven', permanent: true },
+      { source: '/prijzen/merken-leveranciers', destination: '/abonnementen-tarieven?voor=merken', permanent: true },
+      { source: '/voor-aanbieders', destination: '/abonnementen-tarieven', permanent: true },
+      { source: '/bewaard', destination: '/favorieten', permanent: true },
+    ]
+  },
   turbopack: {
     root: path.resolve(dirname),
   },

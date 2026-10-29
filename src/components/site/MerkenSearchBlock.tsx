@@ -16,7 +16,7 @@ export function MerkenSearchBlock({ facets }: { facets: MerkenFacets }) {
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
     const q = String(new FormData(e.currentTarget).get('q') || '').trim()
-    router.push(q ? `/merken?q=${encodeURIComponent(q)}` : '/merken')
+    router.push(q ? `/merken-leveranciers?q=${encodeURIComponent(q)}` : '/merken-leveranciers')
   }
 
   return (
@@ -39,7 +39,7 @@ export function MerkenSearchBlock({ facets }: { facets: MerkenFacets }) {
           Zoek merken
         </Button>
       </form>
-      <MerkenFilterBar facets={facets} basePath="/merken" />
+      <MerkenFilterBar facets={facets} basePath="/merken-leveranciers" />
     </div>
   )
 }

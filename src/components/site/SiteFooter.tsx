@@ -15,17 +15,17 @@ const COLS = [
   {
     head: 'Ontdekken',
     items: [
-      { label: 'Alle opleiders', href: '/opleiders' },
-      { label: 'Merken en Leveranciers', href: '/merken' },
-      { label: 'Publiceer opleiding', href: '/voor-aanbieders' },
+      { label: 'Alle opleiders', href: '/salons-professionals' },
+      { label: 'Merken en Leveranciers', href: '/merken-leveranciers' },
+      { label: 'Publiceer opleiding', href: '/abonnementen-tarieven' },
     ],
   },
   {
     head: 'Platform',
     items: [
       { label: 'Over ons', href: '/over-ons' },
-      { label: 'Voor aanbieders', href: '/voor-aanbieders' },
-      { label: 'Prijzen', href: '/prijzen' },
+      { label: 'Voor aanbieders', href: '/abonnementen-tarieven' },
+      { label: 'Prijzen', href: '/abonnementen-tarieven' },
       { label: 'Contact', href: '/contact' },
     ],
   },

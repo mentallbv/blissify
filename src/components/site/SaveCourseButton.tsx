@@ -16,7 +16,7 @@ export function SaveCourseButton({ course }: { course: Omit<SavedCourse, 'savedA
       {saved ? (
         <div style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-meta)', textAlign: 'center', marginTop: 6 }}>
           Bewaard op dit toestel ·{' '}
-          <a href="/bewaard" style={{ color: 'var(--text-accent)', textDecoration: 'underline', textUnderlineOffset: 3 }}>
+          <a href="/favorieten" style={{ color: 'var(--text-accent)', textDecoration: 'underline', textUnderlineOffset: 3 }}>
             Bekijk bewaarde opleidingen
           </a>
         </div>

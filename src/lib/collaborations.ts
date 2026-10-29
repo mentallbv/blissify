@@ -129,7 +129,7 @@ export async function listCollaborationsFor(payload: Payload, owner: { brand: nu
           slug: o.slug,
           name: (isBrand ? o.displayName : o.name) || '',
           image: img && typeof img === 'object' ? publicMediaUrl(img as never) : null,
-          href: isBrand ? `/opleiders/${o.slug}` : `/merken/${o.slug}`,
+          href: isBrand ? `/salons-professionals/${o.slug}` : `/merken-leveranciers/${o.slug}`,
         },
       }
     })
