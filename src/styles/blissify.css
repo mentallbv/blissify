@@ -574,9 +574,10 @@ a.bl-providercard:hover,
 }
 .blnav-links {
   display: flex;
-  gap: 28px;
+  gap: 24px;
 }
 .blnav-links a {
+  white-space: nowrap;
   font-family: var(--font-ui);
   font-weight: 400;
   font-size: var(--type-sm);
@@ -640,6 +641,7 @@ a.bl-providercard:hover,
 .blnav-login {
   display: inline-flex;
   align-items: center;
+  white-space: nowrap;
   height: 40px;
   font-family: var(--font-ui);
   font-weight: 500;
@@ -692,6 +694,7 @@ a.bl-providercard:hover,
 .blnav-cta {
   display: inline-flex;
   align-items: center;
+  white-space: nowrap;
   height: 40px;
   padding: 0 18px;
   border-radius: var(--radius-sm);
@@ -705,7 +708,8 @@ a.bl-providercard:hover,
 .blnav-mobile-menu {
   display: none;
 }
-@media (max-width: 780px) {
+/* The copy's six-item menu (plus account and CTA) needs ~1340px; below that the ☰ menu takes over. */
+@media (max-width: 1340px) {
   .blnav-links {
     display: none;
   }
@@ -1347,4 +1351,18 @@ a.bl-providercard:hover,
   padding-left: 16px;
   border-left: 2px solid var(--border-hairline);
   color: var(--text-meta);
+}
+
+/* Vacancy detail: sticky "Solliciteer" bar on phones (like creativeskills.be). */
+.bl-apply-bar { display: none; }
+@media (max-width: 860px) {
+  .bl-apply-bar {
+    display: block;
+    position: sticky;
+    bottom: 0;
+    z-index: 30;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: var(--surface-page);
+    border-top: 0.5px solid var(--border-hairline);
+  }
 }

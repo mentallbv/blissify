@@ -138,7 +138,21 @@ export const Vacancies: CollectionConfig = {
     { name: 'coverImage', type: 'upload', relationTo: 'media', label: 'Hoofdfoto' },
     { name: 'gallery', type: 'array', label: "Foto's", fields: [{ name: 'image', type: 'upload', relationTo: 'media', required: true }] },
 
-    // 10. Contact
+    // 10. Solliciteren: by email (a popup with mail options, like creativeskills.be)
+    // or a link to the poster's own jobs page. Blissify stores nothing about applicants.
+    {
+      name: 'applyMethod',
+      type: 'select',
+      required: true,
+      defaultValue: 'email',
+      options: [
+        { label: 'Via e-mail', value: 'email' },
+        { label: 'Via een link', value: 'link' },
+      ],
+      label: 'Hoe solliciteren?',
+    },
+    { name: 'applyUrl', type: 'text', label: 'Link om te solliciteren' },
+    // Contact
     { name: 'contactName', type: 'text', required: true, label: 'Contactpersoon' },
     { name: 'contactEmail', type: 'email', required: true, label: 'E-mailadres' },
     { name: 'contactPhone', type: 'text', label: 'Telefoonnummer' },

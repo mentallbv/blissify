@@ -22,6 +22,7 @@ import * as migration_20261029_brand_values from './20261029_brand_values';
 import * as migration_20261029_legal_pages from './20261029_legal_pages';
 import * as migration_20261029_pricing_copy from './20261029_pricing_copy';
 import * as migration_20261029_vacancies from './20261029_vacancies';
+import * as migration_20261029_vacancies_apply from './20261029_vacancies_apply';
 import * as migration_20261014_type_drives_lesvorm from './20261014_type_drives_lesvorm';
 import * as migration_20261014_trainer_cover_image from './20261014_trainer_cover_image';
 import * as migration_20261014_collaborations from './20261014_collaborations';
@@ -215,5 +216,10 @@ export const migrations = [
     up: migration_20261029_vacancies.up,
     down: migration_20261029_vacancies.down,
     name: '20261029_vacancies',
+  },
+  {
+    up: migration_20261029_vacancies_apply.up,
+    down: migration_20261029_vacancies_apply.down,
+    name: '20261029_vacancies_apply',
   },
 ];

@@ -43,6 +43,8 @@ export type VacancyFormValues = {
   whatWeOffer: string
   logo: { id: number | string; url: string } | null
   coverImage: { id: number | string; url: string } | null
+  applyMethod: 'email' | 'link'
+  applyUrl: string
   contactName: string
   contactEmail: string
   contactPhone: string
@@ -89,6 +91,8 @@ export function buildVacancyData(body: Record<string, unknown>): Record<string, 
     whatWeOffer: str(body.whatWeOffer, 5000),
     logo: mediaId(body.logo),
     coverImage: mediaId(body.coverImage),
+    applyMethod: body.applyMethod === 'link' ? 'link' : 'email',
+    applyUrl: body.applyMethod === 'link' ? str(body.applyUrl, 500) : '',
     contactName: str(body.contactName, 120),
     contactEmail: str(body.contactEmail, 200),
     contactPhone: str(body.contactPhone, 40),
@@ -105,6 +109,7 @@ export function buildVacancyData(body: Record<string, unknown>): Record<string, 
   const first = missing.find(([v]) => !v)
   if (first) throw new Error(first[1])
   if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.contactEmail)) throw new Error('Vul een geldig e-mailadres in.')
+  if (data.applyMethod === 'link' && !/^https?:\/\/\S+\.\S+/.test(data.applyUrl)) throw new Error('Vul een geldige link in om te solliciteren (begint met https://).')
   return data
 }
 
@@ -135,6 +140,7 @@ export function vacancyToForm(doc: Record<string, any>): VacancyFormValues {
     offers: arr(doc.offers), offerOther: doc.offerOther || '',
     aboutCompany: doc.aboutCompany || '', whoWeSeek: doc.whoWeSeek || '', whatWeOffer: doc.whatWeOffer || '',
     logo: media(doc.logo), coverImage: media(doc.coverImage),
+    applyMethod: doc.applyMethod === 'link' ? 'link' : 'email', applyUrl: doc.applyUrl || '',
     contactName: doc.contactName || '', contactEmail: doc.contactEmail || '', contactPhone: doc.contactPhone || '',
   }
 }

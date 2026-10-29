@@ -13,7 +13,7 @@ const COLS: { head: string; items: FooterLink[] }[] = [
       { label: 'Merken & leveranciers', href: '/merken-leveranciers' },
       { label: 'Opleidingen', href: '/opleidingen' },
       { label: 'Werkruimtes', href: '/werkruimtes', ready: false },
-      { label: 'Vacatures & samenwerkingen', href: '/vacatures', ready: false },
+      { label: 'Vacatures & samenwerkingen', href: '/vacatures' },
     ],
   },
   {
@@ -23,7 +23,7 @@ const COLS: { head: string; items: FooterLink[] }[] = [
       { label: 'Bied opleidingen aan', href: '/abonnementen-tarieven' },
       { label: 'Promoot jouw merk', href: '/abonnementen-tarieven?voor=merken' },
       { label: 'Bied een werkruimte aan', href: '/abonnementen-tarieven', ready: false },
-      { label: 'Plaats een vacature', href: '/abonnementen-tarieven', ready: false },
+      { label: 'Plaats een vacature', href: '/abonnementen-tarieven' },
     ],
   },
   {

@@ -12,7 +12,7 @@ const ALL_LINKS = [
   { slug: 'merken-leveranciers', label: 'Merken & leveranciers', href: '/merken-leveranciers', ready: true },
   { slug: 'opleidingen', label: 'Opleidingen', href: '/opleidingen', ready: true },
   { slug: 'werkruimtes', label: 'Werkruimtes', href: '/werkruimtes', ready: false },
-  { slug: 'vacatures', label: 'Vacatures & samenwerkingen', href: '/vacatures', ready: false },
+  { slug: 'vacatures', label: 'Vacatures & samenwerkingen', href: '/vacatures', ready: true },
   { slug: 'abonnementen-tarieven', label: 'Abonnementen & tarieven', href: '/abonnementen-tarieven', ready: true },
 ]
 const LINKS = ALL_LINKS.filter((l) => l.ready)

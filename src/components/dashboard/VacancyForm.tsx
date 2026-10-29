@@ -24,7 +24,7 @@ const EMPTY: VacancyFormValues = {
   types: [], typeOther: '', functions: [], functionOther: '', regimes: [], workdays: [], regimeNote: '',
   start: 'in-overleg', startDate: '', startNote: '', compensationTypes: [], compensationAmount: '', compensationNote: '',
   experience: '', diplomaNote: '', requirementsNote: '', offers: [], offerOther: '',
-  aboutCompany: '', whoWeSeek: '', whatWeOffer: '', logo: null, coverImage: null, contactName: '', contactEmail: '', contactPhone: '',
+  aboutCompany: '', whoWeSeek: '', whatWeOffer: '', logo: null, coverImage: null, applyMethod: 'email', applyUrl: '', contactName: '', contactEmail: '', contactPhone: '',
 }
 
 const card: React.CSSProperties = { background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: 28, display: 'flex', flexDirection: 'column', gap: 18, marginBottom: 20 }
@@ -175,7 +175,25 @@ export function VacancyForm({ vacancyId, initial, defaults }: { vacancyId?: numb
 
       <div style={card}>
         <h2 style={h2}>Solliciteren en contact</h2>
-        <p style={hint}>Geïnteresseerden reageren met een knop die rechtstreeks een e-mail naar dit adres opent.</p>
+        <div>
+          <FieldLabel>Hoe solliciteren kandidaten?</FieldLabel>
+          <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap' }}>
+            {([['email', 'Via e-mail'], ['link', 'Via een link naar onze website']] as const).map(([val, label]) => (
+              <label key={val} style={{ display: 'flex', alignItems: 'center', gap: 9, cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-body)' }}>
+                <input type="radio" name="applyMethod" checked={v.applyMethod === val} onChange={() => set('applyMethod', val)} style={{ accentColor: 'var(--blissify-forest)' }} />
+                {label}
+              </label>
+            ))}
+          </div>
+        </div>
+        {v.applyMethod === 'link' ? (
+          <Input label="Link om te solliciteren" placeholder="https://jouwsalon.be/vacatures" value={v.applyUrl} onChange={(e) => set('applyUrl', e.target.value)} required />
+        ) : null}
+        <p style={hint}>
+          {v.applyMethod === 'link'
+            ? 'De knop Solliciteer opent deze link. Blissify verzamelt geen gegevens van kandidaten.'
+            : 'De knop Solliciteer opent een e-mail naar het adres hieronder. Blissify verzamelt geen gegevens van kandidaten.'}
+        </p>
         <div className="bl-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
           <Input label="Contactpersoon" value={v.contactName} onChange={(e) => set('contactName', e.target.value)} required />
           <Input label="E-mailadres" type="email" value={v.contactEmail} onChange={(e) => set('contactEmail', e.target.value)} required />

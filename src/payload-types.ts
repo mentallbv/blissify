@@ -878,6 +878,8 @@ export interface Vacancy {
         id?: string | null;
       }[]
     | null;
+  applyMethod: 'email' | 'link';
+  applyUrl?: string | null;
   contactName: string;
   contactEmail: string;
   contactPhone?: string | null;
@@ -1644,6 +1646,8 @@ export interface VacanciesSelect<T extends boolean = true> {
         image?: T;
         id?: T;
       };
+  applyMethod?: T;
+  applyUrl?: T;
   contactName?: T;
   contactEmail?: T;
   contactPhone?: T;
