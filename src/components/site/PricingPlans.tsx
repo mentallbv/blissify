@@ -33,8 +33,8 @@ export function PricingPlans({
       {allowAudienceSwitch ? (
         <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 20 }}>
           {([
-            ['opleiders', 'Opleiders'],
-            ['brands', 'Merken & Leveranciers'],
+            ['opleiders', 'Salons & professionals'],
+            ['brands', 'Merken & leveranciers'],
           ] as const).map(([key, label]) => (
             <button
               key={key}

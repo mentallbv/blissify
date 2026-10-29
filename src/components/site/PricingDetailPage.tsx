@@ -25,6 +25,36 @@ export function PricingDetailPage({
     <SiteChrome>
       <section className="bl-container bl-page-hero" style={{ paddingTop: 80, paddingBottom: 48, textAlign: 'center' }}>
         <div style={{ maxWidth: 760, margin: '0 auto' }}>
+          {/* Both plan families on one page (copy 10/2026). Links rather than
+              client state, so the intro and comparison switch with the cards. */}
+          <nav aria-label="Kies je categorie" style={{ display: 'flex', justifyContent: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 28 }}>
+            {([
+              ['opleiders', 'Salons & professionals', '/abonnementen-tarieven'],
+              ['brands', 'Merken & leveranciers', '/abonnementen-tarieven?voor=merken'],
+            ] as const).map(([key, label, href]) => {
+              const on = audience === key
+              return (
+                <a
+                  key={key}
+                  href={href}
+                  aria-current={on ? 'page' : undefined}
+                  style={{
+                    border: '0.5px solid var(--border-hairline)',
+                    borderRadius: 'var(--radius-pill)',
+                    background: on ? 'var(--surface-dark)' : 'var(--surface-card)',
+                    color: on ? 'var(--blissify-chalk)' : 'var(--text-body)',
+                    padding: '10px 18px',
+                    fontFamily: 'var(--font-ui)',
+                    fontWeight: 'var(--fw-ui-medium)',
+                    fontSize: 13,
+                    textDecoration: 'none',
+                  }}
+                >
+                  {label}
+                </a>
+              )
+            })}
+          </nav>
           <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 'var(--type-label)', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-accent)' }}>
             {data.intro.eyebrow}
           </span>
