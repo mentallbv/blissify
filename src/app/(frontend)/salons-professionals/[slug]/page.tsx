@@ -205,7 +205,7 @@ export default async function ProviderProfilePage({ params }: Params) {
       {vacancies.length ? (
         <section className="bl-container" style={{ paddingTop: 0, paddingBottom: 96 }}>
           <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 28, color: 'var(--text-brand)', margin: '0 0 24px' }}>Vacatures bij {p.name}</h2>
-          <div className="bl-grid-3">
+          <div className="bl-list">
             {vacancies.map((v) => <VacancyCard key={v.id} v={v} />)}
           </div>
         </section>

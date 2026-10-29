@@ -43,7 +43,7 @@ export async function VacancyLandingPage({ landing: l }: { landing: VacancyLandi
       <section className="bl-container" style={{ paddingTop: 16, paddingBottom: 64 }}>
         <p style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-meta)', margin: '0 0 16px' }}>{cards.length} {cards.length === 1 ? 'vacature' : 'vacatures'}</p>
         {cards.length ? (
-          <div className="bl-grid-3">{cards.map((v) => <VacancyCard key={v.id} v={v} />)}</div>
+          <div className="bl-list">{cards.map((v) => <VacancyCard key={v.id} v={v} />)}</div>
         ) : (
           <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: '56px 40px', textAlign: 'center' }}>
             <p style={{ ...p, margin: '0 auto', color: 'var(--text-meta)', maxWidth: 420 }}>

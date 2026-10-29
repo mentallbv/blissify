@@ -67,7 +67,7 @@ export default async function VacaturesPage({ searchParams }: { searchParams: SP
       <section className="bl-container" style={{ paddingTop: 24, paddingBottom: 64 }}>
         <p style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-meta)', margin: '0 0 16px' }}>{cards.length} {cards.length === 1 ? 'vacature' : 'vacatures'} in België en Nederland</p>
         {cards.length ? (
-          <div className="bl-grid-3">
+          <div className="bl-list">
             {cards.map((v) => <VacancyCard key={v.id} v={v} />)}
           </div>
         ) : (

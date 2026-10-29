@@ -201,7 +201,7 @@ export default async function HomePage() {
               </p>
               <a href="/vacatures" className="bl-textlink" style={{ display: 'inline-block', marginTop: 16 }}>Bekijk alle vacatures</a>
             </div>
-            <div className="bl-grid-3">
+            <div className="bl-list">
               {featuredVacancies.map((v) => <VacancyCard key={v.id} v={v} />)}
             </div>
           </div>

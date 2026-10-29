@@ -3,25 +3,34 @@ import type { WorkspaceCardData } from '@/lib/workspaces'
 import { workplaceLabels } from '@/lib/workspaces'
 import { cssUrl } from '@/lib/css-url'
 
-/** Overview card (like flexsalon.be: photo, type, city, salon, price, highlights, availability). */
+const ICON: Record<string, string> = { werkstoel: 'ti-armchair', behandelruimte: 'ti-door', 'volledig-salon': 'ti-building-store', 'gedeelde-ruimte': 'ti-users-group' }
+
+/** Workspace card: photo (or a branded placeholder), price on the image, type tags, highlights. */
 export function WorkspaceCard({ w }: { w: WorkspaceCardData }) {
+  const [amount, ...rest] = w.price.split(' / ')
   return (
-    <a href={w.href} className="bl-providercard" style={{ display: 'flex', flexDirection: 'column', textDecoration: 'none', height: '100%', overflow: 'hidden', padding: 0 }}>
-      <div style={{ aspectRatio: '16 / 10', background: w.image ? `${cssUrl(w.image)} center / cover` : 'var(--surface-page)', position: 'relative' }}>
-        {w.availableNow ? (
-          <span style={{ position: 'absolute', left: 12, top: 12, background: 'var(--surface-card)', color: 'var(--status-success)', borderRadius: 'var(--radius-pill)', padding: '4px 10px', fontFamily: 'var(--font-ui)', fontSize: 11, fontWeight: 'var(--fw-ui-medium)' }}>Nu beschikbaar</span>
-        ) : null}
+    <a href={w.href} className="bl-wscard">
+      <div className={'bl-wscard-media' + (w.image ? '' : ' bl-wscard-media--empty')} style={w.image ? { backgroundImage: cssUrl(w.image) } : undefined}>
+        {w.image ? null : <i className={`ti ${ICON[w.workplaceTypes[0]] || 'ti-building-store'}`} aria-hidden="true" />}
+        {w.availableNow ? <span className="bl-wscard-status bl-tag bl-tag--ok">Nu beschikbaar</span> : null}
+        <span className="bl-wscard-price">
+          {amount}
+          {rest.length ? ` / ${rest.join(' / ')}` : ''}
+          {w.price.startsWith('€') ? <small>excl. btw</small> : null}
+        </span>
       </div>
-      <div style={{ padding: 20, display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>
-        <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-meta)' }}>
-          {workplaceLabels(w.workplaceTypes)[0] || 'Werkruimte'} · {w.city}
+      <div className="bl-wscard-body">
+        <div className="bl-wscard-title">{w.title}</div>
+        <div className="bl-meta">
+          <span><i className="ti ti-building-store" aria-hidden="true" />{w.companyName}</span>
+          <span><i className="ti ti-map-pin" aria-hidden="true" />{w.city}</span>
         </div>
-        <div style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 19, lineHeight: 1.25, color: 'var(--text-brand)' }}>{w.title}</div>
-        <div style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-body)' }}>{w.companyName}</div>
-        {w.highlights.length ? <div style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-meta)' }}>{w.highlights.join(' · ')}</div> : null}
-        <div style={{ marginTop: 'auto', paddingTop: 6, fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 15, color: 'var(--text-brand)' }}>
-          {w.price} {w.price.startsWith('€') ? <span style={{ fontWeight: 'var(--fw-ui-regular)', fontSize: 11, color: 'var(--text-meta)' }}>excl. btw</span> : null}
-        </div>
+        <div className="bl-tags">{workplaceLabels(w.workplaceTypes).slice(0, 2).map((t) => <span key={t} className="bl-tag">{t}</span>)}</div>
+        {w.highlights.length ? (
+          <div className="bl-wscard-foot bl-meta">
+            {w.highlights.map((h) => <span key={h}><i className="ti ti-check" aria-hidden="true" />{h}</span>)}
+          </div>
+        ) : null}
       </div>
     </a>
   )
