@@ -12,7 +12,7 @@ const TABS: { label: string; value: 'all' | 'active' | 'draft' | 'archived' }[] 
   { label: 'Gearchiveerd', value: 'archived' },
 ]
 
-export function CoursesManager({ rows }: { rows: DashCourse[] }) {
+export function CoursesManager({ rows, showEnquiries = true }: { rows: DashCourse[]; showEnquiries?: boolean }) {
   const router = useRouter()
   const [filter, setFilter] = React.useState<'all' | 'active' | 'draft' | 'archived'>('all')
   const [busyId, setBusyId] = React.useState<number | null>(null)
@@ -86,12 +86,12 @@ export function CoursesManager({ rows }: { rows: DashCourse[] }) {
           <Select
             options={[
               { value: 'recent', label: 'Nieuwst eerst' },
-              { value: 'enquiries', label: 'Meeste aanvragen' },
+              ...(showEnquiries ? [{ value: 'enquiries', label: 'Meeste aanvragen' }] : []),
             ]}
           />
         </div>
       </div>
-      <CourseTable rows={filtered} onDuplicate={duplicate} onDelete={remove} busyId={busyId} />
+      <CourseTable rows={filtered} showEnquiries={showEnquiries} onDuplicate={duplicate} onDelete={remove} busyId={busyId} />
     </>
   )
 }

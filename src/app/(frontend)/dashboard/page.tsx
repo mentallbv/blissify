@@ -98,7 +98,7 @@ export default async function DashboardOverviewPage() {
         </a>
       </div>
       {rows.length ? (
-        <CourseTable rows={rows} limit={4} />
+        <CourseTable rows={rows} limit={4} showEnquiries={hasAnalytics} />
       ) : (
         <EmptyCard
           text={

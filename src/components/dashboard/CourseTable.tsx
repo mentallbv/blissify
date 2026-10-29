@@ -22,12 +22,15 @@ const STATUS_TONE: Record<string, 'published' | 'draft' | 'archived'> = {
 export function CourseTable({
   rows,
   limit,
+  showEnquiries = true,
   onDuplicate,
   onDelete,
   busyId,
 }: {
   rows: DashCourse[]
   limit?: number
+  /** Request counts are statistics: hidden on Lite plans. */
+  showEnquiries?: boolean
   onDuplicate?: (id: number) => void
   onDelete?: (id: number) => void
   busyId?: number | null
@@ -63,7 +66,7 @@ export function CourseTable({
             <th style={th}>Opleiding</th>
             <th style={th}>Categorie</th>
             <th style={th}>Prijs</th>
-            <th style={th}>Aanvragen</th>
+            {showEnquiries ? <th style={th}>Aanvragen</th> : null}
             <th style={th}>Status</th>
             <th style={{ ...th, textAlign: 'right' }}>Acties</th>
           </tr>
@@ -78,7 +81,7 @@ export function CourseTable({
               </td>
               <td style={td}>{r.category}</td>
               <td style={td}>{r.price}</td>
-              <td style={td}>{r.enquiries}</td>
+              {showEnquiries ? <td style={td}>{r.enquiries}</td> : null}
               <td style={td}>
                 <StatusPill status={STATUS_TONE[r.status]}>{STATUS_LABELS[r.status]}</StatusPill>
               </td>

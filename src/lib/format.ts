@@ -16,7 +16,7 @@ const FORMAT_NL: Record<string, string> = {
   hybride: 'Op locatie & online',
 }
 
-/** "€1.450 · incl. btw" style price. */
+/** "€1.450" style price; callers add "excl. btw". */
 export function formatPrice(price?: Course['price']): string {
   if (!price) return 'Prijs op aanvraag'
   if (price.isFree) return 'Gratis'

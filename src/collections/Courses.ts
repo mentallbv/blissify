@@ -399,7 +399,7 @@ export const Courses: CollectionConfig = {
       name: 'price',
       type: 'group',
       fields: [
-        { name: 'amount', type: 'number', label: 'Prijs incl. btw', admin: { description: 'De prijs die de deelnemer betaalt, inclusief btw.' } },
+        { name: 'amount', type: 'number', label: 'Prijs excl. btw', admin: { description: 'De prijs van de opleiding, exclusief btw.' } },
         {
           name: 'currency',
           type: 'select',

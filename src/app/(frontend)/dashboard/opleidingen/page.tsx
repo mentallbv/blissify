@@ -33,7 +33,7 @@ export default async function DashboardCoursesPage() {
         ) : null}
       </div>
       {rows.length ? (
-        <CoursesManager rows={rows} />
+        <CoursesManager rows={rows} showEnquiries={entitlement.features.hasAnalytics} />
       ) : (
         <div
           style={{

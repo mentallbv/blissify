@@ -103,6 +103,7 @@ export function CourseCard({
             }}
           >
             {price}
+            {price.startsWith('€') ? <span style={{ fontWeight: 'var(--fw-ui-regular)', fontSize: 11, color: 'var(--text-meta)' }}> excl. btw</span> : null}
           </span>
           <span
             style={{

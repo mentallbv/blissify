@@ -255,9 +255,9 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
       </div>
 
       <div style={{ marginBottom: 26 }}>
-        {/* Client round 2 #3.10/#3.12: Gratis belongs with the price, and course prices are incl. btw. */}
+        {/* Client round 2 #3.10: Gratis belongs with the price. Round 3 #1.5: course prices are excl. btw. */}
         <div style={labelStyle}>
-          Prijs incl. btw ({Number(price) >= options.priceMax ? 'alle prijzen' : `tot € ${Number(price).toLocaleString('nl-BE')}`})
+          Prijs excl. btw ({Number(price) >= options.priceMax ? 'alle prijzen' : `tot € ${Number(price).toLocaleString('nl-BE')}`})
         </div>
         <label style={{ display: 'flex', alignItems: 'center', gap: 9, cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-body)', marginBottom: 12 }}>
           <input type="checkbox" checked={current.gratis} onChange={() => update('gratis', current.gratis ? null : 'true')} />
