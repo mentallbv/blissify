@@ -24,7 +24,6 @@ export default async function MerkenPage({ searchParams }: { searchParams: Promi
     producttype: list(sp.producttype),
     typePartner: one(sp.typePartner) || undefined,
     herkomst: one(sp.herkomst) || undefined,
-    positionering: one(sp.positionering) || undefined,
     filosofie: list(sp.filosofie),
     extra: list(sp.extra),
   }

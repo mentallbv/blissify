@@ -4,6 +4,7 @@ import { getPayload } from 'payload'
 import config from '@/payload.config'
 
 import { htmlToLexical } from '@/lib/richtext'
+import { BRAND_VALUE_SET } from '@/lib/brand-values'
 
 /** Media id from the dashboard, or null to clear the field. */
 function mediaId(value: unknown): number | null | undefined {
@@ -49,7 +50,9 @@ export async function PATCH(req: Request) {
       }
     }
     if (Array.isArray(body.specializations) && role === 'trainer') data.specializations = body.specializations
-    if (Array.isArray(body.tags) && role === 'brand') data.tags = body.tags
+    if (Array.isArray(body.tags) && role === 'brand') {
+      data.tags = (body.tags as unknown[]).filter((x): x is string => typeof x === 'string' && BRAND_VALUE_SET.has(x))
+    }
     if (typeof body.website === 'string') data.website = body.website
     if (typeof body.email === 'string') data.email = body.email
     if (typeof body.phone === 'string') data.phone = body.phone

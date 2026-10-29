@@ -6,6 +6,7 @@ import { Input, Select, Button, FieldLabel } from '@/components/ui'
 import { ImageUploadField, type UploadedImage } from '@/components/dashboard/ImageUploadField'
 import { RichTextEditor } from '@/components/dashboard/RichTextEditor'
 import { MERKEN_GROUPS } from '@/lib/merken-filters'
+import { BRAND_VALUES } from '@/lib/brand-values'
 
 // Single source of truth: the exact category options used by the /merken filter,
 // so a partner's categories always match what visitors can filter on (client #8).
@@ -32,6 +33,7 @@ export function ProfileForm({
     partnerType: string
     origin: string
     producttype: string[]
+    brandValues: string[]
     categoryLimit: number
     instagram: string
     facebook: string
@@ -87,6 +89,7 @@ export function ProfileForm({
           ...v,
           photo: v.photo?.id ?? null,
           coverImage: v.coverImage?.id ?? null,
+          tags: v.brandValues,
           gallery: v.gallery.filter((g) => g.image?.id).map((g) => ({ image: g.image?.id, caption: g.caption })),
         }),
       })
@@ -224,6 +227,29 @@ export function ProfileForm({
                   Je hebt het maximum voor je abonnement bereikt. Upgrade voor meer categorieën.
                 </p>
               ) : null}
+            </div>
+            {/* Client round 3 #3: Merkidentiteit & waarden, multi-select, drives the /merken filter. */}
+            <div style={{ borderTop: '0.5px solid var(--border-hairline)', paddingTop: 18 }}>
+              <FieldLabel>Merkidentiteit &amp; waarden</FieldLabel>
+              <p style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-meta)', margin: '2px 0 12px' }}>
+                Kies alles wat bij je merk past. Bezoekers filteren hierop in Merken &amp; Leveranciers.
+              </p>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                {BRAND_VALUES.map((o) => {
+                  const on = v.brandValues.includes(o.value)
+                  return (
+                    <label key={o.value} style={{ display: 'flex', alignItems: 'center', gap: 9, cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-body)' }}>
+                      <input
+                        type="checkbox"
+                        checked={on}
+                        onChange={() => set('brandValues', on ? v.brandValues.filter((x) => x !== o.value) : [...v.brandValues, o.value])}
+                        style={{ accentColor: 'var(--blissify-forest)' }}
+                      />
+                      {o.label}
+                    </label>
+                  )
+                })}
+              </div>
             </div>
             <div style={{ borderTop: '0.5px solid var(--border-hairline)', paddingTop: 18 }}>
               <FieldLabel>Sociale kanalen</FieldLabel>

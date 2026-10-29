@@ -431,15 +431,15 @@ export interface Brand {
   positionering?: ('starter-friendly' | 'premium-luxe' | 'professioneel-salon' | 'medisch-esthetisch') | null;
   tags?:
     | (
-        | 'belgisch'
-        | 'vegan'
         | 'natuurlijk'
-        | 'cruelty-free'
+        | 'vegan'
+        | 'dierproefvrij'
         | 'duurzaam'
         | 'holistisch'
-        | 'professioneel'
         | 'biologisch'
-        | 'luxe'
+        | 'clean-beauty'
+        | 'luxe-exclusiviteit'
+        | 'innovatie-technologie'
       )[]
     | null;
   /**
@@ -649,7 +649,7 @@ export interface Course {
   };
   price?: {
     /**
-     * De prijs die de deelnemer betaalt, inclusief btw.
+     * De prijs van de opleiding, exclusief btw.
      */
     amount?: number | null;
     currency?: 'EUR' | null;

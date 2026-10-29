@@ -811,7 +811,6 @@ export type MerkenFilters = {
   producttype?: string[]
   typePartner?: string
   herkomst?: string
-  positionering?: string
   filosofie?: string[]
   extra?: string[]
 }
@@ -824,7 +823,6 @@ export async function getBrandCards(opts: MerkenFilters = {}): Promise<{ cards: 
     if (opts.producttype?.length) and.push({ productType: { in: opts.producttype } })
     if (opts.typePartner) and.push({ typePartner: { equals: opts.typePartner } })
     if (opts.herkomst) and.push({ herkomst: { equals: opts.herkomst } })
-    if (opts.positionering) and.push({ positionering: { equals: opts.positionering } })
     if (opts.filosofie?.length) and.push({ tags: { in: opts.filosofie } })
     if (opts.extra?.includes('top-beoordeeld')) and.push({ topRated: { equals: true } })
     const hasFilters = and.length > 0 || Boolean(opts.extra?.length)
@@ -894,7 +892,6 @@ export async function getMerkenFacets(): Promise<import('./merken-filters').Merk
       productType?: string[] | null
       typePartner?: string | null
       herkomst?: string | null
-      positionering?: string | null
       tags?: string[] | null
       createdAt?: string
       topRated?: boolean | null
@@ -921,7 +918,6 @@ export async function getMerkenFacets(): Promise<import('./merken-filters').Merk
       ;(b.productType || []).forEach((v) => inc('producttype', v))
       if (b.typePartner) inc('typePartner', b.typePartner)
       if (b.herkomst) inc('herkomst', b.herkomst)
-      if (b.positionering) inc('positionering', b.positionering)
       ;(b.tags || []).forEach((v) => inc('filosofie', v))
       if (brandsWithCourses.has(String(b.id))) inc('extra', 'met-opleidingen')
       if (b.createdAt && new Date(b.createdAt).getTime() >= thirtyDaysAgo) inc('extra', 'nieuw')

@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 import { isAdmin } from '@/access'
 import { seoFields } from '@/fields/seo'
 import { tierForUser } from '@/lib/tier-features'
+import { BRAND_VALUES } from '../lib/brand-values'
 export const Brands: CollectionConfig = {
   slug: 'brands',
   admin: {
@@ -211,18 +212,8 @@ export const Brands: CollectionConfig = {
       name: 'tags',
       type: 'select',
       hasMany: true,
-      label: 'Filosofie & waarden',
-      options: [
-        { label: 'Belgisch', value: 'belgisch' },
-        { label: 'Vegan', value: 'vegan' },
-        { label: 'Natuurlijk', value: 'natuurlijk' },
-        { label: 'Cruelty-free', value: 'cruelty-free' },
-        { label: 'Duurzaam', value: 'duurzaam' },
-        { label: 'Holistisch', value: 'holistisch' },
-        { label: 'Professioneel', value: 'professioneel' },
-        { label: 'Biologisch', value: 'biologisch' },
-        { label: 'Luxe', value: 'luxe' },
-      ],
+      label: 'Merkidentiteit & waarden',
+      options: BRAND_VALUES.map((o) => ({ label: o.label, value: o.value })),
     },
     {
       name: 'profileAccentColor',

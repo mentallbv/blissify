@@ -44,6 +44,7 @@ export default async function DashboardProfilePage() {
     partnerType: profile?.kind === 'brand' ? profile.doc.typePartner || '' : '',
     origin: profile?.kind === 'brand' ? profile.doc.herkomst || '' : '',
     producttype: profile?.kind === 'brand' ? ((profile.doc as { productType?: string[] }).productType || []) : [],
+    brandValues: profile?.kind === 'brand' ? ((profile.doc as { tags?: string[] }).tags || []) : [],
     // Category limit for the current tier (Lite 1 / Premium 3 / Ultimate ∞).
     // Infinity can't be JSON-serialised to the client, so send a large sentinel.
     categoryLimit: (() => {

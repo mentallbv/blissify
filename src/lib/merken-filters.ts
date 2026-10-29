@@ -1,3 +1,4 @@
+import { BRAND_VALUES } from './brand-values'
 /**
  * Single source of truth for the Merken & Leveranciers filter groups.
  * Shared by the data layer (facet counts + query building) and the reusable
@@ -63,29 +64,11 @@ export const MERKEN_GROUPS: MerkenGroup[] = [
     ],
   },
   {
-    key: 'positionering',
-    name: 'Positionering',
-    ui: 'dropdown',
-    multi: false,
-    options: [
-      { value: 'starter-friendly', label: 'Starter friendly' },
-      { value: 'premium-luxe', label: 'Premium / Luxe' },
-      { value: 'professioneel-salon', label: 'Professioneel / Salon exclusief' },
-      { value: 'medisch-esthetisch', label: 'Medisch-esthetisch' },
-    ],
-  },
-  {
     key: 'filosofie',
-    name: 'Filosofie & Waarden',
+    name: 'Merkidentiteit & waarden',
     ui: 'dropdown',
     multi: true,
-    options: [
-      { value: 'natuurlijk', label: 'Natuurlijk' },
-      { value: 'vegan', label: 'Vegan' },
-      { value: 'cruelty-free', label: 'Cruelty-free' },
-      { value: 'duurzaam', label: 'Duurzaam' },
-      { value: 'holistisch', label: 'Holistisch' },
-    ],
+    options: BRAND_VALUES.map((o) => ({ value: o.value, label: o.label })),
   },
   {
     key: 'extra',
