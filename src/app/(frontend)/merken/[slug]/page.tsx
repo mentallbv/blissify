@@ -7,6 +7,7 @@ import { BrandTabs } from '@/components/site/BrandTabs'
 import { getBrandBySlug } from '@/lib/data'
 import { TrackPageView } from '@/components/site/TrackPageView'
 import { RichTextContent } from '@/components/site/RichTextContent'
+import { cssUrl } from '@/lib/css-url'
 
 export const dynamic = 'force-dynamic'
 
@@ -47,7 +48,7 @@ export default async function MerkPage({ params }: Params) {
       <header
         style={{
           background: 'var(--surface-dark)',
-          backgroundImage: brand.cover ? `linear-gradient(rgba(90, 105, 124,0.72),rgba(90, 105, 124,0.72)), url(${brand.cover})` : 'none',
+          backgroundImage: brand.cover ? `linear-gradient(rgba(90, 105, 124,0.72),rgba(90, 105, 124,0.72)), ${cssUrl(brand.cover)}` : 'none',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}

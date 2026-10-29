@@ -21,6 +21,7 @@ import { CityLanding } from '@/components/site/CityLanding'
 import { publicMediaUrl } from '@/lib/media'
 import { RichTextContent } from '@/components/site/RichTextContent'
 import type { Course, Category, Brand, Trainer } from '@/payload-types'
+import { cssUrl } from '@/lib/css-url'
 
 export const dynamic = 'force-dynamic'
 
@@ -257,7 +258,7 @@ export default async function CourseDetailPage({ params }: Params) {
         style={{
           height: 400,
           background: 'var(--surface-dark)',
-          backgroundImage: coverImg ? `url(${coverImg})` : 'none',
+          backgroundImage: coverImg ? cssUrl(coverImg) : 'none',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}

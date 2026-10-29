@@ -4,6 +4,7 @@ import { PageBlocks } from '@/components/site/PageBlocks'
 import { ButtonLink } from '@/components/ui'
 import type { PageDoc } from '@/lib/pages'
 import { publicMediaUrl } from '@/lib/media'
+import { cssUrl } from '@/lib/css-url'
 
 /** Renders a Pages-collection document (hero + blocks) inside the site chrome. */
 export function DbPage({ page }: { page: PageDoc }) {
@@ -58,7 +59,7 @@ export function DbPage({ page }: { page: PageDoc }) {
                 style={{
                   minHeight: 420,
                   borderRadius: 'var(--radius-md)',
-                  backgroundImage: `url(${heroImage})`,
+                  backgroundImage: cssUrl(heroImage),
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                 }}

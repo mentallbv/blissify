@@ -7,6 +7,7 @@ import { RichTextContent } from '@/components/site/RichTextContent'
 import { TrackPageView } from '@/components/site/TrackPageView'
 import { TrackedLink } from '@/components/site/TrackedLink'
 import { getProviderBySlug } from '@/lib/data'
+import { cssUrl } from '@/lib/css-url'
 
 export const dynamic = 'force-dynamic'
 
@@ -39,7 +40,7 @@ export default async function ProviderProfilePage({ params }: Params) {
       <header
         style={{
           background: 'var(--surface-dark)',
-          backgroundImage: p.cover ? `linear-gradient(rgba(90, 105, 124,0.72),rgba(90, 105, 124,0.72)), url(${p.cover})` : 'none',
+          backgroundImage: p.cover ? `linear-gradient(rgba(90, 105, 124,0.72),rgba(90, 105, 124,0.72)), ${cssUrl(p.cover)}` : 'none',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           borderTop: '3px solid var(--blissify-forest)',

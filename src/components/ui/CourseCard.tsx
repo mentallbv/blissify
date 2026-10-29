@@ -1,4 +1,5 @@
 import React from 'react'
+import { cssUrl } from '@/lib/css-url'
 
 /**
  * Blissify course card - the marketplace's core unit.
@@ -38,7 +39,7 @@ export function CourseCard({
           position: 'relative',
           height: 200,
           background: 'var(--surface-dark)',
-          backgroundImage: image ? `url(${image})` : 'none',
+          backgroundImage: image ? cssUrl(image) : 'none',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
