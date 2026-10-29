@@ -5,6 +5,7 @@ const KIND_FIELD: Record<string, string> = {
   course: 'payload_course_id',
   trainer: 'payload_trainer_id',
   brand: 'payload_brand_id',
+  vacancy: 'payload_course_id',
 }
 
 // Click event types (view is the default). event_type is a free-form column,
@@ -22,6 +23,15 @@ export async function POST(req: Request) {
 
     // `type` selects a click event; otherwise it's a page view.
     const type = String(body.type || '')
+    // Vacature views (phase 4): attributed to the owning profile, with the
+    // vacancy id prefixed so per-publication stats can tell it from a course.
+    if (kind === 'vacancy') {
+      const ownerField = body.ownerKind === 'brand' ? 'payload_brand_id' : body.ownerKind === 'trainer' ? 'payload_trainer_id' : null
+      if (!ownerField || body.ownerId == null) return NextResponse.json({ ok: false }, { status: 400 })
+      if (!supabaseConfigured()) return NextResponse.json({ ok: true, stored: false })
+      await sbInsert('analytics_events', { event_type: 'vacancy_view', payload_course_id: `vacancy:${id}`, [ownerField]: String(body.ownerId) })
+      return NextResponse.json({ ok: true, stored: true })
+    }
     const eventType = CLICK_TYPES.has(type) ? type : kind === 'course' ? 'course_view' : 'profile_view'
     if (!supabaseConfigured()) return NextResponse.json({ ok: true, stored: false })
 

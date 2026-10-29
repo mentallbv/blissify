@@ -32,7 +32,7 @@ export type VacancyCardData = {
   isUltimate: boolean
 }
 
-export type VacancyFilters = { land?: string; locatie?: string; type?: string[]; sector?: string[]; regime?: string[]; q?: string }
+export type VacancyFilters = { land?: string; locatie?: string; type?: string[]; sector?: string[]; regime?: string[]; q?: string; functions?: string[] }
 
 const client = async () => getPayload({ config: await config })
 const rel = (v: unknown) => (v && typeof v === 'object' ? (v as Record<string, any>) : null)
@@ -78,6 +78,7 @@ export async function getVacancyCards(f: VacancyFilters = {}): Promise<VacancyCa
     if (f.sector?.length) and.push({ sectors: { in: f.sector } })
     const regimes = expand(f.regime, VACANCY_REGIME_FILTER, 'regimes')
     if (regimes.length) and.push({ regimes: { in: regimes } })
+    if (f.functions?.length) and.push({ functions: { in: f.functions } })
     if (f.q) and.push({ or: [{ title: { like: f.q } }, { companyName: { like: f.q } }] })
     const res = await payload.find({ collection: 'vacancies', where: { and } as never, depth: 2, limit: 200, sort: '-createdAt' })
     const cards = (res.docs as Record<string, any>[]).map(toCard)
@@ -153,3 +154,23 @@ export const typeLabels = (values: string[]) => values.map((v) => labelOf(VACANC
 export const sectorLabels = (values: string[]) => values.map((v) => labelOf(VACANCY_SECTORS, v))
 export const regimeLabels = (values: string[]) => values.map((v) => labelOf(VACANCY_REGIMES, v))
 export const functionLabels = (values: string[]) => values.map((v) => labelOf(VACANCY_FUNCTIONS, v))
+
+/**
+ * Homepage "Vacatures in de kijker": Ultimate accounts only (plan perk
+ * "Uitgelicht op de homepage via rotatie"), shuffled per visit, max two per
+ * account, like the course rotation.
+ */
+export async function getHomepageVacancies(limit = 3): Promise<VacancyCardData[]> {
+  const all = (await getVacancyCards()).filter((v) => v.isUltimate)
+  const shuffled = [...all].sort(() => Math.random() - 0.5)
+  const perCompany = new Map<string, number>()
+  const picked: VacancyCardData[] = []
+  for (const v of shuffled) {
+    const n = perCompany.get(v.companyName) || 0
+    if (n >= 2) continue
+    perCompany.set(v.companyName, n + 1)
+    picked.push(v)
+    if (picked.length === limit) break
+  }
+  return picked
+}

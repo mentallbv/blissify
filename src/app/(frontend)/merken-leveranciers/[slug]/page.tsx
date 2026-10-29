@@ -6,6 +6,8 @@ import { ButtonLink, TypeBadge } from '@/components/ui'
 import { BrandTabs } from '@/components/site/BrandTabs'
 import { getBrandBySlug } from '@/lib/data'
 import { TrackPageView } from '@/components/site/TrackPageView'
+import { VacancyCard } from '@/components/site/VacancyCard'
+import { getVacanciesForProfile } from '@/lib/vacancies'
 import { RichTextContent } from '@/components/site/RichTextContent'
 import { cssUrl } from '@/lib/css-url'
 
@@ -27,6 +29,7 @@ export default async function MerkPage({ params }: Params) {
   const { slug } = await params
   const { brand, providers, collaboratingProviders, courses } = await getBrandBySlug(slug)
   if (!brand) notFound()
+  const vacancies = brand.id != null ? await getVacanciesForProfile('brand', Number(brand.id)) : []
   const partnerType = ({
     productmerken: 'Productmerk',
     apparatuurmerken: 'Apparatuurmerk',
@@ -152,6 +155,14 @@ export default async function MerkPage({ params }: Params) {
           </section>
         ) : null}
       </section>
+      {vacancies.length ? (
+        <section className="bl-container" style={{ paddingTop: 0, paddingBottom: 96 }}>
+          <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 28, color: 'var(--text-brand)', margin: '0 0 24px' }}>Vacatures bij {brand.name}</h2>
+          <div className="bl-grid-3">
+            {vacancies.map((v) => <VacancyCard key={v.id} v={v} />)}
+          </div>
+        </section>
+      ) : null}
       </div>
     </SiteChrome>
   )

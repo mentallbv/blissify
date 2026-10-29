@@ -3,10 +3,13 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { SiteChrome } from '@/components/site/SiteChrome'
 import { ApplyButton } from '@/components/site/ApplyButton'
+import { TrackPageView } from '@/components/site/TrackPageView'
 import { Avatar, Eyebrow } from '@/components/ui'
 import { publicMediaUrl } from '@/lib/media'
 import { cssUrl } from '@/lib/css-url'
 import { functionLabels, getVacancyBySlug, regimeLabels, typeLabels } from '@/lib/vacancies'
+import { vacancyLanding } from '@/lib/vacancy-landings'
+import { VacancyLandingPage, landingMetadata } from '@/components/site/VacancyLandingPage'
 import { COMPENSATION_TYPES, EXPERIENCE_LEVELS, START_OPTIONS, VACANCY_OFFERS, WEEKDAYS, labelOf } from '@/lib/vacancy-options'
 
 export const dynamic = 'force-dynamic'
@@ -14,7 +17,10 @@ export const dynamic = 'force-dynamic'
 type Params = { params: Promise<{ slug: string }> }
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
-  const v = await getVacancyBySlug((await params).slug)
+  const { slug } = await params
+  const landing = vacancyLanding(slug)
+  if (landing) return landingMetadata(landing)
+  const v = await getVacancyBySlug(slug)
   if (!v) return {}
   return {
     title: v.seo?.title || `Vacature ${v.title} bij ${v.companyName} in ${v.city}`,
@@ -51,7 +57,10 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 }
 
 export default async function VacancyPage({ params }: Params) {
-  const v = await getVacancyBySlug((await params).slug)
+  const { slug } = await params
+  const landing = vacancyLanding(slug)
+  if (landing) return <VacancyLandingPage landing={landing} />
+  const v = await getVacancyBySlug(slug)
   if (!v) notFound()
 
   const list = (labels: string[], other?: string) => [...labels.filter((l) => l !== 'Overig' && l !== 'Andere samenwerking'), other].filter(Boolean).join(', ')
@@ -80,6 +89,7 @@ export default async function VacancyPage({ params }: Params) {
   return (
     <SiteChrome>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jobLd) }} />
+      <TrackPageView kind="vacancy" id={v.id} owner={v.brand?.id ? { kind: 'brand', id: v.brand.id } : v.trainer?.id ? { kind: 'trainer', id: v.trainer.id } : null} />
       {cover ? <div style={{ height: 280, backgroundImage: cssUrl(cover), backgroundSize: 'cover', backgroundPosition: 'center' }} /> : null}
       <div className="bl-container" style={{ paddingTop: 40, paddingBottom: 96 }}>
         <nav aria-label="Kruimelpad" style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-meta)', marginBottom: 20 }}>

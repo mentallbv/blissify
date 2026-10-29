@@ -5,6 +5,8 @@ import { SiteChrome, SectionHead } from '@/components/site/SiteChrome'
 import { TypeBadge, CourseCard, ButtonLink, Tag } from '@/components/ui'
 import { RichTextContent } from '@/components/site/RichTextContent'
 import { TrackPageView } from '@/components/site/TrackPageView'
+import { VacancyCard } from '@/components/site/VacancyCard'
+import { getVacanciesForProfile } from '@/lib/vacancies'
 import { TrackedLink } from '@/components/site/TrackedLink'
 import { getProviderBySlug } from '@/lib/data'
 import { cssUrl } from '@/lib/css-url'
@@ -27,6 +29,7 @@ export default async function ProviderProfilePage({ params }: Params) {
   const { slug } = await params
   const { provider: p, courses } = await getProviderBySlug(slug)
   if (!p) notFound()
+  const vacancies = p.id != null ? await getVacanciesForProfile('trainer', Number(p.id)) : []
 
   // Several Belgian cities share their province's name (Antwerpen, Luik...);
   // showing both would read as "Antwerpen, Antwerpen".
@@ -196,6 +199,14 @@ export default async function ProviderProfilePage({ params }: Params) {
           </p>
         )}
       </section>
+      {vacancies.length ? (
+        <section className="bl-container" style={{ paddingTop: 0, paddingBottom: 96 }}>
+          <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 28, color: 'var(--text-brand)', margin: '0 0 24px' }}>Vacatures bij {p.name}</h2>
+          <div className="bl-grid-3">
+            {vacancies.map((v) => <VacancyCard key={v.id} v={v} />)}
+          </div>
+        </section>
+      ) : null}
       </div>
     </SiteChrome>
   )

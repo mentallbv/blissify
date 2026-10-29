@@ -43,7 +43,7 @@ const POPULAR: FooterLink[] = [
   { label: 'Nagelstyliste opleiding', href: '/opleidingen/nagelstyliste' },
   { label: 'Opleiding pedicure', href: '/opleidingen/pedicure', ready: false },
   { label: 'Massage opleiding', href: '/opleidingen/massage' },
-  { label: 'Vacature schoonheidsspecialiste', href: '/vacatures/schoonheidsspecialiste', ready: false },
+  { label: 'Vacature schoonheidsspecialiste', href: '/vacatures/schoonheidsspecialiste' },
   { label: 'Salon te huur', href: '/werkruimtes', ready: false },
 ]
 

@@ -6,6 +6,7 @@ import { NameSearch } from '@/components/site/NameSearch'
 import { VacancyCard } from '@/components/site/VacancyCard'
 import { Eyebrow } from '@/components/ui'
 import { getVacancyCards, getVacancyFilterOptions } from '@/lib/vacancies'
+import { VACANCY_LANDINGS } from '@/lib/vacancy-landings'
 
 export const dynamic = 'force-dynamic'
 
@@ -81,6 +82,14 @@ export default async function VacaturesPage({ searchParams }: { searchParams: SP
           <div>
             <h2 style={h2}>Vacatures in beauty en wellness: salon, instituut, spa of praktijk</h2>
             <p style={p}>Blissify brengt salons, instituten, spa&apos;s en praktijken samen met professionals die werk of een samenwerking zoeken. Je reageert rechtstreeks bij de onderneming. Blissify is geen partij bij arbeidsovereenkomsten of samenwerkingen.</p>
+          </div>
+          <div>
+            <h2 style={h2}>Vacature per beroep</h2>
+            <ul style={{ ...p, paddingLeft: 20, lineHeight: 2 }}>
+              {VACANCY_LANDINGS.map((l) => (
+                <li key={l.key}><a href={`/vacatures/${l.key}`} className="bl-textlink">{l.h1.replace(' in België en Nederland', '')}</a></li>
+              ))}
+            </ul>
           </div>
           <div>
             <h2 style={h2}>Werken in loondienst of als zelfstandige: welke samenwerking past bij jou?</h2>

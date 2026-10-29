@@ -1,5 +1,6 @@
 import type { Payload } from 'payload'
 import { slugify } from '@/lib/slug'
+import { VACANCY_LANDING_KEYS } from '@/lib/vacancy-landings'
 import {
   COMPENSATION_TYPES,
   EXPERIENCE_LEVELS,
@@ -118,6 +119,8 @@ export async function uniqueVacancySlug(payload: Payload, title: string, city: s
   const base = slugify(`${title} ${city}`) || 'vacature'
   for (let i = 0; i < 50; i++) {
     const slug = i ? `${base}-${i + 1}` : base
+    // Landing pages (/vacatures/schoonheidsspecialiste …) own these slugs.
+    if (VACANCY_LANDING_KEYS.has(slug)) continue
     const res = await payload.find({ collection: 'vacancies', where: { slug: { equals: slug } }, limit: 1, depth: 0, overrideAccess: true })
     if (!res.docs.length || res.docs[0].id === ignoreId) return slug
   }
