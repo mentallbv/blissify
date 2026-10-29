@@ -1921,7 +1921,7 @@ export interface Pricing {
           name: string;
           tagline?: string | null;
           /**
-           * Maandprijs in euro, exclusief btw. Alleen gebruikt voor Opleiders.
+           * Maandprijs in euro, exclusief btw.
            */
           monthlyPrice?: number | null;
           /**
@@ -1972,7 +1972,7 @@ export interface Pricing {
           name: string;
           tagline?: string | null;
           /**
-           * Maandprijs in euro, exclusief btw. Alleen gebruikt voor Opleiders.
+           * Maandprijs in euro, exclusief btw.
            */
           monthlyPrice?: number | null;
           /**
