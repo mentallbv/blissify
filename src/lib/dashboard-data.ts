@@ -64,3 +64,14 @@ export async function getMyCourseCounts(profile: Profile): Promise<{ total: numb
 }
 
 export const TIER_LIMITS: Record<string, number> = { basis: 1, medium: 5, premium: Infinity }
+
+export type DashVacancyRow = { id: number; title: string; city: string; status: 'draft' | 'published'; slug: string; updatedAt: string }
+
+/** All vacancies for the current profile, any status (dashboard list). */
+export async function getMyVacancies(profile: Profile): Promise<DashVacancyRow[]> {
+  const where = ownerWhere(profile)
+  if (!where) return []
+  const payload = await getPayload({ config: await config })
+  const res = await payload.find({ collection: 'vacancies', where: where as never, depth: 0, limit: 200, sort: '-createdAt', overrideAccess: true })
+  return res.docs.map((d) => ({ id: d.id as number, title: d.title, city: d.city, status: d.status === 'published' ? 'published' : 'draft', slug: d.slug, updatedAt: d.updatedAt }))
+}

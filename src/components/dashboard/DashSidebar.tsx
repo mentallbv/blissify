@@ -7,6 +7,7 @@ import { usePathname, useRouter } from 'next/navigation'
 const NAV = [
   { id: 'overview', label: 'Overzicht', icon: 'ti-layout-dashboard', href: '/dashboard' },
   { id: 'courses', label: 'Opleidingen', icon: 'ti-stack-2', href: '/dashboard/opleidingen' },
+  { id: 'vacancies', label: 'Vacatures', icon: 'ti-briefcase', href: '/dashboard/vacatures' },
   { id: 'leads', label: 'Aanvragen', icon: 'ti-inbox', href: '/dashboard/leads' },
   { id: 'analytics', label: 'Analytics', icon: 'ti-chart-line', href: '/dashboard/analytics' },
   { id: 'profile', label: 'Profiel', icon: 'ti-building-store', href: '/dashboard/profiel' },

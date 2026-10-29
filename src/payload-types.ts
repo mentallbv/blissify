@@ -73,6 +73,7 @@ export interface Config {
     brands: Brand;
     trainers: Trainer;
     courses: Course;
+    vacancies: Vacancy;
     reviews: Review;
     collaborations: Collaboration;
     pages: Page;
@@ -89,6 +90,7 @@ export interface Config {
     brands: BrandsSelect<false> | BrandsSelect<true>;
     trainers: TrainersSelect<false> | TrainersSelect<true>;
     courses: CoursesSelect<false> | CoursesSelect<true>;
+    vacancies: VacanciesSelect<false> | VacanciesSelect<true>;
     reviews: ReviewsSelect<false> | ReviewsSelect<true>;
     collaborations: CollaborationsSelect<false> | CollaborationsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
@@ -772,6 +774,142 @@ export interface Course {
   createdAt: string;
 }
 /**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "vacancies".
+ */
+export interface Vacancy {
+  id: number;
+  title: string;
+  slug: string;
+  status: 'draft' | 'published';
+  trainer?: (number | null) | Trainer;
+  brand?: (number | null) | Brand;
+  companyName: string;
+  country: 'be' | 'nl';
+  city: string;
+  address?: string | null;
+  website?: string | null;
+  types: ('loondienst' | 'zelfstandig' | 'bijberoep' | 'commissie' | 'stage' | 'andere')[];
+  typeOther?: string | null;
+  functions: (
+    | 'kapper'
+    | 'barber'
+    | 'headspa'
+    | 'schoonheidsspecialist'
+    | 'huidtherapeut'
+    | 'wimperstylist'
+    | 'wenkbrauwstylist'
+    | 'make-upartist'
+    | 'pmu-specialist'
+    | 'ontharingsspecialist'
+    | 'nagelstylist'
+    | 'pedicure'
+    | 'medisch-pedicure'
+    | 'podotherapeut'
+    | 'masseur'
+    | 'wellnessmedewerker'
+    | 'fysiotherapeut'
+    | 'andere-therapeut'
+    | 'medisch-esthetisch-specialist'
+    | 'paramedisch'
+    | 'tattooartist'
+    | 'piercer'
+    | 'receptionist'
+    | 'salonmanager'
+    | 'opleider'
+    | 'sales'
+    | 'marketing-administratie'
+    | 'overig'
+  )[];
+  functionOther?: string | null;
+  /**
+   * Volgt automatisch uit de gekozen functies.
+   */
+  sectors?:
+    | (
+        | 'haar-barber'
+        | 'beauty-huid'
+        | 'nagels-voeten'
+        | 'massage-wellness'
+        | 'medisch-esthetisch'
+        | 'tattoo-piercing'
+        | 'overige'
+      )[]
+    | null;
+  regimes?:
+    | ('voltijds' | 'deeltijds' | 'enkele-dagen' | 'vaste-dagen' | 'flexibel' | 'op-afspraak' | 'in-overleg')[]
+    | null;
+  workdays?: ('ma' | 'di' | 'wo' | 'do' | 'vr' | 'za' | 'zo')[] | null;
+  regimeNote?: string | null;
+  start?: ('onmiddellijk' | 'datum' | 'in-overleg') | null;
+  startDate?: string | null;
+  startNote?: string | null;
+  compensationTypes?: ('vast-loon' | 'uur' | 'dag' | 'commissie' | 'per-behandeling' | 'in-overleg')[] | null;
+  compensationAmount?: string | null;
+  compensationNote?: string | null;
+  experience?: ('geen' | 'starter' | 'gewenst' | 'vereist') | null;
+  diplomaNote?: string | null;
+  requirementsNote?: string | null;
+  offers?:
+    | (
+        | 'klantenbestand'
+        | 'werkplek'
+        | 'materiaal'
+        | 'producten'
+        | 'flexibele-uren'
+        | 'opleiding'
+        | 'doorgroei'
+        | 'marketing'
+        | 'administratie'
+        | 'receptie'
+        | 'samenwerking'
+        | 'overig'
+      )[]
+    | null;
+  offerOther?: string | null;
+  aboutCompany?: string | null;
+  whoWeSeek?: string | null;
+  whatWeOffer?: string | null;
+  logo?: (number | null) | Media;
+  coverImage?: (number | null) | Media;
+  gallery?:
+    | {
+        image: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  contactName: string;
+  contactEmail: string;
+  contactPhone?: string | null;
+  /**
+   * Zoekmachine-optimalisatie instellingen
+   */
+  seo?: {
+    /**
+     * Paginatitel voor zoekmachines (max 60 tekens). Laat leeg om de naam/titel te gebruiken.
+     */
+    title?: string | null;
+    /**
+     * Beschrijving voor zoekmachines (max 160 tekens).
+     */
+    description?: string | null;
+    /**
+     * Het hoofdzoekwoord waarop je wilt scoren (bijv. "gelnagels opleiding Antwerpen")
+     */
+    focusKeyphrase?: string | null;
+    /**
+     * Open Graph afbeelding voor Facebook/LinkedIn sharing (1200x630px). Laat leeg voor de standaard.
+     */
+    ogImage?: (number | null) | Media;
+    /**
+     * Vink aan om deze pagina uit zoekresultaten te houden.
+     */
+    noindex?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Beoordelingen met bevestigd e-mailadres. Alleen goedgekeurde reviews verschijnen op de website.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1033,6 +1171,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'courses';
         value: number | Course;
+      } | null)
+    | ({
+        relationTo: 'vacancies';
+        value: number | Vacancy;
       } | null)
     | ({
         relationTo: 'reviews';
@@ -1445,6 +1587,66 @@ export interface CoursesSelect<T extends boolean = true> {
         tiktok?: T;
       };
   tags?: T;
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        focusKeyphrase?: T;
+        ogImage?: T;
+        noindex?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "vacancies_select".
+ */
+export interface VacanciesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  status?: T;
+  trainer?: T;
+  brand?: T;
+  companyName?: T;
+  country?: T;
+  city?: T;
+  address?: T;
+  website?: T;
+  types?: T;
+  typeOther?: T;
+  functions?: T;
+  functionOther?: T;
+  sectors?: T;
+  regimes?: T;
+  workdays?: T;
+  regimeNote?: T;
+  start?: T;
+  startDate?: T;
+  startNote?: T;
+  compensationTypes?: T;
+  compensationAmount?: T;
+  compensationNote?: T;
+  experience?: T;
+  diplomaNote?: T;
+  requirementsNote?: T;
+  offers?: T;
+  offerOther?: T;
+  aboutCompany?: T;
+  whoWeSeek?: T;
+  whatWeOffer?: T;
+  logo?: T;
+  coverImage?: T;
+  gallery?:
+    | T
+    | {
+        image?: T;
+        id?: T;
+      };
+  contactName?: T;
+  contactEmail?: T;
+  contactPhone?: T;
   seo?:
     | T
     | {

@@ -53,7 +53,8 @@ export function Select({
     <label style={{ display: 'block', width: '100%' }}>
       {label ? <FieldLabel>{label}</FieldLabel> : null}
       <span style={{ position: 'relative', display: 'flex', alignItems: 'center', width: '100%' }}>
-        <select className="bl-select" defaultValue="" {...rest}>
+        {/* defaultValue only for uncontrolled use; React warns when both are set. */}
+        <select className="bl-select" {...(rest.value === undefined && rest.defaultValue === undefined ? { defaultValue: '' } : {})} {...rest}>
           {placeholder ? (
             <option value="" disabled>
               {placeholder}
