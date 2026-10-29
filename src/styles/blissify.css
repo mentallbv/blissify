@@ -1561,3 +1561,6 @@ a.bl-providercard:hover,
 .bl-apply-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 48px; padding: 12px 20px; border: none; border-radius: var(--radius-sm); background: var(--blissify-terracotta); color: #fff; font-family: var(--font-ui); font-weight: 500; font-size: 15px; cursor: pointer; text-decoration: none; transition: background-color 0.18s; }
 .bl-apply-btn:hover { background: #a06f62; }
 .bl-apply-btn:focus-visible { outline: 2px solid var(--palette-slate); outline-offset: 2px; }
+
+/* Workspace results next to the filter column: two cards per row, three on wide screens. */
+.bl-grid-ws { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }

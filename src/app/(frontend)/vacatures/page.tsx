@@ -1,12 +1,10 @@
 import React from 'react'
 import type { Metadata } from 'next'
 import { SiteChrome } from '@/components/site/SiteChrome'
-import { MerkenFilterBar } from '@/components/site/MerkenFilterBar'
-import { NameSearch } from '@/components/site/NameSearch'
 import { VacancyCard } from '@/components/site/VacancyCard'
-import { Eyebrow } from '@/components/ui'
 import { getVacancyCards, getVacancyFilterOptions } from '@/lib/vacancies'
 import { VACANCY_LANDINGS } from '@/lib/vacancy-landings'
+import { GroupFilterSidebar } from '@/components/site/GroupFilterSidebar'
 
 export const dynamic = 'force-dynamic'
 
@@ -47,35 +45,37 @@ export default async function VacaturesPage({ searchParams }: { searchParams: SP
   return (
     <SiteChrome>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
-      <section className="bl-container" style={{ paddingTop: 72, paddingBottom: 24 }}>
-        <Eyebrow tone="meta">Ontdek vacatures &amp; samenwerkingen</Eyebrow>
-        <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 48, letterSpacing: '-0.01em', color: 'var(--text-brand)', lineHeight: 1.1, margin: '14px 0 0', maxWidth: 760 }}>
-          Ontdek jouw volgende professionele kans.
-        </h1>
-        <p style={{ ...p, fontSize: 16, maxWidth: 680, margin: '20px 0 0' }}>
-          Verken vacatures, freelanceopdrachten en samenwerkingsmogelijkheden binnen de beauty- en wellnesssector in België en Nederland. Vind kansen die aansluiten bij jouw ambities en kom rechtstreeks in contact met de aanbiedende ondernemingen.
-        </p>
-      </section>
-
-      <section className="bl-container" style={{ paddingTop: 8, paddingBottom: 0 }}>
-        <div style={{ marginBottom: 16 }}>
-          <NameSearch basePath="/vacatures" placeholder="Zoek op functie of bedrijfsnaam" />
+      {/* Same structure as the course overview: dark header, filters left, results right. */}
+      <section style={{ background: 'var(--surface-dark)' }}>
+        <div className="bl-container" style={{ paddingTop: 40, paddingBottom: 40 }}>
+          <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 'var(--type-label)', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(225, 230, 234, 0.7)' }}>Ontdek vacatures &amp; samenwerkingen</span>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 'clamp(30px, 4vw, 40px)', lineHeight: 1.1, letterSpacing: '-0.01em', color: 'var(--blissify-chalk)', margin: '10px 0 0', textWrap: 'balance' }}>
+            Ontdek jouw volgende professionele kans.
+          </h1>
+          <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.7, color: 'rgba(225, 230, 234, 0.85)', margin: '12px 0 0', maxWidth: 680 }}>
+            Verken vacatures, freelanceopdrachten en samenwerkingsmogelijkheden binnen de beauty- en wellnesssector in België en Nederland. Vind kansen die aansluiten bij jouw ambities en kom rechtstreeks in contact met de aanbiedende ondernemingen.
+          </p>
         </div>
-        <MerkenFilterBar facets={opts.facets} groups={opts.groups} basePath="/vacatures" />
       </section>
 
-      <section className="bl-container" style={{ paddingTop: 24, paddingBottom: 64 }}>
-        <p style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-meta)', margin: '0 0 16px' }}>{cards.length} {cards.length === 1 ? 'vacature' : 'vacatures'} in België en Nederland</p>
-        {cards.length ? (
-          <div className="bl-list">
-            {cards.map((v) => <VacancyCard key={v.id} v={v} />)}
+      <div className="bl-container bl-listing-section" style={{ paddingTop: 40, paddingBottom: 96 }}>
+        <div className="bl-listing-grid" style={{ display: 'grid', gridTemplateColumns: '264px 1fr', alignItems: 'start', gap: 40 }}>
+          <GroupFilterSidebar groups={opts.groups} facets={opts.facets} searchPlaceholder="Functie of bedrijfsnaam" />
+          <div style={{ minHeight: 480, minWidth: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 22, gap: 16, minHeight: 40 }}>
+              <span style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-body)' }}>{cards.length} {cards.length === 1 ? 'vacature' : 'vacatures'} gevonden</span>
+            </div>
+            {cards.length ? (
+              <div className="bl-list">{cards.map((v) => <VacancyCard key={v.id} v={v} />)}</div>
+            ) : (
+              <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: '72px 48px', textAlign: 'center', minHeight: 360, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+                <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 22, color: 'var(--text-brand)', margin: '0 0 8px' }}>Geen vacatures gevonden</h3>
+                <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.7, color: 'var(--text-strong)', margin: 0, maxWidth: 380 }}>Pas je filters aan of wis ze om meer resultaten te zien.</p>
+              </div>
+            )}
           </div>
-        ) : (
-          <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: '72px 48px', textAlign: 'center' }}>
-            <p style={{ ...p, margin: '0 auto', color: 'var(--text-meta)', maxWidth: 420 }}>Geen resultaten gevonden. Pas je zoekterm of filters aan, of bekijk al het aanbod.</p>
-          </div>
-        )}
-      </section>
+        </div>
+      </div>
 
       <section style={{ background: 'var(--surface-card)', borderTop: '0.5px solid var(--border-hairline)' }}>
         <div className="bl-container" style={{ paddingTop: 64, paddingBottom: 80, display: 'grid', gap: 48 }}>
