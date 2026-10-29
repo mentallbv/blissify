@@ -75,3 +75,14 @@ export async function getMyVacancies(profile: Profile): Promise<DashVacancyRow[]
   const res = await payload.find({ collection: 'vacancies', where: where as never, depth: 0, limit: 200, sort: '-createdAt', overrideAccess: true })
   return res.docs.map((d) => ({ id: d.id as number, title: d.title, city: d.city, status: d.status === 'published' ? 'published' : 'draft', slug: d.slug, updatedAt: d.updatedAt }))
 }
+
+export type DashWorkspaceRow = DashVacancyRow
+
+/** All werkruimtes for the current profile, any status (dashboard list). */
+export async function getMyWorkspaces(profile: Profile): Promise<DashWorkspaceRow[]> {
+  const where = ownerWhere(profile)
+  if (!where) return []
+  const payload = await getPayload({ config: await config })
+  const res = await payload.find({ collection: 'workspaces', where: where as never, depth: 0, limit: 200, sort: '-createdAt', overrideAccess: true })
+  return res.docs.map((d) => ({ id: d.id as number, title: d.title, city: d.city, status: d.status === 'published' ? 'published' : 'draft', slug: d.slug, updatedAt: d.updatedAt }))
+}

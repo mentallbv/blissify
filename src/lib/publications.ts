@@ -25,7 +25,7 @@ export const PUBLICATION_KINDS: Record<PublicationKind, KindInfo> = {
  * their collections are added (phases 4 and 5); the sweep and limit checks
  * then cover them automatically.
  */
-export const LIVE_PUBLICATION_KINDS: PublicationKind[] = ['courses']
+export const LIVE_PUBLICATION_KINDS: PublicationKind[] = ['courses', 'vacancies', 'workspaces']
 
 type UserLike = { role?: string | null; subscriptionTier?: string | null; brandTier?: string | null }
 

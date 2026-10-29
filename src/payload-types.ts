@@ -74,6 +74,7 @@ export interface Config {
     trainers: Trainer;
     courses: Course;
     vacancies: Vacancy;
+    workspaces: Workspace;
     reviews: Review;
     collaborations: Collaboration;
     pages: Page;
@@ -91,6 +92,7 @@ export interface Config {
     trainers: TrainersSelect<false> | TrainersSelect<true>;
     courses: CoursesSelect<false> | CoursesSelect<true>;
     vacancies: VacanciesSelect<false> | VacanciesSelect<true>;
+    workspaces: WorkspacesSelect<false> | WorkspacesSelect<true>;
     reviews: ReviewsSelect<false> | ReviewsSelect<true>;
     collaborations: CollaborationsSelect<false> | CollaborationsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
@@ -912,6 +914,205 @@ export interface Vacancy {
   createdAt: string;
 }
 /**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "workspaces".
+ */
+export interface Workspace {
+  id: number;
+  title: string;
+  slug: string;
+  status: 'draft' | 'published';
+  trainer?: (number | null) | Trainer;
+  brand?: (number | null) | Brand;
+  companyName: string;
+  country: 'be' | 'nl';
+  city: string;
+  address?: string | null;
+  website?: string | null;
+  salonTypes?:
+    | (
+        | 'kapsalon'
+        | 'barbershop'
+        | 'nagelstudio'
+        | 'schoonheidssalon'
+        | 'wenkbrauwstudio'
+        | 'wimperstudio'
+        | 'massagesalon'
+        | 'wellness-spa'
+        | 'pedicure'
+        | 'tattoo-piercing'
+        | 'therapiepraktijk'
+        | 'medisch-esthetisch'
+        | 'overig'
+      )[]
+    | null;
+  salonTypeOther?: string | null;
+  workplaceTypes: ('werkstoel' | 'behandelruimte' | 'volledig-salon' | 'gedeelde-ruimte' | 'overig')[];
+  workplaceTypeOther?: string | null;
+  usage?: ('exclusief' | 'gedeeld' | 'beide') | null;
+  access?: ('afgesproken' | 'zelfstandig' | 'in-overleg') | null;
+  rentFormula?: ('vast' | 'percentage' | 'vast-percentage' | 'in-overleg') | null;
+  rentAmount?: number | null;
+  rentUnit?: ('uur' | 'dagdeel' | 'dag' | 'week' | 'maand') | null;
+  rentPercentage?: number | null;
+  deposit?: ('geen' | 'bedrag' | 'in-overleg') | null;
+  depositAmount?: number | null;
+  features?:
+    | (
+        | 'gratis-parking-beschikbaar'
+        | 'betaalparking-beschikbaar'
+        | 'parking-voor-de-deur'
+        | 'dicht-bij-openbaar-vervoer'
+        | 'rolstoeltoegankelijk'
+        | 'gelijkvloerse-toegang'
+        | 'lift-aanwezig'
+        | 'eigen-ingang'
+        | 'natuurlijk-daglicht'
+        | 'mogelijkheid-tot-verduisteren'
+        | 'airconditioning'
+        | 'verwarming'
+        | 'ventilatie'
+        | '24-7-toegang-mogelijk'
+        | 'toegang-tijdens-vaste-openingsuren'
+        | 'afzonderlijk-afsluitbare-werkruimte'
+        | 'eigen-materiaal-meebrengen-toegestaan'
+        | 'eigen-producten-gebruiken-toegestaan'
+        | 'eigen-producten-gebruiken-verplicht'
+        | 'eigen-klanten-ontvangen-toegestaan'
+        | 'ruimte-delen-met-andere-professionals-mogelijk'
+        | 'vaste-werkplek-mogelijk'
+        | 'flexibele-werkplek-mogelijk'
+        | 'persoonlijke-sleutel-toegang-mogelijk'
+        | 'producten-ter-plaatse-verkopen-toegestaan'
+        | 'eigen-branding-logo-in-de-ruimte-toegestaan'
+        | 'ruimte-geschikt-voor-opleidingen-of-workshops'
+        | 'ruimte-geschikt-voor-groepsactiviteiten'
+        | 'ruimte-geschikt-voor-individuele-behandelingen'
+      )[]
+    | null;
+  facilities?:
+    | {
+        /**
+         * Sleutel uit de lijst, of "custom" voor een eigen voorziening.
+         */
+        key: string;
+        /**
+         * Alleen bij een eigen voorziening.
+         */
+        name?: string | null;
+        mode: 'inbegrepen' | 'meerprijs';
+        price?: number | null;
+        unit?: ('uur' | 'dag' | 'week' | 'maand' | 'gebruik' | 'behandeling' | 'eenmalig') | null;
+        id?: string | null;
+      }[]
+    | null;
+  facilitiesNote?: string | null;
+  activities?:
+    | (
+        | 'kapper-haarverzorging'
+        | 'barber'
+        | 'headspa'
+        | 'schoonheidsbehandelingen-gelaatsverzorging'
+        | 'huidtherapie'
+        | 'lichaamsbehandelingen'
+        | 'laserbehandelingen-definitieve-ontharing'
+        | 'waxen-harsen'
+        | 'make-up-visagie'
+        | 'permanente-make-up-pmu'
+        | 'wimperbehandelingen'
+        | 'wenkbrauwbehandelingen'
+        | 'manicure-nagelbehandelingen'
+        | 'pedicure-voetverzorging'
+        | 'medische-pedicure'
+        | 'podotherapie'
+        | 'massage'
+        | 'wellnessbehandelingen'
+        | 'acupunctuur'
+        | 'energetische-therapie'
+        | 'lichaamstherapie'
+        | 'manuele-therapie'
+        | 'fysiotherapie'
+        | 'medisch-esthetische-behandelingen'
+        | 'mondhygiene'
+        | 'tattoo'
+        | 'piercing'
+        | 'coaching'
+        | 'consultaties-adviesgesprekken'
+        | 'overig'
+      )[]
+    | null;
+  activityOther?: string | null;
+  /**
+   * Volgt automatisch uit de activiteiten.
+   */
+  sectors?:
+    | (
+        | 'haar-barber'
+        | 'beauty-huid'
+        | 'nagels-voeten'
+        | 'massage-wellness'
+        | 'medisch-esthetisch'
+        | 'tattoo-piercing'
+        | 'coaching'
+        | 'overige'
+      )[]
+    | null;
+  availableFrom?: ('onmiddellijk' | 'datum' | 'in-overleg') | null;
+  availableDate?: string | null;
+  /**
+   * Per dag kunnen meerdere tijdsblokken worden toegevoegd.
+   */
+  schedule?:
+    | {
+        day: 'ma' | 'di' | 'wo' | 'do' | 'vr' | 'za' | 'zo';
+        from: string;
+        to: string;
+        id?: string | null;
+      }[]
+    | null;
+  otherTimesNegotiable?: boolean | null;
+  availableDays?: ('ma' | 'di' | 'wo' | 'do' | 'vr' | 'za' | 'zo')[] | null;
+  dayparts?: ('ochtend' | 'middag' | 'avond' | 'weekend')[] | null;
+  coverImage?: (number | null) | Media;
+  gallery?:
+    | {
+        image: number | Media;
+        id?: string | null;
+      }[]
+    | null;
+  description?: string | null;
+  contactName: string;
+  contactEmail: string;
+  contactPhone?: string | null;
+  /**
+   * Zoekmachine-optimalisatie instellingen
+   */
+  seo?: {
+    /**
+     * Paginatitel voor zoekmachines (max 60 tekens). Laat leeg om de naam/titel te gebruiken.
+     */
+    title?: string | null;
+    /**
+     * Beschrijving voor zoekmachines (max 160 tekens).
+     */
+    description?: string | null;
+    /**
+     * Het hoofdzoekwoord waarop je wilt scoren (bijv. "gelnagels opleiding Antwerpen")
+     */
+    focusKeyphrase?: string | null;
+    /**
+     * Open Graph afbeelding voor Facebook/LinkedIn sharing (1200x630px). Laat leeg voor de standaard.
+     */
+    ogImage?: (number | null) | Media;
+    /**
+     * Vink aan om deze pagina uit zoekresultaten te houden.
+     */
+    noindex?: boolean | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * Beoordelingen met bevestigd e-mailadres. Alleen goedgekeurde reviews verschijnen op de website.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1177,6 +1378,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'vacancies';
         value: number | Vacancy;
+      } | null)
+    | ({
+        relationTo: 'workspaces';
+        value: number | Workspace;
       } | null)
     | ({
         relationTo: 'reviews';
@@ -1648,6 +1853,84 @@ export interface VacanciesSelect<T extends boolean = true> {
       };
   applyMethod?: T;
   applyUrl?: T;
+  contactName?: T;
+  contactEmail?: T;
+  contactPhone?: T;
+  seo?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        focusKeyphrase?: T;
+        ogImage?: T;
+        noindex?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "workspaces_select".
+ */
+export interface WorkspacesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  status?: T;
+  trainer?: T;
+  brand?: T;
+  companyName?: T;
+  country?: T;
+  city?: T;
+  address?: T;
+  website?: T;
+  salonTypes?: T;
+  salonTypeOther?: T;
+  workplaceTypes?: T;
+  workplaceTypeOther?: T;
+  usage?: T;
+  access?: T;
+  rentFormula?: T;
+  rentAmount?: T;
+  rentUnit?: T;
+  rentPercentage?: T;
+  deposit?: T;
+  depositAmount?: T;
+  features?: T;
+  facilities?:
+    | T
+    | {
+        key?: T;
+        name?: T;
+        mode?: T;
+        price?: T;
+        unit?: T;
+        id?: T;
+      };
+  facilitiesNote?: T;
+  activities?: T;
+  activityOther?: T;
+  sectors?: T;
+  availableFrom?: T;
+  availableDate?: T;
+  schedule?:
+    | T
+    | {
+        day?: T;
+        from?: T;
+        to?: T;
+        id?: T;
+      };
+  otherTimesNegotiable?: T;
+  availableDays?: T;
+  dayparts?: T;
+  coverImage?: T;
+  gallery?:
+    | T
+    | {
+        image?: T;
+        id?: T;
+      };
+  description?: T;
   contactName?: T;
   contactEmail?: T;
   contactPhone?: T;
