@@ -28,7 +28,7 @@ export default async function OpleidersPage({ searchParams }: { searchParams: SP
 
   const [{ cards }, opts] = await Promise.all([
     getProviderCards({ specialisaties, city, land, q, limit: 48 }),
-    getTrainerFilterOptions(),
+    getTrainerFilterOptions(land),
   ])
 
   return (

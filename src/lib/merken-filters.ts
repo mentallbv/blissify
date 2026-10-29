@@ -12,6 +12,8 @@ export type MerkenGroup = {
   ui: 'mega' | 'dropdown'
   multi: boolean
   options: MerkenOption[]
+  /** URL keys reset when this group changes (e.g. Land resets Locatie). */
+  clears?: string[]
 }
 
 export const MERKEN_GROUPS: MerkenGroup[] = [

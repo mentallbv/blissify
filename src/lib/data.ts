@@ -1262,7 +1262,7 @@ export async function getCourseTierContext(course: Course): Promise<CourseTierCo
  * a single-select dropdown of the merged Belgian city list. Facets carry the
  * per-option counts shown in the bar.
  */
-export async function getTrainerFilterOptions(): Promise<{ groups: MerkenGroup[]; facets: MerkenFacets }> {
+export async function getTrainerFilterOptions(land?: string): Promise<{ groups: MerkenGroup[]; facets: MerkenFacets }> {
   try {
     const payload = await client()
     const [res, index] = await Promise.all([
@@ -1271,13 +1271,26 @@ export async function getTrainerFilterOptions(): Promise<{ groups: MerkenGroup[]
     ])
     const cityCounts: Record<string, number> = {}
     const landCounts: Record<string, number> = {}
+    const liveCities: { be: string[]; nl: string[] } = { be: [], nl: [] }
     res.docs.forEach((t) => {
-      const city = t.location?.city
-      if (city) cityCounts[city] = (cityCounts[city] || 0) + 1
-      const country = (t.location as { country?: string } | undefined)?.country || 'be'
+      const country = (t.location as { country?: string } | undefined)?.country === 'nl' ? 'nl' : 'be'
       landCounts[country] = (landCounts[country] || 0) + 1
+      const city = t.location?.city
+      if (city) {
+        cityCounts[city] = (cityCounts[city] || 0) + 1
+        liveCities[country].push(city)
+      }
     })
-    const cities = mergeLocations(Object.keys(cityCounts))
+    // Client round 3 #4: Locatie follows the chosen Land; without a Land both
+    // countries are listed under a België / Nederland heading.
+    const byCountry = mergeLocationsByCountry(liveCities)
+    const cityOptions =
+      land === 'be' || land === 'nl'
+        ? byCountry[land].map((c) => ({ value: c, label: c }))
+        : [
+            ...byCountry.be.map((c) => ({ value: c, label: c, group: 'België' })),
+            ...byCountry.nl.map((c) => ({ value: c, label: c, group: 'Nederland' })),
+          ]
     const groups: MerkenGroup[] = [
       {
         key: 'specialisatie',
@@ -1298,13 +1311,14 @@ export async function getTrainerFilterOptions(): Promise<{ groups: MerkenGroup[]
           { value: 'be', label: 'België' },
           { value: 'nl', label: 'Nederland' },
         ],
+        clears: ['locatie'],
       },
       {
         key: 'locatie',
         name: 'Locatie',
         ui: 'dropdown',
         multi: false,
-        options: cities.map((c) => ({ value: c, label: c })),
+        options: cityOptions,
       },
     ]
     return { groups, facets: { specialisatie: index.counts, locatie: cityCounts, land: landCounts } }

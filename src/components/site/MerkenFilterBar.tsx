@@ -31,10 +31,11 @@ export function MerkenFilterBar({
     return v ? v.split(',').filter(Boolean) : []
   }
 
-  const pushKey = (key: string, vals: string[]) => {
+  const pushKey = (key: string, vals: string[], clears: string[] = []) => {
     const next = new URLSearchParams(Array.from(sp.entries()))
     if (vals.length) next.set(key, vals.join(','))
     else next.delete(key)
+    clears.forEach((k) => next.delete(k))
     const qs = next.toString()
     router.push(qs ? `${basePath}?${qs}` : basePath, { scroll: false })
   }
@@ -44,7 +45,7 @@ export function MerkenFilterBar({
     if (group.multi) {
       pushKey(group.key, cur.includes(value) ? cur.filter((x) => x !== value) : [...cur, value])
     } else {
-      pushKey(group.key, cur.includes(value) ? [] : [value])
+      pushKey(group.key, cur.includes(value) ? [] : [value], group.clears)
       setOpenKey(null)
     }
   }
@@ -126,12 +127,19 @@ export function MerkenFilterBar({
                   />
                 ) : (
                   <div>
-                    {g.options.map((o) => {
+                    {g.options.map((o, i) => {
                       const on = active.includes(o.value)
                       const n = count(g.key, o.value)
+                      // Group heading (e.g. België / Nederland) when the group changes.
+                      const heading = o.group && o.group !== g.options[i - 1]?.group ? (
+                        <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--text-meta)', padding: i ? '12px 10px 4px' : '4px 10px' }}>
+                          {o.group}
+                        </div>
+                      ) : null
                       return (
+                        <React.Fragment key={o.value}>
+                        {heading}
                         <button
-                          key={o.value}
                           type="button"
                           onClick={() => toggle(g, o.value)}
                           style={{
@@ -168,6 +176,7 @@ export function MerkenFilterBar({
                           <span style={{ flex: 1 }}>{o.label}</span>
                           <span style={{ color: 'var(--text-meta)', fontSize: 12 }}>({n})</span>
                         </button>
+                        </React.Fragment>
                       )
                     })}
                   </div>
