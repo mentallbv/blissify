@@ -25,6 +25,7 @@ import * as migration_20261029_vacancies from './20261029_vacancies';
 import * as migration_20261029_vacancies_apply from './20261029_vacancies_apply';
 import * as migration_20261029_demo_vacancies from './20261029_demo_vacancies';
 import * as migration_20261029_workspaces from './20261029_workspaces';
+import * as migration_20261029_demo_workspaces from './20261029_demo_workspaces';
 import * as migration_20261014_type_drives_lesvorm from './20261014_type_drives_lesvorm';
 import * as migration_20261014_trainer_cover_image from './20261014_trainer_cover_image';
 import * as migration_20261014_collaborations from './20261014_collaborations';
@@ -233,5 +234,10 @@ export const migrations = [
     up: migration_20261029_workspaces.up,
     down: migration_20261029_workspaces.down,
     name: '20261029_workspaces',
+  },
+  {
+    up: migration_20261029_demo_workspaces.up,
+    down: migration_20261029_demo_workspaces.down,
+    name: '20261029_demo_workspaces',
   },
 ];
