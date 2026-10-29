@@ -21,11 +21,11 @@ export function AuthView({
   const register = mode === 'registreren'
   const heading = register ? 'Account aanmaken' : 'Inloggen'
   const subtitle = register
-    ? 'Start met het publiceren van jouw opleidingen op Blissify.'
-    : 'Welkom terug. Beheer je opleidingen en aanvragen.'
-  const switchText = register ? 'Heb je al een account?' : 'Nog geen account?'
-  const switchLink = register ? 'Inloggen' : 'Account aanmaken'
-  const switchHref = register ? '/inloggen' : '/registreren'
+    ? 'Kies de categorie die bij jouw onderneming past: salons & professionals of merken & leveranciers. De betaalde abonnementen zijn bedoeld voor professionele klanten. Bij registratie vragen we jouw ondernemingsgegevens.'
+    : 'Log in om jouw profiel en publicaties te beheren.'
+  const switchText = register ? 'Heb je al een account?' : 'Nog geen aanbieder?'
+  const switchLink = register ? 'Inloggen' : 'Bekijk de abonnementen'
+  const switchHref = register ? '/inloggen' : '/abonnementen-tarieven'
 
   return (
     <div className="bl-auth-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: '100vh' }}>
@@ -36,13 +36,13 @@ export function AuthView({
         </a>
         <div>
           <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 44, lineHeight: 1.1, letterSpacing: '-0.01em', color: 'var(--blissify-chalk)', margin: 0, textWrap: 'balance' }}>
-            Jouw praktijk begint hier.
+            Alles voor jouw groei in beauty &amp; wellness.
           </h2>
           <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 16, lineHeight: 1.7, color: 'rgba(225, 230, 234,0.7)', margin: '20px 0 0', maxWidth: 380 }}>
-            Beheer je opleidingen, ontvang directe leads en bereik duizenden professionals via het Blissify-dashboard.
+            Beheer je profiel, opleidingen, vacatures en werkruimtes vanuit één account en kom rechtstreeks in contact met beauty- en wellnessprofessionals in België en Nederland.
           </p>
         </div>
-        <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 12, color: 'rgba(225, 230, 234,0.4)' }}>© 2026 Blissify · België</div>
+        <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 12, color: 'rgba(225, 230, 234,0.4)' }}>© {new Date().getFullYear()} Blissify · België &amp; Nederland</div>
       </div>
 
       {/* Form panel */}

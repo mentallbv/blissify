@@ -111,7 +111,7 @@ export function AuthForm({
                     color: on ? 'var(--blissify-chalk)' : 'var(--text-body)',
                   }}
                 >
-                  {r === 'trainer' ? 'Opleider' : 'Merk / Leverancier'}
+                  {r === 'trainer' ? 'Salons & professionals' : 'Merken & leveranciers'}
                 </button>
               )
             })}
@@ -122,7 +122,7 @@ export function AuthForm({
       {register && registrationPricing ? (
         <div style={{ border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-sm)', background: 'var(--surface-page)', padding: 14 }}>
           <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 12, color: 'var(--text-strong)', marginBottom: 8 }}>
-            Abonnementen voor {role === 'trainer' ? 'opleiders' : 'merken en leveranciers'}
+            Abonnementen voor {role === 'trainer' ? 'salons & professionals' : 'merken & leveranciers'}
           </div>
           <div style={{ display: 'grid', gap: 6 }}>
             {registrationPricing[role].map((tier) => (
@@ -139,7 +139,7 @@ export function AuthForm({
       ) : null}
 
       {register ? (
-        <Input label="Naam organisatie" placeholder="bijv. Academia Van der Berg" value={name} onChange={(e) => setName(e.target.value)} required />
+        <Input label="Naam onderneming" placeholder="bijv. Salon Lumière" value={name} onChange={(e) => setName(e.target.value)} required />
       ) : null}
       {register ? (
         <>
