@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { sbInsert, supabaseConfigured } from '@/lib/supabase'
 import { sendEmail, emailHtml, ADMIN_EMAIL } from '@/lib/email'
+import { CONTACT_SUBJECTS } from '@/lib/contact-subjects'
 
 /** POST /api/contact - general inquiry. Stored as a lead, forwarded to admin, confirmed to sender. */
 export async function POST(req: Request) {
@@ -8,7 +9,8 @@ export async function POST(req: Request) {
     const body = await req.json()
     const name = String(body.name || '').trim()
     const email = String(body.email || '').trim()
-    const subject = body.subject ? String(body.subject).trim() : ''
+    // Only the fixed subjects from the form (copy 10/2026); anything else is dropped.
+    const subject = CONTACT_SUBJECTS.includes(String(body.subject || '').trim()) ? String(body.subject).trim() : ''
     const message = String(body.message || '').trim()
 
     if (!name || !email || !message) {

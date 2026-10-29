@@ -19,7 +19,7 @@ export default function ContactPage() {
               Neem contact op met Blissify.
             </h1>
             <p style={{ fontFamily: 'var(--font-ui)', fontSize: 16, lineHeight: 1.7, color: 'var(--text-body)', maxWidth: 460, margin: '22px 0 0' }}>
-              Vragen over het platform, je account of een samenwerking? We helpen je graag verder.
+              Heb je een vraag over Blissify, jouw abonnement of jouw publicatie? Stuur ons een bericht.
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 28 }}>
               {[

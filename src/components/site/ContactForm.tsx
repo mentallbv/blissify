@@ -1,7 +1,8 @@
 'use client'
 
 import React from 'react'
-import { Input, Button, FieldLabel } from '@/components/ui'
+import { Input, Button, FieldLabel, Select } from '@/components/ui'
+import { CONTACT_SUBJECTS } from '@/lib/contact-subjects'
 
 export function ContactForm() {
   const [name, setName] = React.useState('')
@@ -50,7 +51,12 @@ export function ContactForm() {
     <form onSubmit={submit} style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: 28, display: 'flex', flexDirection: 'column', gap: 16 }}>
       <Input label="Naam" value={name} onChange={(e) => setName(e.target.value)} required />
       <Input label="E-mailadres" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-      <Input label="Onderwerp" value={subject} onChange={(e) => setSubject(e.target.value)} />
+      <Select
+        label="Onderwerp"
+        value={subject}
+        onChange={(e) => setSubject(e.target.value)}
+        options={[{ value: '', label: 'Kies een onderwerp' }, ...CONTACT_SUBJECTS.map((s) => ({ value: s, label: s }))]}
+      />
       <div>
         <FieldLabel>Bericht</FieldLabel>
         <textarea
