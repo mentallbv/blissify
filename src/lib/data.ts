@@ -714,43 +714,49 @@ export async function getHomepageSections(): Promise<{
     const eligibleBrandIds = (brandsRes.docs as { id: number; owner?: unknown }[])
       .filter((b) => brandTiers.includes(ownerTier(b.owner, 'brandTier') || ''))
       .map((b) => b.id)
-    // Highest-tier accounts are weighted first in the featured / brand lists.
-    const topBrandIds = new Set(
-      (brandsRes.docs as { id: number; owner?: unknown }[])
-        .filter((b) => ownerTier(b.owner, 'brandTier') === 'partner_premium')
-        .map((b) => String(b.id)),
-    )
-    const topTrainerIds = new Set(
-      (trainersRes.docs as { id: number; owner?: unknown }[])
-        .filter((t) => ownerTier(t.owner, 'subscriptionTier') === 'premium')
-        .map((t) => String(t.id)),
-    )
-    const isTop = (c: Course) => topBrandIds.has(relId(c.brand)) || topTrainerIds.has(relId(c.trainer))
+    // Homepage rotation (plan perk "Uitgelicht op de homepage via rotatie"):
+    // every published course of an eligible account is in the pool, no manual
+    // flag needed. Admin-flagged `featured` courses go first; the rest is
+    // shuffled per request, at most two per account so one provider cannot fill
+    // the whole row.
+    const rotate = (docs: Course[], ownerOf: (c: Course) => string): CourseCardData[] => {
+      const shuffled = [...docs].sort(() => Math.random() - 0.5)
+      shuffled.sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)))
+      const perOwner = new Map<string, number>()
+      const picked: Course[] = []
+      for (const c of shuffled) {
+        const owner = ownerOf(c)
+        const n = perOwner.get(owner) || 0
+        if (n >= 2) continue
+        perOwner.set(owner, n + 1)
+        picked.push(c)
+        if (picked.length === 6) break
+      }
+      return picked.map(toCard)
+    }
 
-    // Section 2 - Merken & Leveranciers only (premium weighted first)
+    // Section 2 - Merken & Leveranciers only
     let brandCourses: CourseCardData[] = []
     if (eligibleBrandIds.length) {
       const res = await payload.find({
         collection: 'courses',
-        where: { and: [{ status: { equals: 'published' } }, { featured: { equals: true } }, { brand: { in: eligibleBrandIds } }] } as never,
+        where: { and: [{ status: { equals: 'published' } }, { brand: { in: eligibleBrandIds } }] } as never,
         depth: 2,
-        limit: 24,
+        limit: 200,
       })
-      const docs = [...(res.docs as Course[])].sort((a, b) => (isTop(b) ? 1 : 0) - (isTop(a) ? 1 : 0))
-      brandCourses = docs.slice(0, 6).map(toCard)
+      brandCourses = rotate(res.docs as Course[], (c) => relId(c.brand))
     }
 
-    // Section 3 - individual Opleiders only (premium weighted first)
+    // Section 3 - individual Opleiders only
     let opleiderCourses: CourseCardData[] = []
     if (eligibleTrainerIds.length) {
       const res = await payload.find({
         collection: 'courses',
-        where: { and: [{ status: { equals: 'published' } }, { featured: { equals: true } }, { trainer: { in: eligibleTrainerIds } }] } as never,
+        where: { and: [{ status: { equals: 'published' } }, { trainer: { in: eligibleTrainerIds } }] } as never,
         depth: 2,
-        limit: 24,
+        limit: 200,
       })
-      const docs = [...(res.docs as Course[])].sort((a, b) => (isTop(b) ? 1 : 0) - (isTop(a) ? 1 : 0))
-      opleiderCourses = docs.slice(0, 6).map(toCard)
+      opleiderCourses = rotate(res.docs as Course[], (c) => relId(c.trainer))
     }
 
     return { brandCourses, opleiderCourses }
