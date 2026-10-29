@@ -1,6 +1,7 @@
 import React from 'react'
-import { CourseCard, Tag } from '@/components/ui'
-import { categoryTiles, type CourseCardData, type CourseFilterOptions } from '@/lib/data'
+import { CourseCard } from '@/components/ui'
+import { type CourseCardData, type CourseFilterOptions } from '@/lib/data'
+import { HubHeader } from './HubContent'
 import { FilterSidebar } from './FilterSidebar'
 import { SortSelect } from './SortSelect'
 
@@ -12,6 +13,7 @@ export function Listing({
   activeCategory,
   lockCategory = false,
   showHeader = true,
+  header,
 }: {
   title: string
   cards: CourseCardData[]
@@ -20,33 +22,19 @@ export function Listing({
   activeCategory?: string
   lockCategory?: boolean
   showHeader?: boolean
+  header?: { eyebrow: string; title: string; intro: string }
 }) {
   return (
     <>
       {showHeader ? (
-        <>
-          {/* Forest header */}
-          <section style={{ background: 'var(--surface-dark)' }}>
-            <div className="bl-container" style={{ paddingTop: 36, paddingBottom: 36 }}>
-              <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 'var(--type-label)', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(225, 230, 234,0.5)' }}>Zoekresultaten</span>
-              <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 34, lineHeight: 1.1, letterSpacing: '-0.01em', color: 'var(--blissify-chalk)', margin: '8px 0 0' }}>
-                {title}
-              </h1>
-            </div>
-          </section>
-
-          {/* Category pill bar */}
-          <section style={{ background: 'var(--surface-page)', borderBottom: '0.5px solid var(--border-hairline)' }}>
-            <div className="bl-container" style={{ paddingTop: 14, paddingBottom: 14, display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              {categoryTiles.map((c) => (
-                <Tag key={c.slug} as="a" href={`/opleidingen/${c.slug}`} active={activeCategory === c.slug}>
-                  {c.name}
-                </Tag>
-              ))}
-            </div>
-          </section>
-        </>
+        <HubHeader
+          eyebrow={header?.eyebrow || 'Opleidingen'}
+          title={header?.title || title}
+          intro={header?.intro || ''}
+        />
       ) : null}
+      {/* Category chips removed (round 3 #1.2 / copy 10/2026): the filters cover
+          it and the category pages are linked as text below the hub. */}
 
       {/* Sidebar + results */}
       <div className="bl-container bl-listing-section" style={{ paddingTop: 40, paddingBottom: 96 }}>

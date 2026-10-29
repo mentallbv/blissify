@@ -54,6 +54,8 @@ export function GroupFilterSidebar({
     timer.current = setTimeout(fn, 400)
   }
 
+  // Long checkbox groups (e.g. ~100 specialisaties) show 8 options plus the chosen ones until expanded.
+  const [expanded, setExpanded] = React.useState<Record<string, boolean>>({})
   const keys = ['q', 'prijsMin', 'prijsMax', ...groups.map((g) => g.key)]
   const hasActive = keys.some((k) => params.get(k))
   const count = (g: string, v: string) => facets[g]?.[v] ?? 0
@@ -91,9 +93,9 @@ export function GroupFilterSidebar({
             <span style={labelStyle}>{g.name}</span>
             {g.multi ? (
               <div style={{ display: 'grid', gap: 9 }}>
-                {g.options.map((o, i) => {
+                {(g.options.length > 12 && !expanded[g.key] ? g.options.filter((o, i) => i < 8 || value.split(',').includes(o.value)) : g.options).map((o, i, shown) => {
                   const on = value.split(',').includes(o.value)
-                  const heading = o.group && o.group !== g.options[i - 1]?.group ? <div style={{ ...labelStyle, fontSize: 10, margin: i ? '6px 0 0' : 0, color: 'var(--text-meta)' }}>{o.group}</div> : null
+                  const heading = o.group && o.group !== shown[i - 1]?.group ? <div style={{ ...labelStyle, fontSize: 10, margin: i ? '6px 0 0' : 0, color: 'var(--text-meta)' }}>{o.group}</div> : null
                   return (
                     <React.Fragment key={o.value}>
                       {heading}
@@ -105,6 +107,11 @@ export function GroupFilterSidebar({
                     </React.Fragment>
                   )
                 })}
+                {g.options.length > 12 ? (
+                  <button type="button" onClick={() => setExpanded((x) => ({ ...x, [g.key]: !x[g.key] }))} className="bl-textlink" style={{ justifySelf: 'start', border: 'none', background: 'none', cursor: 'pointer', fontSize: 13, padding: 0 }}>
+                    {expanded[g.key] ? 'Toon minder' : `Toon alle (${g.options.length})`}
+                  </button>
+                ) : null}
               </div>
             ) : (
               <select className="bl-select" value={value} onChange={(e) => push({ [g.key]: e.target.value || null }, g.clears)} style={selectStyle} aria-label={g.name}>
