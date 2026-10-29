@@ -7,6 +7,8 @@ import { Listing } from '@/components/site/Listing'
 import { getCourseCards, getCourseFilterOptions, getCategoryLanding } from '@/lib/data'
 import { parseCourseFilters } from '@/lib/filters'
 import { CATEGORY_SLUGS } from '@/lib/categories'
+import { courseLanding } from '@/lib/course-landings'
+import { CourseLandingPage, courseLandingMetadata } from '@/components/site/CourseLandingPage'
 
 export const dynamic = 'force-dynamic'
 
@@ -14,6 +16,8 @@ type Params = { params: Promise<{ category: string }>; searchParams: Promise<Rec
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { category } = await params
+  const landing = courseLanding(category)
+  if (landing) return courseLandingMetadata(landing)
   const c = await getCategoryLanding(category)
   if (!c) return {}
   return { title: c.metaTitle, description: c.metaDescription }
@@ -21,6 +25,9 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
 export default async function CategoryPage({ params, searchParams }: Params) {
   const { category } = await params
+  // Copy 10/2026 SEO pages (schoonheidsspecialiste, nagelstyliste, …) take precedence.
+  const landing = courseLanding(category)
+  if (landing) return <CourseLandingPage landing={landing} searchParams={await searchParams} />
   const content = await getCategoryLanding(category)
   if (!content) notFound()
 

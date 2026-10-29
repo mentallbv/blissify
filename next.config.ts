@@ -38,6 +38,9 @@ const nextConfig: NextConfig = {
       { source: '/prijzen/merken-leveranciers', destination: '/abonnementen-tarieven?voor=merken', permanent: true },
       { source: '/voor-aanbieders', destination: '/abonnementen-tarieven', permanent: true },
       { source: '/bewaard', destination: '/favorieten', permanent: true },
+      // Old category URLs -> the copy's SEO pages.
+      { source: '/opleidingen/schoonheid', destination: '/opleidingen/schoonheidsspecialiste', permanent: true },
+      { source: '/opleidingen/voetreflexologie', destination: '/opleidingen/reflexologie', permanent: true },
     ]
   },
   turbopack: {

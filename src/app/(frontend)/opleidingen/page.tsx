@@ -16,13 +16,14 @@ export const metadata: Metadata = {
 
 type SP = Promise<Record<string, string | string[] | undefined>>
 
-/** "Opleidingen per beroep". Pedicure follows once its landing page exists (phase 6, step 4). */
+/** "Opleidingen per beroep" (copy 10/2026): the six SEO pages. */
 const PER_BEROEP: [string, string, string][] = [
-  ['Opleiding schoonheidsspecialiste', '/opleidingen/schoonheid', 'huidverzorging, harsen, wimperextensions, huidtherapie.'],
+  ['Opleiding schoonheidsspecialiste', '/opleidingen/schoonheidsspecialiste', 'huidverzorging, harsen, wimperextensions, huidtherapie.'],
   ['Nagelstyliste opleiding', '/opleidingen/nagelstyliste', 'gelnagels, nail art, productkennis.'],
+  ['Opleiding pedicure', '/opleidingen/pedicure', 'voetverzorging en medische pedicure.'],
   ['Massage opleiding', '/opleidingen/massage', 'ontspanningsmassage, sportmassage, hot stone, aromatherapie.'],
   ['Yoga docent opleiding', '/opleidingen/yoga', 'yogaleraar worden bij een yogaschool.'],
-  ['Voetreflexologie opleiding', '/opleidingen/voetreflexologie', 'reflexologie als aanvulling op massage en pedicure.'],
+  ['Voetreflexologie opleiding', '/opleidingen/reflexologie', 'reflexologie als aanvulling op massage en pedicure.'],
 ]
 
 export default async function OpleidingenPage({ searchParams }: { searchParams: SP }) {

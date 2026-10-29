@@ -39,9 +39,9 @@ const COLS: { head: string; items: FooterLink[] }[] = [
 
 /** "Populair": plain text links for search engines (copy 10/2026). */
 const POPULAR: FooterLink[] = [
-  { label: 'Opleiding schoonheidsspecialiste', href: '/opleidingen/schoonheid' },
+  { label: 'Opleiding schoonheidsspecialiste', href: '/opleidingen/schoonheidsspecialiste' },
   { label: 'Nagelstyliste opleiding', href: '/opleidingen/nagelstyliste' },
-  { label: 'Opleiding pedicure', href: '/opleidingen/pedicure', ready: false },
+  { label: 'Opleiding pedicure', href: '/opleidingen/pedicure' },
   { label: 'Massage opleiding', href: '/opleidingen/massage' },
   { label: 'Vacature schoonheidsspecialiste', href: '/vacatures/schoonheidsspecialiste' },
   { label: 'Salon te huur', href: '/werkruimtes' },

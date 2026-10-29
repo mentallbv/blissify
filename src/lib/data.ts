@@ -163,6 +163,8 @@ export type CourseFilters = {
   limit?: number
   page?: number
   categorySlug?: string
+  /** Several categories at once (course SEO landing pages); each includes its subcategories. */
+  categorySlugs?: string[]
   city?: string
   format?: string // online | fysiek | hybride
   /** Type opleiding (client round 2 #3.7). */
@@ -218,6 +220,15 @@ export async function getCourseCards(opts: CourseFilters = {}): Promise<{
         and.push({ category: { in: ids } })
       }
       else and.push({ category: { equals: -1 } }) // unknown category -> no matches
+    }
+    if (opts.categorySlugs) {
+      const cats = opts.categorySlugs.length
+        ? await payload.find({ collection: 'categories', where: { slug: { in: opts.categorySlugs } }, limit: 200, depth: 0 })
+        : { docs: [] as { id: number }[] }
+      const ids = cats.docs.map((c) => c.id)
+      const children = ids.length ? await payload.find({ collection: 'categories', where: { parent: { in: ids } }, limit: 500, depth: 0 }) : { docs: [] as { id: number }[] }
+      const all = [...ids, ...children.docs.map((c) => c.id)]
+      and.push(all.length ? { category: { in: all } } : { category: { equals: -1 } })
     }
     if (opts.city) and.push({ 'location.city': { equals: opts.city } })
     if (opts.land) and.push({ 'location.country': { equals: opts.land } })
