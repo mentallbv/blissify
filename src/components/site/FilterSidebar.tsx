@@ -70,6 +70,7 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
     certificering: params.get('certificering') || '',
     gratis: params.get('gratis') === 'true',
     prijsMax: params.get('prijsMax') || '',
+    keyword: params.get('keyword') || '',
   }
 
   // Client round 2 #3.2: when a filter leaves fewer results the page gets
@@ -114,9 +115,22 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
     priceTimer.current = setTimeout(() => update('prijsMax', Number(v) >= options.priceMax ? null : v), 350)
   }
 
+  // Client round 3 #1.6: free-text search inside the filters, debounced like
+  // the price slider. Uses the listing's existing `keyword` param.
+  const [keyword, setKeyword] = React.useState(current.keyword)
+  React.useEffect(() => {
+    setKeyword(current.keyword)
+  }, [current.keyword])
+  const keywordTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null)
+  const onKeyword = (v: string) => {
+    setKeyword(v)
+    if (keywordTimer.current) clearTimeout(keywordTimer.current)
+    keywordTimer.current = setTimeout(() => update('keyword', v.trim() || null), 400)
+  }
+
   const hasAdvanced = Boolean(current.praktisch || current.focus || current.certificering || current.gratis || current.prijsMax)
   const [moreOpen, setMoreOpen] = React.useState(hasAdvanced)
-  const hasActive = Boolean(current.categorie || current.locatie || current.land || current.format || current.type || current.aanbieder || current.doelgroep || current.taal || hasAdvanced)
+  const hasActive = Boolean(current.keyword || current.categorie || current.locatie || current.land || current.format || current.type || current.aanbieder || current.doelgroep || current.taal || hasAdvanced)
 
   // Category picker (search + A-Z), shared with /opleiders and /merken. Single-
   // select here: the course `categorie` param is one slug (a main includes its
@@ -158,6 +172,22 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
             Wissen
           </button>
         ) : null}
+      </div>
+
+      <div style={{ marginBottom: 26 }}>
+        <label htmlFor="bl-filter-keyword" style={{ ...labelStyle, display: 'block' }}>Zoeken</label>
+        <div style={{ position: 'relative' }}>
+          <i className="ti ti-search" aria-hidden="true" style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 15, color: 'var(--text-meta)', pointerEvents: 'none' }} />
+          <input
+            id="bl-filter-keyword"
+            type="search"
+            value={keyword}
+            onChange={(e) => onKeyword(e.target.value)}
+            placeholder="Opleiding, techniek of opleider"
+            className="bl-select"
+            style={{ ...selectStyle, width: '100%', paddingLeft: 38, backgroundImage: 'none', cursor: 'text' }}
+          />
+        </div>
       </div>
 
       {!lockCategory ? (
