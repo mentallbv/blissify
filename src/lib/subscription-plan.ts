@@ -31,35 +31,6 @@ export async function resolvePlan(role: string, tier: PlanTier, billingCycle: Bi
   return { ok: true, amount, catalog }
 }
 
-/**
- * How many published courses exceed what `tier` allows. Zero for an upgrade or
- * an unlimited tier. Used to stop a downgrade from quietly unpublishing work -
- * the user chooses what to keep instead.
- */
-export async function publishedCoursesOverLimit(
-  payload: { find: (args: never) => Promise<{ docs: { id: number | string }[] }>; count: (args: never) => Promise<{ totalDocs: number }> },
-  userId: number,
-  role: string,
-  tier: PlanTier,
-): Promise<number> {
-  const limit = tierFeatures(role === 'brand' ? 'brand' : 'trainer', tier).courseLimit
-  if (limit === Infinity) return 0
-
-  const collection = role === 'brand' ? 'brands' : 'trainers'
-  const profiles = await payload.find({ collection, where: { owner: { equals: userId } }, limit: 1, depth: 0, overrideAccess: true } as never)
-  const profile = profiles.docs[0]
-  if (!profile) return 0
-
-  const relationship = role === 'brand' ? 'brand' : 'trainer'
-  const published = await payload.count({
-    collection: 'courses',
-    where: { and: [{ status: { equals: 'published' } }, { [relationship]: { equals: profile.id } }] },
-    overrideAccess: true,
-  } as never)
-
-  return Math.max(0, published.totalDocs - limit)
-}
-
 /** Blissify 2.0 has no free trial, so the selected period is charged immediately. */
 export function chargeAmount(amount: string, _trialEnabled = false): string {
   return amount

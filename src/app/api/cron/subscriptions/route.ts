@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { isEntitled } from '@/lib/entitlement'
 import { tierForUser } from '@/lib/tier-features'
+import { ownerProfile, unpublishOverLimit } from '@/lib/publications'
 
 export const dynamic = 'force-dynamic'
 export const maxDuration = 60
@@ -10,11 +11,11 @@ export const maxDuration = 60
 type SweepUser = { id: number; email: string; role?: string; subscriptionStatus?: string; subscriptionExpiresAt?: string; subscriptionTier?: string; brandTier?: string; pendingSubscriptionTier?: string; pendingSubscriptionBillingCycle?: 'yearly' | 'monthly'; pendingSubscriptionEffectiveAt?: string }
 
 /**
- * GET /api/cron/subscriptions - unpublishes courses whose owner is no longer
- * entitled. Cancelling keeps publishing rights until the paid period ends, so
+ * GET /api/cron/subscriptions - unpublishes publications (opleidingen, and
+ * vacatures / werkruimtes once they exist) whose owner is no longer entitled. Cancelling keeps publishing rights until the paid period ends, so
  * enforcement has to happen on a schedule rather than at cancellation time.
  *
- * Courses go to `draft`, never deleted: an account that resubscribes can
+ * Publications go to `draft`, never deleted: an account that resubscribes can
  * republish without losing its content.
  *
  * Runs daily via vercel.json. Protected by CRON_SECRET - Vercel sends it as
@@ -45,26 +46,12 @@ export async function GET(req: Request) {
       if (doc.role !== 'trainer' && doc.role !== 'brand') continue
 
       if (doc.pendingSubscriptionTier && doc.pendingSubscriptionEffectiveAt && new Date(doc.pendingSubscriptionEffectiveAt).getTime() <= Date.now()) {
-        const collection = doc.role === 'brand' ? 'brands' : 'trainers'
-        const relationship = doc.role === 'brand' ? 'brand' : 'trainer'
-        const profiles = await payload.find({ collection, where: { owner: { equals: doc.id } }, limit: 1, depth: 0, overrideAccess: true })
-        const profile = profiles.docs[0]
-        const limit = tierForUser({ role: doc.role, subscriptionTier: doc.pendingSubscriptionTier, brandTier: doc.pendingSubscriptionTier }).features.courseLimit
-        if (profile && limit !== Infinity) {
-          const live = await payload.find({
-            collection: 'courses',
-            where: { and: [{ status: { equals: 'published' } }, { [relationship]: { equals: profile.id } }] } as never,
-            sort: 'createdAt',
-            limit: 500,
-            depth: 0,
-            overrideAccess: true,
-          })
-          const excess = Math.max(0, live.docs.length - limit)
-          for (const course of live.docs.slice(0, excess)) {
-            await payload.update({ collection: 'courses', id: course.id, data: { status: 'draft' } as never, overrideAccess: true })
-            unpublished++
-          }
-        }
+        // Downgrade taking effect: the oldest publications over the new
+        // plan's limits go to draft (hidden, not deleted; client decision).
+        const newTier = { ...doc, subscriptionTier: doc.role === 'brand' ? doc.subscriptionTier : doc.pendingSubscriptionTier, brandTier: doc.role === 'brand' ? doc.pendingSubscriptionTier : doc.brandTier }
+        unpublished += await unpublishOverLimit(payload as never, newTier)
+        const profileRef = await ownerProfile(payload as never, doc.id, doc.role)
+        const profile = profileRef ? await payload.findByID({ collection: doc.role === 'brand' ? 'brands' : 'trainers', id: profileRef.id, depth: 0, overrideAccess: true }) : null
         // Brands: trim product categories to the new tier's limit (keeping the
         // first ones), so a downgrade cannot leave a profile over its allowance.
         if (profile && doc.role === 'brand') {
@@ -88,36 +75,9 @@ export async function GET(req: Request) {
 
       if (isEntitled(doc)) continue
 
-      const collection = doc.role === 'brand' ? 'brands' : 'trainers'
-      const profiles = await payload.find({
-        collection,
-        where: { owner: { equals: doc.id } },
-        limit: 1,
-        depth: 0,
-        overrideAccess: true,
-      })
-      const profile = profiles.docs[0]
-      if (!profile) continue
-
-      const relationship = doc.role === 'brand' ? 'brand' : 'trainer'
-      const live = await payload.find({
-        collection: 'courses',
-        where: { and: [{ status: { equals: 'published' } }, { [relationship]: { equals: profile.id } }] } as never,
-        limit: 500,
-        depth: 0,
-        overrideAccess: true,
-      })
-      if (!live.docs.length) continue
-
-      for (const course of live.docs) {
-        await payload.update({
-          collection: 'courses',
-          id: course.id,
-          data: { status: 'draft' } as never,
-          overrideAccess: true,
-        })
-        unpublished++
-      }
+      const taken = await unpublishOverLimit(payload as never, doc, { all: true })
+      if (!taken) continue
+      unpublished += taken
       affected.push(doc.email)
     }
 
