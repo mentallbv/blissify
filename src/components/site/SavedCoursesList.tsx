@@ -15,7 +15,7 @@ export function SavedCoursesList() {
     return (
       <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: '56px 32px', textAlign: 'center' }}>
         <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.7, color: 'var(--text-meta)', margin: '0 auto 20px', maxWidth: 420 }}>
-          Je hebt nog geen opleidingen bewaard. Klik op &ldquo;Opleiding opslaan&rdquo; op een opleidingspagina om ze hier te verzamelen en te vergelijken.
+          Je hebt nog geen favorieten. Klik op &ldquo;Opleiding opslaan&rdquo; bij een opleiding om ze hier te bewaren.
         </p>
         <ButtonLink href="/opleidingen" variant="primary">
           Vind een opleiding
@@ -43,7 +43,7 @@ export function SavedCoursesList() {
             onClick={() => removeSavedCourse(c.href)}
             style={{ alignSelf: 'flex-start', border: 0, background: 'none', padding: 0, cursor: 'pointer', fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-meta)', textDecoration: 'underline', textUnderlineOffset: 3 }}
           >
-            Verwijderen uit bewaard
+            Verwijderen uit favorieten
           </button>
         </div>
       ))}
