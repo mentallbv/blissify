@@ -2,34 +2,53 @@ import React from 'react'
 import { Logo } from '@/components/ui/Logo'
 import { NewsletterForm } from './NewsletterForm'
 
-const COLS = [
-  {
-    head: 'Opleidingen',
-    items: [
-      { label: 'Nagelstyliste', href: '/opleidingen/nagelstyliste' },
-      { label: 'Massage', href: '/opleidingen/massage' },
-      { label: 'Schoonheid', href: '/opleidingen/schoonheid' },
-      { label: 'Yoga', href: '/opleidingen/yoga' },
-    ],
-  },
+// Footer from the copy (10/2026), same order as the menu. `ready: false`
+// links stay hidden until their page exists, so nothing points at a 404.
+type FooterLink = { label: string; href: string; ready?: boolean }
+const COLS: { head: string; items: FooterLink[] }[] = [
   {
     head: 'Ontdekken',
     items: [
-      { label: 'Alle opleiders', href: '/salons-professionals' },
-      { label: 'Merken en Leveranciers', href: '/merken-leveranciers' },
-      { label: 'Publiceer opleiding', href: '/abonnementen-tarieven' },
+      { label: 'Salons & professionals', href: '/salons-professionals' },
+      { label: 'Merken & leveranciers', href: '/merken-leveranciers' },
+      { label: 'Opleidingen', href: '/opleidingen' },
+      { label: 'Werkruimtes', href: '/werkruimtes', ready: false },
+      { label: 'Vacatures & samenwerkingen', href: '/vacatures', ready: false },
     ],
   },
   {
-    head: 'Platform',
+    head: 'Voor aanbieders',
     items: [
-      { label: 'Over ons', href: '/over-ons' },
-      { label: 'Voor aanbieders', href: '/abonnementen-tarieven' },
-      { label: 'Prijzen', href: '/abonnementen-tarieven' },
+      { label: 'Word aanbieder', href: '/abonnementen-tarieven' },
+      { label: 'Bied opleidingen aan', href: '/abonnementen-tarieven' },
+      { label: 'Promoot jouw merk', href: '/abonnementen-tarieven?voor=merken' },
+      { label: 'Bied een werkruimte aan', href: '/abonnementen-tarieven', ready: false },
+      { label: 'Plaats een vacature', href: '/abonnementen-tarieven', ready: false },
+    ],
+  },
+  {
+    head: 'Blissify',
+    items: [
+      { label: 'Over Blissify', href: '/over-ons' },
+      { label: 'Abonnementen & tarieven', href: '/abonnementen-tarieven' },
+      { label: 'Veelgestelde vragen', href: '/veelgestelde-vragen', ready: false },
       { label: 'Contact', href: '/contact' },
     ],
   },
 ]
+
+/** "Populair": plain text links for search engines (copy 10/2026). */
+const POPULAR: FooterLink[] = [
+  { label: 'Opleiding schoonheidsspecialiste', href: '/opleidingen/schoonheid' },
+  { label: 'Nagelstyliste opleiding', href: '/opleidingen/nagelstyliste' },
+  { label: 'Opleiding pedicure', href: '/opleidingen/pedicure', ready: false },
+  { label: 'Massage opleiding', href: '/opleidingen/massage' },
+  { label: 'Vacature schoonheidsspecialiste', href: '/vacatures/schoonheidsspecialiste', ready: false },
+  { label: 'Salon te huur', href: '/werkruimtes', ready: false },
+]
+
+const shown = (l: FooterLink) => l.ready !== false
+const smallLink: React.CSSProperties = { fontFamily: 'var(--font-ui)', fontSize: 12, color: 'rgba(225, 230, 234,0.55)' }
 
 export function SiteFooter() {
   return (
@@ -48,7 +67,10 @@ export function SiteFooter() {
                 margin: '16px 0 0',
               }}
             >
-              Jouw praktijk begint hier.
+              Alles voor jouw groei in beauty &amp; wellness.
+            </p>
+            <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, lineHeight: 1.6, color: 'rgba(225, 230, 234,0.55)', margin: '8px 0 0' }}>
+              Ontdek opleidingen, salons, merken, leveranciers, werkruimtes en carrièremogelijkheden. Eén platform voor beauty- en wellnessprofessionals in België en Nederland.
             </p>
             <p
               style={{
@@ -60,7 +82,10 @@ export function SiteFooter() {
                 margin: '16px 0 0',
               }}
             >
-              Nieuwe opleidingen, direct in je inbox.
+              Blijf op de hoogte.
+            </p>
+            <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, lineHeight: 1.6, color: 'rgba(225, 230, 234,0.7)', margin: '6px 0 0' }}>
+              Ontvang nieuwe opleidingen, merken, vacatures en werkruimtes in jouw mailbox.
             </p>
             <div style={{ marginTop: 16 }}>
               <NewsletterForm />
@@ -82,7 +107,7 @@ export function SiteFooter() {
                 {c.head}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                {c.items.map((i) => (
+                {c.items.filter(shown).map((i) => (
                   <a key={i.label} href={i.href} className="bl-footer-link" style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 14, lineHeight: 2, color: 'rgba(225, 230, 234,0.65)' }}>
                     {i.label}
                   </a>
@@ -91,10 +116,18 @@ export function SiteFooter() {
             </div>
           ))}
         </div>
+        <div style={{ marginTop: 48, display: 'flex', gap: '6px 18px', flexWrap: 'wrap', alignItems: 'baseline', fontFamily: 'var(--font-ui)', fontSize: 13 }}>
+          <span style={{ fontWeight: 'var(--fw-ui-medium)', fontSize: 'var(--type-label)', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--palette-sand)' }}>Populair</span>
+          {POPULAR.filter(shown).map((l) => (
+            <a key={l.label} href={l.href} className="bl-footer-link" style={{ color: 'rgba(225, 230, 234,0.65)' }}>
+              {l.label}
+            </a>
+          ))}
+        </div>
         <div
           style={{
             borderTop: '0.5px solid rgba(225, 230, 234,0.15)',
-            marginTop: 48,
+            marginTop: 24,
             paddingTop: 24,
             display: 'flex',
             gap: 24,
@@ -105,9 +138,9 @@ export function SiteFooter() {
             color: 'rgba(225, 230, 234,0.55)',
           }}
         >
-          <span>© 2026 Blissify · Professionele wellnessopleidingen · België &amp; Nederland</span>
-          <a href="/privacybeleid" className="bl-footer-link" style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'rgba(225, 230, 234,0.55)' }}>Privacybeleid</a>
-          <a href="/cookiebeleid" className="bl-footer-link" style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'rgba(225, 230, 234,0.55)' }}>Cookiebeleid</a>
+          <span>© {new Date().getFullYear()} Blissify · België &amp; Nederland</span>
+          <a href="/privacybeleid" className="bl-footer-link" style={smallLink}>Privacybeleid</a>
+          <a href="/cookiebeleid" className="bl-footer-link" style={smallLink}>Cookiebeleid</a>
         </div>
       </div>
     </footer>

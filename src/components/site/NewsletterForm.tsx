@@ -53,8 +53,8 @@ export function NewsletterForm() {
           onChange={(e) => setEmail(e.target.value)}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          placeholder="jouw@email.be"
-          aria-label="E-mailadres"
+          placeholder="Jouw e-mailadres"
+          aria-label="Jouw e-mailadres"
           style={{
             flex: 1,
             minWidth: 280,
