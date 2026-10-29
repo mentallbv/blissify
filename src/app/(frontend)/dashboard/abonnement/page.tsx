@@ -81,7 +81,7 @@ export default async function DashboardSubscriptionPage() {
               ) : (
                 <div style={{ display: 'grid', gap: 8 }}>
                   <CheckoutButton tier={t.key} billingCycle="yearly" label={current ? 'Jaarlijks activeren' : 'Jaarlijks kiezen'} variant={t.recommended ? 'accent' : 'primary'} />
-                  {!isBrand && catalog.billing.monthlyEnabled ? (
+                  {catalog.billing.monthlyEnabled ? (
                     <>
                       <CheckoutButton tier={t.key} billingCycle="monthly" label={`€ ${monthly}/maand`} variant="ghost" />
                       <span style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--text-meta)', textAlign: 'center' }}>

@@ -19,9 +19,6 @@ export async function resolvePlan(role: string, tier: PlanTier, billingCycle: Bi
   if (billingCycle === 'monthly' && !catalog.billing.monthlyEnabled) {
     return { ok: false, error: 'Maandelijkse betaling is niet beschikbaar.', status: 400 }
   }
-  if (role === 'brand' && billingCycle === 'monthly') {
-    return { ok: false, error: 'Partner-abonnementen zijn uitsluitend jaarlijks beschikbaar.', status: 400 }
-  }
   const audience = role === 'brand' ? catalog.brands : catalog.opleiders
   const selected = audience.tiers.find((item) => item.key === tier)
   if (!selected) return { ok: false, error: 'Ongeldige formule.', status: 400 }

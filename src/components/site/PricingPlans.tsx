@@ -24,7 +24,8 @@ export function PricingPlans({
   const [audience, setAudience] = React.useState<Audience>(initialAudience)
   const [cycle, setCycle] = React.useState<'yearly' | 'monthly'>('yearly')
   const data = catalog[audience]
-  const monthlyAvailable = audience === 'opleiders' && billing.monthlyEnabled
+  // Copy 10/2026: brands get monthly prices too (€49 / €89 / €149).
+  const monthlyAvailable = billing.monthlyEnabled
   const detailHref = audience === 'brands' ? '/abonnementen-tarieven?voor=merken' : '/abonnementen-tarieven'
 
   return (

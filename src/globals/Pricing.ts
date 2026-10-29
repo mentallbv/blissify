@@ -19,7 +19,7 @@ const audienceFields: Field[] = [
       { name: 'key', type: 'text', required: true },
       { name: 'name', type: 'text', required: true },
       { name: 'tagline', type: 'text' },
-      { name: 'monthlyPrice', type: 'number', min: 0, admin: { description: 'Maandprijs in euro, exclusief btw. Alleen gebruikt voor Opleiders.' } },
+      { name: 'monthlyPrice', type: 'number', min: 0, admin: { description: 'Maandprijs in euro, exclusief btw.' } },
       { name: 'annualPrice', type: 'number', required: true, min: 0, admin: { description: 'Jaarprijs in euro, exclusief btw.' } },
       { name: 'desc', type: 'textarea' },
       { name: 'recommended', type: 'checkbox', defaultValue: false },
