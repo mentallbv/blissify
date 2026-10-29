@@ -6,16 +6,10 @@ import { Input, Button, FieldLabel } from '@/components/ui'
 export function RequestInfoButton({
   courseId,
   courseTitle,
-  courseSlug = '',
-  providerEmail = '',
-  providerName = '',
   variant = 'primary',
 }: {
   courseId: string
   courseTitle: string
-  courseSlug?: string
-  providerEmail?: string
-  providerName?: string
   /** Ghost when a course link is the main action next to it. */
   variant?: 'primary' | 'ghost'
 }) {
@@ -23,6 +17,7 @@ export function RequestInfoButton({
   const [name, setName] = React.useState('')
   const [email, setEmail] = React.useState('')
   const [message, setMessage] = React.useState('')
+  const [website, setWebsite] = React.useState('')
   const [done, setDone] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [loading, setLoading] = React.useState(false)
@@ -35,7 +30,7 @@ export function RequestInfoButton({
       const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, message, courseId, courseTitle, courseSlug, providerEmail, providerName }),
+        body: JSON.stringify({ name, email, message, courseId, website }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data?.error || 'Verzenden mislukt.')
@@ -79,6 +74,7 @@ export function RequestInfoButton({
                 <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 24, color: 'var(--text-brand)', margin: '0 0 4px' }}>Vraag informatie aan</h3>
                 <p style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-meta)', margin: '0 0 20px' }}>{courseTitle}</p>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                  <input type="text" name="website" tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} style={{ position: 'absolute', left: -9999, width: 1, height: 1, opacity: 0 }} aria-hidden="true" />
                   <Input label="Naam" value={name} onChange={(e) => setName(e.target.value)} required />
                   <Input label="E-mailadres" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
                   <div>

@@ -500,9 +500,6 @@ export default async function CourseDetailPage({ params }: Params) {
                     variant={v.externalUrl ? 'ghost' : 'primary'}
                     courseId={courseRef}
                     courseTitle={v.title}
-                    courseSlug={`${category}/${slug}`}
-                    providerEmail={v.providerEmail}
-                    providerName={v.provider}
                   />
                   </>
                 )}
