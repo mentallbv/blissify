@@ -17,7 +17,7 @@ export const CATEGORY_CONTENT: Record<string, CategoryContent> = {
     name: 'Nagelstyliste',
     metaTitle: 'Opleiding nagelstyliste in België - Cursussen vergelijken',
     metaDescription:
-      'Vind de beste opleiding nagelstyliste in België. Gel, acryl, gelnagels, nageldesign en permanente nagelverzorging. Dag- en avondopleidingen beschikbaar.',
+      'Vergelijk opleidingen nagelstyliste in België. Gel, acryl, gelnagels, nageldesign en permanente nagelverzorging. Dag- en avondopleidingen beschikbaar.',
     h1: 'Opleiding nagelstyliste in België',
     heroIntro:
       'Ontdek opleidingen nagelstyliste van professionele academies. Van basistechnieken tot gevorderde nageldesign - vind de opleiding die aansluit op jouw niveau en agenda.',

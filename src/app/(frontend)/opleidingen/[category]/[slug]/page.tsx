@@ -209,8 +209,6 @@ export default async function CourseDetailPage({ params }: Params) {
         chips: [
           { icon: 'ti-device-laptop', label: fb!.format },
           { icon: 'ti-map-pin', label: fb!.location },
-          { icon: 'ti-certificate', label: 'Certificaat inbegrepen' },
-          { icon: 'ti-users', label: 'Max 12 deelnemers' },
         ],
         keywords: [],
         about: [],
@@ -249,9 +247,23 @@ export default async function CourseDetailPage({ params }: Params) {
       ? publicMediaUrl((course as { coverImage?: { filename?: string | null; url?: string | null } }).coverImage)
       : null
 
+  // Course rich result. Only real data: price and reviews when present.
+  const priceNumber = course?.price?.isFree ? 0 : typeof course?.price?.amount === 'number' && !course.price.priceOnRequest ? course.price.amount : null
+  const courseLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Course',
+    name: v.title,
+    ...(v.about[0] ? { description: v.about[0] } : {}),
+    provider: { '@type': 'Organization', name: v.provider },
+    ...(coverImg ? { image: coverImg } : {}),
+    ...(priceNumber != null ? { offers: { '@type': 'Offer', category: priceNumber ? 'Paid' : 'Free', price: priceNumber, priceCurrency: 'EUR' } } : {}),
+    ...(reviews.length ? { aggregateRating: { '@type': 'AggregateRating', ratingValue: Number(averageRating.toFixed(1)), reviewCount: reviews.length } } : {}),
+  }
+
   return (
     <SiteChrome>
       <div>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(courseLd) }} />
       <TrackPageView kind="course" id={courseRef} />
       {/* Hero image band */}
       <div

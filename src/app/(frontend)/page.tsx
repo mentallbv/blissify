@@ -15,6 +15,7 @@ import { VacancyCard } from '@/components/site/VacancyCard'
 import { getHomepageVacancies } from '@/lib/vacancies'
 import { WorkspaceCard } from '@/components/site/WorkspaceCard'
 import { getHomepageWorkspaces } from '@/lib/workspaces'
+import { SITE_URL } from '@/lib/email'
 
 export const dynamic = 'force-dynamic'
 
@@ -107,6 +108,23 @@ export default async function HomePage() {
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify([
+            { '@context': 'https://schema.org', '@type': 'Organization', name: 'Blissify', url: SITE_URL, logo: `${SITE_URL}/brand/logo-blauw.svg`, areaServed: ['BE', 'NL'] },
+            {
+              '@context': 'https://schema.org',
+              '@type': 'WebSite',
+              name: 'Blissify',
+              url: SITE_URL,
+              inLanguage: 'nl-BE',
+              potentialAction: { '@type': 'SearchAction', target: `${SITE_URL}/opleidingen?keyword={search_term_string}`, 'query-input': 'required name=search_term_string' },
+            },
+            { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: faqItems.map((f: { q: string; a: string }) => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) },
+          ]),
+        }}
+      />
       <SiteNav user={currentUser ? { name: currentUser.name, role: currentUser.role } : null} />
 
       {/* HERO (copy 10/2026) */}
