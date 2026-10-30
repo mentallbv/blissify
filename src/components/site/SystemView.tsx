@@ -44,15 +44,20 @@ export function SystemView({ state }: { state: 'betaling-succes' | '404' }) {
                 Pagina niet gevonden
               </h1>
               <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 16, lineHeight: 1.7, color: 'var(--text-body)', margin: '0 0 28px' }}>
-                De pagina die je zoekt bestaat niet of is verplaatst. Ontdek opleidingen via de zoekfunctie of ga terug
-                naar de homepage.
+                Deze pagina bestaat niet (meer). Ga terug naar de homepage of vind een opleiding, werkruimte of vacature.
               </p>
               <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
                 <ButtonLink href="/" variant="primary">
                   Naar homepage
                 </ButtonLink>
                 <ButtonLink href="/opleidingen" variant="ghost">
-                  Zoek opleidingen
+                  Vind een opleiding
+                </ButtonLink>
+                <ButtonLink href="/werkruimtes" variant="ghost">
+                  Vind een werkruimte
+                </ButtonLink>
+                <ButtonLink href="/vacatures" variant="ghost">
+                  Vind een vacature
                 </ButtonLink>
               </div>
             </>
@@ -62,7 +67,7 @@ export function SystemView({ state }: { state: 'betaling-succes' | '404' }) {
 
       <footer style={{ background: 'var(--surface-dark)', color: 'rgba(225, 230, 234,0.4)' }}>
         <div className="bl-container" style={{ paddingTop: 24, paddingBottom: 24, fontFamily: 'var(--font-ui)', fontSize: 12 }}>
-          © 2026 Blissify · Professionele wellnessopleidingen · België &amp; Nederland
+          © Blissify · België &amp; Nederland
         </div>
       </footer>
     </div>

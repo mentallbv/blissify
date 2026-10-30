@@ -4,6 +4,7 @@ import { type CourseCardData, type CourseFilterOptions } from '@/lib/data'
 import { HubHeader } from './HubContent'
 import { FilterSidebar } from './FilterSidebar'
 import { SortSelect } from './SortSelect'
+import { NoResults } from '@/components/site/NoResults'
 
 export function Listing({
   title,
@@ -56,14 +57,7 @@ export function Listing({
                 ))}
               </div>
             ) : (
-              <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: '72px 48px', textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 360 }}>
-                <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 22, color: 'var(--text-brand)', margin: '0 0 8px' }}>
-                  Geen opleidingen gevonden
-                </h3>
-                <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.7, color: 'var(--text-meta)', margin: 0, maxWidth: 380 }}>
-                  Pas je filters aan of wis ze om meer resultaten te zien.
-                </p>
-              </div>
+              <NoResults />
             )}
           </div>
         </div>
