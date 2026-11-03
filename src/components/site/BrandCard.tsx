@@ -1,27 +1,27 @@
 import React from 'react'
-import { Avatar, TypeBadge } from '@/components/ui'
 import type { BrandCardData } from '@/lib/data'
+import { cssUrl } from '@/lib/css-url'
+
+const prettySector = (s: string) => (s ? (s.charAt(0).toUpperCase() + s.slice(1)).replace(/-/g, ' ') : '')
 
 /** Brand / supplier card, shared by /merken-leveranciers and the homepage. */
 export function BrandCard({ b }: { b: BrandCardData }) {
+  const counts = [b.courseCount ? `${b.courseCount} ${b.courseCount === 1 ? 'opleiding' : 'opleidingen'}` : null, b.providerCount ? `${b.providerCount} ${b.providerCount === 1 ? 'opleider' : 'opleiders'}` : null].filter(Boolean)
   return (
-    <a href={b.href} className="bl-providercard" style={{ display: 'block', padding: 20 }}>
-      <div style={{ display: 'flex', gap: 'var(--space-4)', alignItems: 'flex-start' }}>
-        <Avatar initial={b.initial} src={b.logo} size={44} radius={6} />
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <h3 style={{ margin: '0 0 2px', fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 20, color: 'var(--text-brand)', lineHeight: 1.15 }}>
-            {b.name}
-          </h3>
-          <p style={{ margin: 0, fontFamily: 'var(--font-ui)', fontSize: 'var(--type-xs)', color: 'var(--text-body)', lineHeight: 1.4 }}>{b.sector}</p>
-          <div style={{ marginTop: 8 }}>
-            <TypeBadge type="brand" />
-          </div>
-        </div>
+    <a href={b.href} className="bl-wscard bl-brandcard">
+      <div className="bl-wscard-media bl-brandcard-media" style={b.cover ? { backgroundImage: cssUrl(b.cover) } : undefined}>
+        {b.logo ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img className="bl-brandcard-logo" src={b.logo} alt={`Logo ${b.name}`} />
+        ) : !b.cover ? (
+          <span className="bl-brandcard-mark" aria-hidden="true">{b.name}</span>
+        ) : null}
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 'var(--space-5)', fontFamily: 'var(--font-ui)', fontSize: 'var(--type-xs)', color: 'var(--text-accent)' }}>
-        <span>{b.providerCount} opleiders</span>
-        <span style={{ color: 'var(--text-meta)' }}>·</span>
-        <span>{b.courseCount} cursussen</span>
+      <div className="bl-wscard-body">
+        {b.sector ? <div className="bl-brandcard-sector">{prettySector(b.sector)}</div> : null}
+        <h3 className="bl-brandcard-name">{b.name}</h3>
+        {counts.length ? <div className="bl-brandcard-meta">{counts.join(' · ')}</div> : null}
+        <span className="bl-listrow-cta" style={{ marginTop: 'auto' }}>Bekijk merk →</span>
       </div>
     </a>
   )

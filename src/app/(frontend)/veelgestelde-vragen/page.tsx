@@ -21,10 +21,10 @@ export default function FaqPage() {
   return (
     <SiteChrome>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} />
-      <section style={{ background: 'var(--surface-dark)' }}>
-        <div className="bl-container" style={{ paddingTop: 48, paddingBottom: 48 }}>
-          <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 'clamp(32px, 4.4vw, 48px)', lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--blissify-chalk)', margin: 0 }}>Veelgestelde vragen</h1>
-          <p style={{ fontFamily: 'var(--font-ui)', fontSize: 16, lineHeight: 1.7, color: 'rgba(225, 230, 234, 0.85)', margin: '14px 0 0', maxWidth: 640 }}>
+      <section className="bl-page-head">
+        <div className="bl-container" style={{ paddingTop: 72, paddingBottom: 56 }}>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 'clamp(32px, 4.4vw, 48px)', lineHeight: 1.08, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: 0 }}>Veelgestelde vragen</h1>
+          <p style={{ fontFamily: 'var(--font-ui)', fontSize: 16, lineHeight: 1.7, color: 'var(--text-body)', margin: '14px 0 0', maxWidth: 640 }}>
             Vind snel een antwoord op jouw vragen over Blissify, het ontdekken van professioneel aanbod en de mogelijkheden om zelf iets te publiceren.
           </p>
         </div>

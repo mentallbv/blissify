@@ -53,14 +53,14 @@ export function HubContent({ sections, faqTitle, faq, links }: { sections: HubSe
   )
 }
 
-/** Dark hub header, same as the course / vacancy / workspace overviews. */
+/** Light hub header on the page glow, same as the course / vacancy / workspace overviews. */
 export function HubHeader({ eyebrow, title, intro }: { eyebrow: string; title: string; intro: string }) {
   return (
-    <section style={{ background: 'var(--surface-dark)' }}>
-      <div className="bl-container" style={{ paddingTop: 40, paddingBottom: 40 }}>
-        <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 'var(--type-label)', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(225, 230, 234, 0.7)' }}>{eyebrow}</span>
-        <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 'clamp(30px, 4vw, 40px)', lineHeight: 1.1, letterSpacing: '-0.01em', color: 'var(--blissify-chalk)', margin: '10px 0 0', textWrap: 'balance' }}>{title}</h1>
-        <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.7, color: 'rgba(225, 230, 234, 0.85)', margin: '12px 0 0', maxWidth: 680 }}>{intro}</p>
+    <section className="bl-page-head">
+      <div className="bl-container" style={{ paddingTop: 64, paddingBottom: 48 }}>
+        <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 'var(--type-label)', textTransform: 'uppercase', letterSpacing: '0.12em', color: 'var(--text-accent)' }}>{eyebrow}</span>
+        <h1 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 'clamp(30px, 4vw, 40px)', lineHeight: 1.1, letterSpacing: '-0.01em', color: 'var(--text-brand)', margin: '10px 0 0', textWrap: 'balance' }}>{title}</h1>
+        <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.7, color: 'var(--text-body)', margin: '12px 0 0', maxWidth: 680 }}>{intro}</p>
       </div>
     </section>
   )

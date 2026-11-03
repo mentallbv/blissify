@@ -52,7 +52,7 @@ const smallLink: React.CSSProperties = { fontFamily: 'var(--font-ui)', fontSize:
 
 export function SiteFooter() {
   return (
-    <footer style={{ background: 'var(--surface-dark)', color: 'var(--blissify-chalk)', borderTop: '0.5px solid rgba(225, 230, 234,0.15)' }}>
+    <footer style={{ background: 'var(--surface-deep)', color: 'var(--blissify-chalk)', borderTop: '0.5px solid rgba(225, 230, 234,0.15)' }}>
       <div className="bl-container" style={{ paddingTop: 80, paddingBottom: 40 }}>
         <div className="bl-footer-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 48 }}>
           <div style={{ maxWidth: 380 }}>

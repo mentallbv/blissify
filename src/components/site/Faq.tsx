@@ -13,7 +13,7 @@ export function Faq({ items, variant = 'list', defaultOpen = 0 }: { items: FaqIt
     return (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
         {items.map((f, i) => (
-          <div key={f.q} className={'bl-faq-item' + (open === i ? ' is-open' : '')} style={{ background: 'var(--surface-page)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: '22px 24px' }}>
+          <div key={f.q} className={'bl-faq-item bl-faq-item--card' + (open === i ? ' is-open' : '')} style={{ border: '1px solid', padding: '22px 24px' }}>
             <button
               type="button"
               onClick={() => toggle(i)}
@@ -21,8 +21,8 @@ export function Faq({ items, variant = 'list', defaultOpen = 0 }: { items: FaqIt
               aria-controls={`faq-card-${i}`}
               style={{ width: '100%', background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, textAlign: 'left' }}
             >
-              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 19, color: 'var(--text-brand)', lineHeight: 1.25 }}>{f.q}</span>
-              <i className="ti ti-plus bl-faq-icon" aria-hidden="true" style={{ fontSize: 20, color: 'var(--text-brand)', flex: 'none' }} />
+              <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 23, color: 'var(--text-brand)', lineHeight: 1.25 }}>{f.q}</span>
+              <span className="bl-faq-toggle" aria-hidden="true"><i className="ti ti-plus bl-faq-icon" style={{ fontSize: 16 }} /></span>
             </button>
             <div id={`faq-card-${i}`} className="bl-faq-answer" aria-hidden={open !== i}>
               <div>

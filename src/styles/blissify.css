@@ -32,10 +32,18 @@
   --palette-mauve: #7e7584;
   --palette-lilac: #e6dae5;
 
+  /* Darker shades of rose and mauve for small text and fills with white text
+     (colour check Nov 2026): rose and mauve themselves fail 4.5:1 on mist. */
+  --palette-rose-ink: #8a5a4d;
+  --palette-mauve-ink: #5f5866;
+  /* Slate ink: headings and body need more weight than slate itself gives (4.5:1 on mist). */
+  --palette-slate-ink: #3f4b5a;
+
+
   /* Legacy role names, kept so every existing reference follows the palette. */
   --blissify-forest: var(--palette-slate);
   --blissify-chalk: var(--palette-mist);
-  --blissify-terracotta: var(--palette-rose);
+  --blissify-terracotta: var(--palette-rose-ink);
 
   /* --- Neutral scale (cool, slate-tinted) --- */
   --neutral-50: var(--palette-mist);
@@ -43,26 +51,31 @@
   --neutral-200: #c8c2c9;
   --neutral-400: var(--palette-mauve);
   /* Body/heading text: darker slate so copy stays readable on mist. */
-  --neutral-600: #4a5666;
-  --neutral-700: #364150;
+  --neutral-600: #3f4b5a;
+  --neutral-700: #2b3441;
   --neutral-900: var(--palette-slate);
 
   /* --- Surfaces --- */
   --surface-page: var(--blissify-chalk);
   --surface-card: #ffffff;
   --surface-dark: var(--blissify-forest);
+  /* The hero's soft lilac and sand glow, used as the base of every page. */
+  --surface-glow:
+    radial-gradient(70% 60% at 85% 10%, rgba(230, 218, 229, 0.85), rgba(230, 218, 229, 0) 70%),
+    radial-gradient(60% 55% at 5% 95%, rgba(230, 215, 204, 0.7), rgba(230, 215, 204, 0) 70%),
+    var(--palette-mist);
 
   /* --- Semantic text --- */
   --text-body: var(--neutral-600);
   --text-strong: var(--neutral-700);
-  --text-meta: var(--neutral-400);
-  --text-brand: var(--blissify-forest);
+  --text-meta: var(--palette-mauve-ink);
+  --text-brand: var(--palette-slate-ink);
   --text-on-dark: var(--blissify-chalk);
   --text-accent: var(--blissify-terracotta);
 
   /* --- Borders & dividers --- */
-  --border-hairline: var(--neutral-100);
-  --border-strong: var(--neutral-200);
+  --border-hairline: rgba(90, 105, 124, 0.18);
+  --border-strong: rgba(90, 105, 124, 0.32);
 
   /* --- Status --- */
   --status-success: #2d6a4f;
@@ -75,10 +88,10 @@
   /* --- Button system --- */
   --btn-primary-bg: var(--blissify-forest);
   --btn-primary-fg: var(--blissify-chalk);
-  --btn-accent-bg: var(--blissify-terracotta);
+  --btn-accent-bg: var(--palette-slate-ink);
   --btn-accent-fg: #ffffff;
-  --btn-ghost-border: var(--palette-rose);
-  --btn-ghost-fg: #9a6a5d;
+  --btn-ghost-border: var(--border-strong);
+  --btn-ghost-fg: var(--palette-slate-ink);
   --btn-disabled-bg: var(--neutral-100);
   --btn-disabled-fg: var(--neutral-400);
 
@@ -278,7 +291,8 @@ body {
 }
 
 body {
-  background: var(--surface-page);
+  background: var(--surface-glow);
+  background-attachment: fixed;
   color: var(--text-body);
   font-family: var(--font-ui);
   font-weight: var(--fw-ui-regular);
@@ -427,7 +441,7 @@ a.bl-providercard:hover,
   background-position: right 16px center;
 }
 
-/* --- Button base + variants --- */
+/* --- Button system (Nov 2026): one shape, one motion, slate as the action colour --- */
 .bl-btn {
   font-family: var(--font-ui);
   font-weight: var(--fw-ui-medium);
@@ -438,62 +452,28 @@ a.bl-providercard:hover,
   align-items: center;
   justify-content: center;
   gap: var(--space-3);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-pill);
   cursor: pointer;
   border: 1px solid transparent;
-  height: 44px;
-  padding: 0 22px;
+  height: 46px;
+  padding: 0 24px;
   white-space: nowrap;
-  transition:
-    background-color 0.18s ease,
-    color 0.18s ease,
-    border-color 0.18s ease;
+  text-decoration: none;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.3s var(--ease-out-quart), box-shadow 0.3s var(--ease-out-quart);
 }
-.bl-btn--sm {
-  height: 36px;
-  padding: 0 16px;
-}
-.bl-btn--lg {
-  height: 52px;
-  padding: 0 28px;
-}
-.bl-btn--full {
-  width: 100%;
-}
-.bl-btn--primary {
-  background: var(--btn-primary-bg);
-  color: var(--btn-primary-fg);
-  border-color: var(--btn-primary-bg);
-}
-.bl-btn--primary:hover {
-  background: #4a5868;
-}
-.bl-btn--accent {
-  background: var(--btn-accent-bg);
-  color: var(--btn-accent-fg);
-  border-color: var(--btn-accent-bg);
-}
-.bl-btn--accent:hover {
-  background: #a06f62;
-}
-.bl-btn--ghost {
-  background: transparent;
-  color: var(--btn-ghost-fg);
-  border-color: var(--btn-ghost-border);
-  font-weight: var(--fw-ui-regular);
-}
-.bl-btn--ghost:hover {
-  background: rgba(180, 129, 115, 0.08);
-}
-.bl-btn--ghost-dark {
-  background: transparent;
-  color: var(--blissify-chalk);
-  border-color: rgba(225, 230, 234, 0.4);
-  font-weight: var(--fw-ui-regular);
-}
-.bl-btn--ghost-dark:hover {
-  background: rgba(225, 230, 234, 0.08);
-}
+.bl-btn:hover { transform: translateY(-1px); box-shadow: var(--shadow-soft); }
+.bl-btn:active { transform: none; box-shadow: none; }
+.bl-btn:focus-visible { outline: 2px solid var(--palette-rose-ink); outline-offset: 3px; }
+.bl-btn--sm { height: 38px; padding: 0 18px; }
+.bl-btn--lg { height: 54px; padding: 0 30px; font-size: 15px; }
+.bl-btn--full { width: 100%; }
+/* Primary and accent are one style: there is a single action colour. */
+.bl-btn--primary, .bl-btn--accent { background: var(--palette-slate-ink); color: #fff; border-color: var(--palette-slate-ink); }
+.bl-btn--primary:hover, .bl-btn--accent:hover { background: #2b3441; border-color: #2b3441; }
+.bl-btn--ghost { background: rgba(255, 255, 255, 0.6); color: var(--palette-slate-ink); border-color: var(--border-strong); }
+.bl-btn--ghost:hover { background: #fff; border-color: var(--palette-slate-ink); }
+.bl-btn--ghost-dark { background: transparent; color: #fff; border-color: rgba(255, 255, 255, 0.45); }
+.bl-btn--ghost-dark:hover { background: rgba(255, 255, 255, 0.12); border-color: #fff; }
 .bl-textlink {
   font-family: var(--font-ui);
   font-weight: var(--fw-ui-medium);
@@ -515,8 +495,9 @@ a.bl-providercard:hover,
   top: 0;
   z-index: 50;
   min-height: 77px;
-  background: var(--blissify-chalk);
-  border-bottom: 0.5px solid var(--border-hairline);
+  background: var(--surface-glow);
+  background-attachment: fixed;
+  border-bottom: 0.5px solid transparent;
   transition:
     background-color 0.45s cubic-bezier(0.22, 0.61, 0.36, 1),
     border-color 0.45s cubic-bezier(0.22, 0.61, 0.36, 1);
@@ -556,12 +537,13 @@ a.bl-providercard:hover,
   /* Six menu items since the copy (10/2026): the pill needs room for them. */
   max-width: 1320px;
   transform: translateY(10px);
-  background: rgba(225, 230, 234, 0.72);
+  background: var(--surface-glow);
+  background-attachment: fixed;
   -webkit-backdrop-filter: blur(14px);
   backdrop-filter: blur(14px);
-  border: 0.5px solid rgba(90, 105, 124, 0.1);
+  border: 0.5px solid rgba(255, 255, 255, 0.7);
   border-radius: var(--radius-pill);
-  box-shadow: 0 8px 30px rgba(90, 105, 124, 0.08);
+  box-shadow: var(--shadow-lift);
   padding: 10px 14px 10px 22px;
 }
 .blnav-wm {
@@ -636,7 +618,7 @@ a.bl-providercard:hover,
 }
 .blnav-right {
   display: flex;
-  gap: 6px;
+  gap: 10px;
   align-items: center;
 }
 .blnav-login {
@@ -647,16 +629,22 @@ a.bl-providercard:hover,
   font-family: var(--font-ui);
   font-weight: 500;
   font-size: var(--type-sm);
-  color: var(--blissify-forest);
-  padding: 0 14px;
+  color: var(--palette-slate-ink);
+  padding: 0 20px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.3s var(--ease-out-quart), box-shadow 0.3s var(--ease-out-quart);
 }
+.blnav-login:hover { background: #fff; border-color: var(--palette-slate-ink); transform: translateY(-1px); box-shadow: var(--shadow-soft); }
 .blnav-saved {
   position: relative;
   display: inline-grid;
   place-items: center;
   width: 40px;
   height: 40px;
-  border-radius: var(--radius-sm);
+  border-radius: 50%;
   color: var(--palette-rose);
   font-size: 19px;
 }
@@ -699,20 +687,23 @@ a.bl-providercard:hover,
   align-items: center;
   white-space: nowrap;
   height: 40px;
-  padding: 0 18px;
-  border-radius: var(--radius-sm);
-  background: var(--blissify-forest);
-  color: var(--blissify-chalk);
+  padding: 0 20px;
+  border-radius: var(--radius-pill);
+  background: var(--palette-slate-ink);
+  color: #fff;
   font-family: var(--font-ui);
   font-weight: 500;
   font-size: var(--type-sm);
+  text-decoration: none;
+  transition: background-color 0.2s ease, transform 0.3s var(--ease-out-quart), box-shadow 0.3s var(--ease-out-quart);
 }
+.blnav-cta:hover { background: #2b3441; transform: translateY(-1px); box-shadow: var(--shadow-soft); }
 .blnav-menu-toggle,
 .blnav-mobile-menu {
   display: none;
 }
-/* The copy's six-item menu (plus account and CTA) needs ~1340px; below that the ☰ menu takes over. */
-@media (max-width: 1340px) {
+/* The six-item menu (plus account and CTA) needs ~1440px to breathe; below that the ☰ menu takes over. */
+@media (max-width: 1440px) {
   .blnav-links {
     display: none;
   }
@@ -721,8 +712,8 @@ a.bl-providercard:hover,
     padding: 12px 16px;
   }
   .blnav-login {
-    max-width: 116px;
-    padding: 0 8px;
+    max-width: 160px;
+    padding: 0 16px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -731,11 +722,11 @@ a.bl-providercard:hover,
     display: none;
   }
   .blnav-cta {
-    padding: 0 12px;
+    padding: 0 18px;
   }
   .blnav-right {
     min-width: 0;
-    gap: 2px;
+    gap: 10px;
   }
   .blnav-saved {
     width: 34px;
@@ -746,12 +737,13 @@ a.bl-providercard:hover,
     width: 40px;
     height: 40px;
     padding: 0;
-    border: 0.5px solid var(--border-hairline);
-    border-radius: var(--radius-sm);
-    background: var(--surface-card);
-    color: var(--text-brand);
+    border: 1px solid var(--border-strong);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.6);
+    color: var(--palette-slate-ink);
     font-size: 20px;
     cursor: pointer;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
   }
   .blnav-mobile-menu {
     position: absolute;
@@ -766,29 +758,37 @@ a.bl-providercard:hover,
     visibility: hidden;
     opacity: 0;
     border: 0.5px solid transparent;
-    border-radius: var(--radius-md);
-    background: rgba(225, 230, 234, 0.98);
-    box-shadow: 0 18px 42px rgba(90, 105, 124, 0.14);
-    transition: max-height 0.28s ease, padding 0.28s ease, opacity 0.2s ease, visibility 0.2s ease;
+    border-radius: var(--radius-lg);
+    /* The hero glow under a white veil, so the panel reads above the page it shares a colour with. */
+    background: linear-gradient(rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.72)), var(--surface-glow);
+    background-attachment: scroll, fixed;
+    -webkit-backdrop-filter: blur(16px);
+    backdrop-filter: blur(16px);
+    box-shadow: var(--shadow-lift);
+    transform: translateY(-8px);
+    transition: max-height 0.35s var(--ease-out-quart), padding 0.35s var(--ease-out-quart), opacity 0.25s ease, visibility 0.25s ease, transform 0.35s var(--ease-out-quart);
   }
   .blnav-mobile-menu.is-open {
     max-height: 520px;
     padding: 12px;
     visibility: visible;
     opacity: 1;
-    border-color: var(--border-hairline);
+    transform: none;
+    border-color: rgba(255, 255, 255, 0.7);
   }
   .blnav-mobile-menu > a,
   .blnav-mobile-pricing > a {
     display: block;
-    padding: 12px;
-    border-radius: 8px;
-    font-family: var(--font-ui);
-    font-size: 15px;
-    color: var(--text-body);
+    padding: 12px 14px;
+    border-radius: var(--radius-md);
+    font-family: var(--font-display);
+    font-size: 21px;
+    color: var(--text-brand);
+    transition: background-color 0.2s ease;
   }
+  .blnav-mobile-menu > a:hover { background: rgba(255, 255, 255, 0.6); }
   .blnav-mobile-menu a.active {
-    background: var(--surface-card);
+    background: #fff;
     color: var(--text-brand);
     font-weight: var(--fw-ui-medium);
   }
@@ -900,9 +900,14 @@ a.bl-providercard:hover,
   transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
 }
 .bl-faq-item.is-open {
-  border-color: rgba(90, 105, 124, 0.2) !important;
-  box-shadow: 0 8px 24px rgba(90, 105, 124, 0.045);
+  border-color: transparent !important;
+  box-shadow: var(--shadow-lift);
 }
+.bl-faq-item--card { background: rgba(255, 255, 255, 0.7) !important; border-color: rgba(255, 255, 255, 0.9) !important; border-radius: var(--radius-lg) !important; }
+.bl-faq-item--card:hover { background: #fff !important; }
+.bl-faq-item--card.is-open { background: #fff !important; }
+.bl-faq-toggle { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--surface-soft); color: var(--palette-slate-ink); transition: background-color 0.25s ease, color 0.25s ease; }
+.bl-faq-item.is-open .bl-faq-toggle { background: var(--palette-slate-ink); color: #fff; }
 .bl-faq-answer {
   display: grid;
   grid-template-rows: 0fr;
@@ -1078,10 +1083,12 @@ a.bl-providercard:hover,
   }
 }
 
+/* Phones: Inloggen and the account link live in the ☰ menu, so the bar keeps
+   logo, Word aanbieder and the menu button with room to breathe. */
+@media (max-width: 560px) {
+  .blnav-login { display: none !important; }
+}
 @media (max-width: 400px) {
-  .blnav-login {
-    max-width: 72px !important;
-  }
   /* Logged in: the account link is in the ☰ menu, so the bar keeps logo,
      saved courses, Publiceer and the menu button. */
   .blnav-account {
@@ -1579,3 +1586,124 @@ a.bl-providercard:hover,
   .bl-listing-grid > nav[aria-label="Categorieën"] { position: static !important; display: flex !important; flex-wrap: wrap; gap: 6px !important; }
   .bl-faq-navlink { border: 0.5px solid var(--border-strong); padding: 6px 10px; font-size: 13px; }
 }
+
+/* ===== Homepage life (design pass Nov 2026): imagery, depth, motion ===== */
+:root {
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  --shadow-soft: 0 1px 2px rgba(43, 52, 65, 0.04), 0 8px 24px -12px rgba(43, 52, 65, 0.18);
+  --shadow-lift: 0 2px 4px rgba(43, 52, 65, 0.05), 0 18px 40px -16px rgba(43, 52, 65, 0.28);
+}
+
+/* Cards: a quiet lift and a slow image zoom on hover. */
+a.bl-coursecard, a.bl-providercard, a.bl-wscard, a.bl-listrow {
+  transition: border-color 0.2s ease, transform 0.35s var(--ease-out-quart), box-shadow 0.35s var(--ease-out-quart);
+}
+a.bl-coursecard:hover, a.bl-providercard:hover, a.bl-wscard:hover, a.bl-listrow:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lift);
+}
+.bl-coursecard-image, .bl-wscard-media { transition: transform 0.6s var(--ease-out-quart); }
+a.bl-coursecard:hover .bl-coursecard-image, a.bl-wscard:hover .bl-wscard-media { transform: scale(1.04); }
+.bl-wscard { overflow: hidden; }
+
+/* Hero: small photos peeking out from behind the copy and the search card. */
+.bl-hero-copy, .bl-hero-card { position: relative; }
+.bl-hero-card > form { position: relative; z-index: 1; box-shadow: var(--shadow-lift); }
+.bl-hero-peek {
+  position: absolute; z-index: 0; margin: 0; border-radius: var(--radius-lg); overflow: hidden;
+  background: var(--palette-sand); box-shadow: var(--shadow-soft);
+  animation: bl-rise 1.1s var(--ease-out-quart) both;
+}
+.bl-hero-peek img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.bl-hero-peek--top { top: -56px; right: -64px; width: 150px; height: 200px; transform-origin: bottom left; animation-delay: 0.1s; }
+.bl-hero-peek--top img { object-position: 55% 60%; }
+.bl-hero-peek--bottom { bottom: -60px; left: -72px; width: 170px; height: 130px; animation-delay: 0.25s; }
+.bl-hero-copy > :not(.bl-hero-peek) { position: relative; z-index: 1; }
+@keyframes bl-rise { from { transform: translateY(24px) scale(0.97); } to { transform: none; } }
+.bl-hero-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+.bl-hero-chip {
+  display: inline-flex; align-items: center; gap: 8px; padding: 10px 16px; border-radius: var(--radius-pill);
+  border: 1px solid var(--border-strong); background: rgba(255, 255, 255, 0.6);
+  font-family: var(--font-ui); font-size: 14px; font-weight: 500; color: var(--text-brand); text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.3s var(--ease-out-quart);
+}
+.bl-hero-chip:hover { background: #fff; border-color: var(--palette-slate-ink); transform: translateY(-1px); box-shadow: var(--shadow-soft); }
+.bl-hero-chip i { color: var(--blissify-terracotta); font-size: 16px; }
+.bl-hero-accent { font-style: italic; color: var(--blissify-terracotta); }
+@media (max-width: 900px) { .bl-hero-peek { display: none; } }
+
+/* Photo split for "Gebouwd voor de professional". */
+.bl-photo-split { display: grid; grid-template-columns: 5fr 6fr; gap: 72px; align-items: center; }
+.bl-photo-split figure { margin: 0; border-radius: var(--radius-lg); overflow: hidden; aspect-ratio: 4 / 5; }
+.bl-photo-split figure img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.bl-point { padding: 22px 0; border-top: 0.5px solid rgba(225, 230, 234, 0.22); }
+.bl-point:last-child { border-bottom: 0.5px solid rgba(225, 230, 234, 0.22); }
+@media (max-width: 900px) {
+  .bl-photo-split { grid-template-columns: 1fr; gap: 36px; }
+  .bl-photo-split figure { aspect-ratio: 16 / 10; }
+}
+
+/* Scroll reveal: content is visible by default; JS only adds the entrance. */
+.bl-reveal-on [data-reveal] { transition: transform 0.8s var(--ease-out-quart), opacity 0.6s var(--ease-out-quart); }
+.bl-reveal-on [data-reveal]:not(.is-in) { transform: translateY(24px); opacity: 0.5; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bl-hero-peek { animation: none; }
+  .bl-reveal-on [data-reveal]:not(.is-in) { transform: none; opacity: 1; }
+  a.bl-coursecard:hover, a.bl-providercard:hover, a.bl-wscard:hover, a.bl-listrow:hover, .bl-hero-chip:hover { transform: none; }
+  a.bl-coursecard:hover .bl-coursecard-image, a.bl-wscard:hover .bl-wscard-media { transform: none; }
+}
+
+/* Page headers sit on the page glow instead of a slate block. */
+.bl-page-head { position: relative; border-bottom: 0.5px solid var(--border-hairline); }
+.bl-page-head h1 { font-size: clamp(34px, 4.6vw, 52px) !important; }
+
+/* Brand cards: a calm media panel instead of an initials block. */
+.bl-brandcard-media { display: grid; place-items: center; background-color: var(--palette-lilac); background-image: radial-gradient(80% 90% at 20% 10%, rgba(255, 255, 255, 0.7), transparent 60%), radial-gradient(70% 80% at 90% 100%, rgba(230, 215, 204, 0.9), transparent 65%); }
+.bl-brandcard-mark { font-family: var(--font-display); font-style: italic; font-size: 28px; line-height: 1.1; color: var(--palette-slate-ink); text-align: center; padding: 0 24px; }
+.bl-brandcard-logo { width: 72px; height: 72px; object-fit: contain; background: #fff; border-radius: var(--radius-md); padding: 8px; box-shadow: var(--shadow-soft); }
+.bl-brandcard-sector { font-family: var(--font-ui); font-size: 12px; font-weight: 500; letter-spacing: 0.02em; color: var(--text-accent); }
+.bl-brandcard-name { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 20px; line-height: 1.15; color: var(--text-brand); }
+.bl-brandcard-meta { font-family: var(--font-ui); font-size: 13px; color: var(--text-meta); }
+
+/* Vacancy tiles (homepage). */
+.bl-vactile-title { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 20px; line-height: 1.2; color: var(--text-brand); text-wrap: balance; }
+.bl-vactile-intro { margin: 0; font-family: var(--font-ui); font-size: 14px; line-height: 1.6; color: var(--text-body); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.bl-vactile-foot { display: flex; justify-content: space-between; margin-top: auto; padding-top: 10px; border-top: 0.5px solid var(--border-hairline); font-family: var(--font-ui); font-size: 13px; color: var(--text-meta); }
+.bl-vactile-foot i { color: var(--palette-rose-ink); }
+
+/* Mixed dark surfaces: slate with mauve and rose light, so dark blocks never read flat. */
+:root {
+  --surface-deep:
+    radial-gradient(60% 80% at 100% 0%, rgba(180, 129, 115, 0.45), transparent 60%),
+    radial-gradient(70% 90% at 0% 100%, rgba(126, 117, 132, 0.7), transparent 65%),
+    linear-gradient(135deg, #4d5a6b, #3f4b5a);
+  --surface-cta:
+    radial-gradient(70% 120% at 0% 0%, rgba(230, 218, 229, 0.35), transparent 60%),
+    radial-gradient(60% 120% at 100% 100%, rgba(90, 105, 124, 0.55), transparent 60%),
+    linear-gradient(120deg, #8a5a4d, #7a6070 55%, #5f5866);
+  --surface-soft:
+    radial-gradient(60% 120% at 0% 0%, rgba(255, 255, 255, 0.8), transparent 60%),
+    radial-gradient(60% 120% at 100% 100%, rgba(180, 129, 115, 0.28), transparent 65%),
+    linear-gradient(120deg, var(--palette-lilac), var(--palette-sand));
+  --surface-softer:
+    radial-gradient(70% 120% at 0% 0%, rgba(255, 255, 255, 0.85), transparent 65%),
+    radial-gradient(60% 120% at 100% 100%, rgba(230, 215, 204, 0.55), transparent 70%),
+    linear-gradient(120deg, rgba(230, 218, 229, 0.55), rgba(230, 215, 204, 0.45));
+}
+
+/* Homepage: audience rows, bold CTA band, "how it works" panels. */
+.bl-audience { display: grid; grid-template-columns: 48px 1fr; gap: 18px; padding: 22px 0; border-top: 0.5px solid var(--border-hairline); }
+.bl-audience:last-child { border-bottom: 0.5px solid var(--border-hairline); }
+.bl-audience-icon { width: 48px; height: 48px; border-radius: var(--radius-md); display: grid; place-items: center; background: var(--surface-soft); color: var(--palette-rose-ink); font-size: 22px; }
+.bl-cta-band { background: var(--surface-cta); color: var(--blissify-chalk); position: relative; overflow: hidden; }
+.bl-howcard { display: flex; flex-direction: column; background: var(--surface-card); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-soft); }
+.bl-howcard-media { height: 200px; background-size: cover; background-position: center; }
+.bl-howcard-body { display: flex; flex-direction: column; flex: 1; padding: 32px; }
+.bl-soft-panel { background: var(--surface-softer); border-radius: 28px; box-shadow: var(--shadow-lift); }
+
+.bl-btn-light { display: inline-flex; align-items: center; justify-content: center; gap: 10px; height: 54px; padding: 0 30px; border-radius: var(--radius-pill); background: #fff; color: var(--palette-slate-ink); font-family: var(--font-ui); font-size: 15px; font-weight: var(--fw-ui-medium); text-decoration: none; transition: transform 0.3s var(--ease-out-quart), box-shadow 0.3s var(--ease-out-quart); }
+.bl-btn-light:hover { transform: translateY(-1px); box-shadow: var(--shadow-soft); }
+@media (max-width: 900px) { .bl-howcard-media { height: 160px; } }
+
+.bl-grid-3 > .bl-wscard { height: 100%; }

@@ -11,11 +11,12 @@ import { getPricingCatalog, getCourseFilterOptions, getHomepageSections, getBran
 import { BrandCard } from '@/components/site/BrandCard'
 import { FAQ_HOME } from '@/lib/pricing'
 import { getCurrentUser } from '@/lib/session'
-import { VacancyCard } from '@/components/site/VacancyCard'
+import { VacancyTile } from '@/components/site/VacancyTile'
 import { getHomepageVacancies } from '@/lib/vacancies'
 import { WorkspaceCard } from '@/components/site/WorkspaceCard'
 import { getHomepageWorkspaces } from '@/lib/workspaces'
 import { SITE_URL } from '@/lib/email'
+import { RevealOnScroll } from '@/components/site/RevealOnScroll'
 
 export const dynamic = 'force-dynamic'
 
@@ -93,7 +94,7 @@ export default async function HomePage() {
   const lead: React.CSSProperties = { fontFamily: 'var(--font-ui)', fontSize: 16, lineHeight: 1.7, color: 'var(--text-body)', margin: '14px 0 0' }
   const Featured = ({ title, text, href, link, children, tinted = false }: { title: string; text: string; href: string; link: string; children: React.ReactNode; tinted?: boolean }) => (
     <section style={tinted ? { background: 'var(--surface-card)', borderTop: '0.5px solid var(--border-hairline)' } : undefined}>
-      <div className="bl-container bl-home-section" style={{ paddingTop: 88, paddingBottom: 88 }}>
+      <div className="bl-container bl-home-section" data-reveal style={{ paddingTop: 88, paddingBottom: 88 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: 24, flexWrap: 'wrap', marginBottom: 36 }}>
           <div style={{ maxWidth: 640 }}>
             <h2 style={h2}>{title}</h2>
@@ -125,6 +126,7 @@ export default async function HomePage() {
           ]),
         }}
       />
+      <RevealOnScroll />
       <SiteNav user={currentUser ? { name: currentUser.name, role: currentUser.role } : null} />
 
       {/* HERO (copy 10/2026) */}
@@ -133,52 +135,59 @@ export default async function HomePage() {
           position: 'relative',
           overflow: 'hidden',
           background:
-            'radial-gradient(120% 90% at 15% 0%, rgba(180, 129, 115,0.10), rgba(225, 230, 234,0) 55%), radial-gradient(120% 90% at 85% 5%, rgba(90, 105, 124,0.08), rgba(225, 230, 234,0) 55%), #E1E6EA',
+            'transparent',
         }}
       >
-        <div className="bl-container bl-home-hero-inner" style={{ paddingTop: 88, paddingBottom: 80 }}>
+        <div className="bl-container bl-home-hero-inner" style={{ paddingTop: 80, paddingBottom: 96 }}>
           <div className="bl-hero-split">
-            <div style={{ maxWidth: 600 }}>
+            <div className="bl-hero-copy" style={{ maxWidth: 600 }}>
               <Eyebrow>Hét platform voor beauty &amp; wellness · België &amp; Nederland</Eyebrow>
               <h1 className="bl-home-hero-title" style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 64, lineHeight: 1.04, letterSpacing: '-0.02em', color: 'var(--text-brand)', margin: '20px 0 0', textWrap: 'balance' }}>
                 {hero.title || 'Alles voor jouw groei in'}{' '}
-                <span style={{ color: 'var(--blissify-terracotta)' }}>{hero.highlight || 'beauty & wellness.'}</span>
+                <span className="bl-hero-accent">{hero.highlight || 'beauty & wellness.'}</span>
               </h1>
               <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 18, lineHeight: 1.7, color: 'var(--text-body)', margin: '22px 0 0' }}>
                 {hero.subtitle || 'Vind opleidingen en cursussen, merken en leveranciers, werkruimtes en vacatures voor beauty- en wellnessprofessionals. Alles overzichtelijk samengebracht op één platform, in België en Nederland.'}
               </p>
-              <div className="bl-hero-ctas" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, max-content)', gap: 10, marginTop: 30 }}>
-                <ButtonLink href="/opleidingen" variant="primary">Vind een opleiding</ButtonLink>
-                <ButtonLink href="/merken-leveranciers" variant="primary">Vind een merk</ButtonLink>
-                <ButtonLink href="/werkruimtes" variant="ghost">Vind een werkruimte</ButtonLink>
-                <ButtonLink href="/vacatures" variant="ghost">Vind een vacature</ButtonLink>
+              <div className="bl-hero-chips">
+                <a className="bl-hero-chip" href="/opleidingen"><i className="ti ti-school" aria-hidden="true" />Vind een opleiding</a>
+                <a className="bl-hero-chip" href="/merken-leveranciers"><i className="ti ti-sparkles" aria-hidden="true" />Vind een merk</a>
+                <a className="bl-hero-chip" href="/werkruimtes"><i className="ti ti-armchair" aria-hidden="true" />Vind een werkruimte</a>
+                <a className="bl-hero-chip" href="/vacatures"><i className="ti ti-briefcase" aria-hidden="true" />Vind een vacature</a>
               </div>
             </div>
-            <SearchCard categories={searchOptions.categories} cities={searchOptions.citiesByCountry} counts={counts} />
+            <div className="bl-hero-card">
+              <figure className="bl-hero-peek bl-hero-peek--top" aria-hidden="true"><img src="/images/home/facial.jpg" alt="" fetchPriority="high" /></figure>
+              <figure className="bl-hero-peek bl-hero-peek--bottom" aria-hidden="true"><img src="/images/home/nails.jpg" alt="" /></figure>
+              <SearchCard categories={searchOptions.categories} cities={searchOptions.citiesByCountry} counts={counts} />
+            </div>
           </div>
         </div>
       </section>
 
       {/* SEO block under the hero */}
-      <section style={{ background: 'var(--surface-card)', borderTop: '0.5px solid var(--border-hairline)' }}>
-        <div className="bl-container bl-home-section" style={{ paddingTop: 80, paddingBottom: 80 }}>
-          <div className="bl-faq-split" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 56, alignItems: 'start' }}>
+      <section style={{ background: 'var(--surface-card)' }}>
+        <div className="bl-container bl-home-section" data-reveal style={{ paddingTop: 104, paddingBottom: 104 }}>
+          <div className="bl-faq-split" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'start' }}>
             <div>
-              <h2 style={{ ...h2, fontSize: 'clamp(28px, 3.2vw, 36px)' }}>Opleidingen, vacatures en werkruimtes voor beauty- en wellnessprofessionals</h2>
-              <p style={{ ...lead, fontSize: 15 }}>
+              <h2 style={{ ...h2, fontSize: 'clamp(30px, 3.6vw, 42px)' }}>Opleidingen, vacatures en werkruimtes voor <span className="bl-hero-accent">beauty- en wellnessprofessionals</span></h2>
+              <p style={{ ...lead, fontSize: 16, marginTop: 22 }}>
                 Blissify is het B2B-platform waar beauty- en wellnessprofessionals in België en Nederland hun volgende stap vinden. Vergelijk <a href="/opleidingen" className="bl-textlink">opleidingen en cursussen</a> van opleiders, academies en merken. Bekijk <a href="/vacatures" className="bl-textlink">vacatures en samenwerkingen</a> in loondienst of als zelfstandige. Zoek een <a href="/werkruimtes" className="bl-textlink">salon te huur, stoelhuur of behandelkamer</a>. En ontdek de <a href="/merken-leveranciers" className="bl-textlink">merken en leveranciers</a> achter het professionele aanbod.
               </p>
             </div>
             <div>
-              <h2 style={{ ...h2, fontSize: 'clamp(24px, 2.6vw, 30px)' }}>Voor wie is Blissify?</h2>
+              <h2 style={{ ...h2, fontSize: 'clamp(24px, 2.6vw, 30px)', marginBottom: 20 }}>Voor wie is Blissify?</h2>
               {[
-                ['Voor schoonheidsspecialisten, nagelstylisten, pedicures, masseurs en yogadocenten', 'Je vindt opleidingen om te starten of bij te scholen, vacatures en werkruimtes om je carrière op te bouwen.'],
-                ['Voor salons, instituten, spa’s en praktijken', 'Je publiceert vacatures, verhuurt werkruimtes en bereikt professionals die bij je passen.'],
-                ['Voor opleiders, academies, merken en leveranciers', 'Je maakt opleidingen en producten zichtbaar bij de professionals die ze zoeken.'],
-              ].map(([t, b]) => (
-                <div key={t} style={{ marginTop: 20 }}>
-                  <h3 style={{ fontFamily: 'var(--font-ui)', fontWeight: 600, fontSize: 15, lineHeight: 1.4, color: 'var(--text-brand)', margin: 0 }}>{t}</h3>
-                  <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.7, color: 'var(--text-body)', margin: '4px 0 0' }}>{b}</p>
+                ['ti-sparkles', 'Voor schoonheidsspecialisten, nagelstylisten, pedicures, masseurs en yogadocenten', 'Je vindt opleidingen om te starten of bij te scholen, vacatures en werkruimtes om je carrière op te bouwen.'],
+                ['ti-building-store', 'Voor salons, instituten, spa’s en praktijken', 'Je publiceert vacatures, verhuurt werkruimtes en bereikt professionals die bij je passen.'],
+                ['ti-school', 'Voor opleiders, academies, merken en leveranciers', 'Je maakt opleidingen en producten zichtbaar bij de professionals die ze zoeken.'],
+              ].map(([icon, t, b]) => (
+                <div key={t} className="bl-audience">
+                  <span className="bl-audience-icon"><i className={`ti ${icon}`} aria-hidden="true" /></span>
+                  <div>
+                    <h3 style={{ fontFamily: 'var(--font-ui)', fontWeight: 600, fontSize: 15, lineHeight: 1.45, color: 'var(--text-brand)', margin: 0 }}>{t}</h3>
+                    <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.7, color: 'var(--text-body)', margin: '4px 0 0' }}>{b}</p>
+                  </div>
                 </div>
               ))}
             </div>
@@ -186,14 +195,14 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* Zelf iets aanbieden? */}
-      <section style={{ background: 'var(--palette-sand)' }}>
-        <div className="bl-container" style={{ paddingTop: 36, paddingBottom: 36, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 24, flexWrap: 'wrap' }}>
-          <div>
-            <div style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 26, color: 'var(--text-brand)' }}>Zelf iets aanbieden?</div>
-            <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.6, color: 'var(--text-strong)', margin: '6px 0 0' }}>Bereik andere beauty- en wellnessprofessionals met jouw opleidingen, merk, vacatures of werkruimtes.</p>
+      {/* Zelf iets aanbieden? (call to action) */}
+      <section className="bl-cta-band">
+        <div className="bl-container" style={{ paddingTop: 64, paddingBottom: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 32, flexWrap: 'wrap' }}>
+          <div style={{ maxWidth: 680 }}>
+            <h2 style={{ ...h2, color: '#fff', fontSize: 'clamp(34px, 4.4vw, 52px)' }}>Zelf iets <span style={{ fontStyle: 'italic' }}>aanbieden?</span></h2>
+            <p style={{ fontFamily: 'var(--font-ui)', fontSize: 17, lineHeight: 1.65, color: 'rgba(255, 255, 255, 0.92)', margin: '14px 0 0' }}>Bereik andere beauty- en wellnessprofessionals met jouw opleidingen, merk, vacatures of werkruimtes.</p>
           </div>
-          <ButtonLink href="/abonnementen-tarieven" variant="primary">Word aanbieder</ButtonLink>
+          <a href="/abonnementen-tarieven" className="bl-btn-light">Word aanbieder <i className="ti ti-arrow-right" aria-hidden="true" /></a>
         </div>
       </section>
 
@@ -215,21 +224,20 @@ export default async function HomePage() {
       ) : null}
       {featuredVacancies.length ? (
         <Featured tinted title="Vacatures in de kijker" text="Vacatures, freelanceopdrachten en stages voor schoonheidsspecialisten, nagelstylisten, masseurs, pedicures en kappers." href="/vacatures" link="Bekijk alle vacatures">
-          <div className="bl-list">{featuredVacancies.map((v) => <VacancyCard key={v.id} v={v} />)}</div>
+          <div className="bl-grid-3">{featuredVacancies.map((v) => <VacancyTile key={v.id} v={v} />)}</div>
         </Featured>
       ) : null}
 
       {/* Gebouwd voor de professional, niet voor de hype. */}
-      <section style={{ background: 'var(--surface-dark)' }}>
-        <div className="bl-container bl-home-section" style={{ paddingTop: 112, paddingBottom: 120 }}>
-          <div style={{ textAlign: 'center', maxWidth: 680, margin: '0 auto 56px' }}>
-            <h2 style={{ ...h2, color: 'var(--blissify-chalk)', fontSize: 'clamp(32px, 4.2vw, 48px)' }}>{why.title || 'Gebouwd voor de professional, niet voor de hype.'}</h2>
-          </div>
-          <div className="bl-cat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+      <section style={{ background: 'var(--surface-deep)' }}>
+        <div className="bl-container bl-home-section bl-photo-split" data-reveal style={{ paddingTop: 112, paddingBottom: 112 }}>
+          <figure><img src="/images/home/professional.jpg" alt="Een schoonheidsspecialiste brengt een kleimasker aan bij een klant" loading="lazy" /></figure>
+          <div>
+            <h2 style={{ ...h2, color: 'var(--blissify-chalk)', fontSize: 'clamp(32px, 4.2vw, 48px)', marginBottom: 32 }}>{why.title || 'Gebouwd voor de professional, niet voor de hype.'}</h2>
             {darkCards.map((d: { icon?: string; title: string; body?: string }) => (
-              <div key={d.title} style={{ border: '0.5px solid rgba(225, 230, 234,0.18)', borderRadius: 'var(--radius-md)', padding: 32 }}>
-                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 24, color: 'var(--blissify-chalk)', lineHeight: 1.2, marginBottom: 12 }}>{d.title}</div>
-                <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.65, color: 'rgba(225, 230, 234,0.85)', margin: 0 }}>{d.body}</p>
+              <div key={d.title} className="bl-point">
+                <div style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 24, color: 'var(--blissify-chalk)', lineHeight: 1.2, marginBottom: 8 }}>{d.title}</div>
+                <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.75, color: 'rgba(225, 230, 234, 0.9)', margin: 0, maxWidth: 520 }}>{d.body}</p>
               </div>
             ))}
           </div>
@@ -238,7 +246,7 @@ export default async function HomePage() {
 
       {/* Eén platform. Eindeloos veel mogelijkheden. */}
       <section>
-        <div className="bl-container bl-home-section" style={{ paddingTop: 96, paddingBottom: 96 }}>
+        <div className="bl-container bl-home-section" data-reveal style={{ paddingTop: 96, paddingBottom: 96 }}>
           <div style={{ maxWidth: 640, marginBottom: 40 }}>
             <h2 style={h2}>Eén platform. Eindeloos veel mogelijkheden.</h2>
             <p style={lead}>Waar beauty, wellness en professioneel ondernemerschap samenkomen.</p>
@@ -250,7 +258,7 @@ export default async function HomePage() {
               ['Groei.', 'Blijf jezelf ontwikkelen, ontdek nieuwe samenwerkingen en geef jouw onderneming de zichtbaarheid die ze verdient.'],
             ].map(([t, b]) => (
               <div key={t} style={{ borderTop: '1px solid var(--palette-rose)', paddingTop: 20 }}>
-                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 34, color: 'var(--text-brand)' }}>{t}</div>
+                <div style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 44, lineHeight: 1, color: 'var(--blissify-terracotta)' }}>{t}</div>
                 <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.7, color: 'var(--text-body)', margin: '10px 0 0' }}>{b}</p>
               </div>
             ))}
@@ -259,14 +267,14 @@ export default async function HomePage() {
       </section>
 
       {/* Hoe werkt Blissify? */}
-      <section style={{ background: 'var(--surface-card)', borderTop: '0.5px solid var(--border-hairline)' }}>
-        <div className="bl-container bl-home-section" style={{ paddingTop: 96, paddingBottom: 96 }}>
+      <section style={{ background: 'var(--surface-card)' }}>
+        <div className="bl-container bl-home-section" data-reveal style={{ paddingTop: 104, paddingBottom: 104 }}>
           <div style={{ textAlign: 'center', maxWidth: 720, margin: '0 auto 48px' }}>
             <h2 style={h2}>Hoe werkt Blissify?</h2>
             <p style={{ ...lead, fontSize: 17 }}>Eén professioneel profiel. Alle mogelijkheden voor jouw onderneming.</p>
             <p style={{ ...lead, fontSize: 15 }}>Blissify brengt beauty- en wellnessondernemingen samen op één platform in België en Nederland. Maak jouw onderneming zichtbaar met een bedrijfsprofiel en presenteer jouw opleidingen, merk, vacatures en werkruimtes op één centrale plek.</p>
           </div>
-          <div className="bl-faq-split" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, alignItems: 'stretch' }}>
+          <div className="bl-faq-split" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32, alignItems: 'stretch' }}>
             {[
               {
                 title: 'Voor salons & professionals',
@@ -276,6 +284,7 @@ export default async function HomePage() {
                   ['Publiceer vacatures', 'Vind medewerkers, zelfstandigen of freelancers die bij jouw onderneming passen.'],
                   ['Bied werkruimtes aan', 'Maak een behandelkamer, een stoel in jouw salon of een andere werkplek zichtbaar voor professionals die een werkruimte zoeken.'],
                 ],
+                image: '/images/home/salon.jpg',
                 foot: 'Gebruik de mogelijkheden die voor jouw onderneming relevant zijn, allemaal binnen één abonnement.',
                 cta: { href: '/abonnementen-tarieven', label: 'Ontdek de abonnementen voor salons & professionals' },
               },
@@ -287,22 +296,26 @@ export default async function HomePage() {
                   ['Promoot opleidingen & events', 'Publiceer, afhankelijk van je abonnement, trainingen, workshops en evenementen.'],
                   ['Deel vacatures en werkruimtes', 'Breng ook jouw vacatures en beschikbare werkruimtes onder de aandacht.'],
                 ],
+                image: '/images/home/facial.jpg',
                 foot: 'Alles overzichtelijk beheerd vanuit één account.',
                 cta: { href: '/abonnementen-tarieven?voor=merken', label: 'Ontdek de abonnementen voor merken & leveranciers' },
               },
             ].map((col) => (
-              <div key={col.title} style={{ display: 'flex', flexDirection: 'column', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: 32, background: 'var(--surface-page)' }}>
-                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 26, color: 'var(--text-brand)', lineHeight: 1.15, marginBottom: 18 }}>{col.title}</div>
-                <div style={{ display: 'grid', gap: 14, marginBottom: 18 }}>
-                  {col.points.map(([t, b]) => (
-                    <div key={t} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.6, color: 'var(--text-body)' }}>
-                      <i className="ti ti-check" style={{ fontSize: 17, color: 'var(--text-accent)', flex: 'none', marginTop: 2 }} />
-                      <span><strong style={{ fontWeight: 600, color: 'var(--text-brand)' }}>{t}:</strong> {b}</span>
-                    </div>
-                  ))}
+              <div key={col.title} className="bl-howcard">
+                <div className="bl-howcard-media" style={{ backgroundImage: `url(${col.image})` }} aria-hidden="true" />
+                <div className="bl-howcard-body">
+                  <div style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 28, color: 'var(--text-brand)', lineHeight: 1.15, marginBottom: 20 }}>{col.title}</div>
+                  <div style={{ display: 'grid', gap: 16, marginBottom: 20 }}>
+                    {col.points.map(([t, b]) => (
+                      <div key={t} style={{ display: 'grid', gridTemplateColumns: '28px 1fr', gap: 12, alignItems: 'start', fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.6, color: 'var(--text-body)' }}>
+                        <span style={{ width: 28, height: 28, borderRadius: '50%', display: 'grid', placeItems: 'center', background: 'var(--surface-soft)', color: 'var(--palette-rose-ink)' }}><i className="ti ti-check" style={{ fontSize: 15 }} /></span>
+                        <span><strong style={{ fontWeight: 600, color: 'var(--text-brand)' }}>{t}.</strong> {b}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, lineHeight: 1.6, color: 'var(--text-strong)', margin: '0 0 24px' }}>{col.foot}</p>
+                  <div style={{ marginTop: 'auto' }}><ButtonLink href={col.cta.href} variant="primary" fullWidth>{col.cta.label}</ButtonLink></div>
                 </div>
-                <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, lineHeight: 1.6, color: 'var(--text-strong)', margin: '0 0 22px' }}>{col.foot}</p>
-                <div style={{ marginTop: 'auto' }}><ButtonLink href={col.cta.href} variant="ghost">{col.cta.label}</ButtonLink></div>
               </div>
             ))}
           </div>
@@ -311,7 +324,7 @@ export default async function HomePage() {
 
       {/* Alles beheren vanuit één plek */}
       <section>
-        <div className="bl-container" style={{ paddingTop: 80, paddingBottom: 40, textAlign: 'center', maxWidth: 760 }}>
+        <div className="bl-container" data-reveal style={{ paddingTop: 96, paddingBottom: 96, textAlign: 'center', maxWidth: 760 }}>
           <h2 style={h2}>Alles beheren vanuit één plek.</h2>
           <p style={lead}>Kies het abonnement dat bij jouw onderneming past, stel je profiel samen en publiceer jouw aanbod. Of je nu één opleiding aanbiedt, vacatures wilt plaatsen of een werkruimte wilt verhuren: met Blissify bereik je professionals die gericht zoeken naar wat jij aanbiedt.</p>
           <div style={{ marginTop: 24 }}><ButtonLink href="/abonnementen-tarieven" variant="primary">Word aanbieder</ButtonLink></div>
@@ -319,8 +332,8 @@ export default async function HomePage() {
       </section>
 
       {/* Een formule voor iedere aanbieder */}
-      <section>
-        <div className="bl-container bl-home-section" style={{ paddingTop: 64, paddingBottom: 88 }}>
+      <section style={{ background: 'var(--surface-card)' }}>
+        <div className="bl-container bl-home-section" style={{ paddingTop: 96, paddingBottom: 96 }}>
           <div style={{ textAlign: 'center', maxWidth: 620, margin: '0 auto 40px' }}>
             <h2 style={h2}>Een formule voor iedere aanbieder.</h2>
             <p style={lead}>Vergelijk de abonnementen voor salons &amp; professionals en voor merken &amp; leveranciers. Alle prijzen zijn exclusief btw. Bij jaarlijkse betaling krijg je twee maanden gratis.</p>
@@ -331,13 +344,13 @@ export default async function HomePage() {
       </section>
 
       {/* Veelgestelde vragen (first four "Algemeen" questions) */}
-      <section style={{ background: 'var(--surface-card)', borderTop: '0.5px solid var(--border-hairline)' }}>
+      <section>
         <div className="bl-container bl-home-section" style={{ paddingTop: 96, paddingBottom: 96 }}>
           <div className="bl-faq-split" style={{ display: 'grid', gridTemplateColumns: '0.8fr 1.2fr', gap: 56, alignItems: 'start' }}>
             <div>
               <h2 style={h2}>Veelgestelde vragen.</h2>
               <p style={{ ...lead, fontSize: 15, margin: '18px 0 24px' }}>Korte antwoorden op de belangrijkste vragen over Blissify en de mogelijkheden van ons platform.</p>
-              <ButtonLink href="/veelgestelde-vragen" variant="accent">Bekijk alle veelgestelde vragen</ButtonLink>
+              <ButtonLink href="/veelgestelde-vragen" variant="primary">Bekijk alle veelgestelde vragen</ButtonLink>
             </div>
             <Faq items={faqItems} variant="card" defaultOpen={0} />
           </div>
@@ -345,11 +358,15 @@ export default async function HomePage() {
       </section>
 
       {/* Slotblok */}
-      <section style={{ background: 'var(--surface-dark)' }}>
-        <div className="bl-container" style={{ paddingTop: 88, paddingBottom: 88, textAlign: 'center', maxWidth: 760 }}>
-          <h2 style={{ ...h2, color: 'var(--blissify-chalk)' }}>Jouw groei begint hier.</h2>
-          <p style={{ ...lead, color: 'rgba(225, 230, 234,0.85)' }}>Maak jouw aanbod zichtbaar voor beauty- en wellnessprofessionals in België en Nederland. Of je nu opleidingen aanbiedt, jouw merk wilt promoten, een werkruimte beschikbaar hebt of nieuwe medewerkers zoekt: ontdek wat Blissify voor jouw onderneming kan betekenen.</p>
-          <div style={{ marginTop: 26 }}><ButtonLink href="/abonnementen-tarieven" variant="accent">Word aanbieder</ButtonLink></div>
+      <section style={{ paddingBottom: 96 }}>
+        <div className="bl-container">
+        <div className="bl-soft-panel" data-reveal style={{ padding: 'clamp(48px, 7vw, 96px) 24px', textAlign: 'center' }}>
+          <div style={{ maxWidth: 720, margin: '0 auto' }}>
+          <h2 style={{ ...h2, fontSize: 'clamp(36px, 5vw, 60px)' }}>Jouw groei <span className="bl-hero-accent">begint hier.</span></h2>
+          <p style={{ ...lead, fontSize: 17, color: 'var(--text-strong)' }}>Maak jouw aanbod zichtbaar voor beauty- en wellnessprofessionals in België en Nederland. Of je nu opleidingen aanbiedt, jouw merk wilt promoten, een werkruimte beschikbaar hebt of nieuwe medewerkers zoekt: ontdek wat Blissify voor jouw onderneming kan betekenen.</p>
+          <div style={{ marginTop: 30 }}><ButtonLink href="/abonnementen-tarieven" variant="primary">Word aanbieder</ButtonLink></div>
+          </div>
+        </div>
         </div>
       </section>
 
