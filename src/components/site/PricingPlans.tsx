@@ -41,10 +41,10 @@ export function PricingPlans({
               type="button"
               onClick={() => setAudience(key)}
               style={{
-                border: '0.5px solid var(--border-hairline)',
+                border: '1px solid ' + (audience === key ? 'var(--palette-slate-ink)' : 'var(--border-strong)'),
                 borderRadius: 'var(--radius-pill)',
-                background: audience === key ? 'var(--surface-dark)' : 'var(--surface-card)',
-                color: audience === key ? 'var(--blissify-chalk)' : 'var(--text-body)',
+                background: audience === key ? 'var(--palette-slate-ink)' : 'rgba(255, 255, 255, 0.6)',
+                color: audience === key ? '#fff' : 'var(--palette-slate-ink)',
                 padding: '10px 18px',
                 cursor: 'pointer',
                 fontFamily: 'var(--font-ui)',

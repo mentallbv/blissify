@@ -100,15 +100,15 @@ export function AuthForm({
                   onClick={() => setRole(r)}
                   style={{
                     flex: 1,
-                    height: 44,
-                    borderRadius: 'var(--radius-sm)',
+                    height: 46,
+                    borderRadius: 'var(--radius-pill)',
                     cursor: 'pointer',
                     fontFamily: 'var(--font-ui)',
                     fontWeight: 'var(--fw-ui-medium)',
                     fontSize: 13,
-                    border: '1px solid ' + (on ? 'var(--blissify-forest)' : 'var(--neutral-200)'),
-                    background: on ? 'var(--blissify-forest)' : 'var(--surface-card)',
-                    color: on ? 'var(--blissify-chalk)' : 'var(--text-body)',
+                    border: '1px solid ' + (on ? 'var(--palette-slate-ink)' : 'var(--border-strong)'),
+                    background: on ? 'var(--palette-slate-ink)' : 'rgba(255, 255, 255, 0.6)',
+                    color: on ? '#fff' : 'var(--palette-slate-ink)',
                   }}
                 >
                   {r === 'trainer' ? 'Salons & professionals' : 'Merken & leveranciers'}

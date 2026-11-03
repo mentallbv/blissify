@@ -165,7 +165,7 @@ export function SearchCard({
                 border: 0,
                 cursor: 'pointer',
                 borderRadius: 'var(--radius-pill)',
-                background: active ? 'var(--surface-dark)' : 'transparent',
+                background: active ? 'var(--palette-slate-ink)' : 'transparent',
                 color: active ? 'var(--blissify-chalk)' : 'var(--text-body)',
                 padding: '9px 12px',
                 fontFamily: 'var(--font-ui)',

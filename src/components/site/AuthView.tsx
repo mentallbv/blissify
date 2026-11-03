@@ -30,7 +30,7 @@ export function AuthView({
   return (
     <div className="bl-auth-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', minHeight: '100vh' }}>
       {/* Forest brand panel */}
-      <div style={{ background: 'var(--surface-dark)', padding: 56, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+      <div style={{ background: 'var(--surface-deep)', padding: 56, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <a href="/" aria-label="Blissify home">
           <Logo height={36} light />
         </a>

@@ -193,7 +193,8 @@ export function Avatar({
     flex: `0 0 ${size}px`,
     borderRadius: radius,
     overflow: 'hidden',
-    background: 'var(--surface-dark)',
+    background: src ? '#fff' : 'var(--surface-soft)',
+    boxShadow: 'inset 0 0 0 1px rgba(90, 105, 124, 0.12)',
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
@@ -211,9 +212,9 @@ export function Avatar({
       <span
         style={{
           fontFamily: 'var(--font-display)',
-          fontWeight: 'var(--fw-display-light)',
-          fontSize: Math.round(size * 0.5),
-          color: 'var(--blissify-chalk)',
+          fontStyle: 'italic',
+          fontSize: Math.round(size * 0.52),
+          color: 'var(--palette-slate-ink)',
           lineHeight: 1,
         }}
       >
@@ -251,8 +252,8 @@ export function TypeBadge({
         textTransform: 'uppercase',
         padding: '4px 10px',
         borderRadius: 'var(--radius-pill)',
-        background: isBrand ? 'var(--badge-brand-bg)' : 'var(--badge-trainer-bg)',
-        color: isBrand ? 'var(--badge-brand-fg)' : 'var(--badge-trainer-fg)',
+        background: isBrand ? 'rgba(180, 129, 115, 0.16)' : 'rgba(90, 105, 124, 0.12)',
+        color: isBrand ? 'var(--palette-rose-ink)' : 'var(--palette-slate-ink)',
         ...style,
       }}
     >

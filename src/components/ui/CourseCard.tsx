@@ -38,7 +38,7 @@ export function CourseCard({
         style={{
           position: 'relative',
           height: 200,
-          background: 'var(--surface-dark)',
+          background: 'var(--surface-soft)',
           backgroundImage: image ? cssUrl(image) : 'none',
           backgroundSize: 'cover',
           backgroundPosition: 'center',

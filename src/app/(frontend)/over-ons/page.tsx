@@ -4,6 +4,7 @@ import { SiteChrome } from '@/components/site/SiteChrome'
 import { Eyebrow, ButtonLink } from '@/components/ui'
 import { FAQ_CATEGORIES } from '@/lib/faq-page'
 import { slugify } from '@/lib/slug'
+import { CtaPanel } from '@/components/site/CtaPanel'
 
 // Copy 10/2026, "Over Blissify".
 export const metadata: Metadata = {
@@ -60,13 +61,7 @@ export default function OverOnsPage() {
         </div>
       </section>
 
-      <section style={{ background: 'var(--surface-dark)' }}>
-        <div className="bl-container" style={{ paddingTop: 88, paddingBottom: 88, textAlign: 'center', maxWidth: 760 }}>
-          <h2 style={{ ...h2, color: 'var(--blissify-chalk)' }}>Jouw groei begint hier.</h2>
-          <p style={{ ...body, margin: '14px auto 0', color: 'rgba(225, 230, 234,0.85)' }}>Maak jouw aanbod zichtbaar voor beauty- en wellnessprofessionals in België en Nederland. Of je nu opleidingen aanbiedt, jouw merk wilt promoten, een werkruimte beschikbaar hebt of nieuwe medewerkers zoekt: ontdek wat Blissify voor jouw onderneming kan betekenen.</p>
-          <div style={{ marginTop: 26 }}><ButtonLink href="/abonnementen-tarieven" variant="accent">Word aanbieder</ButtonLink></div>
-        </div>
-      </section>
+      <CtaPanel title="Jouw groei" accent="begint hier." body="Maak jouw aanbod zichtbaar voor beauty- en wellnessprofessionals in België en Nederland. Of je nu opleidingen aanbiedt, jouw merk wilt promoten, een werkruimte beschikbaar hebt of nieuwe medewerkers zoekt: ontdek wat Blissify voor jouw onderneming kan betekenen." href="/abonnementen-tarieven" label="Word aanbieder" />
     </SiteChrome>
   )
 }

@@ -269,8 +269,8 @@ export default async function CourseDetailPage({ params }: Params) {
       <div
         style={{
           height: 400,
-          background: 'var(--surface-dark)',
-          backgroundImage: coverImg ? cssUrl(coverImg) : 'none',
+          background: coverImg ? undefined : 'var(--surface-deep)',
+          backgroundImage: coverImg ? cssUrl(coverImg) : undefined,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}

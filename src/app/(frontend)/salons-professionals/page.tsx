@@ -43,7 +43,7 @@ export default async function SalonsProfessionalsPage({ searchParams }: { search
               <span style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-body)' }}>{cards.length} {cards.length === 1 ? 'profiel' : 'profielen'} gevonden</span>
             </div>
             {cards.length ? (
-              <div className="bl-grid-ws">{cards.map((p) => <ProviderCard key={`${p.type || 'trainer'}:${p.slug}`} {...p} />)}</div>
+              <div className="bl-grid-3">{cards.map((p) => <ProviderCard key={`${p.type || 'trainer'}:${p.slug}`} {...p} />)}</div>
             ) : (
               <NoResults minHeight={320} />
             )}

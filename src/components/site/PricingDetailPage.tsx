@@ -3,6 +3,7 @@ import { SiteChrome } from '@/components/site/SiteChrome'
 import { PricingPlans } from '@/components/site/PricingPlans'
 import { ButtonLink } from '@/components/ui'
 import type { PricingCatalog } from '@/lib/pricing'
+import { CtaPanel } from '@/components/site/CtaPanel'
 
 export function PricingDetailPage({
   catalog,
@@ -39,10 +40,10 @@ export function PricingDetailPage({
                   href={href}
                   aria-current={on ? 'page' : undefined}
                   style={{
-                    border: '0.5px solid var(--border-hairline)',
+                    border: '1px solid ' + (on ? 'var(--palette-slate-ink)' : 'var(--border-strong)'),
                     borderRadius: 'var(--radius-pill)',
-                    background: on ? 'var(--surface-dark)' : 'var(--surface-card)',
-                    color: on ? 'var(--blissify-chalk)' : 'var(--text-body)',
+                    background: on ? 'var(--palette-slate-ink)' : 'rgba(255, 255, 255, 0.6)',
+                    color: on ? '#fff' : 'var(--palette-slate-ink)',
                     padding: '10px 18px',
                     fontFamily: 'var(--font-ui)',
                     fontWeight: 'var(--fw-ui-medium)',
@@ -95,19 +96,8 @@ export function PricingDetailPage({
         </div>
       </section>
 
-      <section style={{ background: 'var(--surface-dark)', marginTop: 88 }}>
-        <div className="bl-container" style={{ paddingTop: 80, paddingBottom: 96, textAlign: 'center' }}>
-          <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 44, color: 'var(--blissify-chalk)', lineHeight: 1.1, margin: 0 }}>
-            {data.bottomCta.title}
-          </h2>
-          <p style={{ fontFamily: 'var(--font-ui)', fontSize: 16, lineHeight: 1.7, color: 'rgba(225, 230, 234,0.7)', margin: '16px auto 28px', maxWidth: 520 }}>
-            {data.bottomCta.body}
-          </p>
-          <ButtonLink href={data.bottomCta.buttonUrl || '/registreren'} variant="accent">
-            {data.bottomCta.buttonLabel}
-          </ButtonLink>
-        </div>
-      </section>
+      <div style={{ marginTop: 64 }} />
+      <CtaPanel title={data.bottomCta.title} body={data.bottomCta.body} href={data.bottomCta.buttonUrl || '/registreren'} label={data.bottomCta.buttonLabel} />
     </SiteChrome>
   )
 }

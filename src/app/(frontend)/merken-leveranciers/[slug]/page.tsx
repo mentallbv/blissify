@@ -53,8 +53,8 @@ export default async function MerkPage({ params }: Params) {
       {/* Dark forest header (brand cover as backdrop when present) */}
       <header
         style={{
-          background: 'var(--surface-dark)',
-          backgroundImage: brand.cover ? `linear-gradient(rgba(90, 105, 124,0.72),rgba(90, 105, 124,0.72)), ${cssUrl(brand.cover)}` : 'none',
+          background: 'var(--surface-deep)',
+          backgroundImage: brand.cover ? `linear-gradient(rgba(63, 75, 90, 0.78),rgba(95, 88, 102, 0.7)), ${cssUrl(brand.cover)}` : undefined,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
@@ -79,7 +79,7 @@ export default async function MerkPage({ params }: Params) {
                 {partnerType} · {origin}
               </p>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-                <TypeBadge type="brand" />
+                <TypeBadge type="brand" style={{ background: 'rgba(255, 255, 255, 0.16)', color: '#fff' }} />
                 {brand.hasPremiumBadge ? (
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, borderRadius: 'var(--radius-pill)', padding: '5px 11px', background: 'var(--blissify-chalk)', color: 'var(--text-brand)', fontFamily: 'var(--font-ui)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.09em' }}>
                     <i className="ti ti-crown" /> Premium
@@ -89,7 +89,7 @@ export default async function MerkPage({ params }: Params) {
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
               {brand.email ? (
-                <ButtonLink href={`mailto:${brand.email}?subject=${encodeURIComponent(`Informatieaanvraag via Blissify over ${brand.name}`)}`} variant="accent" size="sm" icon={<i className="ti ti-mail" />}>
+                <ButtonLink href={`mailto:${brand.email}?subject=${encodeURIComponent(`Informatieaanvraag via Blissify over ${brand.name}`)}`} variant="light" size="sm" icon={<i className="ti ti-mail" />}>
                   Vraag meer informatie
                 </ButtonLink>
               ) : null}
@@ -115,7 +115,7 @@ export default async function MerkPage({ params }: Params) {
             <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 26, color: 'var(--text-brand)', margin: '0 0 20px' }}>Sfeer &amp; producten</h2>
             <div className="bl-brand-gallery" style={{ display: 'grid', gridTemplateColumns: brand.gallery.length === 1 ? '1fr' : 'repeat(2, minmax(0, 1fr))', gap: 14 }}>
               {brand.gallery.map((item, index) => (
-                <figure key={`${item.image}-${index}`} style={{ margin: 0, height: 300, borderRadius: 'var(--radius-md)', overflow: 'hidden', position: 'relative', background: 'var(--surface-dark)' }}>
+                <figure key={`${item.image}-${index}`} style={{ margin: 0, height: 300, borderRadius: 'var(--radius-md)', overflow: 'hidden', position: 'relative', background: 'var(--surface-soft)' }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={item.image} alt={item.caption || `${brand.name} sfeerfoto ${index + 1}`} style={{ width: '100%', height: '100%', position: 'absolute', inset: 0, objectFit: 'cover' }} />
                   {item.caption ? <figcaption style={{ position: 'absolute', left: 14, bottom: 12, right: 14, color: '#fff', fontFamily: 'var(--font-ui)', fontSize: 12, textShadow: '0 1px 8px rgba(0,0,0,.65)' }}>{item.caption}</figcaption> : null}

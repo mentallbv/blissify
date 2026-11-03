@@ -82,7 +82,7 @@ export function PageBlocks({ blocks }: { blocks: Block[] }) {
           case 'cta': {
             const dark = b.background !== 'chalk'
             return (
-              <section key={i} style={{ background: dark ? 'var(--surface-dark)' : 'var(--surface-page)' }}>
+              <section key={i} style={{ background: dark ? 'var(--surface-deep)' : 'transparent' }}>
                 <div className="bl-container bl-content-section" style={{ paddingTop: 80, paddingBottom: 80, textAlign: 'center' }}>
                   <div style={{ maxWidth: 920, margin: '0 auto' }}>
                   <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 44, letterSpacing: '-0.01em', lineHeight: 1.1, margin: 0, color: dark ? 'var(--blissify-chalk)' : 'var(--text-brand)' }}>

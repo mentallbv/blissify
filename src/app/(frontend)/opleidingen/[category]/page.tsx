@@ -57,7 +57,7 @@ export default async function CategoryPage({ params, searchParams }: Params) {
               {content.heroIntro}
             </p>
           </div>
-          <div style={{ width: '100%', height: 300, borderRadius: 'var(--radius-md)', background: 'var(--surface-dark)' }} />
+          <div style={{ width: '100%', height: 300, borderRadius: 'var(--radius-md)', background: 'var(--surface-soft)' }} />
         </div>
       </section>
 

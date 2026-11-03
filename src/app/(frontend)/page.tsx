@@ -17,6 +17,7 @@ import { WorkspaceCard } from '@/components/site/WorkspaceCard'
 import { getHomepageWorkspaces } from '@/lib/workspaces'
 import { SITE_URL } from '@/lib/email'
 import { RevealOnScroll } from '@/components/site/RevealOnScroll'
+import { CtaPanel } from '@/components/site/CtaPanel'
 
 export const dynamic = 'force-dynamic'
 
@@ -358,17 +359,7 @@ export default async function HomePage() {
       </section>
 
       {/* Slotblok */}
-      <section style={{ paddingBottom: 96 }}>
-        <div className="bl-container">
-        <div className="bl-soft-panel" data-reveal style={{ padding: 'clamp(48px, 7vw, 96px) 24px', textAlign: 'center' }}>
-          <div style={{ maxWidth: 720, margin: '0 auto' }}>
-          <h2 style={{ ...h2, fontSize: 'clamp(36px, 5vw, 60px)' }}>Jouw groei <span className="bl-hero-accent">begint hier.</span></h2>
-          <p style={{ ...lead, fontSize: 17, color: 'var(--text-strong)' }}>Maak jouw aanbod zichtbaar voor beauty- en wellnessprofessionals in België en Nederland. Of je nu opleidingen aanbiedt, jouw merk wilt promoten, een werkruimte beschikbaar hebt of nieuwe medewerkers zoekt: ontdek wat Blissify voor jouw onderneming kan betekenen.</p>
-          <div style={{ marginTop: 30 }}><ButtonLink href="/abonnementen-tarieven" variant="primary">Word aanbieder</ButtonLink></div>
-          </div>
-        </div>
-        </div>
-      </section>
+      <CtaPanel title="Jouw groei" accent="begint hier." body="Maak jouw aanbod zichtbaar voor beauty- en wellnessprofessionals in België en Nederland. Of je nu opleidingen aanbiedt, jouw merk wilt promoten, een werkruimte beschikbaar hebt of nieuwe medewerkers zoekt: ontdek wat Blissify voor jouw onderneming kan betekenen." href="/abonnementen-tarieven" label="Word aanbieder" />
 
       <SiteFooter />
     </>

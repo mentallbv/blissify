@@ -472,6 +472,8 @@ a.bl-providercard:hover,
 .bl-btn--primary:hover, .bl-btn--accent:hover { background: #2b3441; border-color: #2b3441; }
 .bl-btn--ghost { background: rgba(255, 255, 255, 0.6); color: var(--palette-slate-ink); border-color: var(--border-strong); }
 .bl-btn--ghost:hover { background: #fff; border-color: var(--palette-slate-ink); }
+.bl-btn--light { background: #fff; color: var(--palette-slate-ink); border-color: #fff; }
+.bl-btn--light:hover { background: #fff; color: #2b3441; }
 .bl-btn--ghost-dark { background: transparent; color: #fff; border-color: rgba(255, 255, 255, 0.45); }
 .bl-btn--ghost-dark:hover { background: rgba(255, 255, 255, 0.12); border-color: #fff; }
 .bl-textlink {
@@ -1572,9 +1574,10 @@ a.bl-providercard:hover,
 }
 
 /* Primary apply action (vacature + werkruimte). */
-.bl-apply-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 48px; padding: 12px 20px; border: none; border-radius: var(--radius-sm); background: var(--blissify-terracotta); color: #fff; font-family: var(--font-ui); font-weight: 500; font-size: 15px; cursor: pointer; text-decoration: none; transition: background-color 0.18s; }
-.bl-apply-btn:hover { background: #a06f62; }
-.bl-apply-btn:focus-visible { outline: 2px solid var(--palette-slate); outline-offset: 2px; }
+/* Apply buttons follow the primary button. */
+.bl-apply-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 50px; padding: 0 24px; border: 1px solid var(--palette-slate-ink); border-radius: var(--radius-pill); background: var(--palette-slate-ink); color: #fff; font-family: var(--font-ui); font-weight: 500; font-size: 15px; cursor: pointer; text-decoration: none; transition: background-color 0.2s ease, transform 0.3s var(--ease-out-quart), box-shadow 0.3s var(--ease-out-quart); }
+.bl-apply-btn:hover { background: #2b3441; border-color: #2b3441; transform: translateY(-1px); box-shadow: var(--shadow-soft); }
+.bl-apply-btn:focus-visible { outline: 2px solid var(--palette-rose-ink); outline-offset: 3px; }
 
 /* Workspace results next to the filter column: two cards per row, three on wide screens. */
 .bl-grid-ws { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }

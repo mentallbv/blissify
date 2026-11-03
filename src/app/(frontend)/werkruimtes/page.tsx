@@ -77,7 +77,7 @@ export default async function WerkruimtesPage({ searchParams }: { searchParams: 
               <span style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-body)' }}>{cards.length} {cards.length === 1 ? 'werkruimte' : 'werkruimtes'} gevonden</span>
             </div>
             {cards.length ? (
-              <div className="bl-grid-ws">{cards.map((w) => <WorkspaceCard key={w.id} w={w} />)}</div>
+              <div className="bl-grid-3">{cards.map((w) => <WorkspaceCard key={w.id} w={w} />)}</div>
             ) : (
               <NoResults />
             )}

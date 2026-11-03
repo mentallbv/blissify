@@ -45,11 +45,10 @@ export default async function ProviderProfilePage({ params }: Params) {
       {/* Cover image as backdrop when present, like the merk page (client round 2 #1.5). */}
       <header
         style={{
-          background: 'var(--surface-dark)',
-          backgroundImage: p.cover ? `linear-gradient(rgba(90, 105, 124,0.72),rgba(90, 105, 124,0.72)), ${cssUrl(p.cover)}` : 'none',
+          background: 'var(--surface-deep)',
+          backgroundImage: p.cover ? `linear-gradient(rgba(63, 75, 90, 0.78),rgba(95, 88, 102, 0.7)), ${cssUrl(p.cover)}` : undefined,
           backgroundSize: 'cover',
           backgroundPosition: 'center',
-          borderTop: '3px solid var(--blissify-forest)',
         }}
       >
         <div className="bl-container bl-provider-hero" style={{ paddingTop: 48, paddingBottom: 48, display: 'flex', gap: 24, alignItems: 'center' }}>
@@ -73,7 +72,7 @@ export default async function ProviderProfilePage({ params }: Params) {
                 .join(' · ')}
             </p>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-              <TypeBadge type="trainer" style={{ background: 'transparent', border: '1px solid rgba(225, 230, 234,0.45)' }} />
+              <TypeBadge type="trainer" style={{ background: 'rgba(255, 255, 255, 0.16)', color: '#fff' }} />
               {p.hasPremiumBadge ? (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, borderRadius: 'var(--radius-pill)', padding: '5px 11px', background: 'var(--blissify-chalk)', color: 'var(--text-brand)', fontFamily: 'var(--font-ui)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.09em' }}>
                   <i className="ti ti-crown" /> Premium
@@ -83,7 +82,7 @@ export default async function ProviderProfilePage({ params }: Params) {
           </div>
           {p.email ? (
             <div className="bl-provider-hero-cta">
-              <ButtonLink href={`mailto:${p.email}`} variant="accent">Contacteer opleider</ButtonLink>
+              <ButtonLink href={`mailto:${p.email}`} variant="light">Contacteer opleider</ButtonLink>
             </div>
           ) : null}
         </div>

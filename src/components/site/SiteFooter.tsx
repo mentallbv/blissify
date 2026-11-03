@@ -151,7 +151,7 @@ export function SiteFooter() {
 export function Marquee() {
   const words = Array.from({ length: 8 })
   return (
-    <div className="bl-marquee" style={{ background: 'var(--surface-dark)', overflow: 'hidden', padding: '36px 0', borderBottom: '0.5px solid rgba(225, 230, 234,0.12)' }}>
+    <div className="bl-marquee" style={{ background: 'var(--surface-deep)', overflow: 'hidden', padding: '36px 0', borderBottom: '0.5px solid rgba(225, 230, 234,0.12)' }}>
       <div className="bl-marquee-track">
         {[0, 1].map((group) => (
           <div key={group} className="bl-marquee-group" aria-hidden={group === 1}>

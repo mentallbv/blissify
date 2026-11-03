@@ -65,7 +65,7 @@ export function SystemView({ state }: { state: 'betaling-succes' | '404' }) {
         </div>
       </main>
 
-      <footer style={{ background: 'var(--surface-dark)', color: 'rgba(225, 230, 234,0.4)' }}>
+      <footer style={{ background: 'var(--surface-deep)', color: 'rgba(225, 230, 234, 0.75)' }}>
         <div className="bl-container" style={{ paddingTop: 24, paddingBottom: 24, fontFamily: 'var(--font-ui)', fontSize: 12 }}>
           © Blissify · België &amp; Nederland
         </div>

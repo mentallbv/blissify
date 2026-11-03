@@ -1,6 +1,6 @@
 import React from 'react'
 
-type Variant = 'primary' | 'accent' | 'ghost' | 'ghost-dark'
+type Variant = 'primary' | 'accent' | 'ghost' | 'ghost-dark' | 'light'
 type Size = 'sm' | 'md' | 'lg'
 
 const cls = (variant: Variant, size: Size, fullWidth: boolean) =>

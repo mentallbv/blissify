@@ -45,7 +45,7 @@ export default async function MerkenPage({ searchParams }: { searchParams: Promi
               <span style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-body)' }}>{cards.length} {cards.length === 1 ? 'merk of leverancier' : 'merken en leveranciers'} gevonden</span>
             </div>
             {cards.length ? (
-              <div className="bl-grid-ws">{cards.map((b) => <BrandCard key={b.slug} b={b} />)}</div>
+              <div className="bl-grid-3">{cards.map((b) => <BrandCard key={b.slug} b={b} />)}</div>
             ) : (
               <NoResults minHeight={320} />
             )}
