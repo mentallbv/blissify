@@ -32,7 +32,7 @@ export default async function DashboardSubscriptionPage() {
       <PageTitle>Abonnement</PageTitle>
 
       <div style={{ maxWidth: 640, marginBottom: 32 }}>
-        <div style={{ background: 'var(--surface-dark)', borderRadius: 'var(--radius-md)', padding: 28 }}>
+        <div style={{ background: 'var(--surface-deep)', borderRadius: 'var(--radius-lg)', padding: 28, boxShadow: 'var(--shadow-lift)' }}>
           <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(225, 230, 234,0.6)', marginBottom: 12 }}>
             Huidig abonnement
           </div>

@@ -281,7 +281,7 @@ export function Card({
     <div
       className={hover ? 'bl-card bl-card-hover' : 'bl-card'}
       style={{
-        background: dark ? 'var(--surface-dark)' : 'var(--surface-card)',
+        background: dark ? 'var(--surface-deep)' : 'var(--surface-card)',
         border: dark ? 'none' : '0.5px solid var(--border-hairline)',
         padding: typeof padding === 'number' ? `${padding}px` : padding,
         ...style,

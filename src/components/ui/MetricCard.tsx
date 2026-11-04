@@ -26,7 +26,7 @@ export function MetricCard({
   return (
     <div
       style={{
-        background: featured ? 'var(--surface-dark)' : 'var(--surface-card)',
+        background: featured ? 'var(--surface-deep)' : 'var(--surface-card)',
         border: featured ? 'none' : '0.5px solid var(--border-hairline)',
         borderRadius: 'var(--radius-md)',
         padding: 20,

@@ -140,7 +140,7 @@ export function LeadsList({
       <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', overflow: 'hidden' }}>
         {leads.map((l, i) => (
           <div key={l.id} style={{ display: 'flex', gap: 16, padding: '18px 20px', borderBottom: i < leads.length - 1 ? '0.5px solid var(--border-hairline)' : 'none', alignItems: 'flex-start' }}>
-          <span style={{ width: 36, height: 36, borderRadius: 'var(--radius-sm)', background: 'var(--surface-dark)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 16, color: 'var(--blissify-chalk)', flex: 'none' }}>
+          <span style={{ width: 36, height: 36, borderRadius: 'var(--radius-md)', background: 'var(--surface-soft)', boxShadow: 'inset 0 0 0 1px rgba(90, 105, 124, 0.12)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 17, color: 'var(--palette-slate-ink)', flex: 'none' }}>
             {l.name[0]}
           </span>
           <div style={{ flex: 1, minWidth: 0 }}>

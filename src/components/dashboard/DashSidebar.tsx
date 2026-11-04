@@ -53,7 +53,7 @@ export function DashSidebar({
         height: '100vh',
         width: 240,
         flex: '0 0 240px',
-        background: 'var(--surface-dark)',
+        background: 'var(--surface-deep)',
         display: 'flex',
         flexDirection: 'column',
       }}

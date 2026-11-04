@@ -121,7 +121,7 @@ export default async function DashboardOverviewPage() {
               key={e.id}
               style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '16px 20px', borderBottom: i < Math.min(leads.length, 5) - 1 ? '0.5px solid var(--border-hairline)' : 'none' }}
             >
-              <span style={{ width: 36, height: 36, borderRadius: 'var(--radius-sm)', background: 'var(--surface-dark)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 16, color: 'var(--blissify-chalk)' }}>
+              <span style={{ width: 36, height: 36, borderRadius: 'var(--radius-md)', background: 'var(--surface-soft)', boxShadow: 'inset 0 0 0 1px rgba(90, 105, 124, 0.12)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 17, color: 'var(--palette-slate-ink)' }}>
                 {e.name[0]}
               </span>
               <div style={{ flex: 1, minWidth: 0 }}>
