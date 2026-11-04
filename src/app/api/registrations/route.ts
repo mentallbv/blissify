@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { sbInsert, supabaseConfigured } from '@/lib/supabase'
 import { sendEmail, emailHtml, SITE_URL } from '@/lib/email'
+import { mailchimpAddStudent } from '@/lib/mailchimp'
 
 /**
  * POST /api/registrations - in-platform course registration (Brand accounts on
@@ -94,6 +95,9 @@ export async function POST(req: Request) {
         `We hebben je inschrijving voor ${courseTitle} ontvangen. De aanbieder neemt rechtstreeks contact met je op.`,
       ]),
     })
+
+    // Newsletter only on an explicit, unticked-by-default opt-in.
+    if (body.newsletter === true) await mailchimpAddStudent(email, name)
 
     return NextResponse.json({ success: true })
   } catch {

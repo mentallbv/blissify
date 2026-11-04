@@ -13,7 +13,7 @@ import { APPLICANT_STATUS, DAYS } from '@/lib/workspace-options'
 export function WorkspaceApply({ workspaceId, title, label = 'Stuur een aanvraag' }: { workspaceId: number; title: string; label?: string }) {
   const [open, setOpen] = React.useState(false)
   const [more, setMore] = React.useState(false)
-  const [f, setF] = React.useState({ name: '', email: '', message: '', service: '', desiredDays: [] as string[], phone: '', city: '', status: 'onbekend', budget: '', portfolio: '', consent: false, website: '' })
+  const [f, setF] = React.useState({ name: '', email: '', message: '', service: '', desiredDays: [] as string[], phone: '', city: '', status: 'onbekend', budget: '', portfolio: '', consent: false, newsletter: false, website: '' })
   const [state, setState] = React.useState<'idle' | 'sending' | 'done'>('idle')
   const [error, setError] = React.useState('')
   const set = <K extends keyof typeof f>(k: K, v: (typeof f)[K]) => setF((s) => ({ ...s, [k]: v }))
@@ -106,6 +106,10 @@ export function WorkspaceApply({ workspaceId, title, label = 'Stuur een aanvraag
               <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontFamily: 'var(--font-ui)', fontSize: 13, lineHeight: 1.55, color: 'var(--text-strong)', cursor: 'pointer', marginBottom: 16 }}>
                 <input type="checkbox" checked={f.consent} onChange={(e) => set('consent', e.target.checked)} style={{ marginTop: 3, accentColor: 'var(--blissify-forest)' }} />
                 Ik ga ermee akkoord dat deze aanvraag en mijn contactgegevens naar de verhuurder worden gestuurd.
+              </label>
+              <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontFamily: 'var(--font-ui)', fontSize: 13, lineHeight: 1.55, color: 'var(--text-strong)', cursor: 'pointer', marginBottom: 16 }}>
+                <input type="checkbox" checked={f.newsletter} onChange={(e) => set('newsletter', e.target.checked)} style={{ marginTop: 3, accentColor: 'var(--blissify-forest)' }} />
+                Ja, stuur mij de Blissify nieuwsbrief met nieuwe opleidingen, werkruimtes en vacatures.
               </label>
               {error ? <div role="alert" style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--status-error)', background: 'var(--status-error-bg)', borderRadius: 'var(--radius-sm)', padding: '10px 14px', marginBottom: 14 }}>{error}</div> : null}
               <button type="submit" className="bl-apply-btn" disabled={state === 'sending'}>{state === 'sending' ? 'Versturen…' : 'Aanvraag versturen'}</button>

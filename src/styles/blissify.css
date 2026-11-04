@@ -388,6 +388,23 @@ img {
 }
 
 /* --- Newsletter form (footer) --- */
+/* Footer newsletter: "Waar ben je naar op zoek?" toggles on the dark footer. */
+.bl-newsletter-chip {
+  height: 34px;
+  padding: 0 16px;
+  border-radius: var(--radius-pill);
+  border: 0.5px solid rgba(225, 230, 234, 0.3);
+  background: transparent;
+  color: rgba(225, 230, 234, 0.85);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s var(--ease-out-quart), color 0.2s var(--ease-out-quart), border-color 0.2s var(--ease-out-quart);
+}
+.bl-newsletter-chip:hover { border-color: rgba(225, 230, 234, 0.6); }
+.bl-newsletter-chip[aria-pressed='true'] { background: #fff; border-color: #fff; color: var(--palette-slate-ink); }
+.bl-newsletter-chip:focus-visible { outline: 2px solid rgba(225, 230, 234, 0.6); outline-offset: 2px; }
+
 .bl-newsletter-input::placeholder {
   color: rgba(225, 230, 234, 0.4);
 }

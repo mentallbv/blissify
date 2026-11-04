@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { sbInsert, supabaseConfigured } from '@/lib/supabase'
 import { sendEmail, emailHtml, SITE_URL } from '@/lib/email'
+import { mailchimpAddWorkspaceCandidate } from '@/lib/mailchimp'
 import { APPLICANT_STATUS, DAYS, labelOf } from '@/lib/workspace-options'
 
 const str = (v: unknown, max = 1000) => (typeof v === 'string' ? v.trim().slice(0, max) : '')
@@ -71,6 +72,9 @@ export async function POST(req: Request) {
       subject: 'Je aanvraag is verstuurd',
       html: emailHtml([`Bedankt ${name},`, `Je aanvraag voor "${ws.title}" is doorgestuurd naar de verhuurder. Die neemt rechtstreeks contact met je op.`]),
     })
+    // Newsletter only on an explicit, unticked-by-default opt-in.
+    if (body.newsletter === true) await mailchimpAddWorkspaceCandidate(email, name)
+
     return NextResponse.json({ success: true })
   } catch {
     return NextResponse.json({ error: 'Er ging iets mis. Probeer het later opnieuw.' }, { status: 500 })

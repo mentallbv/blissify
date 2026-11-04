@@ -2,12 +2,13 @@ import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { cancelSubscription, createSubscription, getPayment, isBrandTier, planLabel, type BillingCycle, type PlanTier } from '@/lib/mollie'
-import { brevoAddContact } from '@/lib/brevo'
+import { mailchimpAddCustomer } from '@/lib/mailchimp'
 import { sendEmail, emailHtml, ADMIN_EMAIL, SITE_URL } from '@/lib/email'
 
 type AnyUser = {
   id: number
   email: string
+  name?: string | null
   role?: string
   subscriptionTier?: string
   brandTier?: string
@@ -127,7 +128,7 @@ export async function POST(req: Request) {
         ]),
       })
 
-      if (tier === 'medium' || tier === 'premium') await brevoAddContact(user.email)
+      await mailchimpAddCustomer(user.email, user.role, tier, user.name || undefined)
     } else if (payment.status === 'failed' || payment.status === 'expired' || payment.status === 'canceled') {
       await payload.update({ collection: 'users', id: user.id, data: { subscriptionStatus: 'inactive', subscriptionInactiveSince: new Date().toISOString() } as never, overrideAccess: true })
       await sendEmail({

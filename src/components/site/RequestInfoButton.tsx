@@ -18,6 +18,7 @@ export function RequestInfoButton({
   const [email, setEmail] = React.useState('')
   const [message, setMessage] = React.useState('')
   const [website, setWebsite] = React.useState('')
+  const [newsletter, setNewsletter] = React.useState(false)
   const [done, setDone] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [loading, setLoading] = React.useState(false)
@@ -30,7 +31,7 @@ export function RequestInfoButton({
       const res = await fetch('/api/leads', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, message, courseId, website }),
+        body: JSON.stringify({ name, email, message, courseId, website, newsletter }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data?.error || 'Verzenden mislukt.')
@@ -85,6 +86,10 @@ export function RequestInfoButton({
                       style={{ width: '100%', minHeight: 90, border: '0.5px solid var(--neutral-200)', borderRadius: 'var(--radius-sm)', background: 'var(--surface-card)', padding: '12px 16px', fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-strong)', lineHeight: 1.6, resize: 'vertical', outline: 'none' }}
                     />
                   </div>
+                  <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontFamily: 'var(--font-ui)', fontSize: 13, lineHeight: 1.5, color: 'var(--text-body)', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={newsletter} onChange={(e) => setNewsletter(e.target.checked)} style={{ marginTop: 3, accentColor: 'var(--blissify-forest)', flex: 'none' }} />
+                    <span>Ja, stuur mij de Blissify nieuwsbrief met nieuwe opleidingen, werkruimtes en vacatures.</span>
+                  </label>
                   {error ? <div style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--status-error)', background: 'var(--status-error-bg)', borderRadius: 'var(--radius-sm)', padding: '10px 14px' }}>{error}</div> : null}
                   <div style={{ display: 'flex', gap: 10 }}>
                     <Button variant="primary" type="submit" fullWidth disabled={loading}>

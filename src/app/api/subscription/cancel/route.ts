@@ -3,7 +3,7 @@ import { headers as getHeaders } from 'next/headers'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { cancelSubscription, mollieConfigured } from '@/lib/mollie'
-import { brevoRemoveFromList } from '@/lib/brevo'
+import { mailchimpMarkCanceled } from '@/lib/mailchimp'
 import { sendEmail, emailHtml } from '@/lib/email'
 
 /** POST /api/subscription/cancel - cancel the current user's Mollie subscription. */
@@ -38,9 +38,7 @@ export async function POST() {
       overrideAccess: true,
     })
 
-    if (u.subscriptionTier === 'medium' || u.subscriptionTier === 'premium') {
-      await brevoRemoveFromList(u.email)
-    }
+    await mailchimpMarkCanceled(u.email)
 
     const endDate = u.subscriptionExpiresAt ? new Date(u.subscriptionExpiresAt) : new Date()
     await sendEmail({

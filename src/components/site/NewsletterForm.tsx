@@ -2,12 +2,16 @@
 
 import React from 'react'
 
-/** Newsletter signup (Brevo). Used in the footer (and thus on every page incl. home). */
+/**
+ * Newsletter signup (Mailchimp). Used in the footer (and thus on every page incl. home).
+ * The optional "Waar ben je naar op zoek?" answer becomes a segment tag.
+ */
 export function NewsletterForm() {
   const [email, setEmail] = React.useState('')
   const [status, setStatus] = React.useState<'idle' | 'loading' | 'done' | 'error'>('idle')
   const [message, setMessage] = React.useState('')
   const [focused, setFocused] = React.useState(false)
+  const [audience, setAudience] = React.useState<'professional' | 'consumer' | ''>('')
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -17,7 +21,7 @@ export function NewsletterForm() {
       const res = await fetch('/api/newsletter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, audience: audience || undefined }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) {
@@ -44,6 +48,20 @@ export function NewsletterForm() {
 
   return (
     <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <fieldset style={{ border: 'none', padding: 0, margin: '0 0 6px', display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8 }}>
+        <legend style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'rgba(225, 230, 234,0.7)', padding: 0, marginBottom: 8, float: 'left', width: '100%' }}>Waar ben je naar op zoek?</legend>
+        {([['professional', 'Ik ben professional'], ['consumer', 'Ik ben eindklant']] as const).map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            aria-pressed={audience === value}
+            onClick={() => setAudience(audience === value ? '' : value)}
+            className="bl-newsletter-chip"
+          >
+            {label}
+          </button>
+        ))}
+      </fieldset>
       <div className="bl-newsletter-row" style={{ display: 'flex', gap: 0, maxWidth: 420 }}>
         <input
           className="bl-newsletter-input"

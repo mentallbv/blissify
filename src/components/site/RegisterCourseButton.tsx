@@ -16,6 +16,7 @@ export function RegisterCourseButton({ courseId, courseTitle }: { courseId: stri
   const [phone, setPhone] = React.useState('')
   const [participantCount, setParticipantCount] = React.useState('1')
   const [consent, setConsent] = React.useState(false)
+  const [newsletter, setNewsletter] = React.useState(false)
   const [done, setDone] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [loading, setLoading] = React.useState(false)
@@ -32,7 +33,7 @@ export function RegisterCourseButton({ courseId, courseTitle }: { courseId: stri
       const res = await fetch('/api/registrations', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, phone, participantCount: Number(participantCount), consent, courseId }),
+        body: JSON.stringify({ name, email, phone, participantCount: Number(participantCount), consent, newsletter, courseId }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data?.error || 'Inschrijven mislukt.')
@@ -113,6 +114,10 @@ export function RegisterCourseButton({ courseId, courseTitle }: { courseId: stri
                       Ik ga akkoord met de verwerking van mijn gegevens volgens de{' '}
                       <a href="/privacybeleid" target="_blank" rel="noopener noreferrer" className="bl-textlink">privacyverklaring</a>.
                     </span>
+                  </label>
+                  <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontFamily: 'var(--font-ui)', fontSize: 13, lineHeight: 1.5, color: 'var(--text-body)', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={newsletter} onChange={(e) => setNewsletter(e.target.checked)} style={{ marginTop: 3, accentColor: 'var(--blissify-forest)', flex: 'none' }} />
+                    <span>Ja, stuur mij de Blissify nieuwsbrief met nieuwe opleidingen, werkruimtes en vacatures.</span>
                   </label>
                   {error ? <div style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--status-error)', background: 'var(--status-error-bg)', borderRadius: 'var(--radius-sm)', padding: '10px 14px' }}>{error}</div> : null}
                   <Button variant="primary" type="submit" fullWidth disabled={loading}>

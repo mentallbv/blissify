@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { sbInsert, supabaseConfigured } from '@/lib/supabase'
 import { sendEmail, emailHtml, SITE_URL } from '@/lib/email'
+import { mailchimpAddStudent } from '@/lib/mailchimp'
 
 const str = (v: unknown, max = 1000) => (typeof v === 'string' ? v.trim().slice(0, max) : '')
 
@@ -82,6 +83,9 @@ export async function POST(req: Request) {
         `We hebben jouw aanvraag doorgestuurd naar ${providerName}. Je hoort snel van hen.`,
       ]),
     })
+
+    // Newsletter only on an explicit, unticked-by-default opt-in.
+    if (body.newsletter === true) await mailchimpAddStudent(email, name)
 
     return NextResponse.json({ success: true })
   } catch {

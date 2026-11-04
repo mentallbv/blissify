@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
+import { mailchimpConfigured, newsletterSignup, type Audience } from '@/lib/mailchimp'
 
-/** POST /api/newsletter - subscribe an email to the Brevo list. */
+/** POST /api/newsletter - subscribe an email to the Mailchimp audience. */
 export async function POST(req: Request) {
   try {
     const body = await req.json()
@@ -8,27 +9,18 @@ export async function POST(req: Request) {
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
       return NextResponse.json({ error: 'Vul een geldig e-mailadres in.' }, { status: 400 })
     }
+    const audience: Audience | undefined = body.audience === 'professional' || body.audience === 'consumer' ? body.audience : undefined
 
-    const key = process.env.BREVO_API_KEY
-    const listId = parseInt(process.env.BREVO_LIST_ID || '0', 10)
-    if (!key || !listId) {
-      // Not configured yet: accept gracefully so the form works.
-      return NextResponse.json({ success: true, message: 'Bedankt! Je bent ingeschreven voor de Blissify nieuwsbrief.' })
+    const result = await newsletterSignup(email, audience)
+    if (result.alreadySubscribed) {
+      return NextResponse.json({ success: true, message: 'Je bent al ingeschreven voor de Blissify nieuwsbrief.' })
     }
-
-    const res = await fetch('https://api.brevo.com/v3/contacts', {
-      method: 'POST',
-      headers: { 'api-key': key, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, listIds: [listId], updateEnabled: false }),
-    })
-
-    if (res.ok) {
-      return NextResponse.json({ success: true, message: 'Bedankt! Je bent ingeschreven voor de Blissify nieuwsbrief.' })
-    }
-
-    const data = await res.json().catch(() => ({}))
-    if (res.status === 400 && String(data?.code || '').includes('duplicate')) {
-      return NextResponse.json({ error: 'Dit e-mailadres is al ingeschreven.' }, { status: 409 })
+    if (result.ok) {
+      // Double opt-in: Mailchimp sends the confirmation mail (only once it is configured).
+      const message = mailchimpConfigured()
+        ? 'Bedankt! Bevestig je inschrijving via de e-mail die we je net stuurden.'
+        : 'Bedankt! Je bent ingeschreven voor de Blissify nieuwsbrief.'
+      return NextResponse.json({ success: true, message })
     }
     return NextResponse.json({ error: 'Inschrijven mislukt. Probeer het later opnieuw.' }, { status: 502 })
   } catch {
