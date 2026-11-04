@@ -69,6 +69,8 @@ export type MolliePayment = {
   id: string
   status: 'open' | 'paid' | 'failed' | 'expired' | 'canceled' | 'pending' | 'authorized'
   sequenceType?: 'oneoff' | 'first' | 'recurring'
+  amount?: { currency: string; value: string }
+  subscriptionId?: string
   customerId?: string
   mandateId?: string
   metadata?: Record<string, unknown>
@@ -179,4 +181,78 @@ export function updateSubscription(opts: {
       metadata: { tier: opts.tier, userId: opts.userId, billingCycle: opts.billingCycle },
     }),
   })
+}
+
+/* ---------- Sales invoices (https://docs.mollie.com/reference/create-sales-invoice) ---------- */
+
+export type SalesInvoiceRecipient = {
+  type: 'business' | 'consumer'
+  email: string
+  organizationName?: string
+  vatNumber?: string
+  organizationNumber?: string
+  streetAndNumber: string
+  postalCode: string
+  city: string
+  country: string
+  locale: 'nl_BE' | 'nl_NL' | 'en_GB'
+}
+
+export type SalesInvoice = {
+  id: string
+  invoiceNumber?: string | null
+  status: string
+  eInvoiceStatus?: string | null
+  isEInvoice?: boolean
+  totalAmount?: { value: string }
+  totalVatAmount?: { value: string }
+  discountedSubtotalAmount?: { value: string }
+  issuedAt?: string | null
+  _links?: { pdfLink?: { href: string } | null }
+}
+
+/**
+ * Invoice for a payment that is already paid. `vatMode: 'inclusive'` with the
+ * charged amount as unit price, so the invoice total always equals what Mollie
+ * collected to the cent (also for renewals, prorated upgrades and rounding).
+ */
+export function createPaidSalesInvoice(opts: {
+  paymentId: string
+  recipientIdentifier: string
+  recipient: SalesInvoiceRecipient
+  description: string
+  grossAmount: string
+  vatRate: number
+  memo?: string
+  isEInvoice: boolean
+  emailDetails: { subject: string; body: string }
+  metadata?: Record<string, unknown>
+}): Promise<SalesInvoice> {
+  return mollie<SalesInvoice>('/sales-invoices', {
+    method: 'POST',
+    body: JSON.stringify({
+      status: 'paid',
+      vatScheme: 'standard',
+      vatMode: 'inclusive',
+      recipientIdentifier: opts.recipientIdentifier,
+      recipient: opts.recipient,
+      lines: [
+        {
+          description: opts.description.slice(0, 100),
+          quantity: 1,
+          vatRate: opts.vatRate.toFixed(2),
+          unitPrice: { currency: 'EUR', value: opts.grossAmount },
+        },
+      ],
+      paymentDetails: { source: 'payment', sourceReference: opts.paymentId },
+      memo: opts.memo || undefined,
+      isEInvoice: opts.isEInvoice,
+      emailDetails: opts.emailDetails,
+      metadata: opts.metadata,
+    }),
+  })
+}
+
+export function getSalesInvoice(id: string): Promise<SalesInvoice> {
+  return mollie<SalesInvoice>(`/sales-invoices/${id}`)
 }

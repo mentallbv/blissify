@@ -6,6 +6,7 @@ import { createCustomer, createFirstPayment, mollieConfigured, planLabel, update
 import { SITE_URL } from '@/lib/email'
 import { resolvePlan } from '@/lib/subscription-plan'
 import { sendEmail, emailHtml } from '@/lib/email'
+import { billingComplete, checkVies, invoiceCountry, quote, type BillingUser } from '@/lib/vat'
 
 /** POST /api/subscription/start { tier, billingCycle, method } - create/reuse Mollie customer + first payment. */
 export async function POST(req: Request) {
@@ -17,12 +18,24 @@ export async function POST(req: Request) {
     const { user } = await payload.auth({ headers: await getHeaders() })
     if (!user) return NextResponse.json({ error: 'Niet ingelogd.' }, { status: 401 })
 
-    const u = user as { id: number; email: string; name?: string; role?: string; mollieCustomerId?: string; mollieSubscriptionId?: string; subscriptionStatus?: string; subscriptionTier?: string; brandTier?: string; subscriptionBillingCycle?: BillingCycle; subscriptionStartedAt?: string; subscriptionExpiresAt?: string; vatNumber?: string; chamberOfCommerceNumber?: string; professionalBuyerConfirmed?: boolean }
+    const u = user as { id: number; email: string; name?: string; role?: string; mollieCustomerId?: string; mollieSubscriptionId?: string; subscriptionStatus?: string; subscriptionTier?: string; brandTier?: string; subscriptionBillingCycle?: BillingCycle; subscriptionStartedAt?: string; subscriptionExpiresAt?: string; vatNumber?: string; chamberOfCommerceNumber?: string; professionalBuyerConfirmed?: boolean } & BillingUser
     if (u.role !== 'trainer' && u.role !== 'brand') {
       return NextResponse.json({ error: 'Alleen opleiders kunnen een abonnement starten.' }, { status: 400 })
     }
     if ((!u.vatNumber && !u.chamberOfCommerceNumber) || !u.professionalBuyerConfirmed) {
       return NextResponse.json({ error: 'Vul eerst je btw-nummer en/of ondernemingsnummer in en bevestig dat je beroepsmatig handelt.' }, { status: 409 })
+    }
+    // Every payment gets an invoice, so the invoice details must be complete first.
+    if (!billingComplete(u)) {
+      return NextResponse.json({ error: 'Vul eerst je facturatiegegevens in (bedrijfsnaam, adres, btw-nummer).', code: 'billing_incomplete' }, { status: 409 })
+    }
+    // Reverse charge needs a VIES-verified number; retry when VIES was down at save time.
+    if (invoiceCountry(u) !== 'BE' && u.vatNumber && !u.vatVerifiedAt) {
+      const vies = await checkVies(u.vatNumber)
+      if (vies?.valid) {
+        u.vatVerifiedAt = new Date().toISOString()
+        await payload.update({ collection: 'users', id: u.id, data: { vatVerifiedAt: u.vatVerifiedAt } as never, overrideAccess: true })
+      }
     }
 
     const body = await req.json()
@@ -51,7 +64,7 @@ export async function POST(req: Request) {
     if (isDowngrade) {
       const effectiveAt = u.subscriptionExpiresAt ? new Date(u.subscriptionExpiresAt) : nextChargeAt
       if (u.mollieCustomerId && u.mollieSubscriptionId) {
-        await updateSubscription({ customerId: u.mollieCustomerId, subscriptionId: u.mollieSubscriptionId, tier, amount, billingCycle, userId: u.id })
+        await updateSubscription({ customerId: u.mollieCustomerId, subscriptionId: u.mollieSubscriptionId, tier, amount: quote(amount, u).gross, billingCycle, userId: u.id })
       }
       await payload.update({
         collection: 'users',
@@ -84,6 +97,10 @@ export async function POST(req: Request) {
       amount = Math.max(0.01, Number(amount) - proratedCredit).toFixed(2)
     }
 
+    // Prices are excl. btw; Mollie charges the total incl. btw (lib/vat).
+    const charge = quote(amount, u)
+    const renewal = quote(plan.amount, u)
+
     // Reuse the customer if we already created one for this user. The id is safe
     // to persist immediately - it says nothing about the subscription state.
     let customerId = u.mollieCustomerId
@@ -97,7 +114,7 @@ export async function POST(req: Request) {
       customerId,
       tier,
       trialEnabled: false,
-      amount,
+      amount: charge.gross,
       method,
       description: `Blissify abonnement - ${planLabel(tier)}`,
       redirectUrl: `${SITE_URL}/dashboard/abonnement?betaling=verwerkt`,
@@ -106,8 +123,10 @@ export async function POST(req: Request) {
         tier,
         role: u.role,
         billingCycle,
-        amount,
-        fullRenewalAmount: plan.amount,
+        amount: charge.gross,
+        netAmount: charge.net,
+        vatRate: charge.rate,
+        fullRenewalAmount: renewal.gross,
         proratedCredit: proratedCredit.toFixed(2),
         action: isActiveChange ? 'upgrade' : 'activate',
         nextChargeAt: nextChargeAt.toISOString(),
@@ -138,7 +157,7 @@ export async function POST(req: Request) {
       })
     }
 
-    return NextResponse.json({ checkoutUrl, chargedAmount: amount, proratedCredit: proratedCredit.toFixed(2) })
+    return NextResponse.json({ checkoutUrl, chargedAmount: charge.gross, netAmount: charge.net, vatAmount: charge.vat, vatRate: charge.rate, proratedCredit: proratedCredit.toFixed(2) })
   } catch (err) {
     // Mollie errors carry internal ids and are never safe to show to a user.
     console.error('[mollie] checkout start failed', err)

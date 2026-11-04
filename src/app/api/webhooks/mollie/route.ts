@@ -3,9 +3,11 @@ import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { cancelSubscription, createSubscription, getPayment, isBrandTier, planLabel, type BillingCycle, type PlanTier } from '@/lib/mollie'
 import { mailchimpAddCustomer } from '@/lib/mailchimp'
+import { invoicePayment } from '@/lib/invoicing'
+import type { BillingUser } from '@/lib/vat'
 import { sendEmail, emailHtml, ADMIN_EMAIL, SITE_URL } from '@/lib/email'
 
-type AnyUser = {
+type AnyUser = BillingUser & {
   id: number
   email: string
   name?: string | null
@@ -126,6 +128,16 @@ export async function POST(req: Request) {
           `De huidige periode loopt tot ${nextChargeAt.toLocaleDateString('nl-BE')}.`,
           'Het abonnement wordt automatisch verlengd, tenzij je de verlenging voordien stopzet.',
         ]),
+      })
+
+      await invoicePayment({
+        payload,
+        user,
+        payment,
+        tier,
+        periodStart: periodStartedAt,
+        periodEnd: nextChargeAt,
+        proratedCredit: Number(metadata?.proratedCredit || 0),
       })
 
       await mailchimpAddCustomer(user.email, user.role, tier, user.name || undefined)

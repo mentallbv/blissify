@@ -100,6 +100,32 @@ export const Users: CollectionConfig = {
       admin: { description: 'Nederlands KvK-nummer of ander nationaal ondernemingsnummer.' },
     },
     {
+      name: 'billingCompanyName',
+      type: 'text',
+      label: 'Bedrijfsnaam (factuur)',
+    },
+    {
+      name: 'billingStreet',
+      type: 'text',
+      label: 'Straat en nummer',
+    },
+    {
+      name: 'billingPostalCode',
+      type: 'text',
+      label: 'Postcode',
+    },
+    {
+      name: 'billingCity',
+      type: 'text',
+      label: 'Gemeente',
+    },
+    {
+      name: 'vatVerifiedAt',
+      type: 'date',
+      label: 'Btw-nummer gecontroleerd (VIES)',
+      admin: { readOnly: true, description: 'Gezet wanneer het btw-nummer geldig is in VIES. Nodig voor btw verlegd.' },
+    },
+    {
       name: 'billingCountry',
       type: 'select',
       label: 'Facturatieland',

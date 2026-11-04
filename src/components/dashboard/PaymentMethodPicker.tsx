@@ -3,9 +3,10 @@
 import React from 'react'
 
 export type PaymentMethod = { id: string; description: string; image: string | null }
+export type PriceQuote = { rate: number; reverseCharge: boolean; net: string; vat: string; gross: string }
 
 /** Loads the methods available for a plan. Returns `null` while still loading. */
-export function usePaymentMethods(tier: string, billingCycle: 'yearly' | 'monthly', enabled = true) {
+export function usePaymentMethods(tier: string, billingCycle: 'yearly' | 'monthly', enabled = true, onPrice?: (price: PriceQuote | null, billingComplete: boolean) => void) {
   const [methods, setMethods] = React.useState<PaymentMethod[] | null>(null)
 
   React.useEffect(() => {
@@ -15,7 +16,9 @@ export function usePaymentMethods(tier: string, billingCycle: 'yearly' | 'monthl
     fetch(`/api/subscription/methods?tier=${encodeURIComponent(tier)}&billingCycle=${billingCycle}`, { credentials: 'include' })
       .then((res) => res.json())
       .then((data) => {
-        if (active) setMethods(Array.isArray(data?.methods) ? data.methods : [])
+        if (!active) return
+        onPrice?.(data?.price || null, data?.billingComplete !== false)
+        setMethods(Array.isArray(data?.methods) ? data.methods : [])
       })
       .catch(() => {
         // Fall back to Mollie's own picker rather than blocking checkout.
@@ -24,6 +27,7 @@ export function usePaymentMethods(tier: string, billingCycle: 'yearly' | 'monthl
     return () => {
       active = false
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tier, billingCycle, enabled])
 
   return methods
@@ -99,5 +103,21 @@ export function PaymentMethodPicker({
         })}
       </div>
     </fieldset>
+  )
+}
+
+const euro = (v: string) => `€ ${Number(v).toLocaleString('nl-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+
+/** Excl. btw / btw / total, shown before the user leaves for Mollie. */
+export function PriceSummary({ price, billingCycle }: { price: PriceQuote; billingCycle: 'yearly' | 'monthly' }) {
+  const row: React.CSSProperties = { display: 'flex', justifyContent: 'space-between', gap: 12, fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-body)' }
+  return (
+    <div style={{ background: 'var(--surface-soft)', borderRadius: 'var(--radius-sm)', padding: '12px 14px', margin: '0 0 12px', display: 'grid', gap: 6 }}>
+      <div style={row}><span>Prijs excl. btw</span><span>{euro(price.net)}</span></div>
+      <div style={row}><span>{price.reverseCharge ? 'Btw verlegd (0%)' : `Btw ${price.rate}%`}</span><span>{euro(price.vat)}</span></div>
+      <div style={{ ...row, fontWeight: 'var(--fw-ui-medium)', color: 'var(--text-strong)', borderTop: '0.5px solid var(--border-hairline)', paddingTop: 6 }}>
+        <span>Totaal {billingCycle === 'monthly' ? 'per maand' : 'per jaar'}</span><span>{euro(price.gross)}</span>
+      </div>
+    </div>
   )
 }

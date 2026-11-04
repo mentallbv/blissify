@@ -78,6 +78,7 @@ export interface Config {
     reviews: Review;
     collaborations: Collaboration;
     pages: Page;
+    invoices: Invoice;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -96,6 +97,7 @@ export interface Config {
     reviews: ReviewsSelect<false> | ReviewsSelect<true>;
     collaborations: CollaborationsSelect<false> | CollaborationsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
+    invoices: InvoicesSelect<false> | InvoicesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -166,6 +168,14 @@ export interface User {
    * Nederlands KvK-nummer of ander nationaal ondernemingsnummer.
    */
   chamberOfCommerceNumber?: string | null;
+  billingCompanyName?: string | null;
+  billingStreet?: string | null;
+  billingPostalCode?: string | null;
+  billingCity?: string | null;
+  /**
+   * Gezet wanneer het btw-nummer geldig is in VIES. Nodig voor btw verlegd.
+   */
+  vatVerifiedAt?: string | null;
   billingCountry?: ('BE' | 'NL' | 'EU' | 'OTHER') | null;
   /**
    * Bevestigt dat de abonnee in het kader van een beroeps- of bedrijfsactiviteit handelt.
@@ -1328,6 +1338,29 @@ export interface Page {
   createdAt: string;
 }
 /**
+ * Automatisch aangemaakt via Mollie na elke betaling.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "invoices".
+ */
+export interface Invoice {
+  id: number;
+  user?: (number | null) | User;
+  molliePaymentId: string;
+  mollieInvoiceId: string;
+  invoiceNumber?: string | null;
+  description?: string | null;
+  totalAmount?: number | null;
+  vatAmount?: number | null;
+  netAmount?: number | null;
+  vatRate?: number | null;
+  reverseCharge?: boolean | null;
+  isEInvoice?: boolean | null;
+  issuedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -1394,6 +1427,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'pages';
         value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'invoices';
+        value: number | Invoice;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1445,6 +1482,11 @@ export interface UsersSelect<T extends boolean = true> {
   name?: T;
   vatNumber?: T;
   chamberOfCommerceNumber?: T;
+  billingCompanyName?: T;
+  billingStreet?: T;
+  billingPostalCode?: T;
+  billingCity?: T;
+  vatVerifiedAt?: T;
   billingCountry?: T;
   professionalBuyerConfirmed?: T;
   professionalBuyerConfirmedAt?: T;
@@ -2129,6 +2171,26 @@ export interface PagesSelect<T extends boolean = true> {
         ogImage?: T;
         noindex?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "invoices_select".
+ */
+export interface InvoicesSelect<T extends boolean = true> {
+  user?: T;
+  molliePaymentId?: T;
+  mollieInvoiceId?: T;
+  invoiceNumber?: T;
+  description?: T;
+  totalAmount?: T;
+  vatAmount?: T;
+  netAmount?: T;
+  vatRate?: T;
+  reverseCharge?: T;
+  isEInvoice?: T;
+  issuedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }

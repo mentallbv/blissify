@@ -24,8 +24,19 @@ export default async function OnboardingPage({
     recommended: t.recommended,
   }))
 
+  const u = (user || {}) as { name?: string; billingCompanyName?: string; billingStreet?: string; billingPostalCode?: string; billingCity?: string; billingCountry?: string; vatNumber?: string; chamberOfCommerceNumber?: string }
+
   return (
     <OnboardingFlow
+      billing={{
+        billingCompanyName: u.billingCompanyName || '',
+        billingStreet: u.billingStreet || '',
+        billingPostalCode: u.billingPostalCode || '',
+        billingCity: u.billingCity || '',
+        billingCountry: ['BE', 'NL', 'EU'].includes(u.billingCountry || '') ? (u.billingCountry as string) : 'BE',
+        vatNumber: u.vatNumber || '',
+        chamberOfCommerceNumber: u.chamberOfCommerceNumber || '',
+      }}
       tiers={onboardingTiers}
       role={role}
       initialTier={tiers.some((tier) => tier.key === params.tier) ? params.tier : undefined}

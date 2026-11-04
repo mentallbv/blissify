@@ -6,6 +6,7 @@ import { Input, Select, Button, Tag } from '@/components/ui'
 import { PricingCard, type PricingCardTier } from '@/components/site/PricingCard'
 import { FormErrorCard } from '@/components/site/FormErrorCard'
 import { PaymentMethodPicker, usePaymentMethods } from '@/components/dashboard/PaymentMethodPicker'
+import type { BillingValues } from '@/components/dashboard/BillingForm'
 
 const STEPS = [
   { n: 1, label: 'Account' },
@@ -61,7 +62,9 @@ export function OnboardingFlow({
   role,
   initialTier,
   billingCycle,
+  billing: initialBilling,
 }: {
+  billing: BillingValues
   tiers: OnboardingTier[]
   role: 'trainer' | 'brand'
   initialTier?: string
@@ -72,6 +75,8 @@ export function OnboardingFlow({
   const [name, setName] = React.useState('')
   const [city, setCity] = React.useState('')
   const [about, setAbout] = React.useState('')
+  const [billing, setBilling] = React.useState(initialBilling)
+  const setB = (k: keyof BillingValues) => (e: React.ChangeEvent<HTMLInputElement>) => setBilling((b) => ({ ...b, [k]: e.target.value }))
   const [specs, setSpecs] = React.useState<string[]>(['massage'])
   const [error, setError] = React.useState<string | null>(null)
   const [loading, setLoading] = React.useState(false)
@@ -102,6 +107,19 @@ export function OnboardingFlow({
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data?.error || 'Opslaan mislukt.')
+      // Invoice address (every payment gets an automatic invoice).
+      const billingRes = await fetch('/api/billing', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ ...billing, billingCompanyName: billing.billingCompanyName || name }),
+      })
+      const billingData = await billingRes.json().catch(() => ({}))
+      if (!billingRes.ok) {
+        setError(billingData?.error || 'Je facturatiegegevens konden niet worden opgeslagen.')
+        setLoading(false)
+        return
+      }
       // Profile saved. Advance to subscription selection (payment gates publishing).
       setCurrent(3)
       setPhase('tier')
@@ -227,6 +245,15 @@ export function OnboardingFlow({
                     ))}
                   </div>
                 </div>
+                <div style={{ display: 'grid', gap: 16, paddingTop: 4 }}>
+                  <span style={{ ...fieldLabelStyle, marginBottom: 0 }}>Facturatieadres</span>
+                  <Input label="Bedrijfsnaam op de factuur" placeholder={name || 'Zelfde als de naam van je organisatie'} value={billing.billingCompanyName} onChange={setB('billingCompanyName')} />
+                  <Input label="Straat en nummer" value={billing.billingStreet} onChange={setB('billingStreet')} autoComplete="street-address" />
+                  <div className="bl-2col" style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 16 }}>
+                    <Input label="Postcode" value={billing.billingPostalCode} onChange={setB('billingPostalCode')} autoComplete="postal-code" />
+                    <Input label="Gemeente" value={billing.billingCity} onChange={setB('billingCity')} autoComplete="address-level2" />
+                  </div>
+                </div>
                 <div>
                   <span style={fieldLabelStyle}>Over {role === 'brand' ? 'het merk of de leverancier' : 'de opleider'}</span>
                   <textarea
@@ -256,7 +283,7 @@ export function OnboardingFlow({
               <p style={subheadStyle}>
                 Kies een formule om je profiel te activeren. Je wordt doorgestuurd naar onze betaalpartner Mollie.
                 Je betaalt {billingCycle === 'monthly' ? 'maandelijks vooraf en kunt per maand opzeggen' : 'het volledige jaar vooraf'}; publiceren kan zodra je betaling is bevestigd.
-                Alle prijzen zijn exclusief btw. Het abonnement wordt automatisch verlengd totdat je de verlenging stopzet; reeds betaalde periodes worden niet terugbetaald.
+                Alle prijzen zijn exclusief btw; bij de betaling komt daar 21% btw bij (voor bedrijven uit een ander EU-land met een geldig btw-nummer: btw verlegd). Je ontvangt automatisch een factuur. Het abonnement wordt automatisch verlengd totdat je de verlenging stopzet; reeds betaalde periodes worden niet terugbetaald.
               </p>
 
               <div className="bl-cat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, alignItems: 'start' }}>

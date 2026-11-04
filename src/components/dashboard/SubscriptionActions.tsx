@@ -3,7 +3,7 @@
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui'
-import { PaymentMethodPicker, usePaymentMethods } from '@/components/dashboard/PaymentMethodPicker'
+import { PaymentMethodPicker, PriceSummary, usePaymentMethods, type PriceQuote } from '@/components/dashboard/PaymentMethodPicker'
 
 /**
  * Dashboard banner shown whenever the subscription is not active. Re-triggers
@@ -99,14 +99,15 @@ export function CheckoutButton({
   // Methods are only fetched once this tier is chosen, so a page full of tier
   // cards does not fire a request per card.
   const [armed, setArmed] = React.useState(false)
-  const methods = usePaymentMethods(tier, billingCycle, armed)
-  const choosing = armed && methods !== null && methods.length > 1
-
-  // Nothing to choose between -> let Mollie's hosted checkout handle it.
-  React.useEffect(() => {
-    if (armed && methods !== null && methods.length < 2) void start()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [armed, methods])
+  const [price, setPrice] = React.useState<PriceQuote | null>(null)
+  const [billingOk, setBillingOk] = React.useState(true)
+  const methods = usePaymentMethods(tier, billingCycle, armed, (p, ok) => {
+    setPrice(p)
+    setBillingOk(ok)
+  })
+  // Once armed, always confirm: the user sees the total incl. btw before paying.
+  const choosing = armed && methods !== null
+  const needsMethod = choosing && methods.length > 1
 
   async function start() {
     setLoading(true)
@@ -137,13 +138,19 @@ export function CheckoutButton({
 
   return (
     <>
-      {choosing ? <PaymentMethodPicker methods={methods} value={method} onChange={setMethod} /> : null}
+      {choosing && !billingOk ? (
+        <p style={{ fontFamily: 'var(--font-ui)', fontSize: 12, lineHeight: 1.5, color: 'var(--status-error)', margin: '0 0 10px' }}>
+          Vul eerst je <a href="#facturatie" className="bl-textlink">facturatiegegevens</a> in.
+        </p>
+      ) : null}
+      {choosing && billingOk && price ? <PriceSummary price={price} billingCycle={billingCycle} /> : null}
+      {choosing && billingOk ? <PaymentMethodPicker methods={methods} value={method} onChange={setMethod} /> : null}
       <Button
         variant={variant}
         size="sm"
         fullWidth
         onClick={choosing ? start : () => setArmed(true)}
-        disabled={loading || (armed && !choosing) || (choosing && !method)}
+        disabled={loading || (armed && !choosing) || (needsMethod && !method) || (choosing && !billingOk)}
       >
         {loading || (armed && !choosing) ? 'Bezig…' : choosing ? 'Doorgaan naar betaling' : label}
       </Button>

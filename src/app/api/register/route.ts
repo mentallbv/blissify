@@ -28,7 +28,7 @@ export async function POST(req: Request) {
     const role = body.role === 'brand' ? 'brand' : 'trainer'
     const vatNumber = String(body.vatNumber || '').trim()
     const chamberOfCommerceNumber = String(body.chamberOfCommerceNumber || '').trim()
-    const billingCountry = ['BE', 'NL', 'EU', 'OTHER'].includes(body.billingCountry) ? body.billingCountry : 'BE'
+    const billingCountry = ['BE', 'NL', 'EU'].includes(body.billingCountry) ? body.billingCountry : 'BE'
     const professionalBuyerConfirmed = body.professionalBuyerConfirmed === true
 
     if (!name || !email || !password) {

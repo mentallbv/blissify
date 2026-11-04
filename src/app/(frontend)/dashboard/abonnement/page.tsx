@@ -5,6 +5,14 @@ import { getCurrentUser, getCurrentProfile } from '@/lib/session'
 import { getMyCourseCounts } from '@/lib/dashboard-data'
 import { getPricingCatalog } from '@/lib/data'
 import { tierFeatures } from '@/lib/tier-features'
+import { BillingForm } from '@/components/dashboard/BillingForm'
+import { getPayload } from 'payload'
+import config from '@/payload.config'
+
+const euro = (v: number | null | undefined) => (v == null ? '–' : `€ ${v.toLocaleString('nl-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`)
+const sectionTitle: React.CSSProperties = { fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 24, color: 'var(--text-brand)', margin: '0 0 6px' }
+const sectionIntro: React.CSSProperties = { fontFamily: 'var(--font-ui)', fontSize: 14, lineHeight: 1.6, color: 'var(--text-body)', margin: '0 0 20px', maxWidth: 560 }
+const panel: React.CSSProperties = { background: 'var(--surface-card)', borderRadius: 'var(--radius-lg)', padding: 28, boxShadow: 'var(--shadow-soft)' }
 
 export const dynamic = 'force-dynamic'
 
@@ -25,6 +33,11 @@ export default async function DashboardSubscriptionPage() {
   const status = u?.subscriptionStatus || 'inactive'
   const limit = tierFeatures(isBrand ? 'brand' : 'trainer', tier).courseLimit
   const limitLabel = limit === Infinity ? 'onbeperkt' : String(limit)
+  const b = (user || {}) as { id?: number; billingCompanyName?: string; billingStreet?: string; billingPostalCode?: string; billingCity?: string; billingCountry?: string; vatNumber?: string; chamberOfCommerceNumber?: string; vatVerifiedAt?: string }
+  const payload = await getPayload({ config: await config })
+  const invoices = b.id
+    ? (await payload.find({ collection: 'invoices', where: { user: { equals: b.id } }, sort: '-issuedAt', limit: 50, overrideAccess: true })).docs as unknown as { id: number; invoiceNumber?: string; description?: string; totalAmount?: number; vatRate?: number; reverseCharge?: boolean; isEInvoice?: boolean; issuedAt?: string }[]
+    : []
   const expires = u?.subscriptionExpiresAt ? new Date(u.subscriptionExpiresAt).toLocaleDateString('nl-BE') : null
 
   return (
@@ -95,6 +108,52 @@ export default async function DashboardSubscriptionPage() {
           )
         })}
       </div>
+
+      <section id="facturatie" style={{ maxWidth: 640, marginTop: 56 }}>
+        <h2 style={sectionTitle}>Facturatiegegevens</h2>
+        <p style={sectionIntro}>Deze gegevens staan op je facturen. Prijzen zijn excl. btw: voor Belgische bedrijven komt er 21% btw bij, voor bedrijven uit een ander EU-land met een geldig btw-nummer wordt de btw verlegd.</p>
+        <div style={panel}>
+          <BillingForm
+            vatVerified={Boolean(b.vatVerifiedAt)}
+            initial={{
+              billingCompanyName: b.billingCompanyName || '',
+              billingStreet: b.billingStreet || '',
+              billingPostalCode: b.billingPostalCode || '',
+              billingCity: b.billingCity || '',
+              billingCountry: ['BE', 'NL', 'EU'].includes(b.billingCountry || '') ? (b.billingCountry as string) : 'BE',
+              vatNumber: b.vatNumber || '',
+              chamberOfCommerceNumber: b.chamberOfCommerceNumber || '',
+            }}
+          />
+        </div>
+      </section>
+
+      <section style={{ maxWidth: 900, marginTop: 56 }}>
+        <h2 style={sectionTitle}>Facturen</h2>
+        <p style={sectionIntro}>Na elke betaling maken we automatisch een factuur aan. Je krijgt ze ook per e-mail{b.vatNumber ? ', en via Peppol in je boekhoudpakket als je daarop bent aangesloten' : ''}.</p>
+        {invoices.length ? (
+          <div style={{ ...panel, padding: 0, overflowX: 'auto' }}>
+            <table className="bl-invoice-table">
+              <thead>
+                <tr><th>Datum</th><th>Nummer</th><th>Omschrijving</th><th style={{ textAlign: 'right' }}>Totaal</th><th /></tr>
+              </thead>
+              <tbody>
+                {invoices.map((inv) => (
+                  <tr key={inv.id}>
+                    <td>{inv.issuedAt ? new Date(inv.issuedAt).toLocaleDateString('nl-BE') : '–'}</td>
+                    <td>{inv.invoiceNumber || 'In aanmaak'}</td>
+                    <td>{inv.description}{inv.reverseCharge ? ' · btw verlegd' : ''}</td>
+                    <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>{euro(inv.totalAmount)}</td>
+                    <td style={{ textAlign: 'right' }}><a href={`/api/invoices/${inv.id}/pdf`} target="_blank" rel="noopener noreferrer" className="bl-textlink">PDF</a></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-meta)', margin: 0 }}>Nog geen facturen.</p>
+        )}
+      </section>
     </>
   )
 }

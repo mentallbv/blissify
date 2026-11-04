@@ -151,7 +151,6 @@ export function AuthForm({
               <option value="BE">België</option>
               <option value="NL">Nederland</option>
               <option value="EU">Ander EU-land</option>
-              <option value="OTHER">Buiten de EU</option>
             </select>
           </label>
           <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontFamily: 'var(--font-ui)', fontSize: 13, lineHeight: 1.5, color: 'var(--text-body)' }}>

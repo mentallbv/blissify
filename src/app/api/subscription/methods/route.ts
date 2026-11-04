@@ -3,7 +3,8 @@ import { headers as getHeaders } from 'next/headers'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { listFirstPaymentMethods, mollieConfigured, type BillingCycle, type PlanTier } from '@/lib/mollie'
-import { chargeAmount, resolvePlan } from '@/lib/subscription-plan'
+import { resolvePlan } from '@/lib/subscription-plan'
+import { billingComplete, quote, type BillingUser } from '@/lib/vat'
 
 /**
  * GET /api/subscription/methods?tier=&billingCycle= - payment methods the user
@@ -13,13 +14,11 @@ import { chargeAmount, resolvePlan } from '@/lib/subscription-plan'
  */
 export async function GET(req: Request) {
   try {
-    if (!mollieConfigured()) return NextResponse.json({ methods: [] })
-
     const payload = await getPayload({ config: await config })
     const { user } = await payload.auth({ headers: await getHeaders() })
     if (!user) return NextResponse.json({ error: 'Niet ingelogd.' }, { status: 401 })
 
-    const u = user as { role?: string }
+    const u = user as { role?: string } & BillingUser
     if (u.role !== 'trainer' && u.role !== 'brand') {
       return NextResponse.json({ error: 'Alleen opleiders en merken kunnen een abonnement starten.' }, { status: 400 })
     }
@@ -31,8 +30,12 @@ export async function GET(req: Request) {
     const plan = await resolvePlan(u.role, tier, billingCycle)
     if (!plan.ok) return NextResponse.json({ error: plan.error }, { status: plan.status })
 
-    const methods = await listFirstPaymentMethods(chargeAmount(plan.amount, plan.catalog.billing.trialEnabled))
+    // The price summary (excl. btw, btw, total) is shown before the user pays.
+    const price = quote(plan.amount, u)
+    const methods = mollieConfigured() ? await listFirstPaymentMethods(price.gross) : []
     return NextResponse.json({
+      price,
+      billingComplete: billingComplete(u),
       methods: methods.map((m) => ({ id: m.id, description: m.description, image: m.image?.svg || m.image?.size2x || null })),
     })
   } catch (err) {
