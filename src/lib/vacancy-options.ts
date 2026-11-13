@@ -22,6 +22,7 @@ export const VACANCY_SECTORS: Opt[] = [
   { value: 'massage-wellness', label: 'Massage, wellness & therapie' },
   { value: 'medisch-esthetisch', label: 'Medisch & esthetisch' },
   { value: 'tattoo-piercing', label: 'Tattoo & piercing' },
+  { value: 'management', label: 'Management, sales & support' },
   { value: 'overige', label: 'Overige' },
 ]
 
@@ -48,11 +49,11 @@ export const VACANCY_FUNCTIONS: (Opt & { sector: string })[] = [
   { sector: 'medisch-esthetisch', value: 'paramedisch', label: 'Andere medische of paramedische professional' },
   { sector: 'tattoo-piercing', value: 'tattooartist', label: 'Tattooartist' },
   { sector: 'tattoo-piercing', value: 'piercer', label: 'Piercer' },
-  { sector: 'overige', value: 'receptionist', label: 'Receptionist / baliemedewerker' },
-  { sector: 'overige', value: 'salonmanager', label: 'Salonmanager' },
-  { sector: 'overige', value: 'opleider', label: 'Opleider / trainer' },
-  { sector: 'overige', value: 'sales', label: 'Sales / vertegenwoordiger' },
-  { sector: 'overige', value: 'marketing-administratie', label: 'Marketing / administratie' },
+  { sector: 'management', value: 'receptionist', label: 'Receptionist / baliemedewerker' },
+  { sector: 'management', value: 'salonmanager', label: 'Salonmanager' },
+  { sector: 'management', value: 'opleider', label: 'Opleider / trainer' },
+  { sector: 'management', value: 'sales', label: 'Sales / vertegenwoordiger' },
+  { sector: 'management', value: 'marketing-administratie', label: 'Marketing / administratie' },
   { sector: 'overige', value: 'overig', label: 'Overig' },
 ]
 

@@ -40,7 +40,7 @@ export default async function WorkspacePage({ params }: Params) {
 
   const facilityName = (f: { key: string; name?: string }) => (f.key === 'custom' ? f.name || '' : ALL_FACILITIES.find((x) => x.value === f.key)?.label || f.key)
   const included = (w.facilities || []).filter((f: { mode: string }) => f.mode === 'inbegrepen').map(facilityName)
-  const extra = (w.facilities || []).filter((f: { mode: string }) => f.mode === 'meerprijs').map((f: { key: string; name?: string; price?: number; unit?: string }) => `${facilityName(f)} – ${f.price != null ? `${euro(f.price)} ${labelOf(FACILITY_UNITS, f.unit).toLowerCase()}` : 'tegen meerprijs'}`)
+  const extra = (w.facilities || []).filter((f: { mode: string }) => f.mode === 'meerprijs').map((f: { key: string; name?: string; price?: number; unit?: string }) => `${facilityName(f)} – ${f.unit !== 'in-overleg' && f.price != null ? `${euro(f.price)} ${labelOf(FACILITY_UNITS, f.unit).toLowerCase()}` : 'tegen meerprijs'}`)
   const features = (w.features || []).map((k: string) => ALL_FACILITIES.find((x) => x.value === k)?.label || k)
   const activities = [...(w.activities || []).filter((a: string) => a !== 'overig').map((a: string) => labelOf(WORKSPACE_ACTIVITIES, a)), w.activityOther].filter(Boolean)
   const week: { label: string; blocks: string[] }[] = DAYS.map((d) => ({ label: d.label, blocks: (w.schedule || []).filter((b: { day: string }) => b.day === d.value).map((b: { from: string; to: string }) => `${b.from}–${b.to}`) }))
@@ -121,7 +121,7 @@ export default async function WorkspacePage({ params }: Params) {
                       <ul className="bl-checklist">
                         {extra.map((x: string) => {
                           const [name, cost] = x.split(' – ')
-                          return <li key={x}><i className="ti ti-plus" aria-hidden="true" />{name}<span className="bl-price">{cost === 'tegen meerprijs' ? 'Op aanvraag' : cost}</span></li>
+                          return <li key={x}><i className="ti ti-plus" aria-hidden="true" />{name}<span className="bl-price">{cost === 'tegen meerprijs' ? 'In overleg' : cost}</span></li>
                         })}
                       </ul>
                     </div>

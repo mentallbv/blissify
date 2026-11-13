@@ -452,7 +452,7 @@ export const Courses: CollectionConfig = {
       options: [
         { label: '1-daagse opleiding', value: 'een-dag' },
         { label: 'Meerdere dagen', value: 'meerdere-dagen' },
-        { label: 'Op locatie', value: 'op-locatie' },
+        { label: 'Op locatie bij deelnemer', value: 'op-locatie' },
       ],
     },
     {

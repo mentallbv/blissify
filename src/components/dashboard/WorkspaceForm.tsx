@@ -62,6 +62,8 @@ function FacilityRow({ label, value, onChange, onRemove }: { label: React.ReactN
     else onChange({ key: value?.key || '', name: value?.name, mode: m, price: m === 'meerprijs' ? value?.price || '' : '', unit: m === 'meerprijs' ? value?.unit || '' : '' })
   }
   const priced = mode === 'meerprijs'
+  // "In overleg" has no fixed price.
+  const onRequest = value?.unit === 'in-overleg'
   return (
     <div className="bl-facility-row">
       <div style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-body)', display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -70,8 +72,8 @@ function FacilityRow({ label, value, onChange, onRemove }: { label: React.ReactN
       </div>
       <label className="bl-facility-check"><input type="checkbox" checked={mode === 'inbegrepen'} onChange={() => set('inbegrepen')} style={{ accentColor: 'var(--blissify-forest)' }} /><span>Inbegrepen</span></label>
       <label className="bl-facility-check"><input type="checkbox" checked={priced} onChange={() => set('meerprijs')} style={{ accentColor: 'var(--blissify-forest)' }} /><span>Meerprijs</span></label>
-      <input type="number" min={0} step="0.01" inputMode="decimal" placeholder="€" aria-label="Prijs" disabled={!priced} value={priced ? value?.price || '' : ''} onChange={(e) => value && onChange({ ...value, price: e.target.value })} style={{ ...small, opacity: priced ? 1 : 0.45 }} />
-      <select aria-label="Per" disabled={!priced} value={priced ? value?.unit || '' : ''} onChange={(e) => value && onChange({ ...value, unit: e.target.value })} style={{ ...small, opacity: priced ? 1 : 0.45 }}>
+      <input type="number" min={0} step="0.01" inputMode="decimal" placeholder="€" aria-label="Prijs" disabled={!priced || onRequest} value={priced && !onRequest ? value?.price || '' : ''} onChange={(e) => value && onChange({ ...value, price: e.target.value })} style={{ ...small, opacity: priced && !onRequest ? 1 : 0.45 }} />
+      <select aria-label="Per" disabled={!priced} value={priced ? value?.unit || '' : ''} onChange={(e) => value && onChange({ ...value, unit: e.target.value, ...(e.target.value === 'in-overleg' ? { price: '' } : {}) })} style={{ ...small, opacity: priced ? 1 : 0.45 }}>
         <option value="">Per …</option>
         {FACILITY_UNITS.map((u) => <option key={u.value} value={u.value}>{u.label}</option>)}
       </select>
@@ -84,7 +86,10 @@ export function WorkspaceForm({ workspaceId, initial, defaults }: { workspaceId?
   const [v, setV] = React.useState<WorkspaceFormValues>(initial || { ...EMPTY, ...defaults })
   const [error, setError] = React.useState<string | null>(null)
   const [loading, setLoading] = React.useState(false)
-  const [openCat, setOpenCat] = React.useState<string | null>('algemeen')
+  // Sections start closed and open independently: collapsing one above the
+  // section being opened made the page jump (feedback round 4, 5.1/5.2).
+  const [openCats, setOpenCats] = React.useState<Set<string>>(() => new Set())
+  const toggleCat = (key: string) => setOpenCats((s) => { const n = new Set(s); if (n.has(key)) n.delete(key); else n.add(key); return n })
   const set = <K extends keyof WorkspaceFormValues>(k: K, val: WorkspaceFormValues[K]) => setV((s) => ({ ...s, [k]: val }))
 
   const facility = (key: string) => v.facilities.find((f) => f.key === key)
@@ -168,11 +173,11 @@ export function WorkspaceForm({ workspaceId, initial, defaults }: { workspaceId?
         <h2 style={h2}>Voorzieningen en faciliteiten</h2>
         <p style={hint}>Duid enkel aan wat aanwezig is en geef aan of het inbegrepen is in de huurprijs of beschikbaar tegen meerprijs. Wat je niet aanduidt, wordt niet getoond.</p>
         {FACILITY_CATEGORIES.map((c) => {
-          const open = openCat === c.key
+          const open = openCats.has(c.key)
           const count = c.priced ? c.items.filter((i) => facility(i.value)).length : c.items.filter((i) => v.features.includes(i.value)).length
           return (
             <div key={c.key} style={{ borderTop: '0.5px solid var(--border-hairline)', paddingTop: 12 }}>
-              <button type="button" onClick={() => setOpenCat(open ? null : c.key)} aria-expanded={open} style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center', border: 'none', background: 'none', cursor: 'pointer', padding: '4px 0', fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 14, color: 'var(--text-strong)', textAlign: 'left' }}>
+              <button type="button" onClick={() => toggleCat(c.key)} aria-expanded={open} style={{ display: 'flex', width: '100%', justifyContent: 'space-between', alignItems: 'center', border: 'none', background: 'none', cursor: 'pointer', padding: '4px 0', fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 14, color: 'var(--text-strong)', textAlign: 'left' }}>
                 <span>{c.label}{count ? <span style={{ color: 'var(--text-accent)', fontWeight: 'var(--fw-ui-regular)' }}> · {count} gekozen</span> : null}</span>
                 <i className={`ti ti-chevron-${open ? 'up' : 'down'}`} style={{ color: 'var(--text-meta)' }} />
               </button>

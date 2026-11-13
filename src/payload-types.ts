@@ -845,6 +845,7 @@ export interface Vacancy {
         | 'massage-wellness'
         | 'medisch-esthetisch'
         | 'tattoo-piercing'
+        | 'management'
         | 'overige'
       )[]
     | null;
@@ -982,8 +983,6 @@ export interface Workspace {
         | 'airconditioning'
         | 'verwarming'
         | 'ventilatie'
-        | '24-7-toegang-mogelijk'
-        | 'toegang-tijdens-vaste-openingsuren'
         | 'afzonderlijk-afsluitbare-werkruimte'
         | 'eigen-materiaal-meebrengen-toegestaan'
         | 'eigen-producten-gebruiken-toegestaan'
@@ -1012,7 +1011,7 @@ export interface Workspace {
         name?: string | null;
         mode: 'inbegrepen' | 'meerprijs';
         price?: number | null;
-        unit?: ('uur' | 'dag' | 'week' | 'maand' | 'gebruik' | 'behandeling' | 'eenmalig') | null;
+        unit?: ('uur' | 'dag' | 'week' | 'maand' | 'gebruik' | 'behandeling' | 'eenmalig' | 'in-overleg') | null;
         id?: string | null;
       }[]
     | null;

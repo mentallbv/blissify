@@ -36,12 +36,6 @@ async function getCounts(): Promise<{ courses: number; opleiders: number; merken
   }
 }
 
-// Copy 10/2026 pillars ("Curatorisch, niet algoritmisch" replaced, open point 3).
-const DEFAULT_DARK_CARDS = [
-  { icon: 'ti ti-user-check', title: 'Rechtstreeks van de aanbieder', body: 'Elk profiel wordt door de aanbieder zelf ingevuld. Jij kiest met de filters wat je ziet en neemt rechtstreeks contact op.' },
-  { icon: 'ti ti-eye-check', title: 'Transparant', body: 'Prijs, duur, locatie en voorwaarden staan duidelijk vermeld. Nooit verborgen.' },
-  { icon: 'ti ti-calendar-event', title: 'Avond, weekend of online', body: 'Vind het lesmoment dat bij jouw agenda past, zonder tussenpersoon.' },
-]
 const cleanTrustCopy = (value: string) =>
   value
     .replace(/geverifieerde, professionele/gi, 'professionele')
@@ -63,15 +57,7 @@ export default async function HomePage() {
   const currentUser = await getCurrentUser()
   const hp = (await getHomepage()) || {}
   const hero = hp.hero || {}
-  const why = hp.why || {}
 
-  const darkCards = (Array.isArray(why.cards) && why.cards.length ? why.cards : DEFAULT_DARK_CARDS).map(
-    (card: { icon?: string; title: string; body?: string }) => ({
-      ...card,
-      title: cleanTrustCopy(card.title),
-      body: card.body ? cleanTrustCopy(card.body) : card.body,
-    }),
-  )
   // Live counts for the search card.
   const counts = await getCounts()
   const faqItems = Array.isArray(hp.faq) && hp.faq.length
@@ -228,22 +214,6 @@ export default async function HomePage() {
           <div className="bl-grid-3">{featuredVacancies.map((v) => <VacancyTile key={v.id} v={v} />)}</div>
         </Featured>
       ) : null}
-
-      {/* Gebouwd voor de professional, niet voor de hype. */}
-      <section style={{ background: 'var(--surface-deep)' }}>
-        <div className="bl-container bl-home-section bl-photo-split" data-reveal style={{ paddingTop: 112, paddingBottom: 112 }}>
-          <figure><img src="/images/home/professional.jpg" alt="Een schoonheidsspecialiste brengt een kleimasker aan bij een klant" loading="lazy" /></figure>
-          <div>
-            <h2 style={{ ...h2, color: 'var(--blissify-chalk)', fontSize: 'clamp(32px, 4.2vw, 48px)', marginBottom: 32 }}>{why.title || 'Gebouwd voor de professional, niet voor de hype.'}</h2>
-            {darkCards.map((d: { icon?: string; title: string; body?: string }) => (
-              <div key={d.title} className="bl-point">
-                <div style={{ fontFamily: 'var(--font-display)', fontStyle: 'italic', fontSize: 24, color: 'var(--blissify-chalk)', lineHeight: 1.2, marginBottom: 8 }}>{d.title}</div>
-                <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.75, color: 'rgba(225, 230, 234, 0.9)', margin: 0, maxWidth: 520 }}>{d.body}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* Eén platform. Eindeloos veel mogelijkheden. */}
       <section>

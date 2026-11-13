@@ -68,7 +68,7 @@ const TARGET_AUDIENCE_LABEL: Record<string, string> = {
 const PRACTICAL_LABEL: Record<string, string> = {
   'een-dag': '1-daagse opleiding',
   'meerdere-dagen': 'Meerdere dagen',
-  'op-locatie': 'Op locatie',
+  'op-locatie': 'Op locatie bij deelnemer',
 }
 
 const FOCUS_LABEL: Record<string, string> = {
@@ -408,7 +408,7 @@ export default async function CourseDetailPage({ params }: Params) {
                   ['Type', COURSE_TYPE_LABEL[v.courseType]],
                   ['Taal', v.languages],
                   ['Niveau', v.targetAudience.join(', ')],
-                  ['Deelnemers', v.privateOneToOne ? 'Privé / één-op-één' : v.maximumParticipants ? `Maximaal ${v.maximumParticipants}` : 'Niet van toepassing'],
+                  ['Maximumaantal deelnemers', v.privateOneToOne ? 'Privé / één-op-één' : v.maximumParticipants ? `Maximaal ${v.maximumParticipants}` : 'Niet van toepassing'],
                   ['Model meenemen', v.modelRequired === 'yes' ? 'Ja' : v.modelRequired === 'no' ? 'Nee' : 'Niet van toepassing'],
                   ['Lunch voorzien', v.lunchProvided === 'yes' ? 'Ja' : v.lunchProvided === 'no' ? 'Nee' : 'Niet van toepassing'],
                 ].filter(([, value]) => Boolean(value)).map(([label, value]) => (

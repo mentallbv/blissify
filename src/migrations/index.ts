@@ -28,6 +28,7 @@ import * as migration_20261029_workspaces from './20261029_workspaces';
 import * as migration_20261029_demo_workspaces from './20261029_demo_workspaces';
 import * as migration_20261029_homepage_copy from './20261029_homepage_copy';
 import * as migration_20261104_invoices_billing from './20261104_invoices_billing';
+import * as migration_20261113_round4_options from './20261113_round4_options';
 import * as migration_20261014_type_drives_lesvorm from './20261014_type_drives_lesvorm';
 import * as migration_20261014_trainer_cover_image from './20261014_trainer_cover_image';
 import * as migration_20261014_collaborations from './20261014_collaborations';
@@ -251,5 +252,10 @@ export const migrations = [
     up: migration_20261104_invoices_billing.up,
     down: migration_20261104_invoices_billing.down,
     name: '20261104_invoices_billing',
+  },
+  {
+    up: migration_20261113_round4_options.up,
+    down: migration_20261113_round4_options.down,
+    name: '20261113_round4_options',
   },
 ];

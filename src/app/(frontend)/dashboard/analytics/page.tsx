@@ -100,7 +100,7 @@ export default async function DashboardAnalyticsPage() {
         <MetricCard
           label={"Profiel\u00ADweergaven"}
           value={nf(totalViews)}
-          info="Het totale aantal keren dat je profiel is bekeken. Elke weergave telt mee — bezoekers worden (nog) niet ontdubbeld tot unieke personen."
+          info="Het totale aantal keren dat je profiel is bekeken."
         />
         <MetricCard
           label={"Opleidings\u00ADweergaven"}
