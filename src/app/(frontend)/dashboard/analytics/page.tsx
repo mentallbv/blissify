@@ -125,6 +125,10 @@ export default async function DashboardAnalyticsPage() {
   return (
     <>
       <PageTitle>Analytics</PageTitle>
+      {/* Round 4 (3.2): say which period each figure covers. */}
+      <p style={{ fontFamily: 'var(--font-ui)', fontSize: 13, lineHeight: 1.6, color: 'var(--text-meta)', margin: '-8px 0 20px', maxWidth: 680 }}>
+        De cijfers hieronder zijn totalen sinds je profiel op Blissify staat. De grafiek toont de laatste 12 maanden, de trend vergelijkt de laatste 30 dagen met de 30 dagen daarvoor.
+      </p>
 
       <div className="bl-dashboard-metrics" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 16, marginBottom: 24 }}>
         <MetricCard
