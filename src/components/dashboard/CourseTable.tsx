@@ -1,5 +1,5 @@
 import React from 'react'
-import { StatusPill } from '@/components/ui'
+import { Button, ButtonLink, StatusPill } from '@/components/ui'
 
 export type DashCourse = {
   id?: number
@@ -92,45 +92,17 @@ export function CourseTable({
                     Bezig…
                   </span>
                 ) : (
-                  <>
-                    {r.editHref ? (
-                      <a href={r.editHref} className="bl-textlink" style={{ marginRight: 16 }}>
-                        Bewerken
-                      </a>
-                    ) : (
-                      <span className="bl-textlink" style={{ marginRight: 16 }}>
-                        Bewerken
-                      </span>
-                    )}
-                    {r.viewHref ? (
-                      <a href={r.viewHref} className="bl-textlink" style={{ marginRight: 16 }}>
-                        Bekijken
-                      </a>
-                    ) : (
-                      <span className="bl-textlink" style={{ marginRight: 16 }}>Bekijken</span>
-                    )}
+                  // Same pill buttons as the vacatures and werkruimtes lists.
+                  <div style={{ display: 'inline-flex', gap: 8 }}>
+                    {r.editHref ? <ButtonLink size="sm" variant="ghost" href={r.editHref}>Bewerken</ButtonLink> : null}
+                    {r.viewHref ? <ButtonLink size="sm" variant="ghost" href={r.viewHref}>Bekijken</ButtonLink> : null}
                     {onDuplicate && r.id ? (
-                      <button
-                        type="button"
-                        onClick={() => onDuplicate(r.id as number)}
-                        disabled={busyId != null}
-                        className="bl-textlink"
-                        style={{ marginRight: 16, background: 'none', border: 'none', cursor: 'pointer', padding: 0, font: 'inherit' }}
-                      >
-                        Dupliceren
-                      </button>
+                      <Button size="sm" variant="ghost" disabled={busyId != null} onClick={() => onDuplicate(r.id as number)}>Dupliceren</Button>
                     ) : null}
                     {onDelete && r.id ? (
-                      <button
-                        type="button"
-                        onClick={() => onDelete(r.id as number)}
-                        disabled={busyId != null}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, font: 'inherit', fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--status-warning)' }}
-                      >
-                        Verwijderen
-                      </button>
+                      <Button size="sm" variant="ghost" disabled={busyId != null} onClick={() => onDelete(r.id as number)}>Verwijderen</Button>
                     ) : null}
-                  </>
+                  </div>
                 )}
               </td>
             </tr>

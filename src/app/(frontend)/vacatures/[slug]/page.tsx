@@ -12,6 +12,9 @@ import { vacancyLanding } from '@/lib/vacancy-landings'
 import { VacancyLandingPage, landingMetadata } from '@/components/site/VacancyLandingPage'
 import { COMPENSATION_TYPES, EXPERIENCE_LEVELS, START_OPTIONS, VACANCY_OFFERS, WEEKDAYS, labelOf } from '@/lib/vacancy-options'
 
+// Short form behind the amount, e.g. "€2.400 bruto"; a percentage carries its own %.
+const BASIS_SUFFIX: Record<string, string> = { bruto: 'bruto', 'excl-btw': 'excl. btw', 'incl-btw': 'incl. btw', nvt: '(niet van toepassing)' }
+
 export const dynamic = 'force-dynamic'
 
 type Params = { params: Promise<{ slug: string }> }
@@ -58,7 +61,7 @@ export default async function VacancyPage({ params }: Params) {
     directApply: false,
   }
 
-  const compensation = [(v.compensationTypes || []).map((c: string) => labelOf(COMPENSATION_TYPES, c)).join(', '), v.compensationAmount].filter(Boolean).join(' · ')
+  const compensation = [(v.compensationTypes || []).map((c: string) => labelOf(COMPENSATION_TYPES, c)).join(', '), [v.compensationAmount, BASIS_SUFFIX[v.compensationBasis as string] || ''].filter(Boolean).join(' ')].filter(Boolean).join(' · ')
   const facts: [string, string, string | null | undefined][] = [
     ['ti-briefcase', 'Samenwerking', types],
     ['ti-clock', 'Werkregime', regimeLabels(v.regimes || []).join(', ')],

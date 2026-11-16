@@ -4,6 +4,7 @@ import { isEntitled } from '@/lib/entitlement'
 import { assertCanPublish } from '@/lib/publications'
 import {
   COMPENSATION_TYPES,
+  COMPENSATION_BASES,
   EXPERIENCE_LEVELS,
   START_OPTIONS,
   VACANCY_FUNCTIONS,
@@ -119,6 +120,7 @@ export const Vacancies: CollectionConfig = {
     // 5. Vergoeding
     { name: 'compensationTypes', type: 'select', hasMany: true, options: opts(COMPENSATION_TYPES), label: 'Vergoeding' },
     { name: 'compensationAmount', type: 'text', label: 'Bedrag of percentage' },
+    { name: 'compensationBasis', type: 'select', options: opts(COMPENSATION_BASES), label: 'Bedrag is' },
     { name: 'compensationNote', type: 'textarea', label: 'Aanvullende informatie over de vergoeding' },
 
     // 6-7. Vereisten en aanbod

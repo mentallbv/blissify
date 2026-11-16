@@ -8,6 +8,7 @@ import { getMyCourses, getMyCourseCounts } from '@/lib/dashboard-data'
 import { getLeadsForCourses, getProfileViewEvents } from '@/lib/supabase'
 import { isEntitled } from '@/lib/entitlement'
 import { tierForUser } from '@/lib/tier-features'
+import { publicationLimit } from '@/lib/publications'
 
 export const dynamic = 'force-dynamic'
 
@@ -61,11 +62,17 @@ export default async function DashboardOverviewPage() {
 
       <div className="bl-dashboard-heading-row" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
         <PageTitle>Goedemorgen, {name}.</PageTitle>
-        {canAddCourse ? (
-          <ButtonLink href="/dashboard/opleidingen/nieuw" variant="accent" size="sm" icon={<i className="ti ti-plus" />}>
-            Opleiding toevoegen
-          </ButtonLink>
-        ) : null}
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          {canAddCourse ? (
+            <ButtonLink href="/dashboard/opleidingen/nieuw" variant="accent" size="sm" icon={<i className="ti ti-plus" />}>Opleiding</ButtonLink>
+          ) : null}
+          {publicationLimit((user || {}) as never, 'vacancies') > 0 ? (
+            <ButtonLink href="/dashboard/vacatures/nieuw" variant="ghost" size="sm" icon={<i className="ti ti-plus" />}>Vacature</ButtonLink>
+          ) : null}
+          {publicationLimit((user || {}) as never, 'workspaces') > 0 ? (
+            <ButtonLink href="/dashboard/werkruimtes/nieuw" variant="ghost" size="sm" icon={<i className="ti ti-plus" />}>Werkruimte</ButtonLink>
+          ) : null}
+        </div>
       </div>
 
       {hasAnalytics ? (

@@ -7,6 +7,7 @@ import { ImageUploadField } from './ImageUploadField'
 import type { VacancyFormValues } from '@/lib/vacancy-form'
 import {
   COMPENSATION_TYPES,
+  COMPENSATION_BASES,
   EXPERIENCE_LEVELS,
   START_OPTIONS,
   VACANCY_FUNCTIONS,
@@ -22,7 +23,7 @@ import {
 const EMPTY: VacancyFormValues = {
   title: '', status: 'draft', companyName: '', country: 'be', city: '', address: '', website: '',
   types: [], typeOther: '', functions: [], functionOther: '', regimes: [], workdays: [], regimeNote: '',
-  start: 'in-overleg', startDate: '', startNote: '', compensationTypes: [], compensationAmount: '', compensationNote: '',
+  start: 'in-overleg', startDate: '', startNote: '', compensationTypes: [], compensationAmount: '', compensationBasis: '', compensationNote: '',
   experience: '', diplomaNote: '', requirementsNote: '', offers: [], offerOther: '',
   aboutCompany: '', whoWeSeek: '', whatWeOffer: '', logo: null, coverImage: null, applyMethod: 'email', applyUrl: '', contactName: '', contactEmail: '', contactPhone: '',
 }
@@ -141,7 +142,10 @@ export function VacancyForm({ vacancyId, initial, defaults }: { vacancyId?: numb
       <div style={card}>
         <h2 style={h2}>Vergoeding en voorwaarden</h2>
         <CheckGroup options={COMPENSATION_TYPES} value={v.compensationTypes} onChange={(x) => set('compensationTypes', x)} />
-        <Input label="Vergoeding: bedrag of percentage (optioneel)" placeholder="bijv. €18 per uur of 40%" value={v.compensationAmount} onChange={(e) => set('compensationAmount', e.target.value)} />
+        <div className="bl-form-row" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
+          <Input label="Vergoeding: bedrag of percentage (optioneel)" placeholder="bijv. €18 per uur of 40%" value={v.compensationAmount} onChange={(e) => set('compensationAmount', e.target.value)} />
+          <Select label="Bedrag is (optioneel)" placeholder="Kies…" options={COMPENSATION_BASES} value={v.compensationBasis} onChange={(e) => set('compensationBasis', e.target.value)} />
+        </div>
         <Area label="Aanvullende informatie over de vergoeding (optioneel)" value={v.compensationNote} onChange={(x) => set('compensationNote', x)} />
         <p style={hint}>De vergoeding en samenwerkingsvorm moeten passen binnen de toepasselijke arbeids- en zelfstandigenwetgeving.</p>
       </div>

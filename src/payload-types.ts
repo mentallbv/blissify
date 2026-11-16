@@ -859,6 +859,7 @@ export interface Vacancy {
   startNote?: string | null;
   compensationTypes?: ('vast-loon' | 'uur' | 'dag' | 'commissie' | 'per-behandeling' | 'in-overleg')[] | null;
   compensationAmount?: string | null;
+  compensationBasis?: ('bruto' | 'excl-btw' | 'incl-btw' | 'percentage' | 'nvt') | null;
   compensationNote?: string | null;
   experience?: ('geen' | 'starter' | 'gewenst' | 'vereist') | null;
   diplomaNote?: string | null;
@@ -1875,6 +1876,7 @@ export interface VacanciesSelect<T extends boolean = true> {
   startNote?: T;
   compensationTypes?: T;
   compensationAmount?: T;
+  compensationBasis?: T;
   compensationNote?: T;
   experience?: T;
   diplomaNote?: T;

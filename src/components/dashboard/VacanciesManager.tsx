@@ -47,6 +47,7 @@ export function VacanciesManager({ rows }: { rows: DashVacancyRow[] }) {
                       {r.status === 'published' ? 'Offline zetten' : 'Online zetten'}
                     </Button>
                     <ButtonLink size="sm" variant="ghost" href={`/dashboard/vacatures/${r.id}`}>Bewerken</ButtonLink>
+                    {r.status === 'published' ? <ButtonLink size="sm" variant="ghost" href={`/vacatures/${r.slug}`}>Bekijken</ButtonLink> : null}
                     <Button size="sm" variant="ghost" disabled={busy === r.id} onClick={() => { if (window.confirm(`"${r.title}" verwijderen?`)) call(r.id, { method: 'DELETE' }) }}>Verwijderen</Button>
                   </div>
                 </td>

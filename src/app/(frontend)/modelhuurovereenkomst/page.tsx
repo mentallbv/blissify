@@ -30,7 +30,7 @@ export default function ModelhuurovereenkomstPage() {
         </div>
       </section>
 
-      <div className="bl-container" style={{ paddingTop: 48, paddingBottom: 96, maxWidth: 820 }}>
+      <div className="bl-container" style={{ paddingTop: 48, paddingBottom: 96 }}>
         <div style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: 'clamp(24px, 4vw, 40px)' }}>
           <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 24, lineHeight: 1.2, color: 'var(--text-brand)', margin: '0 0 18px', display: 'flex', gap: 10, alignItems: 'baseline' }}>
             <i className="ti ti-alert-circle" aria-hidden="true" style={{ color: 'var(--blissify-terracotta)', fontSize: 22 }} />

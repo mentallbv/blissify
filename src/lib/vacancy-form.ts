@@ -10,6 +10,7 @@ import {
   VACANCY_REGIMES,
   VACANCY_TYPES,
   WEEKDAYS,
+  COMPENSATION_BASES,
 } from '@/lib/vacancy-options'
 
 /** What the dashboard form sends and edits (mirrors the Vacancies collection). */
@@ -33,6 +34,7 @@ export type VacancyFormValues = {
   startNote: string
   compensationTypes: string[]
   compensationAmount: string
+  compensationBasis: string
   compensationNote: string
   experience: string
   diplomaNote: string
@@ -81,6 +83,7 @@ export function buildVacancyData(body: Record<string, unknown>): Record<string, 
     startNote: str(body.startNote),
     compensationTypes: pick(body.compensationTypes, COMPENSATION_TYPES),
     compensationAmount: str(body.compensationAmount, 80),
+    compensationBasis: COMPENSATION_BASES.some((o) => o.value === body.compensationBasis) ? body.compensationBasis : null,
     compensationNote: str(body.compensationNote),
     experience: one(body.experience, EXPERIENCE_LEVELS),
     diplomaNote: str(body.diplomaNote),
@@ -140,7 +143,7 @@ export function vacancyToForm(doc: Record<string, any>): VacancyFormValues {
     types: arr(doc.types), typeOther: doc.typeOther || '', functions: arr(doc.functions), functionOther: doc.functionOther || '',
     regimes: arr(doc.regimes), workdays: arr(doc.workdays), regimeNote: doc.regimeNote || '',
     start: doc.start || 'in-overleg', startDate: doc.startDate ? String(doc.startDate).slice(0, 10) : '', startNote: doc.startNote || '',
-    compensationTypes: arr(doc.compensationTypes), compensationAmount: doc.compensationAmount || '', compensationNote: doc.compensationNote || '',
+    compensationTypes: arr(doc.compensationTypes), compensationAmount: doc.compensationAmount || '', compensationBasis: doc.compensationBasis || '', compensationNote: doc.compensationNote || '',
     experience: doc.experience || '', diplomaNote: doc.diplomaNote || '', requirementsNote: doc.requirementsNote || '',
     offers: arr(doc.offers), offerOther: doc.offerOther || '',
     aboutCompany: doc.aboutCompany || '', whoWeSeek: doc.whoWeSeek || '', whatWeOffer: doc.whatWeOffer || '',

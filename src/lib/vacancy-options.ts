@@ -100,6 +100,15 @@ export const START_OPTIONS: Opt[] = [
   { value: 'in-overleg', label: 'In overleg' },
 ]
 
+// Round 4 (6.1): what the amount means.
+export const COMPENSATION_BASES: Opt[] = [
+  { value: 'bruto', label: 'Bruto' },
+  { value: 'excl-btw', label: 'Exclusief btw' },
+  { value: 'incl-btw', label: 'Inclusief btw' },
+  { value: 'percentage', label: 'Percentage (%)' },
+  { value: 'nvt', label: 'Niet van toepassing (bv. stage)' },
+]
+
 export const COMPENSATION_TYPES: Opt[] = [
   { value: 'vast-loon', label: 'Vast loon' },
   { value: 'uur', label: 'Uurvergoeding' },
