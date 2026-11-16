@@ -32,6 +32,7 @@ const COLS: { head: string; items: FooterLink[] }[] = [
       { label: 'Over Blissify', href: '/over-ons' },
       { label: 'Abonnementen & tarieven', href: '/abonnementen-tarieven' },
       { label: 'Veelgestelde vragen', href: '/veelgestelde-vragen' },
+      { label: 'Modelhuurovereenkomst', href: '/modelhuurovereenkomst' },
       { label: 'Contact', href: '/contact' },
     ],
   },
