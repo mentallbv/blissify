@@ -19,6 +19,7 @@ export function RequestInfoButton({
   const [message, setMessage] = React.useState('')
   const [website, setWebsite] = React.useState('')
   const [newsletter, setNewsletter] = React.useState(false)
+  const [consent, setConsent] = React.useState(false)
   const [done, setDone] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [loading, setLoading] = React.useState(false)
@@ -26,6 +27,7 @@ export function RequestInfoButton({
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
+    if (!consent) { setError('Ga akkoord met de privacyverklaring om je aanvraag te versturen.'); return }
     setLoading(true)
     try {
       const res = await fetch('/api/leads', {
@@ -86,6 +88,10 @@ export function RequestInfoButton({
                       style={{ width: '100%', minHeight: 90, border: '0.5px solid var(--neutral-200)', borderRadius: 'var(--radius-sm)', background: 'var(--surface-card)', padding: '12px 16px', fontFamily: 'var(--font-ui)', fontSize: 14, color: 'var(--text-strong)', lineHeight: 1.6, resize: 'vertical', outline: 'none' }}
                     />
                   </div>
+                  <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontFamily: 'var(--font-ui)', fontSize: 13, lineHeight: 1.5, color: 'var(--text-body)', cursor: 'pointer' }}>
+                    <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} required style={{ marginTop: 3, accentColor: 'var(--blissify-forest)', flex: 'none' }} />
+                    <span>Ik ga akkoord met de verwerking van mijn gegevens volgens de <a href="/privacybeleid" target="_blank" rel="noopener noreferrer" className="bl-textlink">privacyverklaring</a>.</span>
+                  </label>
                   <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', fontFamily: 'var(--font-ui)', fontSize: 13, lineHeight: 1.5, color: 'var(--text-body)', cursor: 'pointer' }}>
                     <input type="checkbox" checked={newsletter} onChange={(e) => setNewsletter(e.target.checked)} style={{ marginTop: 3, accentColor: 'var(--blissify-forest)', flex: 'none' }} />
                     <span>Ja, stuur mij de Blissify nieuwsbrief met nieuwe opleidingen, werkruimtes en vacatures.</span>

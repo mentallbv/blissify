@@ -41,6 +41,7 @@ export function ReportListing({ kind, slug }: { kind: 'workspace' | 'vacancy'; s
               <Input label="Je e-mailadres (optioneel)" type="email" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
               <input type="text" tabIndex={-1} autoComplete="off" value={f.website} onChange={(e) => setF({ ...f, website: e.target.value })} style={{ position: 'absolute', left: -9999, width: 1, height: 1, opacity: 0 }} aria-hidden="true" />
               {error ? <div role="alert" style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--status-error)' }}>{error}</div> : null}
+              <p style={{ fontFamily: 'var(--font-ui)', fontSize: 12, lineHeight: 1.5, color: 'var(--text-meta)', margin: '0 0 12px' }}>Door te versturen ga je akkoord met de verwerking van je gegevens volgens de <a href="/privacybeleid" target="_blank" rel="noopener noreferrer" className="bl-textlink">privacyverklaring</a>.</p>
               <Button variant="primary" type="submit">Melding versturen</Button>
             </form>
           )}

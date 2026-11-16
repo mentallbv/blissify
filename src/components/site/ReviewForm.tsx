@@ -76,6 +76,7 @@ export function ReviewForm({ courseId }: { courseId: string }) {
         <div style={{ fontFamily: 'var(--font-ui)', fontSize: 13, lineHeight: 1.6, color: message.type === 'success' ? 'var(--status-success)' : 'var(--status-error)' }}>{message.text}</div>
       ) : null}
       <div>
+        <p style={{ fontFamily: 'var(--font-ui)', fontSize: 12, lineHeight: 1.5, color: 'var(--text-meta)', margin: '0 0 12px' }}>Door te versturen ga je akkoord met de verwerking van je gegevens volgens de <a href="/privacybeleid" target="_blank" rel="noopener noreferrer" className="bl-textlink">privacyverklaring</a>.</p>
         <Button type="submit" variant="primary" disabled={loading || rating === 0}>
           {loading ? 'Versturen…' : 'Review versturen'}
         </Button>

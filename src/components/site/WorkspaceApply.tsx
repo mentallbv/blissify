@@ -105,7 +105,7 @@ export function WorkspaceApply({ workspaceId, title, label = 'Stuur een aanvraag
               <input type="text" name="website" tabIndex={-1} autoComplete="off" value={f.website} onChange={(e) => set('website', e.target.value)} style={{ position: 'absolute', left: -9999, width: 1, height: 1, opacity: 0 }} aria-hidden="true" />
               <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontFamily: 'var(--font-ui)', fontSize: 13, lineHeight: 1.55, color: 'var(--text-strong)', cursor: 'pointer', marginBottom: 16 }}>
                 <input type="checkbox" checked={f.consent} onChange={(e) => set('consent', e.target.checked)} style={{ marginTop: 3, accentColor: 'var(--blissify-forest)' }} />
-                Ik ga ermee akkoord dat deze aanvraag en mijn contactgegevens naar de verhuurder worden gestuurd.
+                <span>Ik ga ermee akkoord dat deze aanvraag en mijn contactgegevens naar de verhuurder worden gestuurd, volgens de <a href="/privacybeleid" target="_blank" rel="noopener noreferrer" className="bl-textlink">privacyverklaring</a>.</span>
               </label>
               <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontFamily: 'var(--font-ui)', fontSize: 13, lineHeight: 1.55, color: 'var(--text-strong)', cursor: 'pointer', marginBottom: 16 }}>
                 <input type="checkbox" checked={f.newsletter} onChange={(e) => set('newsletter', e.target.checked)} style={{ marginTop: 3, accentColor: 'var(--blissify-forest)' }} />

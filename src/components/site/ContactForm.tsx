@@ -68,6 +68,7 @@ export function ContactForm() {
       </div>
       {error ? <div style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--status-error)', background: 'var(--status-error-bg)', borderRadius: 'var(--radius-sm)', padding: '10px 14px' }}>{error}</div> : null}
       <div>
+        <p style={{ fontFamily: 'var(--font-ui)', fontSize: 12, lineHeight: 1.5, color: 'var(--text-meta)', margin: '0 0 12px' }}>Door te versturen ga je akkoord met de verwerking van je gegevens volgens de <a href="/privacybeleid" target="_blank" rel="noopener noreferrer" className="bl-textlink">privacyverklaring</a>.</p>
         <Button variant="primary" type="submit" disabled={loading}>
           {loading ? 'Versturen…' : 'Verstuur bericht'}
         </Button>
