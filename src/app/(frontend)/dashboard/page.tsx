@@ -4,7 +4,9 @@ import { CourseTable } from '@/components/dashboard/CourseTable'
 import { MetricCard, ButtonLink } from '@/components/ui'
 import { SubscriptionBanner } from '@/components/dashboard/SubscriptionActions'
 import { getCurrentUser, getCurrentProfile, profileName } from '@/lib/session'
-import { getMyCourses, getMyCourseCounts } from '@/lib/dashboard-data'
+import { getMyCourses, getMyCourseCounts, getMyVacancies, getMyWorkspaces } from '@/lib/dashboard-data'
+import { VacanciesManager } from '@/components/dashboard/VacanciesManager'
+import { WorkspacesManager } from '@/components/dashboard/WorkspacesManager'
 import { getLeadsForCourses, getProfileViewEvents } from '@/lib/supabase'
 import { isEntitled } from '@/lib/entitlement'
 import { tierForUser } from '@/lib/tier-features'
@@ -25,7 +27,14 @@ export default async function DashboardOverviewPage() {
   } | null
   const canAddCourse = !(sub?.role === 'brand' && (sub.brandTier || 'partner_listing') === 'partner_listing')
 
-  const [courses, counts] = await Promise.all([getMyCourses(profile), getMyCourseCounts(profile)])
+  const [courses, counts, vacancies, workspaces] = await Promise.all([getMyCourses(profile), getMyCourseCounts(profile), getMyVacancies(profile), getMyWorkspaces(profile)])
+  const vacancyLimit = publicationLimit((user || {}) as never, 'vacancies')
+  const workspaceLimit = publicationLimit((user || {}) as never, 'workspaces')
+  // Round 4 (1.1): vacatures and werkruimtes sit next to the opleidingen, for plans that allow them.
+  const pubSections = [
+    { show: vacancyLimit > 0 || vacancies.length > 0, title: 'Jouw vacatures', href: '/dashboard/vacatures', more: 'Beheer alle vacatures', empty: 'Je hebt nog geen vacatures.', add: '/dashboard/vacatures/nieuw', cta: 'Vacature toevoegen', list: <VacanciesManager rows={vacancies.slice(0, 4)} />, count: vacancies.length },
+    { show: workspaceLimit > 0 || workspaces.length > 0, title: 'Jouw werkruimtes', href: '/dashboard/werkruimtes', more: 'Beheer alle werkruimtes', empty: 'Je hebt nog geen werkruimtes.', add: '/dashboard/werkruimtes/nieuw', cta: 'Werkruimte toevoegen', list: <WorkspacesManager rows={workspaces.slice(0, 4)} />, count: workspaces.length },
+  ].filter((x) => x.show)
   const courseIds = courses.map((c) => c.id)
   const leads = await getLeadsForCourses(courseIds)
   // Statistics (views, request counts, conversion) are a Premium+ perk: Lite sees none.
@@ -66,10 +75,10 @@ export default async function DashboardOverviewPage() {
           {canAddCourse ? (
             <ButtonLink href="/dashboard/opleidingen/nieuw" variant="accent" size="sm" icon={<i className="ti ti-plus" />}>Opleiding</ButtonLink>
           ) : null}
-          {publicationLimit((user || {}) as never, 'vacancies') > 0 ? (
+          {vacancyLimit > 0 ? (
             <ButtonLink href="/dashboard/vacatures/nieuw" variant="ghost" size="sm" icon={<i className="ti ti-plus" />}>Vacature</ButtonLink>
           ) : null}
-          {publicationLimit((user || {}) as never, 'workspaces') > 0 ? (
+          {workspaceLimit > 0 ? (
             <ButtonLink href="/dashboard/werkruimtes/nieuw" variant="ghost" size="sm" icon={<i className="ti ti-plus" />}>Werkruimte</ButtonLink>
           ) : null}
         </div>
@@ -117,6 +126,16 @@ export default async function DashboardOverviewPage() {
           cta={canAddCourse ? 'Opleiding toevoegen' : undefined}
         />
       )}
+
+      {pubSections.map((p) => (
+        <React.Fragment key={p.title}>
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', margin: '40px 0 16px' }}>
+            <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 24, color: 'var(--text-brand)', margin: 0 }}>{p.title}</h2>
+            <a href={p.href} className="bl-textlink">{p.more}</a>
+          </div>
+          {p.count ? p.list : <EmptyCard text={p.empty} href={p.add} cta={p.cta} />}
+        </React.Fragment>
+      ))}
 
       <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 24, color: 'var(--text-brand)', margin: '40px 0 16px' }}>
         Recente aanvragen
