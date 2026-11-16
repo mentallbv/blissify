@@ -4,7 +4,7 @@ import { LineChart } from '@/components/dashboard/LineChart'
 import { MetricCard } from '@/components/ui'
 import { InfoTooltip } from '@/components/site/InfoTooltip'
 import { getCurrentUser, getCurrentProfile } from '@/lib/session'
-import { getMyCourses } from '@/lib/dashboard-data'
+import { getMyCourses, getMyVacancies, getMyWorkspaces } from '@/lib/dashboard-data'
 import { getProfileViewEvents, getCourseViewEvents, getVacancyViewEvents, getWorkspaceViewEvents, getClickEvents, getLeadsForCourses, supabaseConfigured } from '@/lib/supabase'
 import { tierForUser } from '@/lib/tier-features'
 import { redirect } from 'next/navigation'
@@ -22,6 +22,7 @@ export default async function DashboardAnalyticsPage() {
   const profile = await getCurrentProfile(user)
   const courses = await getMyCourses(profile)
   const courseIds = courses.map((c) => c.id)
+  const [myVacancies, myWorkspaces] = hasAdvancedAnalytics ? await Promise.all([getMyVacancies(profile), getMyWorkspaces(profile)]) : [[], []]
 
   const ownerRef = profile?.kind === 'brand' ? { brandId: profile.doc.id } : profile?.kind === 'trainer' ? { trainerId: profile.doc.id } : {}
   const [views, courseViews, leads, clicks, vacancyViews, workspaceViews] = await Promise.all([
@@ -36,6 +37,8 @@ export default async function DashboardAnalyticsPage() {
     getVacancyViewEvents(ownerRef),
     getWorkspaceViewEvents(ownerRef),
   ])
+  // Werkruimte contact requests are stored as leads keyed "workspace:<id>"; vacatures store none (applicants mail the poster directly).
+  const workspaceLeads = await getLeadsForCourses(myWorkspaces.map((w) => `workspace:${w.id}`))
 
   // bucket profile views over the last 12 months
   const now = new Date()
@@ -79,6 +82,28 @@ export default async function DashboardAnalyticsPage() {
     else if (t >= nowMs - 60 * DAY) trendByCourse.set(k, (trendByCourse.get(k) || 0) - 1)
   })
 
+  // Round 4 (3.3): the same per-item view, for vacatures and werkruimtes. Their events carry "vacancy:<id>" / "workspace:<id>".
+  const perItem = (events: typeof courseViews) => {
+    const total = new Map<string, number>()
+    const trend = new Map<string, number>()
+    events.forEach((ev) => {
+      const k = String(ev.payload_course_id)
+      total.set(k, (total.get(k) || 0) + 1)
+      const t = new Date(ev.created_at).getTime()
+      if (t >= nowMs - 30 * DAY) trend.set(k, (trend.get(k) || 0) + 1)
+      else if (t >= nowMs - 60 * DAY) trend.set(k, (trend.get(k) || 0) - 1)
+    })
+    return { total, trend }
+  }
+  const vacStats = perItem(vacancyViews)
+  const wsStats = perItem(workspaceViews)
+  const wsLeads = new Map<string, number>()
+  workspaceLeads.forEach((l) => wsLeads.set(String(l.payload_course_id), (wsLeads.get(String(l.payload_course_id)) || 0) + 1))
+  const itemTables = [
+    { title: 'Per vacature', col: 'Vacature', withLeads: false, rows: myVacancies.map((v) => ({ id: v.id, name: v.title, key: `vacancy:${v.id}` })), stats: vacStats },
+    { title: 'Per werkruimte', col: 'Werkruimte', withLeads: true, rows: myWorkspaces.map((w) => ({ id: w.id, name: w.title, key: `workspace:${w.id}` })), stats: wsStats },
+  ].filter((t) => t.rows.length > 0)
+
   const topCourses = [...courses]
     .map((c) => ({ ...c, views: viewsByCourse.get(String(c.id)) || 0 }))
     .filter((c) => c.views > 0)
@@ -91,6 +116,11 @@ export default async function DashboardAnalyticsPage() {
   const conversion = totalViews > 0 ? `${((leads.length / totalViews) * 100).toFixed(1).replace('.', ',')}%` : '-'
 
   const cell: React.CSSProperties = { padding: '12px', borderBottom: '1px solid var(--border-hairline)' }
+  const trendCell = (trend: number) => trend > 0
+    ? <span style={{ color: 'var(--status-success)' }}>▲ {trend}</span>
+    : trend < 0
+      ? <span style={{ color: 'var(--status-error)' }}>▼ {Math.abs(trend)}</span>
+      : <span style={{ color: 'var(--text-meta)' }}>–</span>
 
   return (
     <>
@@ -182,7 +212,7 @@ export default async function DashboardAnalyticsPage() {
           <div style={{ marginBottom: 20 }}>
             <h2 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 22, color: 'var(--text-brand)', margin: 0 }}>Geavanceerde analytics</h2>
             <p style={{ fontFamily: 'var(--font-ui)', fontSize: 13, lineHeight: 1.6, color: 'var(--text-meta)', margin: '6px 0 0' }}>
-              Vergelijk prestaties per opleiding: weergaven, aanvragen, CTR en trend.
+              Vergelijk prestaties per opleiding, vacature en werkruimte: weergaven, aanvragen, CTR en trend.
             </p>
           </div>
           <div className="bl-analytics-table-scroll">
@@ -228,6 +258,33 @@ export default async function DashboardAnalyticsPage() {
               </tbody>
             </table>
           </div>
+          {itemTables.map((t) => (
+            <div key={t.title} style={{ marginTop: 28 }}>
+              <h3 style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-regular)', fontSize: 18, color: 'var(--text-brand)', margin: '0 0 8px' }}>{t.title}</h3>
+              <div className="bl-analytics-table-scroll">
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontFamily: 'var(--font-ui)', fontSize: 13 }}>
+                  <thead>
+                    <tr style={{ textAlign: 'left', color: 'var(--text-meta)' }}>
+                      <th style={cell}>{t.col}</th>
+                      <th style={cell}>Weergaven</th>
+                      {t.withLeads ? <th style={cell}>Aanvragen</th> : null}
+                      <th style={cell}>Trend</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {t.rows.map((r) => (
+                      <tr key={r.id}>
+                        <td style={{ ...cell, color: 'var(--text-strong)' }}>{r.name}</td>
+                        <td style={cell}>{nf(t.stats.total.get(r.key) || 0)}</td>
+                        {t.withLeads ? <td style={cell}>{wsLeads.get(r.key) || 0}</td> : null}
+                        <td style={cell}>{trendCell(t.stats.trend.get(r.key) || 0)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ))}
         </div>
       ) : null}
     </>
