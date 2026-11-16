@@ -1,3 +1,4 @@
+import { perMonth, euro } from '@/lib/pricing'
 import React from 'react'
 import { OnboardingFlow, type OnboardingTier } from '@/components/onboarding/OnboardingFlow'
 import { getPricingCatalog } from '@/lib/data'
@@ -18,8 +19,8 @@ export default async function OnboardingPage({
     key: t.key,
     name: t.name,
     tagline: t.tagline,
-    price: params.billing === 'monthly' ? `€ ${Number(t.monthlyPrice || (t.annualPrice || 0) / 10).toLocaleString('nl-BE')}` : t.price,
-    period: params.billing === 'monthly' ? '/maand' : '/jaar',
+    price: euro(perMonth(t, params.billing === 'monthly' ? 'monthly' : 'yearly')),
+    period: params.billing === 'monthly' ? '/maand' : '/maand, jaarlijks gefactureerd',
     features: t.features,
     recommended: t.recommended,
   }))

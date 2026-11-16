@@ -12,7 +12,6 @@ const N = '-'
 const all = (label: string): CompareRow => ({ label, v: [Y, Y, Y] })
 const notLite = (label: string): CompareRow => ({ label, v: [N, Y, Y] })
 const onlyTop = (label: string): CompareRow => ({ label, v: [N, N, Y] })
-const YEAR_BONUS: CompareRow = { label: 'Jaarvoordeel', v: ['2 maanden gratis', '2 maanden gratis', '2 maanden gratis'] }
 
 const stats: CompareGroup = {
   title: 'Statistieken & inzichten',
@@ -41,9 +40,9 @@ const visibility = (profile: string): CompareGroup => ({
 export const SALON_COMPARE: PlanCompare = {
   cols: ['Lite', 'Premium', 'Ultimate'],
   prices: [
-    { label: 'Prijs per maand', v: ['€15', '€49', '€97'] },
-    { label: 'Prijs per jaar', v: ['€150', '€490', '€970'] },
-    YEAR_BONUS,
+    { label: 'Per maand, maandelijks betaald', v: ['€19', '€45', '€79'] },
+    { label: 'Per maand, jaarlijks betaald', v: ['€15', '€35', '€59'] },
+    { label: 'Besparing bij jaarlijkse betaling', v: ['€48 per jaar', '€120 per jaar', '€240 per jaar'] },
   ],
   groups: [
     {
@@ -87,9 +86,9 @@ export const SALON_COMPARE: PlanCompare = {
 export const BRAND_COMPARE: PlanCompare = {
   cols: ['Partner Lite', 'Partner Premium', 'Partner Ultimate'],
   prices: [
-    { label: 'Prijs per maand', v: ['€49', '€89', '€149'] },
-    { label: 'Prijs per jaar', v: ['€490', '€890', '€1.490'] },
-    YEAR_BONUS,
+    { label: 'Per maand, maandelijks betaald', v: ['€29', '€59', '€99'] },
+    { label: 'Per maand, jaarlijks betaald', v: ['€23', '€45', '€79'] },
+    { label: 'Besparing bij jaarlijkse betaling', v: ['€72 per jaar', '€168 per jaar', '€240 per jaar'] },
   ],
   groups: [
     {

@@ -4,7 +4,7 @@ import React from 'react'
 import { ButtonLink } from '@/components/ui'
 import { InfoTooltip } from '@/components/site/InfoTooltip'
 import { glossaryFor } from '@/lib/pricing-glossary'
-import { type BillingSettings, type PricingData } from '@/lib/pricing'
+import { type BillingSettings, type PricingData, perMonth, yearlySaving, euro } from '@/lib/pricing'
 
 type Audience = 'opleiders' | 'brands'
 
@@ -24,7 +24,7 @@ export function PricingPlans({
   const [audience, setAudience] = React.useState<Audience>(initialAudience)
   const [cycle, setCycle] = React.useState<'yearly' | 'monthly'>('yearly')
   const data = catalog[audience]
-  // Copy 10/2026: brands get monthly prices too (€49 / €89 / €149).
+  // Lonne, Nov 2026: always a price per month; the toggle switches between monthly billing and the cheaper yearly rate.
   const monthlyAvailable = billing.monthlyEnabled
   const detailHref = audience === 'brands' ? '/abonnementen-tarieven?voor=merken' : '/abonnementen-tarieven'
 
@@ -59,23 +59,23 @@ export function PricingPlans({
       ) : null}
 
       {monthlyAvailable ? (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12, marginBottom: 32 }}>
-          <button type="button" onClick={() => setCycle('yearly')} className={cycle === 'yearly' ? 'bl-textlink' : undefined} style={{ border: 0, background: 'none', cursor: 'pointer', fontFamily: 'var(--font-ui)', color: cycle === 'yearly' ? 'var(--text-brand)' : 'var(--text-meta)' }}>
-            Jaarlijks
-          </button>
-          <button type="button" onClick={() => setCycle('monthly')} className={cycle === 'monthly' ? 'bl-textlink' : undefined} style={{ border: 0, background: 'none', cursor: 'pointer', fontFamily: 'var(--font-ui)', color: cycle === 'monthly' ? 'var(--text-brand)' : 'var(--text-meta)' }}>
-            Maandelijks
-          </button>
-          {cycle === 'yearly' ? <span style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--text-accent)' }}>2 maanden gratis</span> : null}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 32 }}>
+          <div role="radiogroup" aria-label="Betaalperiode" className="bl-cycle-toggle">
+            {([['monthly', 'Maandelijks'], ['yearly', 'Jaarlijks']] as const).map(([key, label]) => (
+              <button key={key} type="button" role="radio" aria-checked={cycle === key} onClick={() => setCycle(key)} className={cycle === key ? 'is-on' : undefined}>
+                {label}
+                {key === 'yearly' ? <span className="bl-cycle-badge">Voordeligst</span> : null}
+              </button>
+            ))}
+          </div>
         </div>
       ) : null}
 
       <div className="bl-cat-grid bl-pricing-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, alignItems: 'stretch' }}>
         {data.tiers.map((tier) => {
-          const annual = tier.annualPrice || Number(tier.price.replace(/[^\d]/g, ''))
           const effectiveCycle = monthlyAvailable ? cycle : 'yearly'
-          const amount = effectiveCycle === 'monthly' ? tier.monthlyPrice || annual / 10 : annual
-          const formatted = amount.toLocaleString('nl-BE', { minimumFractionDigits: 0, maximumFractionDigits: 2 })
+          const amount = perMonth(tier, effectiveCycle)
+          const saving = yearlySaving(tier)
           return (
             <div key={tier.key} className="bl-pricing-card" style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: 32 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
@@ -83,15 +83,14 @@ export function PricingPlans({
                 {tier.recommended ? <span style={{ fontFamily: 'var(--font-ui)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#fff', background: 'var(--blissify-terracotta)', borderRadius: 999, padding: '3px 9px' }}>Aanbevolen</span> : null}
               </div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '14px 0 6px' }}>
-                <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 48, color: 'var(--text-brand)' }}>€ {formatted}</span>
-                <span style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-meta)' }}>{effectiveCycle === 'monthly' ? '/maand' : '/jaar'}</span>
+                <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 48, color: 'var(--text-brand)' }}>{euro(amount)}</span>
+                <span style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-meta)' }}>/maand excl. btw</span>
               </div>
-              <p style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--text-meta)', margin: '0 0 12px' }}>excl. btw</p>
-              {effectiveCycle === 'monthly' ? (
-                <p style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--text-meta)', margin: '0 0 12px' }}>
-                  Maandelijks vooraf betaald en maandelijks opzegbaar
-                </p>
-              ) : <p style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--text-meta)', margin: '0 0 12px' }}>Vooraf betaald; automatische jaarlijkse verlenging</p>}
+              <p style={{ fontFamily: 'var(--font-ui)', fontSize: 12, lineHeight: 1.5, color: 'var(--text-meta)', margin: '0 0 14px', minHeight: 18 }}>
+                {effectiveCycle === 'yearly'
+                  ? <>Jaarlijkse facturatie.{saving ? <> <span style={{ color: 'var(--text-accent)', fontWeight: 'var(--fw-ui-medium)' }}>Bespaar {euro(saving)} per jaar.</span></> : null}</>
+                  : 'Maandelijkse facturatie, maandelijks opzegbaar.'}
+              </p>
               <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, lineHeight: 1.6, color: 'var(--text-body)', minHeight: 44 }}>{tier.desc}</p>
               <ButtonLink href={compact ? detailHref : `/registreren?type=${audience === 'brands' ? 'brand' : 'trainer'}&tier=${tier.key}&billing=${effectiveCycle}`} variant={tier.recommended ? 'accent' : 'primary'} fullWidth>
                 {compact ? 'Bekijk alle details' : `Kies ${tier.name}`}

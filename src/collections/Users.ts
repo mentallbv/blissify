@@ -177,9 +177,9 @@ export const Users: CollectionConfig = {
       defaultValue: 'basis',
       saveToJWT: true,
       options: [
-        { label: 'Lite (€15/maand of €150/jaar)', value: 'basis' },
-        { label: 'Premium (€49/maand of €490/jaar)', value: 'medium' },
-        { label: 'Ultimate (€97/maand of €970/jaar)', value: 'premium' },
+        { label: 'Lite (€19/maand of €180/jaar)', value: 'basis' },
+        { label: 'Premium (€45/maand of €420/jaar)', value: 'medium' },
+        { label: 'Ultimate (€79/maand of €708/jaar)', value: 'premium' },
       ],
       access: {
         update: adminOnlyField,
@@ -197,9 +197,9 @@ export const Users: CollectionConfig = {
       defaultValue: 'partner_listing',
       saveToJWT: true,
       options: [
-        { label: 'Partner Lite (€490/jaar)', value: 'partner_listing' },
-        { label: 'Partner Premium (€890/jaar)', value: 'partner_professional' },
-        { label: 'Partner Ultimate (€1.490/jaar)', value: 'partner_premium' },
+        { label: 'Partner Lite (€29/maand of €276/jaar)', value: 'partner_listing' },
+        { label: 'Partner Premium (€59/maand of €540/jaar)', value: 'partner_professional' },
+        { label: 'Partner Ultimate (€99/maand of €948/jaar)', value: 'partner_premium' },
       ],
       access: {
         update: adminOnlyField,

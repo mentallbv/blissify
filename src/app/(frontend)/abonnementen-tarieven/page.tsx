@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic'
 
 export const metadata: Metadata = {
   title: 'Abonnementen & tarieven',
-  description: 'Publiceer opleidingen, vacatures en werkruimtes of presenteer je merk. Vergelijk Lite, Premium en Ultimate, vanaf €15 per maand excl. btw.',
+  description: 'Publiceer opleidingen, vacatures en werkruimtes of presenteer je merk. Vergelijk Lite, Premium en Ultimate, vanaf €15 per maand bij jaarlijkse betaling, excl. btw.',
 }
 
 type SP = Promise<Record<string, string | string[] | undefined>>

@@ -13,18 +13,18 @@ export type Tier = 'basis' | 'medium' | 'premium'
 
 /** Yearly price per Opleider tier, as Mollie expects amounts: { currency, value:"99.00" }. */
 export const TIER_AMOUNT: Record<Tier, string> = {
-  basis: '150.00',
-  medium: '490.00',
-  premium: '970.00',
+  basis: '180.00',
+  medium: '420.00',
+  premium: '708.00',
 }
 export const TIER_LABEL: Record<Tier, string> = { basis: 'Lite', medium: 'Premium', premium: 'Ultimate' }
 
 /** Merk & Leverancier (Brand) tiers - separate ladder, annual only. */
 export type BrandTier = 'partner_listing' | 'partner_professional' | 'partner_premium'
 export const BRAND_TIER_AMOUNT: Record<BrandTier, string> = {
-  partner_listing: '490.00',
-  partner_professional: '890.00',
-  partner_premium: '1490.00',
+  partner_listing: '276.00',
+  partner_professional: '540.00',
+  partner_premium: '948.00',
 }
 export const BRAND_TIER_LABEL: Record<BrandTier, string> = {
   partner_listing: 'Partner Lite',

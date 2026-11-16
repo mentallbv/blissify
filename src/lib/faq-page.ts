@@ -19,7 +19,7 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
       ],
       [
         "Welke mogelijkheden biedt Blissify voor mijn salon of onderneming?",
-        "Vanuit één profiel publiceer je opleidingen, plaats je vacatures, bied je werkruimtes aan en werk je samen met merken en leveranciers. Lite (€15 per maand of €150 per jaar) omvat 1 opleiding, 1 vacature en 1 werkruimte. Premium (€49 per maand of €490 per jaar) omvat 5 opleidingen, 2 vacatures en 2 werkruimtes, plus basisstatistieken en betere zichtbaarheid. Ultimate (€97 per maand of €970 per jaar) is onbeperkt, met uitgebreide statistieken, prioritaire plaatsing en een Ultimate-badge. De aantallen gelden voor publicaties die tegelijk zichtbaar zijn. Alle prijzen zijn exclusief btw. Bekijk alle formules op Abonnementen & tarieven."
+        "Vanuit één profiel publiceer je opleidingen, plaats je vacatures, bied je werkruimtes aan en werk je samen met merken en leveranciers. Lite (€19 per maand, of €15 per maand bij jaarlijkse betaling) omvat 1 opleiding, 1 vacature en 1 werkruimte. Premium (€45 per maand, of €35 per maand bij jaarlijkse betaling) omvat 5 opleidingen, 2 vacatures en 2 werkruimtes, plus basisstatistieken en betere zichtbaarheid. Ultimate (€79 per maand, of €59 per maand bij jaarlijkse betaling) is onbeperkt, met uitgebreide statistieken, prioritaire plaatsing en een Ultimate-badge. De aantallen gelden voor publicaties die tegelijk zichtbaar zijn. Alle prijzen zijn exclusief btw. Bekijk alle formules op Abonnementen & tarieven."
       ],
       [
         "Is Blissify bedoeld om mijn salonbehandelingen aan consumenten te promoten?",
@@ -44,7 +44,7 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
       ],
       [
         "Welke mogelijkheden biedt Blissify voor mijn merk?",
-        "Partner Lite (€49 per maand of €490 per jaar) toont je merk in 1 categorie, met links naar je website en webshop. Partner Premium (€89 per maand of €890 per jaar) toont je merk in maximaal 3 categorieën en omvat 5 opleidingen of events, 2 vacatures, 2 werkruimtes en basisstatistieken. Partner Ultimate (€149 per maand of €1.490 per jaar) is onbeperkt, met uitgebreide statistieken, prioritaire plaatsing en de mogelijkheid om samenwerkingen met opleiders te starten. Alle prijzen zijn exclusief btw."
+        "Partner Lite (€29 per maand, of €23 per maand bij jaarlijkse betaling) toont je merk in 1 categorie, met links naar je website en webshop. Partner Premium (€59 per maand, of €45 per maand bij jaarlijkse betaling) toont je merk in maximaal 3 categorieën en omvat 5 opleidingen of events, 2 vacatures, 2 werkruimtes en basisstatistieken. Partner Ultimate (€99 per maand, of €79 per maand bij jaarlijkse betaling) is onbeperkt, met uitgebreide statistieken, prioritaire plaatsing en de mogelijkheid om samenwerkingen met opleiders te starten. Alle prijzen zijn exclusief btw."
       ],
       [
         "Controleert Blissify de kwaliteit van de producten?",
@@ -188,7 +188,7 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
       ],
       [
         "Kan ik maandelijks of jaarlijks betalen?",
-        "Ja. Bij jaarlijkse betaling betaal je het equivalent van ongeveer tien maanden in plaats van twaalf, dus je krijgt ongeveer twee maanden gratis."
+        "Ja. Je kiest zelf of je maandelijks of jaarlijks betaalt. Bij jaarlijkse betaling betaal je minder per maand: tot €240 voordeel per jaar, afhankelijk van je abonnement."
       ],
       [
         "Betaal ik extra om opleidingen, vacatures of werkruimtes te publiceren?",
@@ -220,7 +220,7 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
       ],
       [
         "Biedt Blissify een gratis proefperiode aan?",
-        "Ja. Nieuwe aanbieders proberen Blissify twee maanden gratis uit, met de Ultimate-functies van hun abonnementscategorie. Daarna kies je zelf of je een betalend abonnement wilt."
+        "Ja. Bij de lancering start je drie maanden gratis, zonder betaalgegevens. Daarna krijgen nieuwe aanbieders een gratis proefperiode van 14 dagen."
       ]
     ]
   },

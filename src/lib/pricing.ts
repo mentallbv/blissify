@@ -16,9 +16,9 @@ export const TIERS: Tier[] = [
     key: 'basis',
     name: 'Lite',
     tagline: 'Voor starters en kleine opleiders',
-    monthlyPrice: 15,
-    annualPrice: 150,
-    price: '€ 150',
+    monthlyPrice: 19,
+    annualPrice: 180,
+    price: '€ 180',
     desc: 'Een professionele basis voor zichtbaarheid met één actieve opleiding.',
     features: ['Professioneel opleiderprofiel', '1 actieve opleiding', 'Eigen opleidingspagina', 'Vindbaar via zoeken en filters', 'Website-, inschrijf- en socialmedia-links'],
   },
@@ -26,9 +26,9 @@ export const TIERS: Tier[] = [
     key: 'medium',
     name: 'Premium',
     tagline: 'Voor actieve opleiders met meerdere opleidingen',
-    monthlyPrice: 49,
-    annualPrice: 490,
-    price: '€ 490',
+    monthlyPrice: 45,
+    annualPrice: 420,
+    price: '€ 420',
     desc: 'Presenteer meerdere opleidingen en volg hun bereik met basisstatistieken.',
     features: ['Alles uit Lite', 'Tot 5 actieve opleidingen', 'Basisstatistieken', 'Profiel- en opleidingsweergaven', 'Websiteklikken en populairste opleidingen'],
     recommended: true,
@@ -37,9 +37,9 @@ export const TIERS: Tier[] = [
     key: 'premium',
     name: 'Ultimate',
     tagline: 'Voor gevestigde opleiders en academies',
-    monthlyPrice: 97,
-    annualPrice: 970,
-    price: '€ 970',
+    monthlyPrice: 79,
+    annualPrice: 708,
+    price: '€ 708',
     desc: 'Onbeperkt publiceren met diepe inzichten en exclusieve zichtbaarheid.',
     features: ['Alles uit Premium', 'Onbeperkt actieve opleidingen', 'Geavanceerde statistieken per opleiding', 'Vergelijking, evolutie en CTR', 'Prioritaire ranking en homepage-rotatie', 'Ultimate badge'],
   },
@@ -102,7 +102,7 @@ export const PRICING_FALLBACK: PricingData = {
   intro: {
     eyebrow: 'Prijzen voor opleiders',
     title: 'Eenvoudige, eerlijke prijzen.',
-    subtitle: 'Maandelijks opzegbaar of twee maanden voordeel bij jaarlijkse betaling. Prijzen exclusief btw.',
+    subtitle: 'Maandelijks opzegbaar, of minder per maand bij jaarlijkse betaling. Prijzen exclusief btw.',
   },
   tiers: TIERS.map((t) => ({
     key: t.key,
@@ -142,8 +142,9 @@ export const BRAND_PRICING_FALLBACK: PricingData = {
       key: 'partner_listing',
       name: 'Partner Lite',
       tagline: 'Voor professionele merkzichtbaarheid',
-      annualPrice: 490,
-      price: '€ 490',
+      monthlyPrice: 29,
+      annualPrice: 276,
+      price: '€ 276',
       period: '/jaar',
       desc: 'Presenteer je merk of aanbod aan professionals op Blissify.',
       recommended: false,
@@ -153,8 +154,9 @@ export const BRAND_PRICING_FALLBACK: PricingData = {
       key: 'partner_professional',
       name: 'Partner Premium',
       tagline: 'Voor merken met een breder aanbod',
-      annualPrice: 890,
-      price: '€ 890',
+      monthlyPrice: 59,
+      annualPrice: 540,
+      price: '€ 540',
       period: '/jaar',
       desc: 'Combineer je merkprofiel met opleidingen en directe inschrijvingen.',
       recommended: true,
@@ -164,8 +166,9 @@ export const BRAND_PRICING_FALLBACK: PricingData = {
       key: 'partner_premium',
       name: 'Partner Ultimate',
       tagline: 'Voor maximale zichtbaarheid en merkbeleving',
-      annualPrice: 1490,
-      price: '€ 1.490',
+      monthlyPrice: 99,
+      annualPrice: 948,
+      price: '€ 948',
       period: '/jaar',
       desc: 'Maximale zichtbaarheid, onbeperkt publiceren en prioritaire ondersteuning.',
       recommended: false,
@@ -201,6 +204,20 @@ export const PRICING_CATALOG_FALLBACK: PricingCatalog = {
   opleiders: PRICING_FALLBACK,
   brands: BRAND_PRICING_FALLBACK,
 }
+
+/** Price per month as shown on the site: the monthly price, or the yearly invoice spread over 12 months (Lonne, Nov 2026). */
+export function perMonth(tier: { monthlyPrice?: number; annualPrice?: number }, cycle: 'yearly' | 'monthly'): number {
+  const annual = tier.annualPrice || 0
+  return cycle === 'monthly' ? tier.monthlyPrice || Math.round(annual / 10) : Math.round((annual / 12) * 100) / 100
+}
+
+/** What paying yearly saves compared with 12 monthly payments. */
+export function yearlySaving(tier: { monthlyPrice?: number; annualPrice?: number }): number {
+  return tier.monthlyPrice && tier.annualPrice ? Math.max(0, tier.monthlyPrice * 12 - tier.annualPrice) : 0
+}
+
+/** Euro amount without decimals when whole, nl-BE style. */
+export const euro = (n: number) => `€${n.toLocaleString('nl-BE', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`
 
 export function monthlyPrice(annualPrice: number, markupPercent: number): number {
   return Math.round((annualPrice * (1 + markupPercent / 100) / 12) * 100) / 100

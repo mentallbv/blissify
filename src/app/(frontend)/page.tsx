@@ -307,7 +307,7 @@ export default async function HomePage() {
         <div className="bl-container bl-home-section" style={{ paddingTop: 96, paddingBottom: 96 }}>
           <div style={{ textAlign: 'center', maxWidth: 620, margin: '0 auto 40px' }}>
             <h2 style={h2}>Een formule voor iedere aanbieder.</h2>
-            <p style={lead}>Vergelijk de abonnementen voor salons &amp; professionals en voor merken &amp; leveranciers. Alle prijzen zijn exclusief btw. Bij jaarlijkse betaling krijg je twee maanden gratis.</p>
+            <p style={lead}>Vergelijk de abonnementen voor salons &amp; professionals en voor merken &amp; leveranciers. Alle prijzen zijn exclusief btw. Bij jaarlijkse betaling betaal je minder per maand.</p>
           </div>
           <PricingPlans catalog={{ opleiders: pricingCatalog.opleiders, brands: pricingCatalog.brands }} billing={pricingCatalog.billing} allowAudienceSwitch compact />
           <div style={{ textAlign: 'center', marginTop: 28 }}><a href="/abonnementen-tarieven" className="bl-textlink">Vergelijk alle abonnementen &amp; tarieven</a></div>
