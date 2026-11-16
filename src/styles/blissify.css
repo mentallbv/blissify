@@ -624,9 +624,24 @@ a.bl-providercard:hover,
   box-shadow: 0 14px 36px rgba(90, 105, 124, 0.12);
 }
 .blnav-dropdown:hover .blnav-dropdown-menu,
-.blnav-dropdown:focus-within .blnav-dropdown-menu {
+.blnav-dropdown:focus-within .blnav-dropdown-menu,
+.blnav-dropdown.is-open .blnav-dropdown-menu {
   display: grid;
 }
+/* "Aanbieders" toggle and the search/offer divider (Lonne, Nov 2026). */
+.blnav-links { align-items: center; }
+.blnav-dropdown-toggle {
+  display: inline-flex; align-items: center; gap: 4px; padding: 0; border: 0; background: none; cursor: pointer;
+  white-space: nowrap; font-family: var(--font-ui); font-weight: 400; font-size: var(--type-sm); color: var(--text-body); transition: color 0.18s;
+}
+.blnav-dropdown:hover .blnav-dropdown-toggle, .blnav-dropdown.is-open .blnav-dropdown-toggle { color: var(--blissify-forest); }
+.blnav-dropdown-toggle.active { font-weight: 500; color: var(--blissify-forest); }
+.blnav-dropdown-toggle .ti { font-size: 14px; transition: transform 0.25s var(--ease-out-quart); }
+.blnav-dropdown:hover .blnav-dropdown-toggle .ti, .blnav-dropdown.is-open .blnav-dropdown-toggle .ti { transform: rotate(180deg); }
+.blnav-dropdown-toggle:focus-visible { outline: 2px solid var(--blissify-terracotta); outline-offset: 4px; border-radius: 4px; }
+.blnav-links .blnav-dropdown-menu a { color: var(--text-strong); }
+.blnav-divider { width: 1px; height: 22px; background: var(--border-strong); margin-left: 4px; }
+@media (prefers-reduced-motion: reduce) { .blnav-dropdown-toggle .ti { transition: none; } }
 .blnav-dropdown-menu a {
   padding: 10px 12px;
   border-radius: 6px;
@@ -721,8 +736,8 @@ a.bl-providercard:hover,
 .blnav-mobile-menu {
   display: none;
 }
-/* The six-item menu (plus account and CTA) needs ~1440px to breathe; below that the ☰ menu takes over. */
-@media (max-width: 1440px) {
+/* The five-item menu (plus account and CTA) needs ~1180px; below that the ☰ menu takes over. */
+@media (max-width: 1180px) {
   .blnav-links {
     display: none;
   }
@@ -788,7 +803,8 @@ a.bl-providercard:hover,
     transition: max-height 0.35s var(--ease-out-quart), padding 0.35s var(--ease-out-quart), opacity 0.25s ease, visibility 0.25s ease, transform 0.35s var(--ease-out-quart);
   }
   .blnav-mobile-menu.is-open {
-    max-height: 520px;
+    max-height: min(680px, calc(100vh - 96px));
+    overflow-y: auto;
     padding: 12px;
     visibility: visible;
     opacity: 1;
