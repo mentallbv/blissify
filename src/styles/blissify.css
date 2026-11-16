@@ -1750,3 +1750,22 @@ a.bl-coursecard:hover .bl-coursecard-image, a.bl-wscard:hover .bl-wscard-media {
 .bl-invoice-table th { text-align: left; font-weight: var(--fw-ui-medium); font-size: 12px; color: var(--text-meta); padding: 14px 20px; border-bottom: 0.5px solid var(--border-hairline); }
 .bl-invoice-table td { padding: 14px 20px; border-bottom: 0.5px solid var(--border-hairline); }
 .bl-invoice-table tr:last-child td { border-bottom: none; }
+
+/* Plan comparison with collapsible groups (round 4, 10.1). */
+.bl-compare { min-width: 680px; border: 0.5px solid var(--border-hairline); border-radius: var(--radius-md); overflow: hidden; background: var(--surface-card); }
+.bl-compare-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; border-top: 0.5px solid var(--border-hairline); }
+.bl-compare-row > div { padding: 14px 20px; font-family: var(--font-ui); font-size: 14px; line-height: 1.5; color: var(--text-body); text-align: center; display: flex; align-items: center; justify-content: center; }
+.bl-compare-row > div:first-child { justify-content: flex-start; text-align: left; color: var(--text-strong); }
+.bl-compare-head { border-top: 0; background: var(--surface-page); }
+.bl-compare-head > div { font-weight: var(--fw-ui-medium); font-size: 13px; color: var(--text-strong); }
+.bl-compare-head > div:first-child { font-size: 11px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-meta); }
+.bl-compare-price > div:not(:first-child) { font-family: var(--font-display); font-size: 18px; color: var(--text-brand); }
+.bl-compare-price:nth-of-type(4) > div:not(:first-child) { font-family: var(--font-ui); font-size: 13px; color: var(--text-accent); }
+.bl-compare-group { border-top: 0.5px solid var(--border-hairline); }
+.bl-compare-group > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; background: var(--surface-page); font-family: var(--font-ui); font-weight: var(--fw-ui-medium); font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-brand); transition: background-color 0.2s ease; }
+.bl-compare-group > summary::-webkit-details-marker { display: none; }
+.bl-compare-group > summary:hover { background: var(--surface-soft); }
+.bl-compare-group > summary:focus-visible { outline: 2px solid var(--blissify-terracotta); outline-offset: -2px; }
+.bl-compare-group > summary .ti { font-size: 16px; transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1); }
+.bl-compare-group[open] > summary .ti { transform: rotate(180deg); }
+@media (prefers-reduced-motion: reduce) { .bl-compare-group > summary .ti { transition: none; } }

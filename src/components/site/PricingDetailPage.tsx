@@ -4,6 +4,8 @@ import { PricingPlans } from '@/components/site/PricingPlans'
 import { ButtonLink } from '@/components/ui'
 import type { PricingCatalog } from '@/lib/pricing'
 import { CtaPanel } from '@/components/site/CtaPanel'
+import { PlanCompareTable } from '@/components/site/PlanCompareTable'
+import { SALON_COMPARE, BRAND_COMPARE } from '@/lib/plan-compare'
 
 export function PricingDetailPage({
   catalog,
@@ -13,14 +15,6 @@ export function PricingDetailPage({
   audience: 'opleiders' | 'brands'
 }) {
   const data = catalog[audience]
-  const cell: React.CSSProperties = {
-    padding: '16px 20px',
-    fontFamily: 'var(--font-ui)',
-    fontSize: 14,
-    color: 'var(--text-body)',
-    textAlign: 'center',
-    borderTop: '0.5px solid var(--border-hairline)',
-  }
 
   return (
     <SiteChrome>
@@ -75,25 +69,7 @@ export function PricingDetailPage({
       </section>
 
       <section className="bl-container" style={{ paddingTop: 48, paddingBottom: 0 }}>
-        <div className="bl-comparison-scroll" style={{ maxWidth: 1100, margin: '0 auto', overflowX: 'auto' }}>
-          <div style={{ minWidth: 680, border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', overflow: 'hidden', background: 'var(--surface-card)' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', background: 'var(--surface-page)', borderBottom: '0.5px solid var(--border-hairline)' }}>
-              {['Functie', data.comparison.col1, data.comparison.col2, data.comparison.col3].map((heading, index) => (
-                <div key={heading} style={{ padding: '14px 20px', fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: index === 0 ? 11 : 13, textTransform: index === 0 ? 'uppercase' : 'none', letterSpacing: index === 0 ? '0.1em' : 0, color: index === 0 ? 'var(--text-meta)' : 'var(--text-strong)', textAlign: index === 0 ? 'left' : 'center' }}>
-                  {heading}
-                </div>
-              ))}
-            </div>
-            {data.comparison.rows.map((row) => (
-              <div key={row.feature} style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr' }}>
-                <div style={{ ...cell, textAlign: 'left', color: 'var(--text-strong)' }}>{row.feature}</div>
-                <div style={cell}>{row.v1 || '–'}</div>
-                <div style={cell}>{row.v2 || '–'}</div>
-                <div style={cell}>{row.v3 || '–'}</div>
-              </div>
-            ))}
-          </div>
-        </div>
+        <PlanCompareTable data={audience === 'brands' ? BRAND_COMPARE : SALON_COMPARE} />
       </section>
 
       <div style={{ marginTop: 64 }} />
