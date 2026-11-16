@@ -162,6 +162,7 @@ export default async function WorkspacePage({ params }: Params) {
               <WorkspaceApply workspaceId={w.id} title={w.title} />
               <p className="bl-contactbox-note"><i className="ti ti-lock" aria-hidden="true" />Je gegevens gaan alleen naar de verhuurder. Het adres en telefoonnummer van het salon blijven verborgen.</p>
             </div>
+            <a href="/modelhuurovereenkomst" className="bl-textlink" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, padding: '0 4px' }}><i className="ti ti-file-text" aria-hidden="true" />Modelhuurovereenkomst</a>
             <div style={{ padding: '0 4px' }}><ReportListing kind="workspace" slug={w.slug} /></div>
           </aside>
         </div>

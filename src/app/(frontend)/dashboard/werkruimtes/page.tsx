@@ -19,9 +19,12 @@ export default async function DashboardWorkspacesPage() {
     <>
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
         <PageTitle>Werkruimtes</PageTitle>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          <ButtonLink href="/modelhuurovereenkomst" variant="ghost" size="sm" icon={<i className="ti ti-file-text" />}>Modelhuurovereenkomst</ButtonLink>
         {limit > 0 ? (
           <ButtonLink href="/dashboard/werkruimtes/nieuw" variant="accent" size="sm" icon={<i className="ti ti-plus" />}>Werkruimte toevoegen</ButtonLink>
         ) : null}
+        </div>
       </div>
       <p style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-meta)', margin: '-8px 0 20px' }}>
         {limit === 0

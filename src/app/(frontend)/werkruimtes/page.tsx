@@ -66,6 +66,7 @@ export default async function WerkruimtesPage({ searchParams }: { searchParams: 
           <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.7, color: 'var(--text-body)', margin: '12px 0 0', maxWidth: 680 }}>
             Ontdek beschikbare behandelruimtes, salonruimtes en professionele werkplekken binnen de beauty- en wellnesssector in België en Nederland. Vergelijk de mogelijkheden en kom rechtstreeks in contact met verhuurders.
           </p>
+          <a href="/modelhuurovereenkomst" className="bl-textlink" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 14, marginTop: 16 }}><i className="ti ti-file-text" aria-hidden="true" />Modelhuurovereenkomst (België en Nederland)</a>
         </div>
       </section>
 
