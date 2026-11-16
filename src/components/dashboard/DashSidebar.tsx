@@ -14,6 +14,7 @@ const NAV = [
   { id: 'profile', label: 'Profiel', icon: 'ti-building-store', href: '/dashboard/profiel' },
   { id: 'collaborations', label: 'Samenwerkingen', icon: 'ti-users-group', href: '/dashboard/samenwerkingen' },
   { id: 'subscription', label: 'Abonnement', icon: 'ti-credit-card', href: '/dashboard/abonnement' },
+  { id: 'feedback', label: 'Suggesties & klachten', icon: 'ti-message-circle', href: '/dashboard/feedback' },
 ]
 
 // Inschrijvingen tab, only for Brand accounts with in-platform registration.
