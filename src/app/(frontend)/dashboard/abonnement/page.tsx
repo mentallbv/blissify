@@ -1,5 +1,5 @@
 import React from 'react'
-import { perMonth, euro as priceEuro } from '@/lib/pricing'
+import { perMonth, yearlySaving, euro as priceEuro } from '@/lib/pricing'
 import { PageTitle } from '@/components/dashboard/DashSidebar'
 import { CheckoutButton, CancelButton } from '@/components/dashboard/SubscriptionActions'
 import { getCurrentUser, getCurrentProfile } from '@/lib/session'
@@ -90,7 +90,7 @@ export default async function DashboardSubscriptionPage() {
                 <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 32, color: 'var(--text-brand)' }}>{yearlyPerMonth}</span>
                 <span style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-meta)' }}>/maand</span>
               </div>
-              <div style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--text-meta)', margin: '-10px 0 14px' }}>Jaarlijks gefactureerd ({priceEuro(annual)} per jaar), excl. btw</div>
+              <div style={{ fontFamily: 'var(--font-ui)', fontSize: 11, color: 'var(--text-meta)', margin: '-10px 0 14px' }}>excl. btw · Jaarlijkse facturatie.{yearlySaving(t) ? ` Bespaar ${priceEuro(yearlySaving(t))} per jaar.` : ''}</div>
               {current && status === 'active' ? (
                 <div style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 12, color: 'var(--status-success)' }}>Huidig plan</div>
               ) : (
