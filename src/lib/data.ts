@@ -182,6 +182,7 @@ export type CourseFilters = {
   noOwnModel?: boolean
   privateOneToOne?: boolean
   focus?: string[]
+  kinds?: string[]
   languages?: string[]
   popular?: boolean
   free?: boolean
@@ -264,6 +265,7 @@ export async function getCourseCards(opts: CourseFilters = {}): Promise<{
     if (opts.privateOneToOne) practicalOr.push({ 'participants.privateOneToOne': { equals: true } })
     if (practicalOr.length) and.push(practicalOr.length === 1 ? practicalOr[0] : { or: practicalOr })
     if (opts.focus?.length) and.push({ focus: { in: opts.focus } })
+    if (opts.kinds?.length) and.push({ kinds: { in: opts.kinds } })
     if (opts.languages?.length) and.push({ language: { in: opts.languages } })
     if (opts.popular) and.push({ popular: { equals: true } })
     if (opts.free) and.push({ 'price.isFree': { equals: true } })

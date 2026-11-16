@@ -1,5 +1,6 @@
 'use client'
 
+import { COURSE_KINDS } from '@/lib/course-kinds'
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import { Input, Select, Button, FieldLabel, Tag } from '@/components/ui'
@@ -43,6 +44,7 @@ export type CourseFormValues = {
   format: string[]
   courseType: string
   delivery: string
+  kinds: string[]
   language: string[]
   targetAudience: string[]
   practical: string[]
@@ -85,6 +87,7 @@ const EMPTY: CourseFormValues = {
   durationUnit: 'days',
   format: [],
   courseType: '',
+  kinds: [],
   delivery: '',
   language: ['nl'],
   targetAudience: [],
@@ -147,7 +150,7 @@ export function CourseForm({
   const selectedCatName = v.category ? categories.find((c) => String(c.id) === v.category)?.name || 'Categorie' : ''
   const set = <K extends keyof CourseFormValues>(k: K, val: CourseFormValues[K]) => setV((s) => ({ ...s, [k]: val }))
   const toggleLanguage = (language: string) => set('language', v.language.includes(language) ? v.language.filter((item) => item !== language) : [...v.language, language])
-  const toggleMany = (key: 'targetAudience' | 'practical' | 'focus', value: string) =>
+  const toggleMany = (key: 'targetAudience' | 'practical' | 'focus' | 'kinds', value: string) =>
     set(key, v[key].includes(value) ? v[key].filter((item) => item !== value) : [...v[key], value])
   const addDate = () => set('startDates', [...v.startDates, { date: '', endDate: '', startTime: '', endTime: '', spotsAvailable: '' }])
   const updateDate = (index: number, key: keyof CourseFormValues['startDates'][number], value: string) =>
@@ -169,6 +172,7 @@ export function CourseForm({
     if (!plainDescription) errs.description = 'Vul een volledige omschrijving in.'
     if (!v.courseType) errs.courseType = 'Kies een type opleiding.'
     else if (typeNeedsDelivery(v.courseType) && !v.delivery) errs.delivery = 'Kies waar de opleiding plaatsvindt.'
+    if (!v.kinds.length) errs.kinds = 'Kies minstens één soort opleiding.'
     if (!v.certificationTypes.length) errs.certificationTypes = "Kies wat deelnemers krijgen, of 'Geen certificaat, diploma of accreditatie'."
     Object.assign(errs, missingCertificationFields(v.certificationTypes, v.certificationDetails))
     setFieldErrors(errs)
@@ -349,6 +353,16 @@ export function CourseForm({
             <FieldError k="delivery" />
           </div>
         ) : null}
+        {/* Lonne, Nov 2026: required, more than one allowed. */}
+        <div>
+          <FieldLabel>Soort opleiding (meerdere mogelijk)</FieldLabel>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', ...(errBorder('kinds') ? { outline: '1px solid var(--status-error)', outlineOffset: 6, borderRadius: 8 } : {}) }}>
+            {COURSE_KINDS.map((k) => (
+              <Tag key={k.value} as="button" active={v.kinds.includes(k.value)} onClick={() => { toggleMany('kinds', k.value); clearErr('kinds') }}>{k.label}</Tag>
+            ))}
+          </div>
+          <FieldError k="kinds" />
+        </div>
         <div>
           <FieldLabel>Taal</FieldLabel>
           <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>

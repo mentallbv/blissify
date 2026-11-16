@@ -7,13 +7,8 @@ import { CategoryPickerMenu } from './CategoryPickerMenu'
 import { CERTIFICATION_OPTIONS } from '@/lib/certifications'
 import { LocationSelect, encodeLocation, decodeLocation } from './LocationSelect'
 import { COURSE_TYPES } from '@/lib/course-types'
+import { COURSE_KINDS } from '@/lib/course-kinds'
 
-// Client round 2 #2.9 / #3.7: every type the form offers, plus where it takes
-// place (a "Beide" course counts for both).
-const FORMATS = [
-  { value: 'fysiek', label: 'Op locatie' },
-  { value: 'online', label: 'Online' },
-]
 const AUDIENCES = [
   { value: 'beginner-friendly', label: 'Beginner friendly' },
   { value: 'intermediate', label: 'Intermediate' },
@@ -66,6 +61,7 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
     doelgroep: params.get('doelgroep') || '',
     taal: params.get('taal') || '',
     praktisch: params.get('praktisch') || '',
+    soort: params.get('soort') || '',
     focus: params.get('focus') || '',
     certificering: params.get('certificering') || '',
     gratis: params.get('gratis') === 'true',
@@ -96,7 +92,7 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
     router.push(`${pathname}?${next.toString()}`, { scroll: false })
   }
   const update = (key: string, value: string | null) => updateMany({ [key]: value })
-  const toggleCsv = (key: 'doelgroep' | 'taal' | 'praktisch' | 'focus' | 'certificering', value: string) => {
+  const toggleCsv = (key: 'doelgroep' | 'taal' | 'praktisch' | 'focus' | 'certificering' | 'soort', value: string) => {
     const selected = current[key].split(',').filter(Boolean)
     const next = selected.includes(value) ? selected.filter((item) => item !== value) : [...selected, value]
     update(key, next.length ? next.join(',') : null)
@@ -117,20 +113,32 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
 
   // Client round 3 #1.6: free-text search inside the filters, debounced like
   // the price slider. Uses the listing's existing `keyword` param.
+  // Only take the URL's value when it changed from elsewhere (back button,
+  // "Wissen"); echoing back our own debounced write overwrote what the visitor
+  // had typed since, trailing space included (Lonne, Nov 2026: "kriebelmassage").
   const [keyword, setKeyword] = React.useState(current.keyword)
+  const pushedKeyword = React.useRef(current.keyword)
   React.useEffect(() => {
-    setKeyword(current.keyword)
+    if (current.keyword !== pushedKeyword.current) {
+      pushedKeyword.current = current.keyword
+      setKeyword(current.keyword)
+    }
   }, [current.keyword])
   const keywordTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null)
   const onKeyword = (v: string) => {
     setKeyword(v)
     if (keywordTimer.current) clearTimeout(keywordTimer.current)
-    keywordTimer.current = setTimeout(() => update('keyword', v.trim() || null), 400)
+    keywordTimer.current = setTimeout(() => {
+      const next = v.trim()
+      if (next === pushedKeyword.current) return
+      pushedKeyword.current = next
+      update('keyword', next || null)
+    }, 400)
   }
 
   const hasAdvanced = Boolean(current.praktisch || current.focus || current.certificering || current.gratis || current.prijsMax)
   const [moreOpen, setMoreOpen] = React.useState(hasAdvanced)
-  const hasActive = Boolean(current.keyword || current.categorie || current.locatie || current.land || current.format || current.type || current.aanbieder || current.doelgroep || current.taal || hasAdvanced)
+  const hasActive = Boolean(current.keyword || current.categorie || current.locatie || current.land || current.format || current.type || current.aanbieder || current.soort || current.doelgroep || current.taal || hasAdvanced)
 
   // Category picker (search + A-Z), shared with /opleiders and /merken. Single-
   // select here: the course `categorie` param is one slug (a main includes its
@@ -220,15 +228,6 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
       ) : null}
 
       <div style={{ marginBottom: 26 }}>
-        <div style={labelStyle}>Type aanbieder</div>
-        <select className="bl-select" value={current.aanbieder} onChange={(e) => update('aanbieder', e.target.value)} style={selectStyle}>
-          <option value="">Alle aanbieders</option>
-          <option value="trainer">Onafhankelijke Opleiders</option>
-          <option value="brand">Merken &amp; Partners</option>
-        </select>
-      </div>
-
-      <div style={{ marginBottom: 26 }}>
         <div style={labelStyle}>Niveau</div>
         <CheckOptions options={AUDIENCES} selected={current.doelgroep} onToggle={(value) => toggleCsv('doelgroep', value)} />
       </div>
@@ -259,13 +258,8 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
       </div>
 
       <div style={{ marginBottom: 20 }}>
-        <div style={labelStyle}>Online of op locatie</div>
-        <select className="bl-select" value={current.format} onChange={(e) => update('format', e.target.value)} style={selectStyle}>
-          <option value="">Beide</option>
-          {FORMATS.map((f) => (
-            <option key={f.value} value={f.value}>{f.label}</option>
-          ))}
-        </select>
+        <div style={labelStyle}>Soort opleiding</div>
+        <CheckOptions options={COURSE_KINDS.map((k) => ({ value: k.value, label: k.label }))} selected={current.soort} onToggle={(value) => toggleCsv('soort', value)} />
       </div>
 
       <button type="button" onClick={() => setMoreOpen((open) => !open)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', border: 0, borderTop: '0.5px solid var(--border-hairline)', background: 'none', padding: '18px 0', cursor: 'pointer', fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 13, color: 'var(--text-strong)' }}>

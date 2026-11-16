@@ -1,3 +1,4 @@
+import { COURSE_KIND_VALUES } from '@/lib/course-kinds'
 import { CERTIFICATION_VALUES, NO_CERTIFICATION } from '@/lib/certifications'
 import type { Payload } from 'payload'
 import { htmlToLexical } from '@/lib/richtext'
@@ -141,6 +142,7 @@ export async function buildCourseData(body: Record<string, unknown>): Promise<Re
     targetAudience: Array.isArray(body.targetAudience) ? body.targetAudience : [],
     practical: Array.isArray(body.practical) ? body.practical : [],
     focus: Array.isArray(body.focus) ? body.focus : [],
+    kinds: Array.isArray(body.kinds) ? body.kinds.filter((k: unknown) => COURSE_KIND_VALUES.has(String(k))) : [],
     participants: {
       // null (not undefined) so clearing the field also clears a saved maximum.
       maximum: num(body.maximumParticipants) ?? null,

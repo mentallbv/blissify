@@ -1,4 +1,5 @@
 import { CERTIFICATION_OPTIONS } from '@/lib/certifications'
+import { COURSE_KINDS } from '@/lib/course-kinds'
 import type { CollectionConfig, Access } from 'payload'
 import { seoFields } from '@/fields/seo'
 import { getBrandIdForUser, getTrainerIdForUser } from '@/access'
@@ -432,6 +433,13 @@ export const Courses: CollectionConfig = {
         { label: 'Expert', value: 'expert' },
         { label: 'Alle niveaus', value: 'all' },
       ],
+    },
+    {
+      name: 'kinds',
+      type: 'select',
+      hasMany: true,
+      label: 'Soort opleiding',
+      options: COURSE_KINDS.map((k) => ({ label: k.label, value: k.value })),
     },
     {
       name: 'targetAudience',

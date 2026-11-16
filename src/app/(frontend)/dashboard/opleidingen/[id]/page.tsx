@@ -109,6 +109,7 @@ export default async function EditCoursePage({ params }: { params: Promise<{ id:
     targetAudience: (details as { targetAudience?: string[] }).targetAudience || [],
     practical: (details as { practical?: string[] }).practical || [],
     focus: (details as { focus?: string[] }).focus || [],
+    kinds: (details as { kinds?: string[] }).kinds || [],
     maximumParticipants: details.participants?.maximum != null ? String(details.participants.maximum) : '',
     privateOneToOne: Boolean(details.participants?.privateOneToOne),
     modelRequired: details.modelRequired || 'not_applicable',

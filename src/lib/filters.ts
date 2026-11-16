@@ -1,3 +1,4 @@
+import { COURSE_KIND_VALUES } from '@/lib/course-kinds'
 import { CERTIFICATION_VALUES } from '@/lib/certifications'
 import { COURSE_TYPE_LABEL } from '@/lib/course-types'
 import type { CourseFilters, CourseSort } from '@/lib/data'
@@ -35,6 +36,7 @@ export function parseCourseFilters(sp: SearchParams): CourseFilters {
     noOwnModel: many(sp.praktisch).includes('geen-model') || undefined,
     privateOneToOne: many(sp.praktisch).includes('prive') || undefined,
     focus: many(sp.focus),
+    kinds: many(sp.soort).filter((v) => COURSE_KIND_VALUES.has(v)),
     languages: many(sp.taal).filter((v) => LANGUAGE_VALUES.has(v)),
     free: one(sp.gratis) === 'true' || undefined,
     priceMin: Number.isFinite(prijsMin) && prijsMin > 0 ? prijsMin : undefined,
