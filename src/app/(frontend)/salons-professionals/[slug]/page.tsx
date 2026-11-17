@@ -1,4 +1,6 @@
 import React from 'react'
+import { SocialProof } from '@/components/site/SocialProof'
+import { getSocialProof } from '@/lib/social-proof'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { SiteChrome, SectionHead } from '@/components/site/SiteChrome'
@@ -33,6 +35,7 @@ export default async function ProviderProfilePage({ params }: Params) {
   if (!p) notFound()
   const vacancies = p.id != null ? await getVacanciesForProfile('trainer', Number(p.id)) : []
   const workspaces = p.id != null ? await getWorkspacesForProfile('trainer', Number(p.id)) : []
+  const socialProof = p.id != null ? await getSocialProof('trainer', Number(p.id)) : null
 
   // Several Belgian cities share their province's name (Antwerpen, Luik...);
   // showing both would read as "Antwerpen, Antwerpen".
@@ -73,6 +76,7 @@ export default async function ProviderProfilePage({ params }: Params) {
             </p>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
               <TypeBadge type="trainer" style={{ background: 'rgba(255, 255, 255, 0.16)', color: '#fff' }} />
+                <SocialProof count={socialProof} />
               {p.hasPremiumBadge ? (
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, borderRadius: 'var(--radius-pill)', padding: '5px 11px', background: 'var(--blissify-chalk)', color: 'var(--text-brand)', fontFamily: 'var(--font-ui)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.09em' }}>
                   <i className="ti ti-crown" /> Premium

@@ -1,4 +1,6 @@
 import React from 'react'
+import { SocialProof } from '@/components/site/SocialProof'
+import { getSocialProof } from '@/lib/social-proof'
 import { SaveCourseButton } from '@/components/site/SaveCourseButton'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
@@ -32,6 +34,7 @@ export default async function MerkPage({ params }: Params) {
   const { slug } = await params
   const { brand, providers, collaboratingProviders, courses } = await getBrandBySlug(slug)
   if (!brand) notFound()
+  const socialProof = brand.id != null ? await getSocialProof('brand', Number(brand.id)) : null
   const vacancies = brand.id != null ? await getVacanciesForProfile('brand', Number(brand.id)) : []
   const workspaces = brand.id != null ? await getWorkspacesForProfile('brand', Number(brand.id)) : []
   const partnerType = ({
@@ -81,6 +84,7 @@ export default async function MerkPage({ params }: Params) {
               </p>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                 <TypeBadge type="brand" style={{ background: 'rgba(255, 255, 255, 0.16)', color: '#fff' }} />
+                <SocialProof count={socialProof} />
                 {brand.hasPremiumBadge ? (
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, borderRadius: 'var(--radius-pill)', padding: '5px 11px', background: 'var(--blissify-chalk)', color: 'var(--text-brand)', fontFamily: 'var(--font-ui)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.09em' }}>
                     <i className="ti ti-crown" /> Premium
