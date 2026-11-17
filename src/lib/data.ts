@@ -24,6 +24,7 @@ import {
   type FallbackCourse,
   type FallbackProvider,
 } from './fallback'
+import { courseBanner, getCourseFallbackBanner, DEFAULT_COURSE_BANNER } from '@/lib/course-banner'
 
 export type CourseCardData = {
   slug: string
@@ -129,7 +130,7 @@ function fallbackProvider(p: FallbackProvider): ProviderCardData {
   }
 }
 
-function toCard(c: Course): CourseCardData {
+function toCard(c: Course, fallbackBanner: string = DEFAULT_COURSE_BANNER): CourseCardData {
   const cat = rel<Category>(c.category)
   const brand = rel<Brand>(c.brand)
   const trainer = c.trainer && typeof c.trainer === 'object' ? (c.trainer as Trainer) : null
@@ -149,7 +150,7 @@ function toCard(c: Course): CourseCardData {
     location: courseLocation(c),
     price: formatPrice(c.price),
     format: formatCardMeta(c),
-    image: mediaUrl(c.coverImage),
+    image: courseBanner(c.coverImage, fallbackBanner),
     providerType: brand ? 'brand' : 'trainer',
     premium: priority >= 3,
     featured: Boolean(c.featured),
@@ -203,6 +204,7 @@ export async function getCourseCards(opts: CourseFilters = {}): Promise<{
   total: number
   isFallback: boolean
 }> {
+  const fb = await getCourseFallbackBanner() // item 4: course banner fallback
   try {
     const payload = await client()
     const and: Record<string, unknown>[] = [{ status: { equals: 'published' } }]
@@ -282,7 +284,7 @@ export async function getCourseCards(opts: CourseFilters = {}): Promise<{
       depth: 2,
       sort: SORT_MAP[opts.sort || 'relevant'] as never,
     })
-    return { cards: res.docs.map(toCard), total: res.totalDocs, isFallback: false }
+    return { cards: res.docs.map((c) => toCard(c, fb)), total: res.totalDocs, isFallback: false }
   } catch {
     // Fallback (DB unreachable): filter the illustrative dataset best-effort.
     let list = FALLBACK_COURSES
@@ -617,6 +619,7 @@ export async function getProviderCards(
 export async function getProviderBySlug(
   slug: string,
 ): Promise<{ provider: ProviderCardData | null; courses: CourseCardData[]; isFallback: boolean }> {
+  const fb = await getCourseFallbackBanner() // item 4: course banner fallback
   try {
     const payload = await client()
     const res = await payload.find({ collection: 'trainers', where: { slug: { equals: slug } }, limit: 1, depth: 1 })
@@ -670,7 +673,7 @@ export async function getProviderBySlug(
         // Approved collaborations with a brand that is still Partner Ultimate (client round 2, section 5).
         collaboratingBrands: (await visibleBrandsForTrainer(payload, t.id)).map((b) => ({ slug: b.slug, name: b.name, logo: b.logo })),
       },
-      courses: courses.docs.map(toCard),
+      courses: courses.docs.map((c) => toCard(c, fb)),
       isFallback: false,
     }
   } catch {
@@ -696,6 +699,7 @@ export async function getHomepageSections(): Promise<{
   brandCourses: CourseCardData[]
   opleiderCourses: CourseCardData[]
 }> {
+  const fb = await getCourseFallbackBanner() // item 4: course banner fallback
   const empty = { brandCourses: [], opleiderCourses: [] }
   try {
     const payload = await client()
@@ -745,7 +749,7 @@ export async function getHomepageSections(): Promise<{
         picked.push(c)
         if (picked.length === 6) break
       }
-      return picked.map(toCard)
+      return picked.map((c) => toCard(c, fb))
     }
 
     // Section 2 - Merken & Leveranciers only
@@ -947,6 +951,7 @@ export async function getMerkenFacets(): Promise<import('./merken-filters').Merk
 export async function getBrandBySlug(
   slug: string,
 ): Promise<{ brand: BrandCardData | null; providers: ProviderCardData[]; collaboratingProviders: { slug: string; name: string }[]; courses: CourseCardData[]; isFallback: boolean }> {
+  const fb = await getCourseFallbackBanner() // item 4: course banner fallback
   try {
     const payload = await client()
     const res = await payload.find({ collection: 'brands', where: { slug: { equals: slug } }, limit: 1, depth: 1 })
@@ -1016,7 +1021,7 @@ export async function getBrandBySlug(
         logo: mediaUrl(t.photo),
       })),
       collaboratingProviders,
-      courses: courses.docs.map(toCard),
+      courses: courses.docs.map((c) => toCard(c, fb)),
       isFallback: false,
     }
   } catch {

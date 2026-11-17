@@ -672,6 +672,9 @@ export interface Course {
   };
   language?: ('nl' | 'fr' | 'en')[] | null;
   level?: ('beginner' | 'gevorderd' | 'expert' | 'all') | null;
+  kinds?:
+    | ('behandelingen-technieken' | 'product-merktrainingen' | 'apparatuur-toestellen' | 'business-ondernemerschap')[]
+    | null;
   targetAudience?: ('beginner-friendly' | 'intermediate' | 'expert-advanced')[] | null;
   practical?: ('een-dag' | 'meerdere-dagen' | 'op-locatie')[] | null;
   focus?:
@@ -1768,6 +1771,7 @@ export interface CoursesSelect<T extends boolean = true> {
       };
   language?: T;
   level?: T;
+  kinds?: T;
   targetAudience?: T;
   practical?: T;
   focus?: T;
@@ -2358,6 +2362,10 @@ export interface Branding {
    * Favicon - 32x32px of 64x64px
    */
   favicon?: (number | null) | Media;
+  /**
+   * Getoond bij opleidingen zonder foto of met een foto kleiner dan 1200×600 px. Leeg = de standaardafbeelding in de huisstijlkleuren.
+   */
+  courseFallbackBanner?: (number | null) | Media;
   colors?: {
     /**
      * Primaire kleur (hex)
@@ -2742,6 +2750,7 @@ export interface BrandingSelect<T extends boolean = true> {
   logo?: T;
   logoLight?: T;
   favicon?: T;
+  courseFallbackBanner?: T;
   colors?:
     | T
     | {

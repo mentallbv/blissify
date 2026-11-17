@@ -1,3 +1,4 @@
+import { courseBanner, getCourseFallbackBanner } from '@/lib/course-banner'
 import React from 'react'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
@@ -246,6 +247,8 @@ export default async function CourseDetailPage({ params }: Params) {
     course && typeof (course as { coverImage?: unknown }).coverImage === 'object'
       ? publicMediaUrl((course as { coverImage?: { filename?: string | null; url?: string | null } }).coverImage)
       : null
+  // Item 4: no photo, or smaller than 1200×600 → brand banner (or the one set in Branding).
+  const bannerImg = courseBanner((course as { coverImage?: unknown } | null)?.coverImage, await getCourseFallbackBanner())
 
   // Course rich result. Only real data: price and reviews when present.
   const priceNumber = course?.price?.isFree ? 0 : typeof course?.price?.amount === 'number' && !course.price.priceOnRequest ? course.price.amount : null
@@ -269,8 +272,8 @@ export default async function CourseDetailPage({ params }: Params) {
       <div
         style={{
           height: 400,
-          background: coverImg ? undefined : 'var(--surface-deep)',
-          backgroundImage: coverImg ? cssUrl(coverImg) : undefined,
+          background: 'var(--surface-deep)',
+          backgroundImage: cssUrl(bannerImg),
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
@@ -524,7 +527,7 @@ export default async function CourseDetailPage({ params }: Params) {
                     location: v.location,
                     price: v.price,
                     format: v.format,
-                    image: coverImg || null,
+                    image: bannerImg,
                     providerType: v.providerType,
                   }}
                 />

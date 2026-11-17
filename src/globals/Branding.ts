@@ -42,6 +42,13 @@ export const Branding: GlobalConfig = {
       admin: { description: 'Favicon - 32x32px of 64x64px' },
     },
     {
+      name: 'courseFallbackBanner',
+      label: 'Standaardbanner opleidingen',
+      type: 'upload',
+      relationTo: 'media',
+      admin: { description: 'Getoond bij opleidingen zonder foto of met een foto kleiner dan 1200×600 px. Leeg = de standaardafbeelding in de huisstijlkleuren.' },
+    },
+    {
       name: 'colors',
       type: 'group',
       label: 'Kleuren',
