@@ -34,6 +34,7 @@ const COLS: { head: string; items: FooterLink[] }[] = [
       { label: 'Veelgestelde vragen', href: '/veelgestelde-vragen' },
       { label: 'Modelhuurovereenkomst', href: '/modelhuurovereenkomst' },
       { label: 'Contact', href: '/contact' },
+      { label: 'Klacht indienen', href: '/klachten' },
     ],
   },
 ]
