@@ -78,6 +78,14 @@ export const Workspaces: CollectionConfig = {
 
         const user = req.user as { id: number; role?: string; subscriptionStatus?: string; subscriptionExpiresAt?: string; subscriptionTier?: string; brandTier?: string } | null
         if (!user || user.role === 'admin') return data
+        // Meeting Nov 2026: a werkruimte only goes online with at least one photo.
+        if (data.status === 'published') {
+          const cover = data.coverImage !== undefined ? data.coverImage : originalDoc?.coverImage
+          const gallery = data.gallery !== undefined ? data.gallery : originalDoc?.gallery
+          if (!cover && !(Array.isArray(gallery) && gallery.length)) {
+            throw new Error('Voeg minstens één foto toe voordat je deze werkruimte online zet.')
+          }
+        }
         const isPublishing = data.status === 'published' && (operation === 'create' || originalDoc?.status !== 'published')
         if (isPublishing) {
           if (!isEntitled(user)) {

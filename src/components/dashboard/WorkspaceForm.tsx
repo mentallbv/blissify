@@ -104,6 +104,11 @@ export function WorkspaceForm({ workspaceId, initial, defaults }: { workspaceId?
 
   async function save(status: 'draft' | 'published') {
     setError(null)
+    if (status === 'published' && !v.coverImage && !v.gallery.length) {
+      setError('Voeg minstens één foto toe voordat je deze werkruimte online zet. Als concept opslaan kan wel.')
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+      return
+    }
     setLoading(true)
     try {
       const res = await fetch(workspaceId ? `/api/dashboard/workspaces/${workspaceId}` : '/api/dashboard/workspaces', {
@@ -266,7 +271,7 @@ export function WorkspaceForm({ workspaceId, initial, defaults }: { workspaceId?
 
       <div style={card}>
         <h2 style={h2}>Foto&apos;s en beschrijving</h2>
-        <ImageUploadField label="Hoofdfoto" value={v.coverImage} onChange={(img) => set('coverImage', img)} />
+        <ImageUploadField label="Hoofdfoto (nodig om online te zetten)" value={v.coverImage} onChange={(img) => set('coverImage', img)} />
         <div>
           <FieldLabel>Meer foto&apos;s (optioneel)</FieldLabel>
           <div className="bl-2col" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
