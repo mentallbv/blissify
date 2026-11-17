@@ -76,7 +76,7 @@ export default async function OpleidingenPage({ searchParams }: { searchParams: 
           ['Ik geef zelf opleidingen. Hoe zet ik die op Blissify?', 'Kies een abonnement voor salons & professionals of merken & leveranciers, maak een profiel en voeg je opleiding toe. Bekijk de formules op Abonnementen & tarieven.'],
         ]}
         links={[
-          { href: '/merken-leveranciers', label: 'Merken & leveranciers' },
+          { href: '/merken-leveranciers', label: 'Producten & materiaal' },
           { href: '/abonnementen-tarieven', label: 'Abonnementen & tarieven' },
         ]}
       />

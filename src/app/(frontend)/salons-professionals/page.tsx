@@ -67,7 +67,7 @@ export default async function SalonsProfessionalsPage({ searchParams }: { search
           { href: '/opleidingen', label: 'Opleidingen' },
           { href: '/vacatures', label: 'Vacatures' },
           { href: '/werkruimtes', label: 'Werkruimtes' },
-          { href: '/merken-leveranciers', label: 'Merken & leveranciers' },
+          { href: '/merken-leveranciers', label: 'Producten & materiaal' },
           { href: '/abonnementen-tarieven', label: 'Abonnementen & tarieven' },
         ]}
       />

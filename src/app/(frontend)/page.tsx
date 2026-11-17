@@ -134,11 +134,11 @@ export default async function HomePage() {
                 <span className="bl-hero-accent">{hero.highlight || 'beauty & wellness.'}</span>
               </h1>
               <p style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-regular)', fontSize: 18, lineHeight: 1.7, color: 'var(--text-body)', margin: '22px 0 0' }}>
-                {hero.subtitle || 'Vind opleidingen en cursussen, merken en leveranciers, werkruimtes en vacatures voor beauty- en wellnessprofessionals. Alles overzichtelijk samengebracht op één platform, in België en Nederland.'}
+                {hero.subtitle || 'Vind opleidingen, professionele producten en materiaal, werkruimtes en vacatures voor beauty- en wellnessprofessionals. Van merken en leveranciers tot opleiders en salons: alles overzichtelijk op één platform, in België en Nederland.'}
               </p>
               <div className="bl-hero-chips">
                 <a className="bl-hero-chip" href="/opleidingen"><i className="ti ti-school" aria-hidden="true" />Vind een opleiding</a>
-                <a className="bl-hero-chip" href="/merken-leveranciers"><i className="ti ti-sparkles" aria-hidden="true" />Vind een merk</a>
+                <a className="bl-hero-chip" href="/merken-leveranciers"><i className="ti ti-sparkles" aria-hidden="true" />Vind producten &amp; materiaal</a>
                 <a className="bl-hero-chip" href="/werkruimtes"><i className="ti ti-armchair" aria-hidden="true" />Vind een werkruimte</a>
                 <a className="bl-hero-chip" href="/vacatures"><i className="ti ti-briefcase" aria-hidden="true" />Vind een vacature</a>
               </div>
@@ -159,7 +159,7 @@ export default async function HomePage() {
             <div>
               <h2 style={{ ...h2, fontSize: 'clamp(30px, 3.6vw, 42px)' }}>Opleidingen, vacatures en werkruimtes voor <span className="bl-hero-accent">beauty- en wellnessprofessionals</span></h2>
               <p style={{ ...lead, fontSize: 16, marginTop: 22 }}>
-                Blissify is het B2B-platform waar beauty- en wellnessprofessionals in België en Nederland hun volgende stap vinden. Vergelijk <a href="/opleidingen" className="bl-textlink">opleidingen en cursussen</a> van opleiders, academies en merken. Bekijk <a href="/vacatures" className="bl-textlink">vacatures en samenwerkingen</a> in loondienst of als zelfstandige. Zoek een <a href="/werkruimtes" className="bl-textlink">salon te huur, stoelhuur of behandelkamer</a>. En ontdek de <a href="/merken-leveranciers" className="bl-textlink">merken en leveranciers</a> achter het professionele aanbod.
+                Blissify is het B2B-platform waar beauty- en wellnessprofessionals in België en Nederland hun volgende stap vinden. Vergelijk <a href="/opleidingen" className="bl-textlink">opleidingen en cursussen</a> van opleiders, academies en merken. Bekijk <a href="/vacatures" className="bl-textlink">vacatures en samenwerkingen</a> in loondienst of als zelfstandige. Zoek een <a href="/werkruimtes" className="bl-textlink">salon te huur, stoelhuur of behandelkamer</a>. En ontdek <a href="/merken-leveranciers" className="bl-textlink">professionele producten en materiaal</a> van merken en leveranciers: verzorgingsproducten, apparatuur en alles voor je salon.
               </p>
             </div>
             <div>
@@ -177,6 +177,8 @@ export default async function HomePage() {
                   </div>
                 </div>
               ))}
+              {/* Lonne, Nov 2026: the list is not exhaustive. */}
+              <p style={{ fontFamily: 'var(--font-ui)', fontSize: 15, lineHeight: 1.7, color: 'var(--text-body)', margin: '18px 0 0' }}>… en nog veel meer professionals binnen de beauty- en wellnesssector.</p>
             </div>
           </div>
         </div>
@@ -200,7 +202,7 @@ export default async function HomePage() {
         </Featured>
       ) : null}
       {featuredBrands.length ? (
-        <Featured tinted title="Merken & leveranciers in de kijker" text="Professionele merken, producten en apparatuur voor jouw salon of praktijk." href="/merken-leveranciers" link="Bekijk alle merken & leveranciers">
+        <Featured tinted title="Producten & materiaal in de kijker" text="Professionele merken, producten en apparatuur voor jouw salon of praktijk." href="/merken-leveranciers" link="Bekijk alle merken & leveranciers">
           <div className="bl-grid-3">{featuredBrands.map((b) => <BrandCard key={b.slug} b={b} />)}</div>
         </Featured>
       ) : null}

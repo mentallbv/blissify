@@ -12,7 +12,7 @@ export const dynamic = 'force-dynamic'
 
 // Copy 10/2026, "Merken & leveranciers".
 export const metadata: Metadata = {
-  title: 'Merken en leveranciers voor beauty en wellness',
+  title: 'Producten en materiaal voor beauty en wellness: merken en leveranciers',
   description: 'Ontdek professionele beauty- en wellnessmerken, leveranciers, producten en apparatuur in België en Nederland. Kom rechtstreeks in contact.',
 }
 
@@ -33,7 +33,7 @@ export default async function MerkenPage({ searchParams }: { searchParams: Promi
   return (
     <SiteChrome>
       <HubHeader
-        eyebrow="Ontdek merken & leveranciers"
+        eyebrow="Ontdek producten & materiaal"
         title="Ontdek de merken achter jouw professionele groei."
         intro="Verken professionele beauty- en wellnessmerken en leveranciers in België en Nederland. Ontdek hun producten, apparatuur, expertise en opleidingen en kom rechtstreeks in contact met de bedrijven achter het aanbod."
       />
@@ -58,7 +58,7 @@ export default async function MerkenPage({ searchParams }: { searchParams: Promi
           { h2: 'Opleidingen en trainingen van merken', body: <>Veel merken trainen professionals in producten en technieken. Bekijk het aanbod op <a href="/opleidingen" className="bl-textlink">Opleidingen</a>.</> },
           { h2: 'Zichtbaar worden als merk of leverancier', body: <>Publiceer je merkprofiel, opleidingen en events voor professionals in beauty en wellness. Zie <a href="/abonnementen-tarieven?voor=merken" className="bl-textlink">Abonnementen &amp; tarieven</a>.</> },
         ]}
-        faqTitle="Veelgestelde vragen over merken en leveranciers"
+        faqTitle="Veelgestelde vragen over producten & materiaal"
         faq={[
           ['Kan ik producten rechtstreeks via Blissify kopen?', 'Nee. Blissify is geen webshop en verwerkt zelf geen productbestellingen. Aankopen en verdere afspraken verlopen rechtstreeks via het merk of de leverancier.'],
           ['Controleert Blissify de kwaliteit van de producten?', 'Een vermelding op Blissify is geen kwaliteitsgarantie of goedkeuring. Merken en leveranciers zijn zelf verantwoordelijk voor hun producten, diensten en de informatie die ze publiceren.'],

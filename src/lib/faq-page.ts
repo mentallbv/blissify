@@ -28,10 +28,10 @@ export const FAQ_CATEGORIES: FaqCategory[] = [
     ]
   },
   {
-    "title": "Merken & leveranciers",
+    "title": "Producten & materiaal",
     "items": [
       [
-        "Wat kan ik vinden bij Merken & leveranciers?",
+        "Wat kan ik vinden bij Producten & materiaal?",
         "Je ontdekt professionele merken, leveranciers, producten en apparatuur voor beauty en wellness. Via de merkprofielen klik je rechtstreeks door naar de website of webshop."
       ],
       [

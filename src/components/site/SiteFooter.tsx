@@ -10,10 +10,10 @@ const COLS: { head: string; items: FooterLink[] }[] = [
     head: 'Ontdekken',
     items: [
       { label: 'Salons & professionals', href: '/salons-professionals' },
-      { label: 'Merken & leveranciers', href: '/merken-leveranciers' },
+      { label: 'Producten & materiaal', href: '/merken-leveranciers' },
       { label: 'Opleidingen', href: '/opleidingen' },
       { label: 'Werkruimtes', href: '/werkruimtes' },
-      { label: 'Vacatures & samenwerkingen', href: '/vacatures' },
+      { label: 'Vacatures', href: '/vacatures' },
     ],
   },
   {

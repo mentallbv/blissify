@@ -32,6 +32,7 @@ import * as migration_20261113_round4_options from './20261113_round4_options';
 import * as migration_20261116_vacancy_comp_basis from './20261116_vacancy_comp_basis';
 import * as migration_20261116_new_prices from './20261116_new_prices';
 import * as migration_20261116_course_kinds from './20261116_course_kinds';
+import * as migration_20261117_homepage_products from './20261117_homepage_products';
 import * as migration_20261014_type_drives_lesvorm from './20261014_type_drives_lesvorm';
 import * as migration_20261014_trainer_cover_image from './20261014_trainer_cover_image';
 import * as migration_20261014_collaborations from './20261014_collaborations';
@@ -275,5 +276,10 @@ export const migrations = [
     up: migration_20261116_course_kinds.up,
     down: migration_20261116_course_kinds.down,
     name: '20261116_course_kinds',
+  },
+  {
+    up: migration_20261117_homepage_products.up,
+    down: migration_20261117_homepage_products.down,
+    name: '20261117_homepage_products',
   },
 ];

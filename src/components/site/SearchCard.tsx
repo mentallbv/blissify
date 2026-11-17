@@ -59,11 +59,11 @@ const MODES: Record<
     showLocation: true,
   },
   merken: {
-    label: 'Merken & leveranciers',
-    title: 'Vind een merk of leverancier',
+    label: 'Producten & materiaal',
+    title: 'Vind producten & materiaal',
     fieldLabel: 'Welk merk, product of apparaat zoek je?',
     placeholders: ['huidverzorging...', 'apparatuur...', 'nagelproducten...', 'groothandel...', 'massageolie...'],
-    button: 'Zoek merken & leveranciers',
+    button: 'Zoek producten & materiaal',
     path: '/merken-leveranciers',
     keywordParam: 'q',
     showLocation: false,
@@ -176,7 +176,7 @@ export function SearchCard({
             >
               {m === 'merken' ? (
                 <>
-                  Merken<span className="bl-hide-narrow"> &amp; leveranciers</span>
+                  Producten<span className="bl-hide-narrow"> &amp; materiaal</span>
                 </>
               ) : (
                 MODES[m].label
