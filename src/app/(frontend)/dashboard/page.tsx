@@ -7,7 +7,8 @@ import { getCurrentUser, getCurrentProfile, profileName } from '@/lib/session'
 import { getMyCourses, getMyCourseCounts, getMyVacancies, getMyWorkspaces } from '@/lib/dashboard-data'
 import { VacanciesManager } from '@/components/dashboard/VacanciesManager'
 import { WorkspacesManager } from '@/components/dashboard/WorkspacesManager'
-import { getLeadsForCourses, getProfileViewEvents } from '@/lib/supabase'
+import { getLeadsForCourses, getProfileViewEvents, getCourseViewEvents, getClickEvents } from '@/lib/supabase'
+import { countConversions, conversionRate } from '@/lib/conversion'
 import { isEntitled } from '@/lib/entitlement'
 import { tierForUser } from '@/lib/tier-features'
 import { publicationLimit } from '@/lib/publications'
@@ -39,11 +40,10 @@ export default async function DashboardOverviewPage() {
   const leads = await getLeadsForCourses(courseIds)
   // Statistics (views, request counts, conversion) are a Premium+ perk: Lite sees none.
   const hasAnalytics = tierForUser(sub || {}).features.hasAnalytics
-  const views = hasAnalytics
-    ? await getProfileViewEvents(
-        profile?.kind === 'brand' ? { brandId: profile.doc.id } : profile?.kind === 'trainer' ? { trainerId: profile.doc.id } : {},
-      )
-    : []
+  const ownerRef = profile?.kind === 'brand' ? { brandId: profile.doc.id } : profile?.kind === 'trainer' ? { trainerId: profile.doc.id } : {}
+  const [views, courseViews, clicks] = hasAnalytics
+    ? await Promise.all([getProfileViewEvents(ownerRef), getCourseViewEvents(courseIds), getClickEvents({ ...ownerRef, courseIds })])
+    : [[], [], []]
 
   // enquiries per course
   const perCourse = new Map<string, number>()
@@ -59,7 +59,7 @@ export default async function DashboardOverviewPage() {
 
   const viewCount = views.length
   const leadCount = leads.length
-  const conversion = viewCount > 0 ? `${((leadCount / viewCount) * 100).toFixed(1).replace('.', ',')}%` : '-'
+  const conversion = conversionRate(countConversions(clicks, leadCount), viewCount + courseViews.length)
 
   return (
     <>
@@ -89,7 +89,7 @@ export default async function DashboardOverviewPage() {
           <MetricCard label="Profielweergaven" value={viewCount.toLocaleString('nl-BE')} change="0% t.o.v. vorige maand" />
           <MetricCard label="Aanvragen" value={leadCount.toLocaleString('nl-BE')} change={`${leadCount} totaal`} />
           <MetricCard label="Actieve opleidingen" value={String(counts.active)} change={`${counts.total} totaal`} />
-          <MetricCard label="Conversieratio" value={conversion} change="leads ÷ weergaven" featured />
+          <MetricCard label="Conversieratio" value={conversion} change="klikken + formulieren ÷ weergaven" featured />
         </div>
       ) : (
         <div className="bl-dashboard-metrics" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 40 }}>

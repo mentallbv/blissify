@@ -7,6 +7,7 @@ import { getCurrentUser, getCurrentProfile } from '@/lib/session'
 import { getMyCourses, getMyVacancies, getMyWorkspaces } from '@/lib/dashboard-data'
 import { getProfileViewEvents, getCourseViewEvents, getVacancyViewEvents, getWorkspaceViewEvents, getClickEvents, getLeadsForCourses, supabaseConfigured } from '@/lib/supabase'
 import { tierForUser } from '@/lib/tier-features'
+import { countConversions, conversionRate } from '@/lib/conversion'
 import { redirect } from 'next/navigation'
 
 export const dynamic = 'force-dynamic'
@@ -113,7 +114,8 @@ export default async function DashboardAnalyticsPage() {
   const nf = (n: number) => n.toLocaleString('nl-BE')
   const hasData = supabaseConfigured() && views.length > 0
   const totalViews = views.length
-  const conversion = totalViews > 0 ? `${((leads.length / totalViews) * 100).toFixed(1).replace('.', ',')}%` : '-'
+  const conversions = countConversions(clicks, leads.length)
+  const conversion = conversionRate(conversions, totalViews + courseViews.length)
 
   const cell: React.CSSProperties = { padding: '12px', borderBottom: '1px solid var(--border-hairline)' }
   const trendCell = (trend: number) => trend > 0
@@ -169,7 +171,7 @@ export default async function DashboardAnalyticsPage() {
         <MetricCard
           label={"Conversie\u00ADratio"}
           value={conversion}
-          info="Het percentage weergaven dat leidt tot een aanvraag: aanvragen ÷ profielweergaven. Bijvoorbeeld 5 aanvragen op 100 weergaven = 5%."
+          info={`Het percentage weergaven dat leidt tot een conversie. Een conversie is een klik naar je website of inschrijvingslink, of een verstuurd contactformulier (${nf(conversions)} in totaal). Berekening: conversies ÷ weergaven van je profiel en opleidingen. Bijvoorbeeld 5 conversies op 100 weergaven = 5%.`}
         />
       </div>
 
