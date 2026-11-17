@@ -1,4 +1,5 @@
 import React from 'react'
+import { SaveCourseButton } from '@/components/site/SaveCourseButton'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { SiteChrome } from '@/components/site/SiteChrome'
@@ -93,6 +94,7 @@ export default async function MerkPage({ params }: Params) {
                   Vraag meer informatie
                 </ButtonLink>
               ) : null}
+              <SaveCourseButton tone="light" course={{ kind: 'merk', href: `/merken-leveranciers/${slug}`, title: brand.name, category: partnerType, provider: origin, location: origin, price: '', format: '', image: brand.cover || brand.logo || null, providerType: 'brand' }} />
               {brand.website ? <a href={brand.website} target="_blank" rel="noopener noreferrer" aria-label="Website" style={{ color: 'var(--blissify-chalk)', fontSize: 20 }}><i className="ti ti-world" /></a> : null}
               {brand.social?.instagram ? <a href={brand.social.instagram} target="_blank" rel="noopener noreferrer" aria-label="Instagram" style={{ color: 'var(--blissify-chalk)', fontSize: 20 }}><i className="ti ti-brand-instagram" /></a> : null}
               {brand.social?.facebook ? <a href={brand.social.facebook} target="_blank" rel="noopener noreferrer" aria-label="Facebook" style={{ color: 'var(--blissify-chalk)', fontSize: 20 }}><i className="ti ti-brand-facebook" /></a> : null}

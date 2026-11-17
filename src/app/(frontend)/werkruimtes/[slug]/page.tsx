@@ -1,4 +1,5 @@
 import React from 'react'
+import { SaveCourseButton } from '@/components/site/SaveCourseButton'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { SiteChrome } from '@/components/site/SiteChrome'
@@ -163,6 +164,7 @@ export default async function WorkspacePage({ params }: Params) {
               <p className="bl-contactbox-note"><i className="ti ti-lock" aria-hidden="true" />Je gegevens gaan alleen naar de verhuurder. Het adres en telefoonnummer van het salon blijven verborgen.</p>
             </div>
             <a href="/modelhuurovereenkomst" className="bl-textlink" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 13, padding: '0 4px' }}><i className="ti ti-file-text" aria-hidden="true" />Modelhuurovereenkomst</a>
+            <SaveCourseButton course={{ kind: 'werkruimte', href: `/werkruimtes/${w.slug}`, title: w.title, category: workplaceLabels(w.workplaceTypes || []).join(', ') || 'Werkruimte', provider: w.companyName, location: w.city, price, format: usageLabel(w.usage) || '', image: photos[0] || null, providerType: w.brand ? 'brand' : 'trainer' }} />
             <div style={{ padding: '0 4px' }}><ReportListing kind="workspace" slug={w.slug} /></div>
           </aside>
         </div>

@@ -1,4 +1,5 @@
 import React from 'react'
+import { SaveCourseButton } from '@/components/site/SaveCourseButton'
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { SiteChrome } from '@/components/site/SiteChrome'
@@ -148,6 +149,7 @@ export default async function VacancyPage({ params }: Params) {
                 {v.website ? <span><i className="ti ti-world" aria-hidden="true" /><a href={v.website} target="_blank" rel="noopener noreferrer" className="bl-textlink">Website</a></span> : null}
               </div>
             </div>
+            <SaveCourseButton course={{ kind: 'vacature', href: `/vacatures/${v.slug}`, title: v.title, category: functions || 'Vacature', provider: v.companyName, location: v.city, price: compensation || 'Vergoeding in overleg', format: types, image: cover || logo || null, providerType: v.brand ? 'brand' : 'trainer' }} />
             <p className="bl-contactbox-note" style={{ padding: '0 4px' }}><i className="ti ti-shield-check" aria-hidden="true" />Blissify verzamelt geen gegevens van kandidaten.</p>
           </aside>
         </div>

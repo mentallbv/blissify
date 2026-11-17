@@ -6,7 +6,7 @@ import { SavedCoursesList } from '@/components/site/SavedCoursesList'
 
 export const metadata: Metadata = {
   title: 'Mijn favorieten',
-  description: 'Je favoriete beauty- en wellnessopleidingen op dit toestel, om later terug te vinden en te vergelijken.',
+  description: 'Je favoriete opleidingen, werkruimtes, vacatures en merken op dit toestel, om later terug te vinden en te vergelijken.',
   robots: { index: false },
 }
 
@@ -20,7 +20,7 @@ export default function SavedCoursesPage() {
           Mijn favorieten
         </h1>
         <p style={{ fontFamily: 'var(--font-ui)', fontSize: 16, lineHeight: 1.7, color: 'var(--text-body)', maxWidth: 640, margin: '20px 0 0' }}>
-          Bewaar opleidingen die je interessant vindt. Zo kun je ze later gemakkelijk terugvinden en vergelijken. Je favorieten worden op dit toestel bewaard en blijven beschikbaar zolang je je browsergegevens niet wist.
+          Bewaar opleidingen, werkruimtes, vacatures en merken die je interessant vindt. Zo kun je ze later gemakkelijk terugvinden en vergelijken. Je favorieten worden op dit toestel bewaard en blijven beschikbaar zolang je je browsergegevens niet wist.
         </p>
       </section>
       <section className="bl-container" style={{ paddingTop: 24, paddingBottom: 80 }}>

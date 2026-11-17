@@ -10,7 +10,20 @@ import React from 'react'
  * simply behaves as if nothing is saved.
  */
 
+/** What a favourite is (Lonne, Nov 2026: also werkruimtes, vacatures and producten & materiaal). Older entries have none and are courses. */
+export type SavedKind = 'opleiding' | 'werkruimte' | 'vacature' | 'merk'
+
+export const SAVED_KIND_LABEL: Record<SavedKind, { one: string; many: string; save: string }> = {
+  opleiding: { one: 'opleiding', many: 'Opleidingen', save: 'Opleiding opslaan' },
+  werkruimte: { one: 'werkruimte', many: 'Werkruimtes', save: 'Werkruimte opslaan' },
+  vacature: { one: 'vacature', many: 'Vacatures', save: 'Vacature opslaan' },
+  merk: { one: 'merk', many: 'Producten & materiaal', save: 'Merk opslaan' },
+}
+
+export const savedKind = (c: { kind?: SavedKind }): SavedKind => c.kind || 'opleiding'
+
 export type SavedCourse = {
+  kind?: SavedKind
   href: string
   title: string
   category: string
