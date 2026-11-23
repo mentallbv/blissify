@@ -5,7 +5,7 @@ import { Logo } from '@/components/ui/Logo'
 import { Input, Select, Button, Tag } from '@/components/ui'
 import { PricingCard, type PricingCardTier } from '@/components/site/PricingCard'
 import { FormErrorCard } from '@/components/site/FormErrorCard'
-import { PaymentMethodPicker, usePaymentMethods } from '@/components/dashboard/PaymentMethodPicker'
+import { DiscountCodeField, PaymentMethodPicker, usePaymentMethods } from '@/components/dashboard/PaymentMethodPicker'
 import type { BillingValues } from '@/components/dashboard/BillingForm'
 
 const STEPS = [
@@ -85,8 +85,17 @@ export function OnboardingFlow({
   // more than one is available, otherwise checkout starts straight away.
   const [chosenTier, setChosenTier] = React.useState<OnboardingTier['key'] | null>(null)
   const [method, setMethod] = React.useState<string | null>(null)
-  const methods = usePaymentMethods(chosenTier || '', billingCycle, Boolean(chosenTier))
-  const choosing = Boolean(chosenTier) && methods !== null && methods.length > 1
+  // Item 13: optional discount code, checked for the chosen formule before checkout starts.
+  const [discountCode, setDiscountCode] = React.useState('')
+  const [codeError, setCodeError] = React.useState<string | null>(null)
+  const [codeSummary, setCodeSummary] = React.useState<string | null>(null)
+  const codeRejected = React.useRef(false)
+  const methods = usePaymentMethods(chosenTier || '', billingCycle, Boolean(chosenTier), (_p, _ok, d) => {
+    codeRejected.current = Boolean(discountCode && d?.error)
+    setCodeError(discountCode ? d?.error || null : null)
+    setCodeSummary(d?.applied ? `${d.applied.code}: ${d.applied.summary}.` : null)
+  }, discountCode)
+  const choosing = Boolean(chosenTier) && methods !== null && methods.length > 1 && !codeRejected.current
   const autoStarted = React.useRef(false)
   const toggleSpec = (s: string) => setSpecs((cur) => (cur.includes(s) ? cur.filter((x) => x !== s) : [...cur, s]))
 
@@ -140,7 +149,7 @@ export function OnboardingFlow({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ tier, billingCycle, method: chosenMethod }),
+        body: JSON.stringify({ tier, billingCycle, method: chosenMethod, ...(discountCode ? { discountCode } : {}) }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok || !data?.checkoutUrl) throw new Error(data?.error || 'checkout_failed')
@@ -160,7 +169,13 @@ export function OnboardingFlow({
 
   // Only one method available -> skip the picker entirely.
   React.useEffect(() => {
-    if (!chosenTier || methods === null || methods.length > 1 || autoStarted.current) return
+    if (!chosenTier || methods === null || autoStarted.current) return
+    // An invalid code: stay on this step so the user can fix or remove it.
+    if (codeRejected.current) {
+      setChosenTier(null)
+      return
+    }
+    if (methods.length > 1) return
     autoStarted.current = true
     void startCheckout(chosenTier)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -285,6 +300,24 @@ export function OnboardingFlow({
                 Je betaalt {billingCycle === 'monthly' ? 'maandelijks vooraf en kunt per maand opzeggen' : 'het volledige jaar vooraf'}; publiceren kan zodra je betaling is bevestigd.
                 Alle prijzen zijn exclusief btw; bij de betaling komt daar 21% btw bij (voor bedrijven uit een ander EU-land met een geldig btw-nummer: btw verlegd). Je ontvangt automatisch een factuur. Het abonnement wordt automatisch verlengd totdat je de verlenging stopzet; reeds betaalde periodes worden niet terugbetaald.
               </p>
+
+              <div style={{ maxWidth: 420, margin: '0 0 20px' }}>
+                <DiscountCodeField
+                  applied={discountCode}
+                  error={codeError}
+                  disabled={loading || Boolean(chosenTier)}
+                  onApply={(c) => {
+                    setDiscountCode(c)
+                    setCodeError(null)
+                    setCodeSummary(null)
+                  }}
+                />
+                {discountCode && !codeError ? (
+                  <p style={{ fontFamily: 'var(--font-ui)', fontSize: 12, lineHeight: 1.5, color: 'var(--text-meta)', margin: '-4px 0 0' }}>
+                    {codeSummary || 'Je kortingscode wordt toegepast zodra je een formule kiest. Je ziet het bedrag bij Mollie voor je betaalt.'}
+                  </p>
+                ) : null}
+              </div>
 
               <div className="bl-cat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20, alignItems: 'start' }}>
                 {tiers.map((t) => (

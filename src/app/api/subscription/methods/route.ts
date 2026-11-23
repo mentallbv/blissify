@@ -5,6 +5,7 @@ import config from '@/payload.config'
 import { listFirstPaymentMethods, mollieConfigured, type BillingCycle, type PlanTier } from '@/lib/mollie'
 import { resolvePlan } from '@/lib/subscription-plan'
 import { billingComplete, quote, type BillingUser } from '@/lib/vat'
+import { applyDiscount, normalizeCode } from '@/lib/discounts'
 
 /**
  * GET /api/subscription/methods?tier=&billingCycle= - payment methods the user
@@ -18,7 +19,7 @@ export async function GET(req: Request) {
     const { user } = await payload.auth({ headers: await getHeaders() })
     if (!user) return NextResponse.json({ error: 'Niet ingelogd.' }, { status: 401 })
 
-    const u = user as { role?: string } & BillingUser
+    const u = user as { id: number; role?: string } & BillingUser
     if (u.role !== 'trainer' && u.role !== 'brand') {
       return NextResponse.json({ error: 'Alleen opleiders en merken kunnen een abonnement starten.' }, { status: 400 })
     }
@@ -30,11 +31,25 @@ export async function GET(req: Request) {
     const plan = await resolvePlan(u.role, tier, billingCycle)
     if (!plan.ok) return NextResponse.json({ error: plan.error }, { status: plan.status })
 
+    // Item 13: ?code= previews a discount code. An invalid code returns its reason, with the normal price.
+    const code = normalizeCode(url.searchParams.get('code'))
+    let discount: { code: string; amount: string; full: string; summary: string } | null = null
+    let discountError: string | null = null
+    let net = plan.amount
+    if (code) {
+      const res = await applyDiscount(payload, { code, user: u, tier, billingCycle, base: Number(plan.amount) })
+      if (res.ok) {
+        net = res.applied.discounted.toFixed(2)
+        discount = { code: res.applied.code.code, amount: res.applied.discount.toFixed(2), full: Number(plan.amount).toFixed(2), summary: res.applied.summary }
+      } else discountError = res.error
+    }
     // The price summary (excl. btw, btw, total) is shown before the user pays.
-    const price = quote(plan.amount, u)
+    const price = quote(net, u)
     const methods = mollieConfigured() ? await listFirstPaymentMethods(price.gross) : []
     return NextResponse.json({
       price,
+      discount,
+      discountError,
       billingComplete: billingComplete(u),
       methods: methods.map((m) => ({ id: m.id, description: m.description, image: m.image?.svg || m.image?.size2x || null })),
     })

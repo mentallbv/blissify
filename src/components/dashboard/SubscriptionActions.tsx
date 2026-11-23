@@ -3,7 +3,7 @@
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui'
-import { PaymentMethodPicker, PriceSummary, usePaymentMethods, type PriceQuote } from '@/components/dashboard/PaymentMethodPicker'
+import { DiscountCodeField, PaymentMethodPicker, PriceSummary, usePaymentMethods, type DiscountPreview, type PriceQuote } from '@/components/dashboard/PaymentMethodPicker'
 
 /**
  * Dashboard banner shown whenever the subscription is not active. Re-triggers
@@ -101,10 +101,16 @@ export function CheckoutButton({
   const [armed, setArmed] = React.useState(false)
   const [price, setPrice] = React.useState<PriceQuote | null>(null)
   const [billingOk, setBillingOk] = React.useState(true)
-  const methods = usePaymentMethods(tier, billingCycle, armed, (p, ok) => {
+  // Item 13: discount code, previewed through the methods endpoint before paying.
+  const [code, setCode] = React.useState('')
+  const [discount, setDiscount] = React.useState<DiscountPreview | null>(null)
+  const [codeError, setCodeError] = React.useState<string | null>(null)
+  const methods = usePaymentMethods(tier, billingCycle, armed, (p, ok, d) => {
     setPrice(p)
     setBillingOk(ok)
-  })
+    setDiscount(d?.applied || null)
+    setCodeError(d?.error || null)
+  }, code)
   // Once armed, always confirm: the user sees the total incl. btw before paying.
   const choosing = armed && methods !== null
   const needsMethod = choosing && methods.length > 1
@@ -117,7 +123,7 @@ export function CheckoutButton({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ tier, billingCycle, method }),
+        body: JSON.stringify({ tier, billingCycle, method, ...(discount ? { discountCode: discount.code } : {}) }),
       })
       const data = await res.json().catch(() => ({}))
       if (!res.ok) throw new Error(data?.error || 'Kon de wijziging niet verwerken.')
@@ -143,7 +149,8 @@ export function CheckoutButton({
           Vul eerst je <a href="#facturatie" className="bl-textlink">facturatiegegevens</a> in.
         </p>
       ) : null}
-      {choosing && billingOk && price ? <PriceSummary price={price} billingCycle={billingCycle} /> : null}
+      {armed && billingOk ? <DiscountCodeField applied={discount?.code || ''} error={codeError} onApply={setCode} disabled={loading || !choosing} /> : null}
+      {choosing && billingOk && price ? <PriceSummary price={price} billingCycle={billingCycle} discount={discount} /> : null}
       {choosing && billingOk ? <PaymentMethodPicker methods={methods} value={method} onChange={setMethod} /> : null}
       <Button
         variant={variant}

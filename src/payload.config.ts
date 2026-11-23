@@ -14,6 +14,8 @@ import { Brands } from './collections/Brands'
 import { Trainers } from './collections/Trainers'
 import { Courses } from './collections/Courses'
 import { Pages } from './collections/Pages'
+import { DiscountCodes } from './collections/DiscountCodes'
+import { DiscountRedemptions } from './collections/DiscountRedemptions'
 import { Invoices } from './collections/Invoices'
 import { Vacancies } from './collections/Vacancies'
 import { Workspaces } from './collections/Workspaces'
@@ -71,7 +73,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media, Categories, Brands, Trainers, Courses, Vacancies, Workspaces, Reviews, Collaborations, Pages, Invoices],
+  collections: [Users, Media, Categories, Brands, Trainers, Courses, Vacancies, Workspaces, Reviews, Collaborations, Pages, Invoices, DiscountCodes, DiscountRedemptions],
   globals: [Navigation, Homepage, Footer, Branding, SeoSettings, Pricing, SubscriptionSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

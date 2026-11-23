@@ -21,6 +21,8 @@ export async function invoicePayment(opts: {
   periodStart: Date
   periodEnd: Date
   proratedCredit?: number
+  /** Item 13: line explaining a discount code on this payment. */
+  discountNote?: string
 }): Promise<void> {
   const { payload, user, payment } = opts
   try {
@@ -43,6 +45,7 @@ export async function invoicePayment(opts: {
       opts.proratedCredit && opts.proratedCredit > 0
         ? `Verrekend tegoed van het vorige abonnement: € ${opts.proratedCredit.toLocaleString('nl-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} excl. btw.`
         : '',
+      opts.discountNote || '',
     ].filter(Boolean).join('\n')
 
     const base = {

@@ -79,12 +79,18 @@ export interface Config {
     collaborations: Collaboration;
     pages: Page;
     invoices: Invoice;
+    'discount-codes': DiscountCode;
+    'discount-redemptions': DiscountRedemption;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    'discount-codes': {
+      redemptions: 'discount-redemptions';
+    };
+  };
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -98,6 +104,8 @@ export interface Config {
     collaborations: CollaborationsSelect<false> | CollaborationsSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     invoices: InvoicesSelect<false> | InvoicesSelect<true>;
+    'discount-codes': DiscountCodesSelect<false> | DiscountCodesSelect<true>;
+    'discount-redemptions': DiscountRedemptionsSelect<false> | DiscountRedemptionsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -1364,6 +1372,105 @@ export interface Invoice {
   createdAt: string;
 }
 /**
+ * Kortingen op abonnementen. Bedragen zijn exclusief btw. Een code werkt alleen als ze actief is en binnen de geldigheid valt.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "discount-codes".
+ */
+export interface DiscountCode {
+  id: number;
+  /**
+   * Wat de klant invult, bv. LANCERING25. Wordt automatisch in hoofdletters gezet.
+   */
+  code: string;
+  active?: boolean | null;
+  /**
+   * Alleen zichtbaar voor admins, bv. "Lanceringsactie november".
+   */
+  description?: string | null;
+  discountType: 'percentage' | 'fixed';
+  /**
+   * 1 tot 100.
+   */
+  percentage?: number | null;
+  /**
+   * Per betaling. Nooit meer dan de prijs zelf.
+   */
+  amount?: number | null;
+  duration: 'once' | 'repeating' | 'forever';
+  /**
+   * Inclusief de eerste betaling. Bv. 3 bij maandelijks = 3 maanden korting.
+   */
+  durationPayments?: number | null;
+  /**
+   * Leeg = meteen.
+   */
+  validFrom?: string | null;
+  /**
+   * Leeg = geen einddatum.
+   */
+  validUntil?: string | null;
+  /**
+   * Leeg = onbeperkt.
+   */
+  maxRedemptions?: number | null;
+  /**
+   * Leeg = onbeperkt.
+   */
+  maxPerUser?: number | null;
+  audience?: ('all' | 'trainer' | 'brand') | null;
+  /**
+   * Niet geldig voor wie al eens betaald heeft.
+   */
+  newCustomersOnly?: boolean | null;
+  /**
+   * Leeg = alle formules.
+   */
+  tiers?: ('basis' | 'medium' | 'premium' | 'partner_listing' | 'partner_professional' | 'partner_premium')[] | null;
+  /**
+   * Leeg = jaarlijks en maandelijks.
+   */
+  billingCycles?: ('yearly' | 'monthly')[] | null;
+  /**
+   * Betaalde inwisselingen. Wordt automatisch bijgehouden.
+   */
+  timesRedeemed?: number | null;
+  totalDiscountGiven?: number | null;
+  redemptions?: {
+    docs?: (number | DiscountRedemption)[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Automatisch bijgehouden. Elke regel is één afrekening met een kortingscode.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "discount-redemptions".
+ */
+export interface DiscountRedemption {
+  id: number;
+  discountCode?: (number | null) | DiscountCode;
+  codeText?: string | null;
+  user?: (number | null) | User;
+  status: 'pending' | 'redeemed' | 'failed';
+  molliePaymentId?: string | null;
+  tier?: string | null;
+  billingCycle?: string | null;
+  fullAmount?: number | null;
+  discountAmount?: number | null;
+  /**
+   * Bij codes voor meerdere betalingen. 0 = vanaf nu volle prijs.
+   */
+  paymentsLeft?: number | null;
+  mollieSubscriptionId?: string | null;
+  redeemedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
@@ -1434,6 +1541,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'invoices';
         value: number | Invoice;
+      } | null)
+    | ({
+        relationTo: 'discount-codes';
+        value: number | DiscountCode;
+      } | null)
+    | ({
+        relationTo: 'discount-redemptions';
+        value: number | DiscountRedemption;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -2196,6 +2311,53 @@ export interface InvoicesSelect<T extends boolean = true> {
   reverseCharge?: T;
   isEInvoice?: T;
   issuedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "discount-codes_select".
+ */
+export interface DiscountCodesSelect<T extends boolean = true> {
+  code?: T;
+  active?: T;
+  description?: T;
+  discountType?: T;
+  percentage?: T;
+  amount?: T;
+  duration?: T;
+  durationPayments?: T;
+  validFrom?: T;
+  validUntil?: T;
+  maxRedemptions?: T;
+  maxPerUser?: T;
+  audience?: T;
+  newCustomersOnly?: T;
+  tiers?: T;
+  billingCycles?: T;
+  timesRedeemed?: T;
+  totalDiscountGiven?: T;
+  redemptions?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "discount-redemptions_select".
+ */
+export interface DiscountRedemptionsSelect<T extends boolean = true> {
+  discountCode?: T;
+  codeText?: T;
+  user?: T;
+  status?: T;
+  molliePaymentId?: T;
+  tier?: T;
+  billingCycle?: T;
+  fullAmount?: T;
+  discountAmount?: T;
+  paymentsLeft?: T;
+  mollieSubscriptionId?: T;
+  redeemedAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }

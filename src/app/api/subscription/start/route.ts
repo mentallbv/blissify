@@ -6,6 +6,7 @@ import { createCustomer, createFirstPayment, mollieConfigured, planLabel, update
 import { SITE_URL } from '@/lib/email'
 import { resolvePlan } from '@/lib/subscription-plan'
 import { sendEmail, emailHtml } from '@/lib/email'
+import { applyDiscount, normalizeCode, recordPendingRedemption, type AppliedDiscount } from '@/lib/discounts'
 import { billingComplete, checkVies, invoiceCountry, quote, type BillingUser } from '@/lib/vat'
 
 /** POST /api/subscription/start { tier, billingCycle, method } - create/reuse Mollie customer + first payment. */
@@ -46,6 +47,15 @@ export async function POST(req: Request) {
     const plan = await resolvePlan(u.role, tier, billingCycle)
     if (!plan.ok) return NextResponse.json({ error: plan.error }, { status: plan.status })
     let { amount } = plan
+    // Item 13: optional discount code. Checked again here, whatever the price preview said.
+    const discountCode = normalizeCode(body.discountCode)
+    let discount: AppliedDiscount | null = null
+    if (discountCode) {
+      const res = await applyDiscount(payload, { code: discountCode, user: u, tier, billingCycle, base: Number(plan.amount) })
+      if (!res.ok) return NextResponse.json({ error: res.error, code: 'discount_invalid' }, { status: 400 })
+      discount = res.applied
+      amount = discount.discounted.toFixed(2)
+    }
     const now = new Date()
     const nextChargeAt = new Date(now)
     if (billingCycle === 'monthly') nextChargeAt.setMonth(nextChargeAt.getMonth() + 1)
@@ -61,6 +71,9 @@ export async function POST(req: Request) {
     const isActiveChange = u.subscriptionStatus === 'active' && currentTier !== tier
     const isDowngrade = isActiveChange && targetRank < currentRank
 
+    if (isDowngrade && discount) {
+      return NextResponse.json({ error: 'Een kortingscode kan niet bij een overstap naar een kleinere formule. Laat het veld leeg.', code: 'discount_invalid' }, { status: 400 })
+    }
     if (isDowngrade) {
       const effectiveAt = u.subscriptionExpiresAt ? new Date(u.subscriptionExpiresAt) : nextChargeAt
       if (u.mollieCustomerId && u.mollieSubscriptionId) {
@@ -99,7 +112,7 @@ export async function POST(req: Request) {
 
     // Prices are excl. btw; Mollie charges the total incl. btw (lib/vat).
     const charge = quote(amount, u)
-    const renewal = quote(plan.amount, u)
+    const renewal = quote(discount ? discount.renewal.toFixed(2) : plan.amount, u)
 
     // Reuse the customer if we already created one for this user. The id is safe
     // to persist immediately - it says nothing about the subscription state.
@@ -131,11 +144,14 @@ export async function POST(req: Request) {
         action: isActiveChange ? 'upgrade' : 'activate',
         nextChargeAt: nextChargeAt.toISOString(),
         commitment,
+        ...(discount ? { discountCode: discount.code.code, discountAmount: discount.discount.toFixed(2) } : {}),
       },
     })
 
     const checkoutUrl = payment._links?.checkout?.href
     if (!checkoutUrl) return NextResponse.json({ error: 'Kon de betaling niet starten.' }, { status: 502 })
+    // The webhook finds this row by payment id and marks it used once Mollie confirms the payment.
+    if (discount) await recordPendingRedemption(payload, { applied: discount, userId: u.id, paymentId: payment.id, tier, billingCycle, base: Number(plan.amount) })
 
     // Only touch the subscription state once Mollie has accepted the payment, so
     // a failed checkout can never downgrade the account. An already-active
@@ -157,7 +173,7 @@ export async function POST(req: Request) {
       })
     }
 
-    return NextResponse.json({ checkoutUrl, chargedAmount: charge.gross, netAmount: charge.net, vatAmount: charge.vat, vatRate: charge.rate, proratedCredit: proratedCredit.toFixed(2) })
+    return NextResponse.json({ checkoutUrl, chargedAmount: charge.gross, netAmount: charge.net, vatAmount: charge.vat, vatRate: charge.rate, proratedCredit: proratedCredit.toFixed(2), ...(discount ? { discount: discount.discount.toFixed(2), discountSummary: discount.summary } : {}) })
   } catch (err) {
     // Mollie errors carry internal ids and are never safe to show to a user.
     console.error('[mollie] checkout start failed', err)

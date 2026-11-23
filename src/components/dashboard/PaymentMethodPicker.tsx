@@ -4,20 +4,28 @@ import React from 'react'
 
 export type PaymentMethod = { id: string; description: string; image: string | null }
 export type PriceQuote = { rate: number; reverseCharge: boolean; net: string; vat: string; gross: string }
+/** Item 13: a valid discount code as previewed by /api/subscription/methods. */
+export type DiscountPreview = { code: string; amount: string; full: string; summary: string }
 
 /** Loads the methods available for a plan. Returns `null` while still loading. */
-export function usePaymentMethods(tier: string, billingCycle: 'yearly' | 'monthly', enabled = true, onPrice?: (price: PriceQuote | null, billingComplete: boolean) => void) {
+export function usePaymentMethods(
+  tier: string,
+  billingCycle: 'yearly' | 'monthly',
+  enabled = true,
+  onPrice?: (price: PriceQuote | null, billingComplete: boolean, discount?: { applied: DiscountPreview | null; error: string | null }) => void,
+  code = '',
+) {
   const [methods, setMethods] = React.useState<PaymentMethod[] | null>(null)
 
   React.useEffect(() => {
     if (!enabled || !tier) return
     let active = true
     setMethods(null)
-    fetch(`/api/subscription/methods?tier=${encodeURIComponent(tier)}&billingCycle=${billingCycle}`, { credentials: 'include' })
+    fetch(`/api/subscription/methods?tier=${encodeURIComponent(tier)}&billingCycle=${billingCycle}${code ? `&code=${encodeURIComponent(code)}` : ''}`, { credentials: 'include' })
       .then((res) => res.json())
       .then((data) => {
         if (!active) return
-        onPrice?.(data?.price || null, data?.billingComplete !== false)
+        onPrice?.(data?.price || null, data?.billingComplete !== false, { applied: data?.discount || null, error: data?.discountError || null })
         setMethods(Array.isArray(data?.methods) ? data.methods : [])
       })
       .catch(() => {
@@ -28,7 +36,7 @@ export function usePaymentMethods(tier: string, billingCycle: 'yearly' | 'monthl
       active = false
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tier, billingCycle, enabled])
+  }, [tier, billingCycle, enabled, code])
 
   return methods
 }
@@ -109,15 +117,84 @@ export function PaymentMethodPicker({
 const euro = (v: string) => `€ ${Number(v).toLocaleString('nl-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 
 /** Excl. btw / btw / total, shown before the user leaves for Mollie. */
-export function PriceSummary({ price, billingCycle }: { price: PriceQuote; billingCycle: 'yearly' | 'monthly' }) {
+export function PriceSummary({ price, billingCycle, discount = null }: { price: PriceQuote; billingCycle: 'yearly' | 'monthly'; discount?: DiscountPreview | null }) {
   const row: React.CSSProperties = { display: 'flex', justifyContent: 'space-between', gap: 12, fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-body)' }
   return (
     <div style={{ background: 'var(--surface-soft)', borderRadius: 'var(--radius-sm)', padding: '12px 14px', margin: '0 0 12px', display: 'grid', gap: 6 }}>
-      <div style={row}><span>Prijs excl. btw</span><span>{euro(price.net)}</span></div>
+      {discount ? (
+        <>
+          <div style={row}><span>Prijs excl. btw</span><span>{euro(discount.full)}</span></div>
+          <div style={{ ...row, color: 'var(--status-success)' }}><span>Korting {discount.code}</span><span>− {euro(discount.amount)}</span></div>
+        </>
+      ) : null}
+      <div style={row}><span>{discount ? 'Na korting excl. btw' : 'Prijs excl. btw'}</span><span>{euro(price.net)}</span></div>
       <div style={row}><span>{price.reverseCharge ? 'Btw verlegd (0%)' : `Btw ${price.rate}%`}</span><span>{euro(price.vat)}</span></div>
       <div style={{ ...row, fontWeight: 'var(--fw-ui-medium)', color: 'var(--text-strong)', borderTop: '0.5px solid var(--border-hairline)', paddingTop: 6 }}>
-        <span>Totaal {billingCycle === 'monthly' ? 'per maand' : 'per jaar'}</span><span>{euro(price.gross)}</span>
+        <span>{discount ? 'Te betalen nu' : `Totaal ${billingCycle === 'monthly' ? 'per maand' : 'per jaar'}`}</span><span>{euro(price.gross)}</span>
       </div>
+      {discount ? <div style={{ fontFamily: 'var(--font-ui)', fontSize: 12, lineHeight: 1.5, color: 'var(--text-meta)' }}>{discount.summary}.</div> : null}
+    </div>
+  )
+}
+
+/**
+ * "Heb je een kortingscode?" (item 13). Collapsed by default; `onApply` gets the
+ * normalised code, or "" when the user removes it.
+ */
+export function DiscountCodeField({
+  applied,
+  error,
+  onApply,
+  disabled = false,
+}: {
+  applied: string
+  error?: string | null
+  onApply: (code: string) => void
+  disabled?: boolean
+}) {
+  const [open, setOpen] = React.useState(Boolean(applied))
+  const [value, setValue] = React.useState(applied)
+  const inputId = React.useId()
+  const small: React.CSSProperties = { fontFamily: 'var(--font-ui)', fontSize: 13 }
+  if (!open) {
+    return (
+      <button type="button" onClick={() => setOpen(true)} className="bl-textlink" style={{ ...small, background: 'none', border: 0, padding: 0, margin: '0 0 12px', cursor: 'pointer' }}>
+        Heb je een kortingscode?
+      </button>
+    )
+  }
+  const submit = () => onApply(value.trim().toUpperCase().replace(/\s+/g, ''))
+  return (
+    <div style={{ margin: '0 0 12px' }}>
+      <label htmlFor={inputId} style={{ ...small, display: 'block', color: 'var(--text-body)', marginBottom: 6 }}>Kortingscode</label>
+      <div style={{ display: 'flex', gap: 8 }}>
+        <input
+          id={inputId}
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault()
+              submit()
+            }
+          }}
+          autoComplete="off"
+          spellCheck={false}
+          aria-invalid={Boolean(error)}
+          aria-describedby={error ? `${inputId}-err` : undefined}
+          style={{ ...small, flex: 1, minWidth: 0, textTransform: 'uppercase', border: '0.5px solid ' + (error ? 'var(--status-error)' : 'var(--neutral-200)'), borderRadius: 'var(--radius-sm)', background: 'var(--surface-card)', padding: '8px 12px', color: 'var(--text-strong)' }}
+        />
+        {applied && value.trim().toUpperCase() === applied ? (
+          <button type="button" disabled={disabled} onClick={() => { setValue(''); onApply('') }} style={{ ...small, border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-sm)', background: 'var(--surface-card)', padding: '8px 12px', color: 'var(--text-body)', cursor: 'pointer' }}>
+            Verwijderen
+          </button>
+        ) : (
+          <button type="button" disabled={disabled || !value.trim()} onClick={submit} style={{ ...small, border: 0, borderRadius: 'var(--radius-sm)', background: 'var(--text-brand)', padding: '8px 14px', color: 'var(--surface-card)', cursor: 'pointer', opacity: disabled || !value.trim() ? 0.5 : 1 }}>
+            Toepassen
+          </button>
+        )}
+      </div>
+      {error ? <span id={`${inputId}-err`} role="alert" style={{ ...small, fontSize: 12, display: 'block', marginTop: 6, color: 'var(--status-error)' }}>{error}</span> : null}
     </div>
   )
 }
