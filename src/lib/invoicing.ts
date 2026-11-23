@@ -53,7 +53,9 @@ export async function invoicePayment(opts: {
       recipientIdentifier: `user-${user.id}`,
       recipient: {
         type: 'business' as const,
-        email: user.email,
+        // Mollie only emails verified organisation users in test mode, so a test payment
+        // sends its invoice to MOLLIE_TEST_INVOICE_EMAIL. Live payments always use the customer.
+        email: (payment.mode === 'test' && process.env.MOLLIE_TEST_INVOICE_EMAIL) || user.email,
         organizationName: user.billingCompanyName || user.name || user.email,
         vatNumber,
         organizationNumber: vatNumber ? undefined : user.chamberOfCommerceNumber || undefined,
