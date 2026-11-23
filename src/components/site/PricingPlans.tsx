@@ -30,28 +30,14 @@ export function PricingPlans({
 
   return (
     <>
+      {/* Two different controls, two different looks: "for whom" are tabs, "how you pay" is a small switch. */}
       {allowAudienceSwitch ? (
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 20 }}>
+        <div role="tablist" aria-label="Abonnementen voor" className="bl-audience-tabs">
           {([
             ['opleiders', 'Salons & professionals'],
             ['brands', 'Merken & leveranciers'],
           ] as const).map(([key, label]) => (
-            <button
-              key={key}
-              type="button"
-              onClick={() => setAudience(key)}
-              style={{
-                border: '1px solid ' + (audience === key ? 'var(--palette-slate-ink)' : 'var(--border-strong)'),
-                borderRadius: 'var(--radius-pill)',
-                background: audience === key ? 'var(--palette-slate-ink)' : 'rgba(255, 255, 255, 0.6)',
-                color: audience === key ? '#fff' : 'var(--palette-slate-ink)',
-                padding: '10px 18px',
-                cursor: 'pointer',
-                fontFamily: 'var(--font-ui)',
-                fontWeight: 'var(--fw-ui-medium)',
-                fontSize: 13,
-              }}
-            >
+            <button key={key} type="button" role="tab" aria-selected={audience === key} onClick={() => setAudience(key)} className={audience === key ? 'is-on' : undefined}>
               {label}
             </button>
           ))}
@@ -59,9 +45,10 @@ export function PricingPlans({
       ) : null}
 
       {monthlyAvailable ? (
-        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 32 }}>
-          <div role="radiogroup" aria-label="Betaalperiode" className="bl-cycle-toggle">
-            {([['monthly', 'Maandelijks'], ['yearly', 'Jaarlijks']] as const).map(([key, label]) => (
+        <div className="bl-cycle-row">
+          <span className="bl-cycle-label" id="bl-cycle-label">Hoe wil je betalen?</span>
+          <div role="radiogroup" aria-labelledby="bl-cycle-label" className="bl-cycle-toggle">
+            {([['monthly', 'Per maand'], ['yearly', 'Per jaar']] as const).map(([key, label]) => (
               <button key={key} type="button" role="radio" aria-checked={cycle === key} onClick={() => setCycle(key)} className={cycle === key ? 'is-on' : undefined}>
                 {label}
                 {key === 'yearly' ? <span className="bl-cycle-badge">Voordeligst</span> : null}
@@ -76,21 +63,30 @@ export function PricingPlans({
           const effectiveCycle = monthlyAvailable ? cycle : 'yearly'
           const amount = perMonth(tier, effectiveCycle)
           const saving = yearlySaving(tier)
+          const monthlyRate = perMonth(tier, 'monthly')
+          const showWas = effectiveCycle === 'yearly' && monthlyAvailable && monthlyRate > amount
           return (
             <div key={tier.key} className="bl-pricing-card" style={{ background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', padding: 32 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
                 <span style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 14, color: 'var(--text-strong)' }}>{tier.name}</span>
                 {tier.recommended ? <span style={{ fontFamily: 'var(--font-ui)', fontSize: 10, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#fff', background: 'var(--blissify-terracotta)', borderRadius: 999, padding: '3px 9px' }}>Aanbevolen</span> : null}
               </div>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, margin: '14px 0 6px' }}>
-                <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 48, color: 'var(--text-brand)' }}>{euro(amount)}</span>
-                <span style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-meta)' }}>/maand excl. btw</span>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, margin: '14px 0 2px', flexWrap: 'wrap' }}>
+                {showWas ? <s className="bl-price-was" aria-label={`Was ${euro(monthlyRate)} per maand`}>{euro(monthlyRate)}</s> : null}
+                <span style={{ fontFamily: 'var(--font-display)', fontWeight: 'var(--fw-display-light)', fontSize: 48, lineHeight: 1, color: 'var(--text-brand)' }}>{euro(amount)}</span>
+                <span style={{ fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-meta)' }}>per maand</span>
               </div>
-              <p style={{ fontFamily: 'var(--font-ui)', fontSize: 12, lineHeight: 1.5, color: 'var(--text-meta)', margin: '0 0 14px', minHeight: 18 }}>
-                {effectiveCycle === 'yearly'
-                  ? <>Jaarlijkse facturatie.{saving ? <> <span style={{ color: 'var(--text-accent)', fontWeight: 'var(--fw-ui-medium)' }}>Bespaar {euro(saving)} per jaar.</span></> : null}</>
-                  : 'Maandelijkse facturatie, maandelijks opzegbaar.'}
-              </p>
+              <p style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-meta)', margin: '0 0 12px' }}>excl. btw</p>
+              <div className="bl-price-terms">
+                {effectiveCycle === 'yearly' ? (
+                  <>
+                    <span>Jaarlijks betaald</span>
+                    {saving ? <span className="bl-price-save">Je bespaart {euro(saving)} per jaar</span> : null}
+                  </>
+                ) : (
+                  <span>Maandelijks betaald, maandelijks opzegbaar</span>
+                )}
+              </div>
               <p style={{ fontFamily: 'var(--font-ui)', fontSize: 14, lineHeight: 1.6, color: 'var(--text-body)', minHeight: 44 }}>{tier.desc}</p>
               <ButtonLink href={compact ? detailHref : `/registreren?type=${audience === 'brands' ? 'brand' : 'trainer'}&tier=${tier.key}&billing=${effectiveCycle}`} variant={tier.recommended ? 'accent' : 'primary'} fullWidth>
                 {compact ? 'Bekijk alle details' : `Kies ${tier.name}`}

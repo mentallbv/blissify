@@ -1817,8 +1817,19 @@ a.bl-coursecard:hover .bl-coursecard-image, a.bl-wscard:hover .bl-wscard-media {
 @media (prefers-reduced-motion: reduce) { .bl-compare-group > summary .ti { transition: none; } }
 
 /* Billing toggle on the plan cards (Lonne, Nov 2026: monthly price for both cycles). */
+.bl-audience-tabs { display: flex; justify-content: center; gap: 28px; margin: 0 auto 28px; border-bottom: 0.5px solid var(--border-hairline); max-width: 520px; }
+.bl-audience-tabs button { border: 0; background: none; cursor: pointer; padding: 12px 2px; margin-bottom: -0.5px; border-bottom: 2px solid transparent; font-family: var(--font-ui); font-weight: var(--fw-ui-medium); font-size: 15px; color: var(--text-meta); transition: color 0.2s ease, border-color 0.2s ease; }
+.bl-audience-tabs button:hover { color: var(--text-brand); }
+.bl-audience-tabs button.is-on { color: var(--text-brand); border-bottom-color: var(--text-brand); }
+.bl-audience-tabs button:focus-visible { outline: 2px solid var(--blissify-terracotta); outline-offset: 2px; }
+.bl-cycle-row { display: flex; justify-content: center; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 32px; }
+.bl-cycle-label { font-family: var(--font-ui); font-size: 13px; color: var(--text-meta); }
+.bl-price-was { font-family: var(--font-ui); font-size: 18px; color: var(--text-meta); text-decoration-thickness: 1px; }
+.bl-price-terms { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; min-height: 26px; margin: 0 0 16px; font-family: var(--font-ui); font-size: 13px; color: var(--text-body); }
+.bl-price-save { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: var(--radius-pill); background: var(--status-success-bg); color: var(--status-success); font-weight: var(--fw-ui-medium); font-size: 12px; }
+@media (prefers-reduced-motion: reduce) { .bl-audience-tabs button { transition: none; } }
 .bl-cycle-toggle { display: inline-flex; padding: 4px; gap: 4px; border-radius: var(--radius-pill); background: rgba(255, 255, 255, 0.6); border: 0.5px solid var(--border-strong); }
-.bl-cycle-toggle button { border: 0; background: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; padding: 9px 18px; border-radius: var(--radius-pill); font-family: var(--font-ui); font-weight: var(--fw-ui-medium); font-size: 13px; color: var(--palette-slate-ink); transition: background-color 0.2s ease, color 0.2s ease; }
+.bl-cycle-toggle button { border: 0; background: none; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: var(--radius-pill); font-family: var(--font-ui); font-weight: var(--fw-ui-medium); font-size: 13px; color: var(--palette-slate-ink); transition: background-color 0.2s ease, color 0.2s ease; }
 .bl-cycle-toggle button.is-on { background: var(--palette-slate-ink); color: #fff; }
 .bl-cycle-toggle button:focus-visible { outline: 2px solid var(--blissify-terracotta); outline-offset: 2px; }
 .bl-cycle-badge { font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; padding: 2px 7px; border-radius: var(--radius-pill); background: var(--blissify-terracotta); color: #fff; }

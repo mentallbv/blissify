@@ -217,7 +217,7 @@ export function yearlySaving(tier: { monthlyPrice?: number; annualPrice?: number
 }
 
 /** Euro amount without decimals when whole, nl-BE style. */
-export const euro = (n: number) => `€${n.toLocaleString('nl-BE', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`
+export const euro = (n: number) => `€${n.toLocaleString('nl-BE', { minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits: 2 })}`
 
 export function monthlyPrice(annualPrice: number, markupPercent: number): number {
   return Math.round((annualPrice * (1 + markupPercent / 100) / 12) * 100) / 100
