@@ -41,6 +41,9 @@ export async function POST(req: Request) {
   try {
     const payload = await getPayload({ config: await config })
     const payment = await getPayment(id)
+    // The payment that starts a plan: a subscription's first payment, or a test-mode
+    // one-off payment while MOLLIE_ONEOFF_TEST is on (lib/mollie ONEOFF_TEST).
+    const initial = payment.sequenceType === 'first' || (payment.sequenceType === 'oneoff' && payment.mode === 'test')
 
     // Resolve the user: prefer metadata.userId, fall back to the Mollie customer.
     let user: AnyUser | null = null
@@ -131,7 +134,7 @@ export async function POST(req: Request) {
         const handled = (await payload.count({ collection: 'invoices', where: { molliePaymentId: { equals: payment.id } } as never, overrideAccess: true })).totalDocs > 0
         if (handled) {
           /* already counted */
-        } else if (payment.sequenceType === 'first') {
+        } else if (initial) {
           const found = await payload.find({ collection: redemptions, where: { molliePaymentId: { equals: payment.id } } as never, limit: 1, depth: 0, overrideAccess: true })
           const r = found.docs[0] as unknown as RedemptionDoc | undefined
           if (r && r.status === 'pending') {
@@ -204,7 +207,7 @@ export async function POST(req: Request) {
 
       await mailchimpAddCustomer(user.email, user.role, tier, user.name || undefined)
     } else if (payment.status === 'failed' || payment.status === 'expired' || payment.status === 'canceled') {
-      if (payment.sequenceType === 'first') {
+      if (initial) {
         const found = await payload.find({ collection: 'discount-redemptions' as never, where: { and: [{ molliePaymentId: { equals: payment.id } }, { status: { equals: 'pending' } }] } as never, limit: 1, depth: 0, overrideAccess: true }).catch(() => null)
         const r = found?.docs[0] as { id: number } | undefined
         if (r) await payload.update({ collection: 'discount-redemptions' as never, id: r.id, data: { status: 'failed' } as never, overrideAccess: true }).catch(() => null)

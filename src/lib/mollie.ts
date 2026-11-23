@@ -8,6 +8,14 @@
 const API = 'https://api.mollie.com/v2'
 const KEY = process.env.MOLLIE_API_KEY
 export const MOLLIE_WEBHOOK_URL = process.env.MOLLIE_WEBHOOK_URL || ''
+/**
+ * Test-only: MOLLIE_ONEOFF_TEST=1 starts checkout as a one-off payment instead of a
+ * subscription's first payment, so an account without card or SEPA Direct Debit can
+ * still test activation, invoices and discount codes. No Mollie subscription is made.
+ * Refused for live payments (see createFirstPayment).
+ */
+export const ONEOFF_TEST = process.env.MOLLIE_ONEOFF_TEST === '1'
+const CHECKOUT_SEQUENCE = ONEOFF_TEST ? 'oneoff' : 'first'
 
 export type Tier = 'basis' | 'medium' | 'premium'
 
@@ -69,6 +77,7 @@ export type MolliePayment = {
   id: string
   status: 'open' | 'paid' | 'failed' | 'expired' | 'canceled' | 'pending' | 'authorized'
   sequenceType?: 'oneoff' | 'first' | 'recurring'
+  mode?: 'test' | 'live'
   amount?: { currency: string; value: string }
   subscriptionId?: string
   customerId?: string
@@ -92,7 +101,7 @@ export type MollieMethod = { id: string; description: string; image?: { size2x?:
  */
 export async function listFirstPaymentMethods(amount: string): Promise<MollieMethod[]> {
   const query = new URLSearchParams({
-    sequenceType: 'first',
+    sequenceType: CHECKOUT_SEQUENCE,
     'amount[value]': amount,
     'amount[currency]': 'EUR',
     locale: 'nl_BE',
@@ -119,13 +128,19 @@ export function createFirstPayment(opts: {
       // €0.02 also supports Bancontact's documented minimum amount.
       amount: { currency: 'EUR', value: opts.trialEnabled ? '0.02' : opts.amount },
       description: opts.description,
-      sequenceType: 'first',
+      sequenceType: CHECKOUT_SEQUENCE,
       // Omitted -> Mollie's hosted checkout shows the method picker itself.
       method: opts.method || undefined,
       redirectUrl: opts.redirectUrl,
       webhookUrl: MOLLIE_WEBHOOK_URL || undefined,
       metadata: opts.metadata,
     }),
+  }).then(async (payment) => {
+    if (ONEOFF_TEST && payment.mode !== 'test') {
+      await mollie(`/payments/${payment.id}`, { method: 'DELETE' }).catch(() => null)
+      throw new Error('MOLLIE_ONEOFF_TEST is only allowed with a test-mode key')
+    }
+    return payment
   })
 }
 
