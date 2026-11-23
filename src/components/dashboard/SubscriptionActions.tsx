@@ -3,7 +3,7 @@
 import React from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui'
-import { DiscountCodeField, PaymentMethodPicker, PriceSummary, usePaymentMethods, type DiscountPreview, type PriceQuote } from '@/components/dashboard/PaymentMethodPicker'
+import { DiscountCodeField, DowngradeNotice, PaymentMethodPicker, PriceSummary, usePaymentMethods, type DiscountPreview, type PlanChangePreview, type PriceQuote } from '@/components/dashboard/PaymentMethodPicker'
 
 /**
  * Dashboard banner shown whenever the subscription is not active. Re-triggers
@@ -105,15 +105,18 @@ export function CheckoutButton({
   const [code, setCode] = React.useState('')
   const [discount, setDiscount] = React.useState<DiscountPreview | null>(null)
   const [codeError, setCodeError] = React.useState<string | null>(null)
+  const [change, setChange] = React.useState<PlanChangePreview | null>(null)
   const methods = usePaymentMethods(tier, billingCycle, armed, (p, ok, d) => {
     setPrice(p)
     setBillingOk(ok)
     setDiscount(d?.applied || null)
     setCodeError(d?.error || null)
+    setChange(d?.change || null)
   }, code)
   // Once armed, always confirm: the user sees the total incl. btw before paying.
   const choosing = armed && methods !== null
-  const needsMethod = choosing && methods.length > 1
+  const downgrade = change?.kind === 'downgrade' ? change : null
+  const needsMethod = choosing && !downgrade && methods.length > 1
 
   async function start() {
     setLoading(true)
@@ -149,9 +152,10 @@ export function CheckoutButton({
           Vul eerst je <a href="#facturatie" className="bl-textlink">facturatiegegevens</a> in.
         </p>
       ) : null}
-      {armed && billingOk ? <DiscountCodeField applied={discount?.code || ''} error={codeError} onApply={setCode} disabled={loading || !choosing} /> : null}
-      {choosing && billingOk && price ? <PriceSummary price={price} billingCycle={billingCycle} discount={discount} /> : null}
-      {choosing && billingOk ? <PaymentMethodPicker methods={methods} value={method} onChange={setMethod} /> : null}
+      {choosing && billingOk && downgrade ? <DowngradeNotice change={downgrade} billingCycle={billingCycle} /> : null}
+      {armed && billingOk && !downgrade ? <DiscountCodeField applied={discount?.code || ''} error={codeError} onApply={setCode} disabled={loading || !choosing} /> : null}
+      {choosing && billingOk && price && !downgrade ? <PriceSummary price={price} billingCycle={billingCycle} discount={discount} change={change} /> : null}
+      {choosing && billingOk && !downgrade ? <PaymentMethodPicker methods={methods} value={method} onChange={setMethod} /> : null}
       <Button
         variant={variant}
         size="sm"
@@ -159,7 +163,7 @@ export function CheckoutButton({
         onClick={choosing ? start : () => setArmed(true)}
         disabled={loading || (armed && !choosing) || (needsMethod && !method) || (choosing && !billingOk)}
       >
-        {loading || (armed && !choosing) ? 'Bezig…' : choosing ? 'Doorgaan naar betaling' : label}
+        {loading || (armed && !choosing) ? 'Bezig…' : choosing ? (downgrade ? 'Bevestig overstap' : 'Doorgaan naar betaling') : label}
       </Button>
       {error ? <span style={{ display: 'block', marginTop: 8, fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--status-error)' }}>{error}</span> : null}
     </>

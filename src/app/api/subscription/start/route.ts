@@ -4,7 +4,7 @@ import { getPayload } from 'payload'
 import config from '@/payload.config'
 import { createCustomer, createFirstPayment, mollieConfigured, planLabel, updateSubscription, type BillingCycle, type PlanTier } from '@/lib/mollie'
 import { SITE_URL } from '@/lib/email'
-import { resolvePlan } from '@/lib/subscription-plan'
+import { planChange, resolvePlan } from '@/lib/subscription-plan'
 import { sendEmail, emailHtml } from '@/lib/email'
 import { applyDiscount, normalizeCode, recordPendingRedemption, type AppliedDiscount } from '@/lib/discounts'
 import { billingComplete, checkVies, invoiceCountry, quote, type BillingUser } from '@/lib/vat'
@@ -62,20 +62,15 @@ export async function POST(req: Request) {
     else nextChargeAt.setFullYear(nextChargeAt.getFullYear() + 1)
     const commitment = billingCycle === 'monthly' ? 'cancel_anytime' : 'annual'
 
-    const ladder = u.role === 'brand'
-      ? ['partner_listing', 'partner_professional', 'partner_premium']
-      : ['basis', 'medium', 'premium']
-    const currentTier = (u.role === 'brand' ? u.brandTier : u.subscriptionTier) || ladder[0]
-    const currentRank = ladder.indexOf(currentTier)
-    const targetRank = ladder.indexOf(tier)
-    const isActiveChange = u.subscriptionStatus === 'active' && currentTier !== tier
-    const isDowngrade = isActiveChange && targetRank < currentRank
+    const change = await planChange(u, tier, billingCycle, now)
+    const isActiveChange = change.kind !== 'new'
+    const isDowngrade = change.kind === 'downgrade'
 
     if (isDowngrade && discount) {
       return NextResponse.json({ error: 'Een kortingscode kan niet bij een overstap naar een kleinere formule. Laat het veld leeg.', code: 'discount_invalid' }, { status: 400 })
     }
     if (isDowngrade) {
-      const effectiveAt = u.subscriptionExpiresAt ? new Date(u.subscriptionExpiresAt) : nextChargeAt
+      const effectiveAt = new Date(change.effectiveAt)
       if (u.mollieCustomerId && u.mollieSubscriptionId) {
         await updateSubscription({ customerId: u.mollieCustomerId, subscriptionId: u.mollieSubscriptionId, tier, amount: quote(amount, u).gross, billingCycle, userId: u.id })
       }
@@ -97,18 +92,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ scheduled: true, effectiveAt: effectiveAt.toISOString() })
     }
 
-    // An upgrade starts a new period immediately. Credit the unused value of
-    // the current paid period against the new plan, exactly as described in the PDF.
-    let proratedCredit = 0
-    if (isActiveChange && targetRank > currentRank && u.subscriptionStartedAt && u.subscriptionExpiresAt) {
-      const currentPlan = await resolvePlan(u.role, currentTier as PlanTier, u.subscriptionBillingCycle || 'yearly')
-      const started = new Date(u.subscriptionStartedAt).getTime()
-      const expires = new Date(u.subscriptionExpiresAt).getTime()
-      const remaining = Math.max(0, expires - now.getTime())
-      const duration = Math.max(1, expires - started)
-      if (currentPlan.ok) proratedCredit = Number(currentPlan.amount) * Math.min(1, remaining / duration)
-      amount = Math.max(0.01, Number(amount) - proratedCredit).toFixed(2)
-    }
+    // An upgrade starts a new period immediately; the unused value of the current paid
+    // period is credited (lib/subscription-plan planChange, same numbers as the preview).
+    const proratedCredit = change.kind === 'upgrade' ? change.credit : 0
+    if (proratedCredit > 0) amount = Math.max(0.01, Number(amount) - proratedCredit).toFixed(2)
 
     // Prices are excl. btw; Mollie charges the total incl. btw (lib/vat).
     const charge = quote(amount, u)

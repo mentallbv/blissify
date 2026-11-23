@@ -6,13 +6,23 @@ export type PaymentMethod = { id: string; description: string; image: string | n
 export type PriceQuote = { rate: number; reverseCharge: boolean; net: string; vat: string; gross: string }
 /** Item 13: a valid discount code as previewed by /api/subscription/methods. */
 export type DiscountPreview = { code: string; amount: string; full: string; summary: string }
+/** Item 14: what switching from the current plan means, from /api/subscription/methods. */
+export type PlanChangePreview = {
+  kind: 'upgrade' | 'downgrade'
+  fromLabel: string
+  toLabel: string
+  credit: string
+  effectiveAt: string | null
+  periodEnd: string | null
+  renewal: PriceQuote
+}
 
 /** Loads the methods available for a plan. Returns `null` while still loading. */
 export function usePaymentMethods(
   tier: string,
   billingCycle: 'yearly' | 'monthly',
   enabled = true,
-  onPrice?: (price: PriceQuote | null, billingComplete: boolean, discount?: { applied: DiscountPreview | null; error: string | null }) => void,
+  onPrice?: (price: PriceQuote | null, billingComplete: boolean, discount?: { applied: DiscountPreview | null; error: string | null; change: PlanChangePreview | null }) => void,
   code = '',
 ) {
   const [methods, setMethods] = React.useState<PaymentMethod[] | null>(null)
@@ -25,7 +35,7 @@ export function usePaymentMethods(
       .then((res) => res.json())
       .then((data) => {
         if (!active) return
-        onPrice?.(data?.price || null, data?.billingComplete !== false, { applied: data?.discount || null, error: data?.discountError || null })
+        onPrice?.(data?.price || null, data?.billingComplete !== false, { applied: data?.discount || null, error: data?.discountError || null, change: data?.change || null })
         setMethods(Array.isArray(data?.methods) ? data.methods : [])
       })
       .catch(() => {
@@ -117,7 +127,9 @@ export function PaymentMethodPicker({
 const euro = (v: string) => `€ ${Number(v).toLocaleString('nl-BE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 
 /** Excl. btw / btw / total, shown before the user leaves for Mollie. */
-export function PriceSummary({ price, billingCycle, discount = null }: { price: PriceQuote; billingCycle: 'yearly' | 'monthly'; discount?: DiscountPreview | null }) {
+export function PriceSummary({ price, billingCycle, discount = null, change = null }: { price: PriceQuote; billingCycle: 'yearly' | 'monthly'; discount?: DiscountPreview | null; change?: PlanChangePreview | null }) {
+  const upgrade = change?.kind === 'upgrade' && Number(change.credit) > 0 ? change : null
+  const period = billingCycle === 'monthly' ? 'per maand' : 'per jaar'
   const row: React.CSSProperties = { display: 'flex', justifyContent: 'space-between', gap: 12, fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-body)' }
   return (
     <div style={{ background: 'var(--surface-soft)', borderRadius: 'var(--radius-sm)', padding: '12px 14px', margin: '0 0 12px', display: 'grid', gap: 6 }}>
@@ -127,12 +139,26 @@ export function PriceSummary({ price, billingCycle, discount = null }: { price: 
           <div style={{ ...row, color: 'var(--status-success)' }}><span>Korting {discount.code}</span><span>− {euro(discount.amount)}</span></div>
         </>
       ) : null}
-      <div style={row}><span>{discount ? 'Na korting excl. btw' : 'Prijs excl. btw'}</span><span>{euro(price.net)}</span></div>
+      {upgrade ? (
+        <>
+          {!discount ? <div style={row}><span>{upgrade.toLabel} excl. btw</span><span>{euro(upgrade.renewal.net)}</span></div> : null}
+          <div style={{ ...row, color: 'var(--status-success)' }}>
+            <span>Tegoed {upgrade.fromLabel}{upgrade.periodEnd ? ` (tot ${new Date(upgrade.periodEnd).toLocaleDateString('nl-BE')})` : ''}</span>
+            <span>− {euro(upgrade.credit)}</span>
+          </div>
+        </>
+      ) : null}
+      <div style={row}><span>{upgrade ? 'Nu te betalen excl. btw' : discount ? 'Na korting excl. btw' : 'Prijs excl. btw'}</span><span>{euro(price.net)}</span></div>
       <div style={row}><span>{price.reverseCharge ? 'Btw verlegd (0%)' : `Btw ${price.rate}%`}</span><span>{euro(price.vat)}</span></div>
       <div style={{ ...row, fontWeight: 'var(--fw-ui-medium)', color: 'var(--text-strong)', borderTop: '0.5px solid var(--border-hairline)', paddingTop: 6 }}>
-        <span>{discount ? 'Te betalen nu' : `Totaal ${billingCycle === 'monthly' ? 'per maand' : 'per jaar'}`}</span><span>{euro(price.gross)}</span>
+        <span>{discount || upgrade ? 'Te betalen nu' : `Totaal ${period}`}</span><span>{euro(price.gross)}</span>
       </div>
       {discount ? <div style={{ fontFamily: 'var(--font-ui)', fontSize: 12, lineHeight: 1.5, color: 'var(--text-meta)' }}>{discount.summary}.</div> : null}
+      {upgrade ? (
+        <div style={{ fontFamily: 'var(--font-ui)', fontSize: 12, lineHeight: 1.5, color: 'var(--text-meta)' }}>
+          {upgrade.toLabel} start vandaag. Het ongebruikte deel van je huidige periode wordt verrekend. Daarna {euro(upgrade.renewal.gross)} {period} incl. btw.
+        </div>
+      ) : null}
     </div>
   )
 }
@@ -195,6 +221,18 @@ export function DiscountCodeField({
         )}
       </div>
       {error ? <span id={`${inputId}-err`} role="alert" style={{ ...small, fontSize: 12, display: 'block', marginTop: 6, color: 'var(--status-error)' }}>{error}</span> : null}
+    </div>
+  )
+}
+
+/** Item 14: a downgrade only takes effect at the end of the paid period, so nothing is charged now. */
+export function DowngradeNotice({ change, billingCycle }: { change: PlanChangePreview; billingCycle: 'yearly' | 'monthly' }) {
+  const date = change.effectiveAt ? new Date(change.effectiveAt).toLocaleDateString('nl-BE') : 'het einde van je periode'
+  return (
+    <div style={{ background: 'var(--surface-soft)', borderRadius: 'var(--radius-sm)', padding: '12px 14px', margin: '0 0 12px', fontFamily: 'var(--font-ui)', fontSize: 13, lineHeight: 1.6, color: 'var(--text-body)' }}>
+      <strong style={{ fontWeight: 'var(--fw-ui-medium)', color: 'var(--text-strong)' }}>Je betaalt nu niets.</strong>{' '}
+      Op {date} stap je over van {change.fromLabel} naar {change.toLabel}. Tot dan behoud je alles van {change.fromLabel}. Daarna betaal je {euro(change.renewal.gross)} {billingCycle === 'monthly' ? 'per maand' : 'per jaar'} incl. btw.
+      <span style={{ display: 'block', marginTop: 6, fontSize: 12, color: 'var(--text-meta)' }}>Heb je dan meer publicaties online dan {change.toLabel} toelaat, dan gaan de oudste offline.</span>
     </div>
   )
 }

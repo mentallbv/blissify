@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server'
 import { headers as getHeaders } from 'next/headers'
 import { getPayload } from 'payload'
 import config from '@/payload.config'
-import { listFirstPaymentMethods, mollieConfigured, type BillingCycle, type PlanTier } from '@/lib/mollie'
-import { resolvePlan } from '@/lib/subscription-plan'
+import { listFirstPaymentMethods, mollieConfigured, planLabel, type BillingCycle, type PlanTier } from '@/lib/mollie'
+import { planChange, resolvePlan } from '@/lib/subscription-plan'
 import { billingComplete, quote, type BillingUser } from '@/lib/vat'
 import { applyDiscount, normalizeCode } from '@/lib/discounts'
 
@@ -19,7 +19,7 @@ export async function GET(req: Request) {
     const { user } = await payload.auth({ headers: await getHeaders() })
     if (!user) return NextResponse.json({ error: 'Niet ingelogd.' }, { status: 401 })
 
-    const u = user as { id: number; role?: string } & BillingUser
+    const u = user as { id: number; role?: string; subscriptionStatus?: string; subscriptionTier?: string; brandTier?: string; subscriptionBillingCycle?: BillingCycle; subscriptionStartedAt?: string; subscriptionExpiresAt?: string } & BillingUser
     if (u.role !== 'trainer' && u.role !== 'brand') {
       return NextResponse.json({ error: 'Alleen opleiders en merken kunnen een abonnement starten.' }, { status: 400 })
     }
@@ -43,6 +43,20 @@ export async function GET(req: Request) {
         discount = { code: res.applied.code.code, amount: res.applied.discount.toFixed(2), full: Number(plan.amount).toFixed(2), summary: res.applied.summary }
       } else discountError = res.error
     }
+    // Item 14: switching plans. Upgrade = now, minus the unused part of the current period;
+    // downgrade = at the end of the period, nothing to pay now. Same calculation as /start.
+    const change = await planChange(u, tier, billingCycle)
+    const renewal = quote(net, u)
+    if (change.kind === 'upgrade' && change.credit > 0) net = Math.max(0.01, Number(net) - change.credit).toFixed(2)
+    const changeInfo = change.kind === 'new' ? null : {
+      kind: change.kind,
+      fromLabel: planLabel(change.currentTier as PlanTier),
+      toLabel: planLabel(tier),
+      credit: change.credit.toFixed(2),
+      effectiveAt: change.kind === 'downgrade' ? change.effectiveAt : null,
+      periodEnd: change.kind === 'upgrade' ? change.periodEnd : null,
+      renewal,
+    }
     // The price summary (excl. btw, btw, total) is shown before the user pays.
     const price = quote(net, u)
     const methods = mollieConfigured() ? await listFirstPaymentMethods(price.gross) : []
@@ -50,6 +64,7 @@ export async function GET(req: Request) {
       price,
       discount,
       discountError,
+      change: changeInfo,
       billingComplete: billingComplete(u),
       methods: methods.map((m) => ({ id: m.id, description: m.description, image: m.image?.svg || m.image?.size2x || null })),
     })
