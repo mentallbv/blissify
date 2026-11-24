@@ -5,7 +5,7 @@ import { Logo } from '@/components/ui/Logo'
 import { Input, Select, Button, Tag } from '@/components/ui'
 import { PricingCard, type PricingCardTier } from '@/components/site/PricingCard'
 import { FormErrorCard } from '@/components/site/FormErrorCard'
-import { DiscountCodeField, PaymentMethodPicker, usePaymentMethods } from '@/components/dashboard/PaymentMethodPicker'
+import { DiscountCodeField, PaymentMethodPicker, PriceSummary, usePaymentMethods, type DiscountPreview, type PriceQuote } from '@/components/dashboard/PaymentMethodPicker'
 import type { BillingValues } from '@/components/dashboard/BillingForm'
 
 const STEPS = [
@@ -90,13 +90,18 @@ export function OnboardingFlow({
   const [codeError, setCodeError] = React.useState<string | null>(null)
   const [codeSummary, setCodeSummary] = React.useState<string | null>(null)
   const codeRejected = React.useRef(false)
-  const methods = usePaymentMethods(chosenTier || '', billingCycle, Boolean(chosenTier), (_p, _ok, d) => {
+  const [price, setPrice] = React.useState<PriceQuote | null>(null)
+  const [discount, setDiscount] = React.useState<DiscountPreview | null>(null)
+  const methods = usePaymentMethods(chosenTier || '', billingCycle, Boolean(chosenTier), (p, _ok, d) => {
+    setPrice(p)
+    setDiscount(d?.applied || null)
     codeRejected.current = Boolean(discountCode && d?.error)
     setCodeError(discountCode ? d?.error || null : null)
     setCodeSummary(d?.applied ? `${d.applied.code}: ${d.applied.summary}.` : null)
   }, discountCode)
-  const choosing = Boolean(chosenTier) && methods !== null && methods.length > 1 && !codeRejected.current
-  const autoStarted = React.useRef(false)
+  // Always confirm before paying: the user sees the total incl. btw first.
+  const choosing = Boolean(chosenTier) && methods !== null && !codeRejected.current
+  const needsMethod = choosing && methods !== null && methods.length > 1
   const toggleSpec = (s: string) => setSpecs((cur) => (cur.includes(s) ? cur.filter((x) => x !== s) : [...cur, s]))
 
   async function saveAndContinue() {
@@ -162,23 +167,19 @@ export function OnboardingFlow({
           : 'Er ging iets mis bij het starten van de betaling. Probeer het opnieuw of neem contact op als het probleem aanhoudt.',
       )
       setChosenTier(null)
-      autoStarted.current = false
       setLoading(false)
     }
   }
 
-  // Only one method available -> skip the picker entirely.
+  // An invalid code: go back to the tier choice so the user can fix or remove it.
+  // With a single payment method there is nothing to pick, so preselect it.
   React.useEffect(() => {
-    if (!chosenTier || methods === null || autoStarted.current) return
-    // An invalid code: stay on this step so the user can fix or remove it.
+    if (!chosenTier || methods === null) return
     if (codeRejected.current) {
       setChosenTier(null)
       return
     }
-    if (methods.length > 1) return
-    autoStarted.current = true
-    void startCheckout(chosenTier)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (methods.length === 1) setMethod(methods[0].id)
   }, [chosenTier, methods])
 
   return (
@@ -314,7 +315,7 @@ export function OnboardingFlow({
                 />
                 {discountCode && !codeError ? (
                   <p style={{ fontFamily: 'var(--font-ui)', fontSize: 12, lineHeight: 1.5, color: 'var(--text-meta)', margin: '-4px 0 0' }}>
-                    {codeSummary || 'Je kortingscode wordt toegepast zodra je een formule kiest. Je ziet het bedrag bij Mollie voor je betaalt.'}
+                    {codeSummary || 'Je kortingscode wordt toegepast zodra je een formule kiest. Je ziet het totaalbedrag voor je betaalt.'}
                   </p>
                 ) : null}
               </div>
@@ -330,7 +331,6 @@ export function OnboardingFlow({
                         fullWidth
                         onClick={() => {
                           setMethod(null)
-                          autoStarted.current = false
                           setChosenTier(t.key)
                         }}
                         disabled={loading || Boolean(chosenTier)}
@@ -344,14 +344,23 @@ export function OnboardingFlow({
 
               {choosing ? (
                 <div style={{ marginTop: 32, maxWidth: 520 }}>
-                  <PaymentMethodPicker methods={methods} value={method} onChange={setMethod} />
-                  <Button
-                    variant="accent"
-                    onClick={() => startCheckout(chosenTier as OnboardingTier['key'], method)}
-                    disabled={loading || !method}
-                  >
-                    {loading ? 'Bezig...' : 'Doorgaan naar betaling'}
-                  </Button>
+                  <h2 style={{ fontFamily: 'var(--font-ui)', fontWeight: 'var(--fw-ui-medium)', fontSize: 16, color: 'var(--text-strong)', margin: '0 0 12px' }}>
+                    Bevestig je keuze: {tiers.find((t) => t.key === chosenTier)?.name}, {billingCycle === 'monthly' ? 'maandelijks' : 'jaarlijks'} betalen
+                  </h2>
+                  {price ? <PriceSummary price={price} billingCycle={billingCycle} discount={discount} /> : null}
+                  {needsMethod ? <PaymentMethodPicker methods={methods} value={method} onChange={setMethod} /> : null}
+                  <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                    <Button
+                      variant="accent"
+                      onClick={() => startCheckout(chosenTier as OnboardingTier['key'], method)}
+                      disabled={loading || (needsMethod && !method)}
+                    >
+                      {loading ? 'Bezig...' : 'Doorgaan naar betaling'}
+                    </Button>
+                    <Button variant="ghost" onClick={() => { setChosenTier(null); setMethod(null) }} disabled={loading}>
+                      Andere formule kiezen
+                    </Button>
+                  </div>
                 </div>
               ) : null}
 
