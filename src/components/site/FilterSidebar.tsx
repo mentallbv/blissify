@@ -241,6 +241,7 @@ export function FilterSidebar({ options, lockCategory = false }: { options: Cour
         <div style={labelStyle}>Locatie</div>
         <LocationSelect
           cities={options.citiesByCountry}
+          counts={options.locationCounts}
           value={encodeLocation(current.locatie, current.land)}
           onChange={(e) => updateMany(decodeLocation(e.target.value))}
           style={selectStyle}

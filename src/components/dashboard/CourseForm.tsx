@@ -313,7 +313,8 @@ export function CourseForm({
         </div>
         <ImageUploadField
           label="Coverafbeelding"
-          hint="Wordt getoond bovenaan de opleidingspagina en in de directory · max 5 MB"
+          hint="Wordt getoond bovenaan de opleidingspagina en in de directory · minstens 1200 × 600 pixels · max 5 MB"
+          minSize={{ width: 1200, height: 600, message: 'Deze afbeelding is kleiner dan 1200 × 600 pixels. In de overzichten tonen we dan de standaardbanner; kies een grotere foto om je eigen beeld te tonen.' }}
           value={v.coverImage}
           onChange={(image) => set('coverImage', image)}
         />

@@ -61,15 +61,26 @@ function serverHeaders(): Record<string, string> {
 /** GET rows from a table with a raw PostgREST query string (server-side, service role). */
 export async function sbSelect<T>(table: string, query: string): Promise<T[]> {
   if (!supabaseConfigured()) return []
+  // PostgREST caps a response at 1000 rows. With `order=created_at.asc` that
+  // meant the newest events never showed once a profile passed 1000, so page
+  // through until a short page comes back (queries with their own limit run once).
+  const PAGE = 1000
+  const own = /(^|&)limit=/.test(query)
+  const rows: T[] = []
   try {
-    const res = await fetch(`${SERVER_URL}/rest/v1/${table}?${query}`, {
-      headers: serverHeaders(),
-      cache: 'no-store',
-    })
-    if (!res.ok) return []
-    return (await res.json()) as T[]
+    for (let offset = 0; offset < 50 * PAGE; offset += PAGE) {
+      const res = await fetch(`${SERVER_URL}/rest/v1/${table}?${query}${own ? '' : `&limit=${PAGE}&offset=${offset}`}`, {
+        headers: serverHeaders(),
+        cache: 'no-store',
+      })
+      if (!res.ok) return rows
+      const page = (await res.json()) as T[]
+      rows.push(...page)
+      if (own || page.length < PAGE) break
+    }
+    return rows
   } catch {
-    return []
+    return rows
   }
 }
 

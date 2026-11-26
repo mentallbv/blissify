@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     // Honeypot: real people never fill the hidden "website" field.
     if (str(body.website)) return NextResponse.json({ success: true })
 
-    const workspaceId = str(body.workspaceId, 20)
+    const workspaceId = str(String(body.workspaceId ?? ''), 20)
     const name = str(body.name, 120)
     const email = str(body.email, 200)
     const message = str(body.message, 3000)

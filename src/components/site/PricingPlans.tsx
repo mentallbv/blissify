@@ -93,7 +93,7 @@ export function PricingPlans({
               </ButtonLink>
               <div style={{ height: 1, background: 'var(--border-hairline)', margin: '22px 0' }} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {tier.features.slice(0, compact ? 3 : tier.features.length).map((feature) => {
+                {tier.features.map((feature) => {
                   const info = glossaryFor(feature)
                   return (
                     <div key={feature} style={{ display: 'flex', gap: 9, fontFamily: 'var(--font-ui)', fontSize: 13, color: 'var(--text-body)' }}>

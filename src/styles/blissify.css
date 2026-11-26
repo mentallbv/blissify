@@ -731,6 +731,7 @@ a.bl-providercard:hover,
   text-decoration: none;
   transition: background-color 0.2s ease, transform 0.3s var(--ease-out-quart), box-shadow 0.3s var(--ease-out-quart);
 }
+button.blnav-cta { border: 0; cursor: pointer; font-family: var(--font-ui); }
 .blnav-cta:hover { background: #2b3441; transform: translateY(-1px); box-shadow: var(--shadow-soft); }
 .blnav-menu-toggle,
 .blnav-mobile-menu {

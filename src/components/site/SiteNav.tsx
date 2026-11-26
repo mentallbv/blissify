@@ -93,14 +93,21 @@ export function SiteNav({ user = null }: { user?: { name?: string | null; role?:
               <a className="blnav-login blnav-account" href={accountHref}>
                 {accountLabel}
               </a>
-              <button type="button" className="blnav-logout" onClick={logout}>Uitloggen</button>
             </>
           ) : (
             <a className="blnav-login" href="/inloggen">Inloggen</a>
           )}
-          <a className="blnav-cta" href="/abonnementen-tarieven">
-            Plaats je aanbod
-          </a>
+          {/* Logged in, "Plaats je aanbod" is no longer relevant: log out takes its place (round 5 #5.9). */}
+          {user ? (
+            <button type="button" className="blnav-cta" onClick={logout}>
+              <i className="ti ti-logout" aria-hidden="true" style={{ marginRight: 8 }} />
+              Uitloggen
+            </button>
+          ) : (
+            <a className="blnav-cta" href="/abonnementen-tarieven">
+              Plaats je aanbod
+            </a>
+          )}
           <button
             type="button"
             className="blnav-menu-toggle"
@@ -121,9 +128,11 @@ export function SiteNav({ user = null }: { user?: { name?: string | null; role?:
           <span>Aanbieders</span>
           {PROVIDERS.map((p) => <a key={p.slug} href={p.href}>{p.label}</a>)}
         </div>
-        <div className="blnav-mobile-pricing">
-          <a href="/abonnementen-tarieven">Plaats je aanbod</a>
-        </div>
+        {user ? null : (
+          <div className="blnav-mobile-pricing">
+            <a href="/abonnementen-tarieven">Plaats je aanbod</a>
+          </div>
+        )}
         {user ? (
           <div className="blnav-mobile-account">
             <a href={accountHref}>{accountLabel}</a>

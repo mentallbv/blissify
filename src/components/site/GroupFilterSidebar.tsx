@@ -3,6 +3,7 @@
 import React from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import type { MerkenFacets, MerkenGroup } from '@/lib/merken-filters'
+import { CategoryPickerMenu } from './CategoryPickerMenu'
 
 /**
  * Left filter column for Vacatures and Werkruimtes, matching the course
@@ -91,7 +92,9 @@ export function GroupFilterSidebar({
         return (
           <div key={g.key} style={{ marginBottom: 26 }}>
             <span style={labelStyle}>{g.name}</span>
-            {g.multi ? (
+            {g.ui === 'mega' && g.multi ? (
+              <MegaPicker group={g} value={value} counts={facets[g.key]} onToggle={(v) => toggle(g, v)} buttonStyle={selectStyle} />
+            ) : g.multi ? (
               <div style={{ display: 'grid', gap: 9 }}>
                 {(g.options.length > 12 && !expanded[g.key] ? g.options.filter((o, i) => i < 8 || value.split(',').includes(o.value)) : g.options).map((o, i, shown) => {
                   const on = value.split(',').includes(o.value)
@@ -139,5 +142,64 @@ export function GroupFilterSidebar({
         </div>
       ) : null}
     </aside>
+  )
+}
+
+/**
+ * Round 5 #5.3: long "mega" groups (Specialisatie) open as a dropdown panel with
+ * search and A-Z index, like the Categorie filter on opleidingen, instead of a
+ * long checkbox list. Stays open while ticking several options.
+ */
+function MegaPicker({
+  group,
+  value,
+  counts,
+  onToggle,
+  buttonStyle,
+}: {
+  group: MerkenGroup
+  value: string
+  counts?: Record<string, number>
+  onToggle: (value: string) => void
+  buttonStyle: React.CSSProperties
+}) {
+  const [open, setOpen] = React.useState(false)
+  const ref = React.useRef<HTMLDivElement>(null)
+  React.useEffect(() => {
+    if (!open) return
+    const onDoc = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setOpen(false)
+    }
+    document.addEventListener('mousedown', onDoc)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDoc)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+  const selected = value.split(',').filter(Boolean)
+  const labels = selected.map((v) => group.options.find((o) => o.value === v)?.label || v)
+  const summary = labels.length === 0 ? 'Alle' : labels.length === 1 ? labels[0] : `${labels[0]} + ${labels.length - 1}`
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-expanded={open}
+        className="bl-select"
+        style={{ ...buttonStyle, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, textAlign: 'left', cursor: 'pointer', background: 'var(--surface-card)', paddingRight: 16 }}
+      >
+        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: selected.length ? 'var(--text-strong)' : 'var(--text-meta)' }}>{summary}</span>
+        <i className={`ti ti-chevron-${open ? 'up' : 'down'}`} style={{ fontSize: 15, flex: 'none', color: 'var(--text-meta)' }} />
+      </button>
+      {open ? (
+        <div style={{ position: 'absolute', top: 48, left: 0, zIndex: 50, background: 'var(--surface-card)', border: '0.5px solid var(--border-hairline)', borderRadius: 'var(--radius-md)', boxShadow: '0 12px 34px rgba(90, 105, 124,0.12)', padding: 16 }}>
+          <CategoryPickerMenu options={group.options} selected={selected} multi counts={counts} onToggle={onToggle} />
+        </div>
+      ) : null}
+    </div>
   )
 }

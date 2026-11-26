@@ -309,6 +309,8 @@ export type CourseFilterOptions = {
   cities: string[]
   /** Locatie dropdown, grouped by country (client round 2 #3.6). */
   citiesByCountry: CitiesByCountry
+  /** Published courses per Locatie option value ("be:Gent", "land:nl", "Online"); round 5 #5.1. */
+  locationCounts?: Record<string, number>
   priceMin: number
   priceMax: number
 }
@@ -336,6 +338,8 @@ export async function getCourseFilterOptions(): Promise<CourseFilterOptions> {
     const categoryCounts: Record<string, number> = {}
     const cities = new Set<string>()
     const liveByCountry = { be: [] as string[], nl: [] as string[] }
+    const locationCounts: Record<string, number> = {}
+    const bump = (k: string) => { locationCounts[k] = (locationCounts[k] || 0) + 1 }
     let min = Infinity
     let max = 0
     courses.docs.forEach((c) => {
@@ -343,7 +347,13 @@ export async function getCourseFilterOptions(): Promise<CourseFilterOptions> {
       const city = loc?.city
       if (city) {
         cities.add(city)
-        liveByCountry[loc?.country === 'nl' ? 'nl' : 'be'].push(city)
+        const land = loc?.country === 'nl' ? 'nl' : 'be'
+        liveByCountry[land].push(city)
+        if (city.trim().toLowerCase() === 'online') bump('Online')
+        else {
+          bump(`${land}:${city.trim()}`)
+          bump(`land:${land}`)
+        }
       }
       const amt = (c as Course).price?.amount
       if (typeof amt === 'number' && amt > 0) {
@@ -368,6 +378,7 @@ export async function getCourseFilterOptions(): Promise<CourseFilterOptions> {
       categoryCounts,
       cities: mergeLocations(Array.from(cities)),
       citiesByCountry: mergeLocationsByCountry(liveByCountry),
+      locationCounts,
       // A multiple of the slider step (50), so the slider can reach priceMax exactly.
       priceMin: Number.isFinite(min) ? Math.floor(min / 50) * 50 : 0,
       // Client round 2 #3.11: the slider runs to at least €2.500 (some

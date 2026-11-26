@@ -6,16 +6,16 @@ import { usePathname, useRouter } from 'next/navigation'
 
 const NAV = [
   { id: 'overview', label: 'Overzicht', icon: 'ti-layout-dashboard', href: '/dashboard' },
+  { id: 'analytics', label: 'Analytics', icon: 'ti-chart-line', href: '/dashboard/analytics' },
   { id: 'courses', label: 'Opleidingen', icon: 'ti-stack-2', href: '/dashboard/opleidingen' },
+  { id: 'collaborations', label: 'Samenwerkingen', icon: 'ti-users-group', href: '/dashboard/samenwerkingen', sub: true },
   { id: 'vacancies', label: 'Vacatures', icon: 'ti-briefcase', href: '/dashboard/vacatures' },
   { id: 'workspaces', label: 'Werkruimtes', icon: 'ti-armchair', href: '/dashboard/werkruimtes' },
   { id: 'leads', label: 'Aanvragen', icon: 'ti-inbox', href: '/dashboard/leads' },
-  { id: 'analytics', label: 'Analytics', icon: 'ti-chart-line', href: '/dashboard/analytics' },
-  { id: 'profile', label: 'Profiel', icon: 'ti-building-store', href: '/dashboard/profiel' },
   { id: 'reviews', label: 'Reviews verzamelen', icon: 'ti-star', href: '/dashboard/reviews' },
-  { id: 'collaborations', label: 'Samenwerkingen', icon: 'ti-users-group', href: '/dashboard/samenwerkingen' },
-  { id: 'subscription', label: 'Abonnement', icon: 'ti-credit-card', href: '/dashboard/abonnement' },
   { id: 'feedback', label: 'Suggesties & klachten', icon: 'ti-message-circle', href: '/dashboard/feedback' },
+  { id: 'profile', label: 'Profiel', icon: 'ti-building-store', href: '/dashboard/profiel' },
+  { id: 'subscription', label: 'Abonnement', icon: 'ti-credit-card', href: '/dashboard/abonnement' },
 ]
 
 // Inschrijvingen tab, only for Brand accounts with in-platform registration.
@@ -78,16 +78,16 @@ export function DashSidebar({
                 display: 'flex',
                 alignItems: 'center',
                 gap: 12,
-                padding: '10px 12px',
+                padding: 'sub' in n && n.sub ? '7px 12px 7px 42px' : '10px 12px',
                 borderRadius: 'var(--radius-sm)',
                 background: on ? 'rgba(225, 230, 234,0.08)' : 'transparent',
                 fontFamily: 'var(--font-ui)',
                 fontWeight: 'var(--fw-ui-regular)',
-                fontSize: 14,
+                fontSize: 'sub' in n && n.sub ? 13 : 14,
                 color: on ? 'var(--blissify-chalk)' : 'rgba(225, 230, 234,0.6)',
               }}
             >
-              <i className={'ti ' + n.icon} style={{ fontSize: 18 }} />
+              {'sub' in n && n.sub ? null : <i className={'ti ' + n.icon} style={{ fontSize: 18 }} />}
               <span style={{ flex: 1 }}>{n.label}</span>
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: on ? 'var(--blissify-terracotta)' : 'transparent' }} />
             </a>

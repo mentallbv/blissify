@@ -16,13 +16,17 @@ export function ImageUploadField({
   value,
   onChange,
   aspect = '16 / 9',
+  minSize,
 }: {
   label: string
   hint?: string
   value: UploadedImage
   onChange: (image: UploadedImage) => void
   aspect?: string
+  /** Below this size the site shows a fallback instead; warn after upload. */
+  minSize?: { width: number; height: number; message: string }
 }) {
+  const [tooSmall, setTooSmall] = React.useState(false)
   const inputRef = React.useRef<HTMLInputElement>(null)
   const [loading, setLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
@@ -131,6 +135,11 @@ export function ImageUploadField({
             const base = pending.file.name.replace(/\.[^.]+$/, '') || 'afbeelding'
             const ext = blob.type === 'image/png' ? 'png' : 'jpg'
             closeCrop()
+            if (minSize && typeof createImageBitmap === 'function') {
+              createImageBitmap(blob)
+                .then((bmp) => setTooSmall(bmp.width < minSize.width || bmp.height < minSize.height))
+                .catch(() => setTooSmall(false))
+            }
             void upload(new File([blob], `${base}.${ext}`, { type: blob.type }))
           }}
         />
@@ -138,6 +147,9 @@ export function ImageUploadField({
 
       {hint && !error ? (
         <p style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--text-meta)', margin: '6px 0 0' }}>{hint}</p>
+      ) : null}
+      {minSize && tooSmall && value && !error ? (
+        <p style={{ fontFamily: 'var(--font-ui)', fontSize: 12, lineHeight: 1.5, color: 'var(--status-warning, var(--blissify-terracotta))', margin: '6px 0 0' }}>{minSize.message}</p>
       ) : null}
       {error ? (
         <p style={{ fontFamily: 'var(--font-ui)', fontSize: 12, color: 'var(--status-error)', margin: '6px 0 0' }}>{error}</p>
